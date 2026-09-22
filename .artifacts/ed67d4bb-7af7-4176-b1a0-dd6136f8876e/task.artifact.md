@@ -1,0 +1,7 @@
+- [x] Define `DataContainer` and update `IXmlRepository.java`
+- [x] Implement `GetAllData` and `SaveAllData` in `XmlRepository.java`
+- [x] Create `XmlExportImport.kt` for XML serialization/deserialization
+- [x] Integrate Import/Export in `MainActivity.kt`
+- [x] Integrate Import/Export in `BookActivity.kt`
+- [x] Integrate Import/Export in `VideoActivity.kt`
+- [x] Verify functionality with manual tests

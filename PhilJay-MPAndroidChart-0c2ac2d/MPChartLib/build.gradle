@@ -1,0 +1,36 @@
+apply plugin: 'com.android.library'
+
+group='com.github.philjay'
+
+android {
+    namespace 'com.github.mikephil.charting'
+    compileSdkVersion 37
+    buildToolsVersion '28.0.3'
+    defaultConfig {
+        minSdkVersion 29
+        targetSdkVersion 37
+        versionCode 3
+        versionName '3.1.0'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    dataBinding {
+        enabled true
+    }
+    testOptions {
+        unitTests.returnDefaultValues = true // this prevents "not mocked" error
+    }
+}
+
+dependencies {
+    implementation 'androidx.annotation:annotation:1.0.0'
+    testImplementation 'junit:junit:4.12'
+}
+
+
+// Publishing tasks removed for compatibility with modern Gradle and AGP
+
