@@ -5,8 +5,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@color/secondary_light"
+        android:orientation="vertical"
         android:padding="16dp">
 
         <TextView
@@ -14,56 +14,81 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/add_volume"
-            android:textAppearance="?attr/textAppearanceHeadline6" />
+            android:textAppearance="?attr/textAppearanceHeadline6"
+            android:textColor="?attr/colorOnBackground" />
 
-        <ImageView
-            android:id="@+id/image_sheet_cover"
+        <androidx.cardview.widget.CardView
             android:layout_width="100dp"
             android:layout_height="140dp"
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_gallery_black_24dp"
-            app:tint="?android:attr/textColorSecondary" />
+            app:cardBackgroundColor="@color/card"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp">
 
-        <Button
+            <ImageView
+                android:id="@+id/image_sheet_cover"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@string/change_item_cover"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_gallery_black_24dp"
+                app:tint="?attr/colorPrimary" />
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_sheet_change_cover"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginTop="8dp"
             android:text="@string/change_item_cover" />
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/disc_number">
+            android:layout_marginTop="12dp"
+            android:hint="@string/disc_number"
+            app:boxBackgroundColor="@color/card"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_sheet_volume_number"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="number" />
+                android:inputType="number"
+                android:textColor="?attr/colorOnBackground" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="@string/disc_title">
+            android:layout_marginTop="12dp"
+            android:hint="@string/disc_title"
+            app:boxBackgroundColor="@color/card"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_sheet_volume_title"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnBackground" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_sheet_owned"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="12dp"
             android:text="@string/owned_label" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
@@ -75,25 +100,32 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/format_label"
+            android:layout_marginTop="12dp"
             android:labelFor="@id/dropdown_sheet_format"
-            android:textAppearance="?attr/textAppearanceCaption" />
+            android:text="@string/format_label"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?attr/colorOnBackground" />
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="4dp"
+            app:boxBackgroundColor="@color/card"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp">
 
             <AutoCompleteTextView
                 android:id="@+id/dropdown_sheet_format"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
+                android:inputType="none"
+                android:textColor="?attr/colorOnBackground" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/button_sheet_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

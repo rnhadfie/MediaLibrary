@@ -65,10 +65,10 @@ class CollectingFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 binding.recyclerviewMainCollecting.visibility = View.GONE
-                binding.emptyStateContainer.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 binding.recyclerviewMainCollecting.visibility = View.VISIBLE
-                binding.emptyStateContainer.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }

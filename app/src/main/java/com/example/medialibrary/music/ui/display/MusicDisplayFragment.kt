@@ -1,6 +1,9 @@
 package com.example.medialibrary.music.ui.display
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +25,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import android.graphics.Color
+import android.widget.Toast
 import com.example.medialibrary.Utils.SafePieChartRenderer
 
 /**
@@ -67,6 +71,21 @@ class MusicDisplayFragment : Fragment() {
             })
         }
 
+        binding.musicItemList?.setOnClickListener {
+            val cds = viewModel?.MediaItems?.value
+
+            val sortedCds = cds?.sortedBy { it.Title }
+            val cdList = buildString {
+                sortedCds?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("CD List", cdList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+
         return binding.root
     }
 
@@ -74,10 +93,10 @@ class MusicDisplayFragment : Fragment() {
         val items = bookController?.GetMusics(currentFilter) ?: emptyList()
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.scrollViewMusicDisplay.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.scrollViewMusicDisplay.visibility = View.VISIBLE
         }
 

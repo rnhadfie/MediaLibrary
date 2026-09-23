@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="@color/card"
+    app:cardCornerRadius="16dp"
     app:cardElevation="2dp">
 
     <LinearLayout
@@ -13,17 +14,17 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/image_item_cover"
             android:layout_width="60dp"
             android:layout_height="80dp"
             android:adjustViewBounds="true"
-            android:scaleType="fitCenter"
             android:contentDescription="@string/image_view_item_transform_content_description"
+            android:scaleType="fitCenter"
             android:src="@drawable/ic_gallery_black_24dp"
-            app:tint="?android:attr/textColorSecondary" />
+            app:tint="?attr/colorPrimary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -36,17 +37,18 @@
                 android:id="@+id/text_volume_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Vol 1: The Beginning"
-                android:textAppearance="?attr/textAppearanceSubtitle1" />
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textColor="@color/black"
+                tools:text="Vol 1: The Beginning" />
 
             <TextView
                 android:id="@+id/text_status_info"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                tools:text="Owned: Yes | Read: No"
                 android:textAppearance="?attr/textAppearanceCaption"
-                android:textColor="?android:attr/textColorSecondary" />
+                android:textColor="@color/black"
+                tools:text="Owned: Yes | Read: No" />
         </LinearLayout>
 
         <ImageButton
@@ -63,9 +65,9 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_delete"
             android:contentDescription="@string/delete"
-            app:tint="@android:color/holo_red_dark" />
+            android:src="@android:drawable/ic_menu_delete"
+            app:tint="@color/filter_excluded" />
 
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView>
+</androidx.cardview.widget.CardView>

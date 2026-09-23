@@ -15,10 +15,10 @@
         <item
             android:id="@+id/nav_collecting"
             android:icon="@drawable/ic_collecting"
-            android:title="Collecting" />
+            android:title="@string/collecting" />
         <item
             android:id="@+id/nav_tag"
             android:icon="@drawable/ic_tag"
-            android:title="tag" />
+            android:title="@string/tag" />
     </group>
 </menu>

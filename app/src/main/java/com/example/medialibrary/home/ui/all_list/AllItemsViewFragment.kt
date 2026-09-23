@@ -1,5 +1,8 @@
 package com.example.medialibrary.home.ui.all_list
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 
 import android.os.Bundle
@@ -7,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -16,6 +20,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.controllers.MainController
@@ -79,10 +85,10 @@ class AllItemsViewFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 binding.recyclerviewTransform.visibility = View.GONE
-                binding.emptyStateContainer.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 binding.recyclerviewTransform.visibility = View.VISIBLE
-                binding.emptyStateContainer.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }
@@ -105,6 +111,23 @@ class AllItemsViewFragment : Fragment() {
 
         binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
+        }
+
+        binding.allItemList?.setOnClickListener {
+            val books = viewModel.items.value
+
+            val sortedBooks = books?.sortedBy { it.Title }
+            val bookList = buildString {
+                sortedBooks?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+
+            //TO DO ORGANISE BY TYPE
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Book List", bookList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
         activity?.let { act ->
@@ -139,56 +162,44 @@ class AllItemsViewFragment : Fragment() {
         val sheetBinding = MainBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        // Setup adapters
-
-
-        val types = setup.MediaType.filter { it.key != 0 }
-        sheetBinding.dropdownSheetTypeBook.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types.values.toList())
-        )
-
-        val genres = setup.Genre.filter { it.key != 0 }
-        sheetBinding.dropdownSheetGenreBook.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, genres.values.toList())
-        )
-
+        val f = filter ?: Filter()
         val tags = setup.Tag
-        sheetBinding.dropdownSheetTagBook.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags.map { it.Name })
+
+        val typeOptions = setup.MediaType.filter { it.key != 0 }.map { FilterOption(Enums.MediaType.entries[it.key], it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTypeBook,
+            "Media Types",
+            typeOptions,
+            f.IncludedMediaTypes,
+            f.ExcludedMediaTypes
         )
 
-        // Populate existing filter
-        filter?.let { f ->
-            sheetBinding.switchSheetCompletedBook.isChecked = f.CompletedSeries ?: false
-            sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
-            sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
+        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTagBook,
+            "Tags",
+            tagOptions,
+            f.IncludedTags,
+            f.ExcludedTags
+        )
 
-            f.MediaType?.let {  sheetBinding.dropdownSheetTypeBook.setText(setup.MediaType[it.ordinal], false) }
+        val genreOptions = setup.Genre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetGenreBook,
+            "Genres",
+            genreOptions,
+            f.IncludedGenres,
+            f.ExcludedGenres
+        )
 
-
-            val currentTag = tags.find { it.Id == f.Tag }
-            currentTag?.let { sheetBinding.dropdownSheetTagBook.setText(it.Name, false) }
-
-            val currentGenre = setup.Genre[f.Genre]
-            currentGenre?.let { sheetBinding.dropdownSheetGenreBook.setText(it, false) }
-        }
+        sheetBinding.switchSheetCompletedBook.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
+        sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            val f = currentFilter
             f.CompletedSeries = sheetBinding.switchSheetCompletedBook.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
-
-
-            val typeStr = sheetBinding.dropdownSheetTypeBook.text.toString()
-            f.MediaType = setup.MediaType.entries.find { it.value == typeStr }?.key?.let { Enums.MediaType.entries[it] }
-
-
-            val tagStr = sheetBinding.dropdownSheetTagBook.text.toString()
-            f.Tag = tags.find { it.Name == tagStr }?.Id ?: 0
-
-            val genreStr = sheetBinding.dropdownSheetGenreBook.text.toString()
-            f.Genre = setup.Genre.entries.find { it.value == genreStr }?.key ?: 0
 
             currentFilter = f
             loadData()
@@ -196,7 +207,7 @@ class AllItemsViewFragment : Fragment() {
         }
 
         sheetBinding.buttonSheetClearBook.setOnClickListener {
-            currentFilter = BookFilter()
+            currentFilter = Filter()
             loadData()
             dialog.dismiss()
         }

@@ -1,5 +1,8 @@
 package com.example.medialibrary.music.ui.list
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -7,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -17,6 +21,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.MusicFilter
@@ -64,10 +70,10 @@ class MusicListFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 binding.recyclerviewCds.visibility = View.GONE
-                binding.emptyStateContainer.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 binding.recyclerviewCds.visibility = View.VISIBLE
-                binding.emptyStateContainer.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }
@@ -92,6 +98,21 @@ class MusicListFragment : Fragment() {
 
         binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
+        }
+
+        binding.musicItemList.setOnClickListener {
+            val cds = viewModel.items.value
+
+            val sortedCds = cds?.sortedBy { it.Title }
+            val cdList = buildString {
+                sortedCds?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Cd List", cdList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
         activity?.let { act ->
@@ -129,45 +150,33 @@ class MusicListFragment : Fragment() {
         val sheetBinding = MusicBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        // Setup adapters
-
-        val genres = setup.MusicGenre.filter { it.key != 0 }
-        sheetBinding.dropdownSheetGenreMusic.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, genres.values.toList())
-        )
-
-
-
+        val f = filter ?: MusicFilter()
         val tags = setup.Tags
-        sheetBinding.dropdownSheetTagMusic.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags.map { it.Name })
+
+        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTagMusic,
+            "Tags",
+            tagOptions,
+            f.IncludedTags,
+            f.ExcludedTags
         )
 
-        // Populate existing filter
-        filter?.let { f ->
-            sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
-            sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
+        val genreOptions = setup.MusicGenre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetGenreMusic,
+            "Music Genres",
+            genreOptions,
+            f.IncludedMusicGenres,
+            f.ExcludedMusicGenres
+        )
 
-
-
-            val currentTag = tags.find { it.Id == f.Tag }
-            currentTag?.let { sheetBinding.dropdownSheetTagMusic.setText(it.Name, false) }
-
-            val currentGenre = setup.MusicGenre[f.Genre]
-            currentGenre?.let { sheetBinding.dropdownSheetGenreMusic.setText(it, false) }
-        }
+        sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
+        sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
-            val f = currentFilter ?: MusicFilter()
             f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
-
-
-            val tagStr = sheetBinding.dropdownSheetTagMusic.text.toString()
-            f.Tag = tags.find { it.Name == tagStr }?.Id ?: 0
-
-            val genreStr = sheetBinding.dropdownSheetGenreMusic.text.toString()
-            f.Genre = setup.MusicGenre.entries.find { it.value == genreStr }?.key ?: 0
 
             currentFilter = f
             loadData()

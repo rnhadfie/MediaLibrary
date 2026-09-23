@@ -1,5 +1,8 @@
 package com.example.medialibrary.video.ui.Display
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,9 +30,9 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import android.graphics.Color
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import com.example.medialibrary.Utils.SafePieChartRenderer
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.models.book.Enums.BookType
 
 
 class VideoDisplayFragment : Fragment() {
@@ -59,6 +62,21 @@ class VideoDisplayFragment : Fragment() {
 
         loadData()
 
+        binding.videoItemList.setOnClickListener {
+            val videos = viewModel?.MediaItems?.value
+
+            val sortedVideos = videos?.sortedBy { it.Title }
+            val videoList = buildString {
+                sortedVideos?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Movies and TV Shows List", videoList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
             var lastVersion = refreshViewModel.refreshVersion
@@ -72,7 +90,7 @@ class VideoDisplayFragment : Fragment() {
             })
         }
 
-        binding.dropdownType?.setOnItemClickListener { parent, view, position, id ->
+        binding.dropdownType.setOnItemClickListener { parent, view, position, id ->
             var selectedItem = parent.getItemAtPosition(position).toString()
             selectedItem = selectedItem.replace(" ", "")
             val typeEnum = Enums.VideoType.entries.find { it.name == selectedItem }
@@ -81,7 +99,7 @@ class VideoDisplayFragment : Fragment() {
             reloadData()
         }
 
-        binding.dropdownVideoTag?.setOnItemClickListener { parent, view, position, id ->
+        binding.dropdownVideoTag.setOnItemClickListener { parent, view, position, id ->
             var selectedItem = parent.getItemAtPosition(position).toString()
             selectedItem = selectedItem.replace(" ", "")
             val typeEnum = Enums.VideoTag.entries.find { it.name == selectedItem }
@@ -98,10 +116,10 @@ class VideoDisplayFragment : Fragment() {
         val items = videoController?.GetVideos(currentFilter) ?: emptyList()
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.videoStatContainer.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.videoStatContainer.visibility = View.VISIBLE
         }
 
@@ -113,10 +131,10 @@ class VideoDisplayFragment : Fragment() {
         val items = videoController?.GetVideos(currentFilter) ?: emptyList()
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.videoStatContainer.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.videoStatContainer.visibility = View.VISIBLE
         }
 
@@ -155,8 +173,8 @@ class VideoDisplayFragment : Fragment() {
             totalDvds = book.Items?.count() ?: 0
         }
 
-        binding.videoTotalSeriesCardText.text = "Total Number of Series: " + items.count().toString()
-        binding.videoTotalCardText.text = "Total Number of Dvds & Blu-rays: " + totalDvds.toString()
+        binding.videoTotalSeriesCardText.text = getString(R.string.total_number_of_series, items.count())
+        binding.videoTotalCardText.text = getString(R.string.total_number_of_dvds, totalDvds)
 
         setupWatchedPieChart(watchedCount, totalDvds);
 
@@ -321,7 +339,7 @@ class VideoDisplayFragment : Fragment() {
         val videoTags = setup.VideoTags
         val tagDataSets = ArrayList<IBarDataSet>()
 
-        videoTags.forEach { index, tag ->
+        videoTags.forEach { (index, tag) ->
             if(Enums.VideoTag.entries[index] != Enums.VideoTag.None) {
                 val total = items.count { it.VideoTag?.ordinal == index }.toFloat()
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), total)), tag)
@@ -330,7 +348,7 @@ class VideoDisplayFragment : Fragment() {
             }
         }
 
-        binding.videoTagTypeBarChart?.let { chart ->
+        binding.videoTagTypeBarChart.let { chart ->
             chart.setNoDataText("No media types data to display")
             if (tagDataSets.isEmpty()) {
                 chart.data = null
@@ -370,7 +388,7 @@ class VideoDisplayFragment : Fragment() {
         }
 
         val barData = BarData(dataSets)
-        binding.videoTypeBarChart?.let { chart ->
+        binding.videoTypeBarChart.let { chart ->
             chart.setNoDataText("No Video type data to display")
             if (dataSets.isEmpty()) {
                 chart.data = null

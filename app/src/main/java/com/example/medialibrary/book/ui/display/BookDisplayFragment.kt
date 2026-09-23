@@ -74,7 +74,7 @@ class BookDisplayFragment : Fragment() {
             reloadData()
         }
 
-        binding.bookItemList?.setOnClickListener {
+        binding.bookItemList.setOnClickListener {
             val books = viewModel?.mediaItems?.value
 
             val sortedBooks = books?.sortedBy { it.Title }
@@ -112,10 +112,10 @@ class BookDisplayFragment : Fragment() {
         val items = bookController?.GetBooks(currentFilter) ?: emptyList()
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.bookStatsContainer?.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.bookStatsContainer?.visibility = View.VISIBLE
         }
 
@@ -131,10 +131,10 @@ class BookDisplayFragment : Fragment() {
         val items = bookController?.GetBooks(currentFilter) ?: emptyList()
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.bookStatsContainer?.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.bookStatsContainer?.visibility = View.VISIBLE
         }
 

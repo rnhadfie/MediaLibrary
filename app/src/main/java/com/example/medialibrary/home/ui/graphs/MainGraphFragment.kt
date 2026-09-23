@@ -91,10 +91,10 @@ class MainGraphFragment : Fragment() {
         val items = controller.GetMediaItems(currentFilter)
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.mainStatsContainer.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.mainStatsContainer.visibility = View.VISIBLE
         }
 

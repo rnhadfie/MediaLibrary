@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/nav_home"
-        android:icon="@drawable/ic_settings_black_24dp"
+        android:icon="@drawable/ic_display"
         android:title="@string/home" />
     <item
         android:id="@+id/nav_book"
@@ -19,7 +18,7 @@
         android:title="@string/cds" />
     <item
         android:id="@+id/nav_other"
-        android:icon="@drawable/ic_settings_black_24dp"
+        android:icon="@drawable/other_item_small"
         android:title="@string/other" />
     <item
         android:id="@+id/nav_import"

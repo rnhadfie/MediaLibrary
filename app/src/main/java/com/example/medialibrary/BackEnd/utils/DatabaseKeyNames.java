@@ -18,7 +18,7 @@ public class DatabaseKeyNames {
 
     public static final String COLUMN_ID = "Id";
     public static final String COLUMN_TITLE = "Title";
-    public static final String COLUMN_COLLECTING = "collecting";
+    public static final String COLUMN_COLLECTING = "Collecting";
     public static final String COLUMN_HAS_ENDED = "HasEnded";
     public static final String COLUMN_COMPLETED_COLLECTING = "CompletedCollecting";
     public static final String COLUMN_TAG = "Tag";

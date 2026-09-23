@@ -57,10 +57,10 @@ class MusicCollectingFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 binding.recyclerviewCds.visibility = View.GONE
-                binding.emptyStateContainer.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 binding.recyclerviewCds.visibility = View.VISIBLE
-                binding.emptyStateContainer.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }

@@ -45,6 +45,8 @@ class MusicActivity : BaseActivity<MusicActivityBinding>() {
             setupDrawer(it)
         }
 
+
+
         binding.appBarMusic.contentMusic.bottomNavView?.setupWithNavController(navController)
     }
 

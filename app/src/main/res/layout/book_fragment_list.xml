@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".book.ui.book_list.BookListFragment">
+    tools:context=".book.ui.book_list.BookListFragment"
+    android:label="@string/book_collection_list">
 
     <LinearLayout
         android:id="@+id/header_container"
@@ -29,6 +30,16 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_settings_black_24dp"
             app:tint="?attr/colorPrimary" />
+        <ImageButton
+            android:id="@+id/book_item_list"
+            android:contentDescription="@string/get_list_of_items"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:tooltipText="Get list of All visible book titles"
+            app:tint="?attr/colorPrimary"
+            />
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -39,35 +50,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/header_container" />
 
-    <LinearLayout
+    <include
         android:id="@+id/empty_state_container"
+        layout="@layout/view_empty_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_container"
-        tools:visibility="visible">
-
-        <ImageView
-            android:id="@+id/empty_state_image"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:contentDescription="@string/no_items_desc"
-            android:src="@drawable/ic_gallery_black_24dp"
-            app:tint="?android:attr/textColorSecondary" />
-
-        <TextView
-            android:id="@+id/empty_state_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/no_items_found"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?android:attr/textColorSecondary" />
-    </LinearLayout>
+        tools:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/header_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,13 @@
 package com.example.medialibrary.other.ui.display
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -45,6 +49,21 @@ class DisplayOtherFragment : Fragment() {
 
         loadData()
 
+        binding.otherItemList.setOnClickListener {
+            val collection = viewModel?.MediaItems?.value
+
+            val sortedCollections = collection?.sortedBy { it.Title }
+            val collectionList = buildString {
+                sortedCollections?.forEach { collection ->
+                    appendLine(collection.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Collection List", collectionList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
             var lastVersion = refreshViewModel.refreshVersion
@@ -65,10 +84,10 @@ class DisplayOtherFragment : Fragment() {
         val items = otherController?.GetOtherCollections(currentFilter) ?: emptyList()
 
         if (items.isEmpty()) {
-            binding.emptyStateContainer.visibility = View.VISIBLE
+            binding.emptyStateContainer.root.visibility = View.VISIBLE
             binding.scrollViewOtherDisplay.visibility = View.GONE
         } else {
-            binding.emptyStateContainer.visibility = View.GONE
+            binding.emptyStateContainer.root.visibility = View.GONE
             binding.scrollViewOtherDisplay.visibility = View.VISIBLE
         }
 

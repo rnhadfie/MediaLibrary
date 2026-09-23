@@ -1,12 +1,15 @@
 package com.example.medialibrary.video.ui.List
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -17,6 +20,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
@@ -77,15 +82,15 @@ class VideoListFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 binding.recyclerviewTransform.visibility = View.GONE
-                binding.emptyStateContainer?.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 binding.recyclerviewTransform.visibility = View.VISIBLE
-                binding.emptyStateContainer?.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }
 
-        binding.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 currentFilter?.Search = query
                 loadData()
@@ -101,12 +106,27 @@ class VideoListFragment : Fragment() {
             }
         })
         if(currentFilter == null) {currentFilter= VideoFilter()}
-        binding.buttonFilter?.setOnClickListener {
+        binding.buttonFilter.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter?: VideoFilter() ) }
         }
 
+        binding.videoItemList?.setOnClickListener {
+            val videos = viewModel.items?.value
+
+            val sortedVideos = videos?.sortedBy { it.Title }
+            val videoList = buildString {
+                sortedVideos?.forEach { video ->
+                    appendLine(video.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Movie & TV Show List", videoList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -127,9 +147,9 @@ class VideoListFragment : Fragment() {
     }
 
     private fun loadData() {
-        val items = videoController?.GetListOfVideos(currentFilter) ?: emptyList()
-        setup = videoController?.GetVideoSetup()
-        viewModel?.setItems(items)
+        val items = videoController.GetListOfVideos(currentFilter) ?: emptyList()
+        setup = videoController.GetVideoSetup()
+        viewModel.setItems(items)
     }
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
@@ -137,56 +157,53 @@ class VideoListFragment : Fragment() {
         val sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        // Setup adapters
-        val videoTags = setup.VideoTags.filter { it.key != 0 }
-        sheetBinding.dropdownSheetVideoTag.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, videoTags.values.toList())
-        )
-
-        val types = setup.Types.filter { it.key != 0 }
-        sheetBinding.dropdownSheetTypeVideo.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types.values.toList())
-        )
-
-        val genres = setup.Genre.filter { it.key != 0 }
-        sheetBinding.dropdownSheetGenreVideo.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, genres.values.toList())
-        )
-
+        val f = filter
         val tags = setup.Tag
-        sheetBinding.dropdownSheetGenreVideo.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags.map { it.Name })
+
+        val videoTagOptions = setup.VideoTags.filter { it.key != 0 }.map { FilterOption(Enums.VideoTag.entries[it.key], it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetVideoTag,
+            "Video Tags",
+            videoTagOptions,
+            f.IncludedVideoTags,
+            f.ExcludedVideoTags
         )
 
-        // Populate existing filter
-        sheetBinding.switchSheetCompletedVideo.isChecked = filter.CompletedSeries ?: false
-        sheetBinding.switchSheetCollectedVideo.isChecked = filter.Collecting ?: false
-        sheetBinding.switchSheetStartedVideo.isChecked = filter.AnyOwned ?: false
+        val typeOptions = setup.Types.filter { it.key != 0 }.map { FilterOption(Enums.VideoType.entries[it.key], it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTypeVideo,
+            "Video Types",
+            typeOptions,
+            f.IncludedTypes,
+            f.ExcludedTypes
+        )
 
-        filter.Type?.let { if (it != Enums.VideoType.NoneSelected) sheetBinding.dropdownSheetTypeVideo.setText(setup.Types[it.ordinal], false) }
+        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTagVideo,
+            "Tags",
+            tagOptions,
+            f.IncludedTags,
+            f.ExcludedTags
+        )
 
+        val genreOptions = setup.Genre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetGenreVideo,
+            "Genres",
+            genreOptions,
+            f.IncludedGenres,
+            f.ExcludedGenres
+        )
 
-        tags.find { it.Id == filter.Tag }?.let { sheetBinding.dropdownSheetTagVideo.setText(it.Name, false) }
-        setup.Genre[filter.Genre]?.let { sheetBinding.dropdownSheetGenreVideo.setText(it, false) }
+        sheetBinding.switchSheetCompletedVideo.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCollectedVideo.isChecked = f.Collecting ?: false
+        sheetBinding.switchSheetStartedVideo.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            filter.CompletedSeries = sheetBinding.switchSheetCompletedVideo.isChecked
-            filter.Collecting = sheetBinding.switchSheetCollectedVideo.isChecked
-            filter.AnyOwned = sheetBinding.switchSheetStartedVideo.isChecked
-
-            val typeStr = sheetBinding.dropdownSheetTypeVideo.text.toString()
-            filter.Type = setup.Types.entries.find { it.value == typeStr }?.key?.let { Enums.VideoType.values()[it] }
-
-
-            val tagStr = sheetBinding.dropdownSheetTagVideo.text.toString()
-            filter.Tag = tags.find { it.Name == tagStr }?.Id ?: 0
-
-            val genreStr = sheetBinding.dropdownSheetGenreVideo.text.toString()
-            filter.Genre = setup.Genre.entries.find { it.value == genreStr }?.key ?: 0
-
-            val videoTagStr = sheetBinding.dropdownSheetVideoTag.text.toString()
-            filter.VideoTag = Enums.VideoTag.entries[tags.find { it.Name == videoTagStr }?.Id ?: 0]
-
+            f.CompletedSeries = sheetBinding.switchSheetCompletedVideo.isChecked
+            f.Collecting = sheetBinding.switchSheetCollectedVideo.isChecked
+            f.AnyOwned = sheetBinding.switchSheetStartedVideo.isChecked
 
             loadData()
             dialog.dismiss()
@@ -220,9 +237,9 @@ class VideoListFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
             }
 
             holder.itemView.setOnClickListener {
@@ -233,7 +250,7 @@ class VideoListFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, VideoFormActivity::class.java).apply {
                     putExtra("EXTRA_ID", item.Id)
@@ -241,7 +258,7 @@ class VideoListFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
                 var videoController = VideoController(dbHelper)
 

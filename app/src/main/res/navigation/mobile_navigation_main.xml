@@ -25,6 +25,6 @@
     <fragment
         android:id="@+id/nav_tag"
         android:name="com.example.medialibrary.home.ui.tag.TagListFragment"
-        android:label="tag"
+        android:label="@string/tag"
         tools:layout="@layout/book_fragment_collecting" />
 </navigation>

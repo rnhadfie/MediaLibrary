@@ -106,8 +106,20 @@ public class BookService {
                 if (filter.AnyOwned != null && book.CurrentOwnAny != filter.AnyOwned) {
                     continue;
                 }
-                if (filter.PrimaryFormat != null && (book.Items == null || GetCommonBookFormat(book.Items) != filter.PrimaryFormat)) {
-                    continue;
+                Enums.BookFormat commonFormat = book.Items != null ? GetCommonBookFormat(book.Items) : null;
+                if (filter.IncludedFormats != null && !filter.IncludedFormats.isEmpty()) {
+                    if (commonFormat == null || !filter.IncludedFormats.contains(commonFormat)) {
+                        continue;
+                    }
+                } else if (filter.PrimaryFormat != null && filter.PrimaryFormat != Enums.BookFormat.NoneSelected) {
+                    if (commonFormat != filter.PrimaryFormat) {
+                        continue;
+                    }
+                }
+                if (filter.ExcludedFormats != null && !filter.ExcludedFormats.isEmpty()) {
+                    if (commonFormat != null && filter.ExcludedFormats.contains(commonFormat)) {
+                        continue;
+                    }
                 }
             }
             filteredList.add(book);

@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.OtherFilter
@@ -70,10 +72,10 @@ class OtherListFragment : Fragment() {
         viewModel.items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 binding.recyclerviewOther.visibility = View.GONE
-                binding.emptyStateContainer.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 binding.recyclerviewOther.visibility = View.VISIBLE
-                binding.emptyStateContainer.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }
@@ -130,35 +132,26 @@ class OtherListFragment : Fragment() {
         val sheetBinding = OtherBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        // Setup adapters
-
+        val f = filter ?: OtherFilter()
         val tags = setup.Tag
-        sheetBinding.dropdownSheetTagOther.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags.map { it.Name })
+
+        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTagOther,
+            "Tags",
+            tagOptions,
+            f.IncludedTags,
+            f.ExcludedTags
         )
 
-        // Populate existing filter
-        filter?.let { f ->
-            sheetBinding.switchSheetCompletedOther.isChecked = f.CompletedSeries ?: false
-            sheetBinding.switchSheetCollectedOther.isChecked = f.Collecting ?: false
-            sheetBinding.switchSheetStartedOther.isChecked = f.AnyOwned ?: false
-
-            val currentTag = tags.find { it.Id == f.Tag }
-            currentTag?.let { sheetBinding.dropdownSheetTagOther.setText(it.Name, false) }
-
-
-        }
+        sheetBinding.switchSheetCompletedOther.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCollectedOther.isChecked = f.Collecting ?: false
+        sheetBinding.switchSheetStartedOther.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
-            val f = currentFilter
             f.CompletedSeries = sheetBinding.switchSheetCompletedOther.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedOther.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedOther.isChecked
-
-
-            val tagStr = sheetBinding.dropdownSheetTagOther.text.toString()
-            f.Tag = tags.find { it.Name == tagStr }?.Id ?: 0
-
 
             currentFilter = f
             loadData()
