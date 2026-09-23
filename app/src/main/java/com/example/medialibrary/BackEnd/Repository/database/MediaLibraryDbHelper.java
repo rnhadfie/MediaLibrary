@@ -1,11 +1,10 @@
 package com.example.medialibrary.backend.repository.database;
 
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.*;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.example.medialibrary.backend.repository.database.DatabaseKeyNames;
 
 public class MediaLibraryDbHelper extends SQLiteOpenHelper {
 

@@ -1,14 +1,15 @@
 package com.example.medialibrary.other.ui.list
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
-import com.example.medialibrary.backend.models.other.OtherFitler
+import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
@@ -26,6 +27,8 @@ import com.example.medialibrary.databinding.OtherFragmentListBinding
 import com.example.medialibrary.databinding.ItemTransformBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.example.medialibrary.databinding.OtherBottomSheetBinding
+import com.example.medialibrary.other.OtherFormActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class OtherListFragment : Fragment() {
@@ -33,19 +36,19 @@ class OtherListFragment : Fragment() {
     private var _binding: OtherFragmentListBinding? = null
     private val binding get() = _binding!!
 
-    private var currentFilter = OtherFitler()
+    private var currentFilter = OtherFilter()
 
-    private var controller: OtherController = OtherController();
-    private var viewModel: OtherListViewModel = OtherListViewModel();
+    private var controller: OtherController = OtherController()
+    private var viewModel: OtherListViewModel = OtherListViewModel()
 
-    private var setup: MainSetup = MainSetup();
+    private var setup: MainSetup = MainSetup()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(OtherListViewModel::class.java)
+        viewModel = ViewModelProvider(this)[OtherListViewModel::class.java]
         _binding = OtherFragmentListBinding.inflate(inflater, container, false)
         val root = binding.root
 
@@ -58,7 +61,7 @@ class OtherListFragment : Fragment() {
         controller = OtherController(dbHelper)
 
         fun loadData() {
-            val items = controller.GetListOfOtherCollections(currentFilter);
+            val items = controller.GetListOfOtherCollections(currentFilter)
             viewModel.setItems(items ?: emptyList())
         }
 
@@ -75,7 +78,7 @@ class OtherListFragment : Fragment() {
             }
         }
 
-        binding.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 currentFilter.Search = query
                 loadData()
@@ -84,16 +87,19 @@ class OtherListFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 currentFilter.Search = newText
+                if (newText.isNullOrEmpty()) {
+                    loadData()
+                }
                 return true
             }
         })
 
-        binding.buttonFilter?.setOnClickListener {
+        binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -114,15 +120,12 @@ class OtherListFragment : Fragment() {
     }
 
     private fun loadData() {
-        if (currentFilter == null) {
-            currentFilter = OtherFitler()
-        }
         val items = controller.GetListOfOtherCollections(currentFilter)
         setup = controller.GetSetup()
         viewModel.setItems(items ?: emptyList())
     }
 
-    private fun showFilterSheet(setup: MainSetup, filter: OtherFitler?) {
+    private fun showFilterSheet(setup: MainSetup, filter: OtherFilter?) {
         val dialog = BottomSheetDialog(requireContext())
         val sheetBinding = OtherBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
@@ -147,7 +150,7 @@ class OtherListFragment : Fragment() {
         }
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
-            val f = currentFilter ?: OtherFitler()
+            val f = currentFilter
             f.CompletedSeries = sheetBinding.switchSheetCompletedOther.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedOther.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedOther.isChecked
@@ -163,7 +166,7 @@ class OtherListFragment : Fragment() {
         }
 
         sheetBinding.buttonSheetClearOther.setOnClickListener {
-            currentFilter = OtherFitler()
+            currentFilter = OtherFilter()
             loadData()
             dialog.dismiss()
         }
@@ -191,9 +194,47 @@ class OtherListFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
+            }
+
+            holder.itemView.setOnClickListener {
+                val context = holder.itemView.context
+                val intent = Intent(context, OtherFormActivity::class.java).apply {
+                    putExtra("EXTRA_ID", item.Id)
+                    putExtra("EXTRA_IS_EDIT", true)
+                }
+                context.startActivity(intent)
+            }
+            holder.binding.mediaItemEditItem.setOnClickListener {
+                val context = holder.itemView.context
+                val intent = Intent(context, OtherFormActivity::class.java).apply {
+                    putExtra("EXTRA_ID", item.Id)
+                    putExtra("EXTRA_IS_EDIT", true)
+                }
+                context.startActivity(intent)
+            }
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
+                val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
+                val controller = OtherController(dbHelper)
+
+                MaterialAlertDialogBuilder(holder.itemView.context)
+                    .setTitle("Confirm Action")
+                    .setMessage("Are you sure you want to delete this Book Series?")
+                    .setCancelable(false) // Prevents closing by tapping outside
+                    .setPositiveButton("Confirm") { dialog, _ ->
+                        controller.DeleteOther(item.Id)
+                        (holder.itemView.context as? FragmentActivity)?.let { act ->
+                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
+                            act.finish()
+                        }
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancel") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
             }
         }
     }

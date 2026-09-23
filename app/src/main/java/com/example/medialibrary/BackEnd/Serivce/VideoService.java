@@ -1,26 +1,17 @@
 package com.example.medialibrary.backend.Serivce;
 
 import com.example.medialibrary.backend.models.video.Enums.*;
-import com.example.medialibrary.backend.models.book.Publisher;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
-import com.example.medialibrary.backend.models.shared.Enums;
 import com.example.medialibrary.backend.models.video.Video;
 import com.example.medialibrary.backend.models.video.VideoFilter;
 import com.example.medialibrary.backend.models.video.VideoSaveObject;
 import com.example.medialibrary.backend.models.video.VideoSetup;
-import com.example.medialibrary.backend.repository.BookRepository;
 import com.example.medialibrary.backend.repository.VideoRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
@@ -38,16 +29,24 @@ public class VideoService {
 
     public List<Video> GetVideos(VideoFilter filter) {
         var repo = this.videoRepository.getValue();
-        List<Video> videos = repo.GetVideos(filter);
-        return videos;
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);
+
+        List<Video> videos = repo.GetVideos(whereClause, selectionArgs);
+        return VideoItemBasedFilters(videos, filter);
     }
 
     public List<DisplayMediaItem> GetVideoDisplayLists(VideoFilter filter) {
         var repo = this.videoRepository.getValue();
-        var videos =repo.GetVideos(filter);
         var sharedService = this.sharedService.getValue();
 
-        return sharedService.mapToDisplayItems(videos);
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+
+        List<Video> videos = repo.GetVideos(whereClause, selectionArgs);
+
+
+        return sharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter));
     }
 
 
@@ -94,7 +93,7 @@ public class VideoService {
             formatMap.put(format.ordinal(), sharedService.GetSeperatedString(format.toString()));
         }
         return formatMap;
-    };
+    }
 
 
 
@@ -106,7 +105,7 @@ public class VideoService {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
-    };
+    }
 
     public Map<Integer,String> GetVideoTags() {
         var sharedService = this.sharedService.getValue();
@@ -116,6 +115,37 @@ public class VideoService {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
-    };
+    }
+
+    public List<Video> VideoItemBasedFilters(List<Video> listOfVideos, VideoFilter filter)
+    {
+        if (listOfVideos == null || listOfVideos.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Video> filteredList = new ArrayList<>();
+        for (Video video : listOfVideos) {
+            if (video.Items != null && !video.Items.isEmpty()) {
+                boolean hasOwned = false;
+                for (var item : video.Items) {
+                    if (item.Owned) {
+                        hasOwned = true;
+                        break;
+                    }
+                }
+                video.CurrentOwnAny = hasOwned;
+            } else {
+                video.CurrentOwnAny = true;
+            }
+
+            if (filter != null && filter.AnyOwned != null && video.CurrentOwnAny != filter.AnyOwned) {
+                continue;
+            }
+
+            filteredList.add(video);
+        }
+
+        return filteredList;
+    }
 
 }

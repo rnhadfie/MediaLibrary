@@ -25,7 +25,7 @@ class OtherFormActivity : AppCompatActivity() {
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, VideoFormFragment.newInstance(videoId, isEdit))
+                .replace(R.id.main, OtherFormFragment.newInstance(videoId, isEdit))
                 .commitNow()
         }
     }

@@ -2,8 +2,6 @@ package com.example.medialibrary.music
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -11,7 +9,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.medialibrary.R
-import com.google.android.material.navigation.NavigationView
 
 import com.example.medialibrary.BaseActivity
 
@@ -27,7 +24,7 @@ class MusicActivity : BaseActivity<MusicActivityBinding>() {
         setContentView(binding.root)
         setSupportActionBar(binding.appBarMusic.toolbar)
 
-        binding.appBarMusic.fab?.setOnClickListener { view ->
+        binding.appBarMusic.fab?.setOnClickListener { _ ->
             val intent = Intent(this, MusicFormActivity::class.java)
             startActivity(intent)
         }
@@ -36,26 +33,19 @@ class MusicActivity : BaseActivity<MusicActivityBinding>() {
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_music) as NavHostFragment?)!!
         val navController = navHostFragment.navController
 
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_display, R.id.nav_list, R.id.nav_collecting
+            ),
+            binding.drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
         binding.navView?.let {
-            appBarConfiguration = AppBarConfiguration(
-                setOf(
-                    R.id.nav_display, R.id.nav_list, R.id.nav_collecting
-                ),
-                binding.drawerLayout
-            )
-            setupActionBarWithNavController(navController, appBarConfiguration)
-            it.setupWithNavController(navController)
+            setupDrawer(it)
         }
 
-        binding.appBarMusic.contentMusic.bottomNavView?.let {
-            appBarConfiguration = AppBarConfiguration(
-                setOf(
-                    R.id.nav_display, R.id.nav_list, R.id.nav_collecting
-                )
-            )
-            setupActionBarWithNavController(navController, appBarConfiguration)
-            it.setupWithNavController(navController)
-        }
+        binding.appBarMusic.contentMusic.bottomNavView?.setupWithNavController(navController)
     }
 
 

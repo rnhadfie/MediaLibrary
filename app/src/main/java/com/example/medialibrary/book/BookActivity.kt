@@ -23,11 +23,8 @@ class BookActivity : BaseActivity<BookActivityBinding>() {
     private val formLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
+        if (result.resultCode == RESULT_OK) {
             val data = result.data
-            //reloadData()
-
-
         }
     }
 
@@ -37,7 +34,7 @@ class BookActivity : BaseActivity<BookActivityBinding>() {
         setContentView(binding.root)
         setSupportActionBar(binding.appBarBook.toolbar)
 
-        binding.appBarBook.fab?.setOnClickListener { view ->
+        binding.appBarBook.fab?.setOnClickListener { _ ->
 
 
 
@@ -49,26 +46,19 @@ class BookActivity : BaseActivity<BookActivityBinding>() {
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_book) as NavHostFragment?)!!
         val navController = navHostFragment.navController
 
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_display, R.id.nav_list, R.id.nav_collecting, R.id.nav_publisher, R.id.nav_tag
+            ),
+            binding.drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
         binding.navView?.let {
-            appBarConfiguration = AppBarConfiguration(
-                setOf(
-                    R.id.nav_display, R.id.nav_list,  R.id.nav_collecting, R.id.nav_publisher, R.id.nav_tag
-                ),
-                binding.drawerLayout
-            )
-            setupActionBarWithNavController(navController, appBarConfiguration)
-            it.setupWithNavController(navController)
+            setupDrawer(it)
         }
 
-        binding.appBarBook.contentBook.bottomNavView?.let {
-            appBarConfiguration = AppBarConfiguration(
-                setOf(
-                    R.id.nav_display, R.id.nav_list,  R.id.nav_collecting, R.id.nav_publisher, R.id.nav_tag
-                )
-            )
-            setupActionBarWithNavController(navController, appBarConfiguration)
-            it.setupWithNavController(navController)
-        }
+        binding.appBarBook.contentBook.bottomNavView?.setupWithNavController(navController)
     }
 
 

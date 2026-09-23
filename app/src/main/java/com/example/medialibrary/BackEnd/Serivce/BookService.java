@@ -26,14 +26,23 @@ public class BookService {
 
     public List<Book> GetBooks(BookFilter filter) {
         var repo = this.bookRepository.getValue();
-        List<Book> books = repo.GetBooks(filter);
+
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.getValue().BuildWhereClause(filter, selectionArgs);
+
+        List<Book> books = repo.GetBooks(whereClause, selectionArgs);
         return BookItemBasedFilters(books, filter);
     }
 
     public List<DisplayMediaItem> GetBookDisplayLists(BookFilter filter) {
         var repo = this.bookRepository.getValue();
-        var books =repo.GetBooks(filter);
+
         var sharedService = this.sharedService.getValue();
+
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+
+        List<Book> books = repo.GetBooks(whereClause, selectionArgs);
 
         return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter));
     }
@@ -72,28 +81,36 @@ public class BookService {
         return bookSetup;
     }
 
-    public List<Book> BookItemBasedFilters(List<Book> listOfBooks, BookFilter fitler)
+    public List<Book> BookItemBasedFilters(List<Book> listOfBooks, BookFilter filter)
     {
-        List<Book> filteredList = new ArrayList<Book>();
-        if(listOfBooks.stream().count() > 0) {
-            for (Book book : listOfBooks) {
-                if(book.Items != null) {
-                    book.CurrentOwnAny = book.Items.stream().count() <= 0 || book.Items.stream().anyMatch(x -> x.Owned);
+        if (listOfBooks == null || listOfBooks.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<Book> filteredList = new ArrayList<>();
+        for (Book book : listOfBooks) {
+            if (book.Items != null && !book.Items.isEmpty()) {
+                boolean hasOwned = false;
+                for (BookItem item : book.Items) {
+                    if (item.Owned) {
+                        hasOwned = true;
+                        break;
+                    }
                 }
-                else {
-                    book.CurrentOwnAny = false;
-                }
-                filteredList.add(book);
+                book.CurrentOwnAny = hasOwned;
+            } else {
+                book.CurrentOwnAny = true; // Match stream logic: count() <= 0 || anyMatch(Owned) -> true if count is 0
             }
 
-            if (fitler != null) {
-                if (fitler.AnyOwned != null) {
-                    filteredList = filteredList.stream().filter(book -> book.CurrentOwnAny == fitler.AnyOwned).collect(Collectors.toList());
+            if (filter != null) {
+                if (filter.AnyOwned != null && book.CurrentOwnAny != filter.AnyOwned) {
+                    continue;
                 }
-                if (fitler.PrimaryFormat != null) {
-                    filteredList = filteredList.stream().filter(book -> GetCommonBookFormat(book.Items) == fitler.PrimaryFormat).collect(Collectors.toList());
+                if (filter.PrimaryFormat != null && (book.Items == null || GetCommonBookFormat(book.Items) != filter.PrimaryFormat)) {
+                    continue;
                 }
             }
+            filteredList.add(book);
         }
 
         return filteredList;
@@ -108,7 +125,7 @@ public class BookService {
             formatMap.put(format.ordinal(), sharedService.GetSeperatedString(format.toString()));
         }
         return formatMap;
-    };
+    }
 
 
     public Map<Integer,String> GetBookTypes() {
@@ -119,7 +136,7 @@ public class BookService {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
-    };
+    }
 
     public List<Publisher> GetPublishers() {
         var repo = this.bookRepository.getValue();
@@ -141,7 +158,7 @@ public class BookService {
         return repo.DeletePublisher(id);
     }
 
-    private Enums.BookFormat GetCommonBookFormat(List<BookItem> items) {
+    public Enums.BookFormat GetCommonBookFormat(List<BookItem> items) {
         Optional<Enums.BookFormat> mostCommonCity = items.stream()
                 .map(BookItem::getFormat) // 1. Extract the property
                 .filter(Objects::nonNull) // Optional: filter out nulls

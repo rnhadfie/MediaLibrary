@@ -1,0 +1,27 @@
+package com.example.medialibrary.backend.Serivce.main;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+import com.example.medialibrary.backend.Serivce.MainService;
+import com.example.medialibrary.backend.Serivce.SharedService;
+import com.example.medialibrary.backend.models.shared.Enums;
+import java.util.Map;
+import org.junit.Test;
+
+import kotlin.LazyKt;
+
+public class MainGetGenresTest {
+    @Test
+    public void testMainGetGenres() {
+        SharedService sharedService = mock(SharedService.class);
+        when(sharedService.GetSeperatedString(anyString())).thenAnswer(i -> i.getArguments()[0]);
+        
+        MainService service = new MainService(null);
+        service.sharedService = LazyKt.lazy(() -> sharedService);
+        
+        Map<Integer, String> genres = service.GetGenres();
+        assertNotNull(genres);
+        assertTrue(genres.containsKey(Enums.Genre.Action.ordinal()));
+    }
+}

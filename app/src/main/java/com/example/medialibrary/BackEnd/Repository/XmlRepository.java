@@ -1,6 +1,6 @@
 package com.example.medialibrary.backend.repository;
 
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.*;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import android.database.sqlite.SQLiteDatabase;
 import com.example.medialibrary.backend.models.book.*;
@@ -39,17 +39,17 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
         container.Publishers = bookRepository.GetPublishers();
         
         container.Books = new ArrayList<>();
-        for (Book b : bookRepository.GetBooks(null)) {
+        for (Book b : bookRepository.GetBooks()) {
             container.Books.add(bookRepository.GetBook(b.Id));
         }
         
         container.Videos = new ArrayList<>();
-        for (Video v : videoRepository.GetVideos(null)) {
+        for (Video v : videoRepository.GetVideos()) {
             container.Videos.add(videoRepository.GetVideo(v.Id));
         }
         
-        container.Music = musicRepository.GetMusic(null);
-        container.Others = otherRepository.GetOtherCollections(null);
+        container.Music = musicRepository.GetMusic();
+        container.Others = otherRepository.GetOtherCollections();
         
         return container;
     }

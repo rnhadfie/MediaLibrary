@@ -25,18 +25,27 @@ public class OtherService {
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
     }
 
-    public List<Other> GetBooks(Filter filter) {
+    public List<Other> GetOtherCollections(Filter filter) {
         var repo = this.otherRepository.getValue();
-        List<Other> books = repo.GetOtherCollections(filter);
-        return OtherItemBasedFilters(books, filter);
-    }
-
-    public List<DisplayMediaItem> GetBookDisplayLists(Filter filter) {
-        var repo = this.otherRepository.getValue();
-        var books =repo.GetOtherCollections(filter);
         var sharedService = this.sharedService.getValue();
 
-        return sharedService.mapToDisplayItems(OtherItemBasedFilters(books, filter));
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+
+        var otherCollections =repo.GetOtherCollections(whereClause, selectionArgs);
+        return OtherItemBasedFilters(otherCollections, filter);
+    }
+
+    public List<DisplayMediaItem> GetOtherDisplayLists(Filter filter) {
+        var repo = this.otherRepository.getValue();
+        var sharedService = this.sharedService.getValue();
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+
+        var otherCollections =repo.GetOtherCollections(whereClause, selectionArgs);
+
+
+        return sharedService.mapToDisplayItems(OtherItemBasedFilters(otherCollections, filter));
     }
 
 
@@ -62,13 +71,13 @@ public class OtherService {
     }
 
 
-    public List<Other> OtherItemBasedFilters(List<Other> listOfOtherCollections, Filter fitler)
+    public List<Other> OtherItemBasedFilters(List<Other> listOfOtherCollections, Filter filter)
     {
-        List<Other> filteredList = new ArrayList<Other>();
-        if(listOfOtherCollections.stream().count() > 0) {
+        List<Other> filteredList = new ArrayList<>();
+        if((long) listOfOtherCollections.size() > 0) {
             for (Other otherCollection : listOfOtherCollections) {
                 if(otherCollection.Items != null) {
-                    otherCollection.CurrentOwnAny = otherCollection.Items.stream().count() <= 0 || otherCollection.Items.stream().anyMatch(x -> x.Owned);
+                    otherCollection.CurrentOwnAny = (long) otherCollection.Items.size() <= 0 || otherCollection.Items.stream().anyMatch(x -> x.Owned);
                 }
                 else {
                     otherCollection.CurrentOwnAny = false;
@@ -76,9 +85,9 @@ public class OtherService {
                 filteredList.add(otherCollection);
             }
 
-            if (fitler != null) {
-                if (fitler.AnyOwned != null) {
-                    filteredList = filteredList.stream().filter(book -> book.CurrentOwnAny == fitler.AnyOwned).collect(Collectors.toList());
+            if (filter != null) {
+                if (filter.AnyOwned != null) {
+                    filteredList = filteredList.stream().filter(book -> book.CurrentOwnAny == filter.AnyOwned).collect(Collectors.toList());
                 }
             }
         }

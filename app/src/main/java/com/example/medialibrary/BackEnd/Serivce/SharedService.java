@@ -1,15 +1,28 @@
 package com.example.medialibrary.backend.Serivce;
 
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_ARTIST;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_AUTHOR;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COLLECTING;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COMPLETED_COLLECTING;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_GENRE;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_PUBLISHER;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TAG;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TITLE;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TYPE;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_VIDEO_TAG;
 import static java.util.stream.Collectors.toList;
 
 import com.example.medialibrary.backend.models.book.Book;
+import com.example.medialibrary.backend.models.book.BookFilter;
 import com.example.medialibrary.backend.models.music.Music;
 import com.example.medialibrary.backend.models.other.Other;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.models.shared.Enums;
+import com.example.medialibrary.backend.models.shared.Filter;
 import com.example.medialibrary.backend.models.shared.MediaItem;
 import com.example.medialibrary.backend.models.shared.Tag;
 import com.example.medialibrary.backend.models.video.Video;
+import com.example.medialibrary.backend.models.video.VideoFilter;
 import com.example.medialibrary.backend.repository.SharedRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
@@ -77,15 +90,11 @@ public class SharedService {
     }
 
     public <T extends MediaItem> MediaItem mapToMediaItem(T item) {
-        return (MediaItem) item;
+        return item;
     }
 
     public List<Tag> GetTags() {
         return sharedRepository.getValue().GetTags();
-    }
-
-    public Tag GetTag(int id) {
-        return sharedRepository.getValue().GetTag(id);
     }
 
     public boolean AddTag(Tag tag) {
@@ -102,15 +111,14 @@ public class SharedService {
 
     public String GetSeperatedString(String inputString)
     {
-        String result = inputString.replaceAll(
+        return inputString.replaceAll(
                 String.format("%s|%s|%s",
                         "(?<=[A-Z])(?=[A-Z][a-z])",
-                        "(?<=[^A-Z])(?=[A-Z])",
-                        "(?<=[A-Za-z])(?=[^A-Za-z])"
+                        "(?<=[^A-Z\\s])(?=[A-Z])",
+                        "(?<=[A-Za-z])(?=[^A-Za-z\\s])"
                 ),
                 " "
         );
-        return result;
     }
 
     public <T> T FindMostCommon(List<T> list) {
@@ -142,7 +150,94 @@ public class SharedService {
             genreMap.put(genre.ordinal(), GetSeperatedString(genre.toString()));
         }
         return genreMap;
-    };
+    }
+
+    public <T extends Filter> String BuildWhereClause(T filter, List<String> selectionArgs) {
+        if (filter == null) {
+            return "";
+        }
+
+        List<String> conditions = new ArrayList<>();
+
+        // region common filters
+
+        if (filter.Collecting != null) {
+            conditions.add(COLUMN_COLLECTING + " = ?");
+            selectionArgs.add(filter.Collecting ? "1" : "0");
+        }
+
+        if (filter.CompletedCollecting != null) {
+            conditions.add(COLUMN_COMPLETED_COLLECTING + " = ?");
+            selectionArgs.add(filter.CompletedCollecting ? "1" : "0");
+        }
+
+        if (filter.Tag > 0) {
+            conditions.add(COLUMN_TAG + " = ?");
+            selectionArgs.add(String.valueOf(filter.Tag));
+        }
+
+        if (filter.Search != null && !filter.Search.isEmpty()) {
+            if (filter.MediaType == Enums.MediaType.Book) {
+                conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_AUTHOR + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
+                selectionArgs.add("%" + filter.Search + "%");
+                selectionArgs.add("%" + filter.Search + "%");
+                selectionArgs.add("%" + filter.Search + "%");
+            } else if (filter.MediaType == Enums.MediaType.Music) {
+                conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
+                selectionArgs.add("%" + filter.Search + "%");
+                selectionArgs.add("%" + filter.Search + "%");
+            } else {
+                conditions.add(COLUMN_TITLE + " LIKE ?");
+                selectionArgs.add("%" + filter.Search + "%");
+            }
+        }
+
+        if (filter.Genre > 0) {
+            conditions.add(COLUMN_GENRE + " LIKE ?");
+            selectionArgs.add("%" + filter.Genre + "%");
+        }
+
+
+
+        //endregion
+
+        //region Books
+
+        if(filter instanceof BookFilter) {
+            var bFilter = (BookFilter) filter;
+            if(bFilter.Type != null && bFilter.Type != com.example.medialibrary.backend.models.book.Enums.BookType.NoneSelected)
+            {
+                conditions.add(COLUMN_TYPE + " = ?");
+                selectionArgs.add(String.valueOf(bFilter.Type.ordinal()));
+            }
+            if(bFilter.Publisher > 0)
+            {
+                conditions.add(COLUMN_PUBLISHER + " = ?");
+                selectionArgs.add(String.valueOf(bFilter.Publisher));
+            }
+
+        }
+
+        //endregion
+
+        //region video
+        if(filter instanceof VideoFilter) {
+            var vFilter = (VideoFilter) filter;
+            if (vFilter.Type != null && vFilter.Type != com.example.medialibrary.backend.models.video.Enums.VideoType.NoneSelected) {
+                conditions.add(COLUMN_TYPE + " = ?");
+                selectionArgs.add(String.valueOf(vFilter.Type.ordinal()));
+            }
+
+            if (vFilter.VideoTag != null && vFilter.VideoTag != com.example.medialibrary.backend.models.video.Enums.VideoTag.None) {
+                conditions.add(COLUMN_VIDEO_TAG + " = ?");
+                selectionArgs.add(String.valueOf(vFilter.VideoTag.ordinal()));
+            }
+        }
+
+        //endregion
+
+        return conditions.isEmpty() ? null : String.join(" AND ", conditions);
+    }
 
 
 }

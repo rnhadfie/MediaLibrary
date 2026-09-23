@@ -12,12 +12,12 @@ class BookDisplayViewModel : ViewModel() {
     }
     val text: LiveData<String> = _text
 
-    private val _MediaItems = MutableLiveData<List<MediaItem>>().apply {
+    private val _mediaItems = MutableLiveData<List<MediaItem>>().apply {
         value = null
     }
-    val MediaItems: LiveData<List<MediaItem>> = _MediaItems
+    val mediaItems: LiveData<List<MediaItem>> = _mediaItems
 
     fun setMediaItems(items: List<MediaItem>) {
-        _MediaItems.value = items
+        _mediaItems.value = items
     }
 }

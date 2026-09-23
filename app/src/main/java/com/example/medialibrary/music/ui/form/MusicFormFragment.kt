@@ -1,6 +1,5 @@
 package com.example.medialibrary.music.ui.form
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -124,7 +123,7 @@ class MusicFormFragment : Fragment() {
                     }
 
                     if(result) {
-                        ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                         Toast.makeText(
                             requireContext(),
                             if (isEdit) "Cd Updated" else "Cd Saved",
@@ -170,7 +169,7 @@ class MusicFormFragment : Fragment() {
     }
 
     private fun setupMusicGenreRadioGroup() {
-        MusicGenre.values().forEach { type ->
+        MusicGenre.entries.forEach { type ->
             if (type == MusicGenre.NoneSelected) return@forEach
             val rb = RadioButton(requireContext()).apply {
                 id = View.generateViewId()
@@ -178,18 +177,17 @@ class MusicFormFragment : Fragment() {
                 tag = type
             }
             binding.radioGroupMusicGenre.addView(rb)
-            if (type == MusicGenre.NoneSelected) rb.isChecked = true
         }
 
         binding.radioGroupMusicGenre.setOnCheckedChangeListener { group, checkedId ->
             val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateBookType(rb.tag as MusicGenre)
+            viewModel.updateMusicGenre(rb.tag as MusicGenre)
         }
     }
 
     private fun setupTagSelection(setup: MusicSetup) {
         val tags = setup.Tags
-        val adapter = ArrayAdapter(requireContext(), R.layout.simple_dropdown_item_1line, tags)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.musicTagAutocomplete.setAdapter(adapter)
 
         binding.musicTagAutocomplete.setOnItemClickListener { _, _, position, _ ->

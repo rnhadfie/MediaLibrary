@@ -19,7 +19,7 @@
 
     <fragment
         android:id="@+id/nav_collecting"
-        android:name="com.example.medialibrary.video.ui.Collecting.CollectingFragment"
+        android:name="com.example.medialibrary.video.ui.collecting.CollectingFragment"
         android:label="Collecting"
         tools:layout="@layout/video_fragment_collecting" />
 </navigation>

@@ -38,9 +38,11 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="70dp"
                     android:textAlignment="center"
-                    android:textSize="32sp"
+
+                    android:textSize="20sp"
+                    android:background="@color/card"
                     android:id="@+id/music_total_items_card_text"
                     android:text="@string/total_cds"/>
             </androidx.cardview.widget.CardView>

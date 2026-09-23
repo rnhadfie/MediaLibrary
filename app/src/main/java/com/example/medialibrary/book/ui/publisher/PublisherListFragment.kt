@@ -34,7 +34,7 @@ class PublisherListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(PublisherViewModel::class.java)
+        viewModel = ViewModelProvider(this)[PublisherViewModel::class.java]
         _binding = PublisherFragmentListBinding.inflate(inflater, container, false)
 
         controller = BookController(MediaLibraryDbHelper(requireContext()))
@@ -56,7 +56,7 @@ class PublisherListFragment : Fragment() {
         loadPublishers()
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -92,7 +92,7 @@ class PublisherListFragment : Fragment() {
                     } else {
                         controller.UpdatePublisher(Publisher(publisher.Id, name))
                     }
-                    ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                    ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                     loadPublishers()
                 } else {
                     Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
@@ -108,7 +108,7 @@ class PublisherListFragment : Fragment() {
             .setMessage("Are you sure you want to delete ${publisher.Name}?")
             .setPositiveButton("Delete") { _, _ ->
                 controller.DeletePublisher(publisher.Id)
-                ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                 loadPublishers()
             }
             .setNegativeButton("Cancel", null)

@@ -36,22 +36,18 @@ class OtherCollectingFragment : Fragment() {
     private var _binding: OtherFragmentCollectingBinding? = null
     private val binding get() = _binding!!
 
-    private var currentFilter: Filter? = null;
+    private var currentFilter: Filter? = null
 
+    private var otherController: OtherController = OtherController()
+    private var viewModel: OtherCollectingViewModel = OtherCollectingViewModel()
 
-    private var otherController: OtherController = OtherController();
-    private var viewModel: OtherCollectingViewModel = OtherCollectingViewModel();
-
-    private var setup: MainSetup = MainSetup();
+    private var setup: MainSetup = MainSetup()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val slideshowViewModel =
-            ViewModelProvider(this).get(OtherCollectingViewModel::class.java)
-
         _binding = OtherFragmentCollectingBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -77,7 +73,7 @@ class OtherCollectingFragment : Fragment() {
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -101,7 +97,7 @@ class OtherCollectingFragment : Fragment() {
         if (currentFilter == null) {
             currentFilter = Filter()
         }
-        currentFilter?.Collecting = true;
+        currentFilter?.Collecting = true
         val items = otherController.GetListOfOtherCollections(currentFilter)
         setup = otherController.GetSetup()
         viewModel.setItems(items ?: emptyList())
@@ -126,9 +122,9 @@ class OtherCollectingFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
             }
 
             holder.itemView.setOnClickListener {
@@ -139,7 +135,7 @@ class OtherCollectingFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, OtherFormActivity::class.java).apply {
                     putExtra("EXTRA_ID", item.Id)
@@ -147,22 +143,23 @@ class OtherCollectingFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                var controller = OtherController(dbHelper)
+                val controller = OtherController(dbHelper)
 
                 MaterialAlertDialogBuilder(holder.itemView.context)
                     .setTitle("Confirm Action")
                     .setMessage("Are you sure you want to delete this Book Series?")
                     .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
+                    .setPositiveButton("Confirm") { dialog, _ ->
                         controller.DeleteOther(item.Id)
                         (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
+                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
+                            act.finish()
                         }
                         dialog.dismiss()
                     }
-                    .setNegativeButton("Cancel") { dialog, which ->
+                    .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()

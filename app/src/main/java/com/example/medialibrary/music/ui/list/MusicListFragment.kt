@@ -35,20 +35,20 @@ class MusicListFragment : Fragment() {
     private var _binding: MusicFragmentListBinding? = null
     private val binding get() = _binding!!
 
-    private var currentFilter: MusicFilter? = null;
+    private var currentFilter: MusicFilter? = null
 
 
-    private var musicController: MusicController = MusicController();
-    private var viewModel: MusicListViewModel = MusicListViewModel();
+    private var musicController: MusicController = MusicController()
+    private var viewModel: MusicListViewModel = MusicListViewModel()
 
-    private var setup: MusicSetup = MusicSetup();
+    private var setup: MusicSetup = MusicSetup()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(MusicListViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MusicListViewModel::class.java]
         _binding = MusicFragmentListBinding.inflate(inflater, container, false)
 
         val recyclerView = binding.recyclerviewCds
@@ -72,7 +72,7 @@ class MusicListFragment : Fragment() {
             }
         }
 
-        binding.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (currentFilter == null) currentFilter = MusicFilter()
                 currentFilter?.Search = query
@@ -83,16 +83,19 @@ class MusicListFragment : Fragment() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (currentFilter == null) currentFilter = MusicFilter()
                 currentFilter?.Search = newText
+                if (newText.isNullOrEmpty()) {
+                    loadData()
+                }
                 return true
             }
         })
 
-        binding.buttonFilter?.setOnClickListener {
+        binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -199,9 +202,9 @@ class MusicListFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
             }
 
 
@@ -213,7 +216,7 @@ class MusicListFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, MusicFormActivity::class.java).apply {
                     putExtra("EXTRA_ID", item.Id)
@@ -221,22 +224,23 @@ class MusicListFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                var bookController = MusicController(dbHelper)
+                val bookController = MusicController(dbHelper)
 
                 MaterialAlertDialogBuilder(holder.itemView.context)
                     .setTitle("Confirm Action")
                     .setMessage("Are you sure you want to delete this Book Series?")
                     .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
+                    .setPositiveButton("Confirm") { dialog, _ ->
                         bookController.DeleteMusic(item.Id)
                         (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
+                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
+                            act.finish()
                         }
                         dialog.dismiss()
                     }
-                    .setNegativeButton("Cancel") { dialog, which ->
+                    .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()

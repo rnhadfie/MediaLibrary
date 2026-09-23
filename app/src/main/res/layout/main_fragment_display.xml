@@ -77,50 +77,57 @@
                 android:layout_marginBottom="8dp"
                 android:background="?android:attr/listDivider" />
 
-            <com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/bar_chart"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp" />
+                android:layout_height="match_parent"
+                android:id="@+id/main_stats_container">
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/pie_chart"
-                android:background="@color/base"
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/bar_chart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="16dp" />
+
+                <!--
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pie_chart"
+                    android:background="@color/base"
+                    android:layout_width="300dp"
+                    android:layout_height="300dp"
+                    android:layout_marginTop="16dp" />-->
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/empty_state_container"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp" />
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/empty_state_image"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:contentDescription="No Data Available"
+                    android:src="@drawable/ic_gallery_black_24dp"
+                    app:tint="?android:attr/textColorSecondary" />
+
+                <TextView
+                    android:id="@+id/empty_state_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="@string/no_items_found"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:textColor="?android:attr/textColorSecondary" />
+            </LinearLayout>
 
         </LinearLayout>
+
     </ScrollView>
 
-    <LinearLayout
-        android:id="@+id/empty_state_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible">
 
-        <ImageView
-            android:id="@+id/empty_state_image"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:contentDescription="No Data Available"
-            android:src="@drawable/ic_gallery_black_24dp"
-            app:tint="?android:attr/textColorSecondary" />
-
-        <TextView
-            android:id="@+id/empty_state_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/no_items_found"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?android:attr/textColorSecondary" />
-    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

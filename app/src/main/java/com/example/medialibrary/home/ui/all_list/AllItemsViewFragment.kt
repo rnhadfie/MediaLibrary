@@ -1,7 +1,7 @@
 package com.example.medialibrary.home.ui.all_list
 
 import android.content.Intent
-import android.graphics.BitmapFactory
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.medialibrary.R
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.controllers.MainController
@@ -47,17 +46,17 @@ class AllItemsViewFragment : Fragment() {
 
     private var currentFilter = Filter()
 
-    private var controller: MainController = MainController();
-    private var viewModel: AllItemsViewModelViewModel = AllItemsViewModelViewModel();
+    private var controller: MainController = MainController()
+    private var viewModel: AllItemsViewModelViewModel = AllItemsViewModelViewModel()
 
-    private var setup: MainSetup = MainSetup();
+    private var setup: MainSetup = MainSetup()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(AllItemsViewModelViewModel::class.java)
+        viewModel = ViewModelProvider(this)[AllItemsViewModelViewModel::class.java]
         _binding = MainFragmentListBinding.inflate(inflater, container, false)
         val root = binding.root
 
@@ -70,7 +69,7 @@ class AllItemsViewFragment : Fragment() {
         controller = MainController(dbHelper)
 
         fun loadData() {
-            val items = controller.GetAllItems(currentFilter);
+            val items = controller.GetAllItems(currentFilter)
             setup = controller.GetSetup()
             viewModel.setItems(items ?: emptyList())
         }
@@ -88,7 +87,7 @@ class AllItemsViewFragment : Fragment() {
             }
         }
 
-        binding.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 currentFilter.Search = query
                 loadData()
@@ -97,16 +96,19 @@ class AllItemsViewFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 currentFilter.Search = newText
+                if (newText.isNullOrEmpty()) {
+                    loadData()
+                }
                 return true
             }
         })
 
-        binding.buttonFilter?.setOnClickListener {
+        binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -127,9 +129,6 @@ class AllItemsViewFragment : Fragment() {
     }
 
     private fun loadData() {
-        if (currentFilter == null) {
-            currentFilter = BookFilter()
-        }
         val items = controller.GetAllItems(currentFilter)
         setup = controller.GetSetup()
         viewModel.setItems(items ?: emptyList())
@@ -175,14 +174,14 @@ class AllItemsViewFragment : Fragment() {
         }
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            val f = currentFilter ?: Filter()
+            val f = currentFilter
             f.CompletedSeries = sheetBinding.switchSheetCompletedBook.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
 
 
             val typeStr = sheetBinding.dropdownSheetTypeBook.text.toString()
-            f.MediaType = setup.MediaType.entries.find { it.value == typeStr }?.key?.let { Enums.MediaType.values()[it] }
+            f.MediaType = setup.MediaType.entries.find { it.value == typeStr }?.key?.let { Enums.MediaType.entries[it] }
 
 
             val tagStr = sheetBinding.dropdownSheetTagBook.text.toString()
@@ -226,10 +225,10 @@ class AllItemsViewFragment : Fragment() {
             holder.itemView.setOnClickListener {
                 editItem(item, holder)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 editItem(item, holder)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 deleteItem(item, holder)
             }
 
@@ -257,65 +256,73 @@ class AllItemsViewFragment : Fragment() {
         {
             val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
 
-            if(item.MediaType == Enums.MediaType.Book)
-            {
-                var bookController = BookController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove Book Series")
-                    .setMessage("Are you sure you want to delete this Book Series?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        bookController.DeleteBook(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
-            }
-            else if(item.MediaType == Enums.MediaType.Video)
-            {
-                var videoController = VideoController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove Movie or TV Series")
-                    .setMessage("Are you sure you want to delete this Movie or TV Series?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        videoController.DeleteVideo(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
-            }
-            else if(item.MediaType == Enums.MediaType.Music)
-            {
-                var musicController = MusicController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove CD")
-                    .setMessage("Are you sure you want to delete this Cd")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        musicController.DeleteMusic(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
-            }
-            else if(item.MediaType == Enums.MediaType.Other)
-            {
-                var otherController = OtherController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove Other Collection")
-                    .setMessage("Are you sure you want to delete this collection?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        otherController.DeleteOther(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
+            when (item.MediaType) {
+                Enums.MediaType.Book -> {
+                    val bookController = BookController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove Book Series")
+                        .setMessage("Are you sure you want to delete this Book Series?")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            bookController.DeleteBook(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+                Enums.MediaType.Video -> {
+                    val videoController = VideoController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove Movie or TV Series")
+                        .setMessage("Are you sure you want to delete this Movie or TV Series?")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            videoController.DeleteVideo(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+                Enums.MediaType.Music -> {
+                    val musicController = MusicController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove CD")
+                        .setMessage("Are you sure you want to delete this Cd")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            musicController.DeleteMusic(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+                Enums.MediaType.Other -> {
+                    val otherController = OtherController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove Other Collection")
+                        .setMessage("Are you sure you want to delete this collection?")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            otherController.DeleteOther(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+
+                else -> {}
             }
 
         }

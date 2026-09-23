@@ -1,15 +1,13 @@
 package com.example.medialibrary.backend.controllers;
 
 import com.example.medialibrary.backend.Serivce.BookService;
-import com.example.medialibrary.backend.Serivce.MainSerivce;
+
 import com.example.medialibrary.backend.models.book.BookFilter;
 import com.example.medialibrary.backend.models.book.BookSaveObject;
 import com.example.medialibrary.backend.models.book.BookSetup;
 import com.example.medialibrary.backend.models.book.Book;
 import com.example.medialibrary.backend.models.book.Publisher;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
-import com.example.medialibrary.backend.models.shared.Filter;
-import com.example.medialibrary.backend.models.shared.MediaItem;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import java.util.List;
@@ -39,9 +37,9 @@ public class BookController {
     }
 
     public Book GetBook(int id) {
-        Book book = new Book();
-        book = this.bookSerivce.getValue().GetBook(id);
-        return book;
+
+       return this.bookSerivce.getValue().GetBook(id);
+
     }
 
     public boolean AddBook(BookSaveObject book) {

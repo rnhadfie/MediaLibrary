@@ -1,24 +1,18 @@
 package com.example.medialibrary.backend.repository;
 
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.COLUMN_ID;
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.COLUMN_NAME;
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.TABLE_PUBLISHERS;
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.TABLE_TAGS;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_ID;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_NAME;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.TABLE_TAGS;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
-import com.example.medialibrary.backend.models.book.Publisher;
 import com.example.medialibrary.backend.models.shared.Tag;
-import com.example.medialibrary.backend.repository.Interface.Interface.IBookRepository;
 import com.example.medialibrary.backend.repository.Interface.Interface.ISharedRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -32,7 +26,6 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
             List<Tag> tags = new ArrayList<>();
 
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            List<String> selectionArgs = new ArrayList<>();
 
             Cursor cursor = db.query(
                     TABLE_TAGS,
@@ -44,7 +37,7 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
                     null
             );
 
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 do {
                     int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
                     String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
@@ -69,13 +62,13 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
                     TABLE_TAGS,
                     null,
                     whereClause,
-                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    selectionArgs.toArray(new String[0]),
                     null,
                     null,
                     null
             );
 
-            if (bookCursor != null && bookCursor.moveToFirst()) {
+            if (bookCursor.moveToFirst()) {
                 do {
                     tag.Id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_ID));
                     tag.Name = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_NAME));

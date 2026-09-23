@@ -1,13 +1,12 @@
 package com.example.medialibrary.backend.repository;
 
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.*;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.example.medialibrary.backend.models.book.*;
 import com.example.medialibrary.backend.models.book.Enums;
-import com.example.medialibrary.backend.models.shared.*;
 import com.example.medialibrary.backend.repository.Interface.Interface.IBookRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
@@ -15,63 +14,68 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import android.util.LruCache;
 
 public class BookRepository extends BaseRepository implements IBookRepository {
 
+    private final LruCache<String, List<Book>> listCache;
+    private final LruCache<String, List<Publisher>> listPubCache;
     public BookRepository(MediaLibraryDbHelper dbHelper) {
+
         super(dbHelper);
+        this.listCache = new LruCache<>(30);
+        this.listPubCache = new LruCache<>(5);
     }
 
+
     //region Books
+
     @Override
-    public <T extends Filter> List<Book> GetBooks(T filter) {
+    public List<Book> GetBooks() {
+        return GetBooks("", new ArrayList<>());
+    }
+
+    @Override
+    public List<Book> GetBooks(String whereClause, List<String> selectionArgs) {
         List<Book> books = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        List<String> selectionArgs = new ArrayList<>();
-        String whereClause = buildWhereClause(filter, selectionArgs);
 
-        Cursor bookCursor = db.query(
-                TABLE_BOOKS,
-                null,
-                whereClause,
-                selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
-                null,
-                null,
-                null
-        );
+        String cacheKey = "Book_" + whereClause;
 
-
-
-        if (bookCursor != null && bookCursor.moveToFirst()) {
-            do {
-                Book book = new Book();
-                mapMediaItem(bookCursor, book);
-                book.MediaType = com.example.medialibrary.backend.models.shared.Enums.MediaType.Book;
-                book.Id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_ID));
-                book.Author = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_AUTHOR));
-                book.Artist = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_ARTIST));
-                book.Publisher = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_PUBLISHER));
-                book.Tag = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_TAG));
-
-                byte[] bookCover = bookCursor.getBlob(bookCursor.getColumnIndexOrThrow(COLUMN_COVER));
-                book.Cover = decompressBitmap(bookCover);
-                book.Genre = deserializeGenre(bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_GENRE)));
-                book.Items = GetBookItems(book.Id);
-                book.HasSeriesEnded = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_HAS_ENDED)) == 1;
-                book.HasCollectedAllItems = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_COMPLETED_COLLECTING)) == 1;
-
-                book.Collecting = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_COLLECTING)) == 1;
-                int typeValue = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_TYPE));
-                if (typeValue >= 0 && typeValue < Enums.BookType.values().length) {
-                    book.Type = Enums.BookType.values()[typeValue];
-                }
-
-
-                books.add(book);
-            } while (bookCursor.moveToNext());
-            bookCursor.close();
+        if (whereClause == null) {
+            whereClause = "";
         }
 
+        List<Book> cachedList = listCache.get(cacheKey);
+        if (cachedList != null) {
+            return cachedList; // Cache hit!
+        }
+
+        try {
+            Cursor bookCursor = db.query(
+                    TABLE_BOOKS,
+                    null,
+                    whereClause,
+                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    null,
+                    null,
+                    null
+            );
+
+            if (bookCursor.moveToFirst()) {
+                do {
+                    Book book = new Book();
+                    mapBook(bookCursor, book);
+                    books.add(book);
+                } while (bookCursor.moveToNext());
+                bookCursor.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
+        listCache.put(cacheKey, books);
         return books;
     }
 
@@ -80,47 +84,38 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
         Book book = new Book();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        List<String> selectionArgs = new ArrayList<>();
-        selectionArgs.add(String.valueOf(id));
+        try {
+            List<String> selectionArgs = new ArrayList<>();
+            selectionArgs.add(String.valueOf(id));
 
-        String whereClause = COLUMN_ID + " = ?";
+            String whereClause = COLUMN_ID + " = ?";
 
-        //region Book
+            //region Book
 
-        Cursor bookCursor = db.query(
-                TABLE_BOOKS,
-                null,
-                whereClause,
-                selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
-                null,
-                null,
-                null
-        );
+            Cursor bookCursor = db.query(
+                    TABLE_BOOKS,
+                    null,
+                    whereClause,
+                    selectionArgs.toArray(new String[0]),
+                    null,
+                    null,
+                    null
+            );
 
-        if (bookCursor != null && bookCursor.moveToFirst()) {
-            do {
-                mapMediaItem(bookCursor, book);
-                book.MediaType = com.example.medialibrary.backend.models.shared.Enums.MediaType.Book;
+            if (bookCursor.moveToFirst()) {
+                do {
+                    mapBook(bookCursor, book);
+                } while (bookCursor.moveToNext());
+                bookCursor.close();
+            }
 
-                book.Author = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_AUTHOR));
-                book.Artist = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_ARTIST));
-                book.Publisher = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_PUBLISHER));
-                book.Tag = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_TAG));
-                book.Cover = bookCursor.getBlob(bookCursor.getColumnIndexOrThrow(COLUMN_COVER));
-                book.Genre = deserializeGenre(bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_GENRE)));
-                book.HasSeriesEnded = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_HAS_ENDED)) == 1;
-                book.HasCollectedAllItems = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_COMPLETED_COLLECTING)) == 1;
-                book.Items = GetBookItems(id);
-                book.Collecting = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_COLLECTING)) == 1;
-                int typeValue = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_TYPE));
-                if (typeValue >= 0 && typeValue < Enums.BookType.values().length) {
-                    book.Type = Enums.BookType.values()[typeValue];
-                }
-            } while (bookCursor.moveToNext());
-            bookCursor.close();
+
+            //endregion
         }
-
-        //endregion
+        catch (Exception ex)
+        {
+            return null;
+        }
 
         return book;
     }
@@ -131,9 +126,9 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         db.beginTransaction();
         try {
             long publisherId = bookObj.book.Publisher;
-            if (bookObj.NewPubliser != null && !bookObj.NewPubliser.isEmpty()) {
+            if (bookObj.NewPublisher != null && !bookObj.NewPublisher.isEmpty()) {
                 ContentValues pubValues = new ContentValues();
-                pubValues.put(COLUMN_NAME, bookObj.NewPubliser);
+                pubValues.put(COLUMN_NAME, bookObj.NewPublisher);
                 publisherId = db.insert(TABLE_PUBLISHERS, null, pubValues);
             }
 
@@ -144,31 +139,13 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 tagId = db.insert(TABLE_TAGS, null, tagValues);
             }
 
-            ContentValues bookValues = new ContentValues();
-            bookValues.put(COLUMN_TITLE, bookObj.book.Title);
-            bookValues.put(COLUMN_COLLECTING, (bookObj.book.Collecting != null && bookObj.book.Collecting) ? 1 : 0);
-            bookValues.put(COLUMN_HAS_ENDED, (bookObj.book.HasSeriesEnded != null && bookObj.book.HasSeriesEnded) ? 1 : 0);
-            bookValues.put(COLUMN_COMPLETED_COLLECTING, (bookObj.book.HasCollectedAllItems != null && bookObj.book.HasCollectedAllItems) ? 1 : 0);
-            bookValues.put(COLUMN_TAG, tagId);
-            bookValues.put(COLUMN_COVER, compressBitmap(bookObj.book.Cover));
-            bookValues.put(COLUMN_GENRE, serializeGenre(bookObj.book.Genre));
-            bookValues.put(COLUMN_AUTHOR, bookObj.book.Author);
-            bookValues.put(COLUMN_ARTIST, bookObj.book.Artist);
-            bookValues.put(COLUMN_TYPE, bookObj.book.Type != null ? bookObj.book.Type.ordinal() : 0);
-            bookValues.put(COLUMN_PUBLISHER, publisherId);
+            ContentValues bookValues = mapBookContentValues(publisherId, tagId, bookObj.book);
 
             long bookId = db.insert(TABLE_BOOKS, null, bookValues);
 
             if (bookObj.book.Items != null) {
                 for (BookItem item : bookObj.book.Items) {
-                    ContentValues itemValues = new ContentValues();
-                    itemValues.put(COLUMN_SERIES, bookId);
-                    itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber);
-                    itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle);
-                    itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
-                    itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
-                    itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
-                    itemValues.put(COLUMN_ITEM_COVER,  compressBitmap(item.ItemCover));
+                    ContentValues itemValues = mapBookItemContentValues(bookId, item);
                     db.insert(TABLE_BOOK_ITEMS, null, itemValues);
                 }
             }
@@ -179,6 +156,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
+            listCache.evictAll();
             db.endTransaction();
         }
     }
@@ -189,9 +167,9 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         db.beginTransaction();
         try {
             long publisherId = bookObj.book.Publisher;
-            if (bookObj.NewPubliser != null && !bookObj.NewPubliser.isEmpty()) {
+            if (bookObj.NewPublisher != null && !bookObj.NewPublisher.isEmpty()) {
                 ContentValues pubValues = new ContentValues();
-                pubValues.put(COLUMN_NAME, bookObj.NewPubliser);
+                pubValues.put(COLUMN_NAME, bookObj.NewPublisher);
                 publisherId = db.insert(TABLE_PUBLISHERS, null, pubValues);
             }
 
@@ -202,18 +180,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 tagId = db.insert(TABLE_TAGS, null, tagValues);
             }
 
-            ContentValues bookValues = new ContentValues();
-            bookValues.put(COLUMN_TITLE, bookObj.book.Title);
-            bookValues.put(COLUMN_COLLECTING, (bookObj.book.Collecting != null && bookObj.book.Collecting) ? 1 : 0);
-            bookValues.put(COLUMN_HAS_ENDED, (bookObj.book.HasSeriesEnded != null && bookObj.book.HasSeriesEnded) ? 1 : 0);
-            bookValues.put(COLUMN_COMPLETED_COLLECTING, (bookObj.book.HasCollectedAllItems != null && bookObj.book.HasCollectedAllItems) ? 1 : 0);
-            bookValues.put(COLUMN_TAG, tagId);
-            bookValues.put(COLUMN_COVER,  compressBitmap(bookObj.book.Cover));
-            bookValues.put(COLUMN_GENRE, serializeGenre(bookObj.book.Genre));
-            bookValues.put(COLUMN_AUTHOR, bookObj.book.Author);
-            bookValues.put(COLUMN_ARTIST, bookObj.book.Artist);
-            bookValues.put(COLUMN_TYPE, bookObj.book.Type != null ? bookObj.book.Type.ordinal() : 0);
-            bookValues.put(COLUMN_PUBLISHER, publisherId);
+            ContentValues bookValues = mapBookContentValues(publisherId, tagId, bookObj.book);
 
             db.update(TABLE_BOOKS, bookValues, COLUMN_ID + " = ?", new String[]{String.valueOf(bookObj.book.Id)});
 
@@ -222,14 +189,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
             if (bookObj.book.Items != null) {
                 for (BookItem item : bookObj.book.Items) {
-                    ContentValues itemValues = new ContentValues();
-                    itemValues.put(COLUMN_SERIES, bookObj.book.Id);
-                    itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber);
-                    itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle);
-                    itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
-                    itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
-                    itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
-                    itemValues.put(COLUMN_ITEM_COVER,  compressBitmap(item.ItemCover));
+                    ContentValues itemValues = mapBookItemContentValues(bookObj.book.Id, item);
                     db.insert(TABLE_BOOK_ITEMS, null, itemValues);
                 }
             }
@@ -240,6 +200,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
+            listCache.evictAll();
             db.endTransaction();
         }
     }
@@ -261,6 +222,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
+            listCache.evictAll();
             db.endTransaction();
         }
     }
@@ -273,60 +235,38 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         List<Publisher> publishers = new ArrayList<>();
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        List<String> selectionArgs = new ArrayList<>();
 
-        Cursor cursor = db.query(
-                TABLE_PUBLISHERS,
-                null,
-                null,
-                 null,
-                null,
-                null,
-                null
-        );
+        String cacheKey = "Publisher";
+        List<Publisher> cachedList = listPubCache.get(cacheKey);
+        if (cachedList != null) {
+            return cachedList; // Cache hit!
+        }
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
-                publishers.add(new Publisher(id, name));
-            } while (cursor.moveToNext());
-            cursor.close();
+        try {
+            Cursor cursor = db.query(
+                    TABLE_PUBLISHERS,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            if (cursor.moveToFirst()) {
+                do {
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
+                    publishers.add(new Publisher(id, name));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        }
+        catch (Exception ex)
+        {
+            return null;
         }
         return publishers;
-    }
-
-    @Override
-    public Publisher GetPublisher(int id) {
-
-        Publisher pub = new Publisher();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        List<String> selectionArgs = new ArrayList<>();
-        selectionArgs.add(String.valueOf(id));
-
-        String whereClause = COLUMN_ID + " = ?";
-
-        Cursor bookCursor = db.query(
-                TABLE_PUBLISHERS,
-                null,
-                whereClause,
-                selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
-                null,
-                null,
-                null
-        );
-
-        if (bookCursor != null && bookCursor.moveToFirst()) {
-            do {
-               pub.Id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_ID));
-               pub.Name = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_NAME));
-
-            } while (bookCursor.moveToNext());
-            bookCursor.close();
-        }
-
-        return pub;
-
     }
 
     @Override
@@ -347,6 +287,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
+            listPubCache.evictAll();
             db.endTransaction();
         }
     }
@@ -366,6 +307,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
+            listPubCache.evictAll();
             db.endTransaction();
         }
     }
@@ -385,6 +327,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
+            listPubCache.evictAll();
             db.endTransaction();
         }
     }
@@ -402,12 +345,12 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 TABLE_BOOK_ITEMS,
                 null,
                 whereClause,
-                selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                selectionArgs.toArray(new String[0]),
                 null,
                 null,
                 null
         );
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 BookItem item = new BookItem();
                 mapBookItem(cursor, item);
@@ -429,4 +372,50 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         var itemCover = cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER));
         item.ItemCover = decompressBitmap(itemCover);
     }
+
+    private void mapBook(Cursor bookCursor, Book book) {
+        mapMediaItem(bookCursor, book);
+        book.MediaType = com.example.medialibrary.backend.models.shared.Enums.MediaType.Book;
+        book.Author = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_AUTHOR));
+        book.Artist = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_ARTIST));
+        book.Publisher = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_PUBLISHER));
+
+        book.Items = GetBookItems(book.Id);
+
+        int typeValue = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_TYPE));
+        if (typeValue >= 0 && typeValue < Enums.BookType.values().length) {
+            book.Type = Enums.BookType.values()[typeValue];
+        }
+    }
+
+    private ContentValues mapBookItemContentValues(long bookId, BookItem item)
+    {
+        ContentValues itemValues = new ContentValues();
+        itemValues.put(COLUMN_SERIES, bookId);
+        itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber);
+        itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle);
+        itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
+        itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
+        itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
+        itemValues.put(COLUMN_ITEM_COVER,  compressBitmap(item.ItemCover));
+        return itemValues;
+    }
+
+    private ContentValues mapBookContentValues(long publisherId, long tagId, Book book)
+    {
+        ContentValues bookValues = new ContentValues();
+        bookValues.put(COLUMN_TITLE, book.Title);
+        bookValues.put(COLUMN_COLLECTING, (book.Collecting != null && book.Collecting) ? 1 : 0);
+        bookValues.put(COLUMN_HAS_ENDED, (book.HasSeriesEnded != null && book.HasSeriesEnded) ? 1 : 0);
+        bookValues.put(COLUMN_COMPLETED_COLLECTING, (book.HasCollectedAllItems != null && book.HasCollectedAllItems) ? 1 : 0);
+        bookValues.put(COLUMN_TAG, tagId);
+        bookValues.put(COLUMN_COVER,  compressBitmap(book.Cover));
+        bookValues.put(COLUMN_GENRE, serializeGenre(book.Genre));
+        bookValues.put(COLUMN_AUTHOR, book.Author);
+        bookValues.put(COLUMN_ARTIST, book.Artist);
+        bookValues.put(COLUMN_TYPE, book.Type != null ? book.Type.ordinal() : 0);
+        bookValues.put(COLUMN_PUBLISHER, publisherId);
+        return bookValues;
+    }
+
 }

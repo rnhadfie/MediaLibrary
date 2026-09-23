@@ -6,11 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.SearchView
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -33,8 +28,6 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.BookFormActivity
 import com.example.medialibrary.databinding.MainFragmentCollectingBinding
 import com.example.medialibrary.databinding.ItemTransformBinding
-import com.example.medialibrary.home.ui.all_list.AllItemsViewFragment
-import com.example.medialibrary.home.ui.all_list.AllItemsViewModelViewModel
 import com.example.medialibrary.music.MusicFormActivity
 import com.example.medialibrary.other.OtherFormActivity
 import com.example.medialibrary.video.VideoFormActivity
@@ -48,14 +41,14 @@ class CollectingFragment : Fragment() {
     private var currentFilter = Filter()
 
     private lateinit var controller: MainController
-    private lateinit var viewModel: AllItemsViewModelViewModel
+    private lateinit var viewModel: CollectingViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(AllItemsViewModelViewModel::class.java)
+        viewModel = ViewModelProvider(this)[CollectingViewModel::class.java]
         _binding = MainFragmentCollectingBinding.inflate(inflater, container, false)
         val root = binding.root
 
@@ -81,7 +74,7 @@ class CollectingFragment : Fragment() {
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -127,18 +120,18 @@ class CollectingFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
             }
 
             holder.itemView.setOnClickListener {
                 editItem(item, holder)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 editItem(item, holder)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 deleteItem(item, holder)
             }
 
@@ -166,65 +159,73 @@ class CollectingFragment : Fragment() {
         {
             val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
 
-            if(item.MediaType == Enums.MediaType.Book)
-            {
-                var bookController = BookController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove Book Series")
-                    .setMessage("Are you sure you want to delete this Book Series?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        bookController.DeleteBook(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
-            }
-            else if(item.MediaType == Enums.MediaType.Video)
-            {
-                var videoController = VideoController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove Movie or TV Series")
-                    .setMessage("Are you sure you want to delete this Movie or TV Series?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        videoController.DeleteVideo(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
-            }
-            else if(item.MediaType == Enums.MediaType.Music)
-            {
-                var musicController = MusicController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove CD")
-                    .setMessage("Are you sure you want to delete this Cd")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        musicController.DeleteMusic(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
-            }
-            else if(item.MediaType == Enums.MediaType.Other)
-            {
-                var otherController = OtherController(dbHelper)
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Remove Other Collection")
-                    .setMessage("Are you sure you want to delete this collection?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
-                        otherController.DeleteOther(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }.show()
+            when (item.MediaType) {
+                Enums.MediaType.Book -> {
+                    val bookController = BookController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove Book Series")
+                        .setMessage("Are you sure you want to delete this Book Series?")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            bookController.DeleteBook(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+                Enums.MediaType.Video -> {
+                    val videoController = VideoController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove Movie or TV Series")
+                        .setMessage("Are you sure you want to delete this Movie or TV Series?")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            videoController.DeleteVideo(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+                Enums.MediaType.Music -> {
+                    val musicController = MusicController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove CD")
+                        .setMessage("Are you sure you want to delete this Cd")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            musicController.DeleteMusic(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+                Enums.MediaType.Other -> {
+                    val otherController = OtherController(dbHelper)
+                    MaterialAlertDialogBuilder(holder.itemView.context)
+                        .setTitle("Remove Other Collection")
+                        .setMessage("Are you sure you want to delete this collection?")
+                        .setCancelable(false) // Prevents closing by tapping outside
+                        .setPositiveButton("Confirm") { dialog, _ ->
+                            otherController.DeleteOther(item.Id)
+                            (holder.itemView.context as? FragmentActivity)?.let { act ->
+                                ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                                    .incrementVersion()
+                                act.finish()
+                            }
+                            dialog.dismiss()
+                        }.show()
+                }
+
+                else -> {}
             }
 
         }

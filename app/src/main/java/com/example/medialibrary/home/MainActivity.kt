@@ -32,26 +32,19 @@ class MainActivity : BaseActivity<MainActivityBinding>() {
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment?)!!
         val navController = navHostFragment.navController
 
+        appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.nav_display, R.id.nav_list, R.id.nav_collecting, R.id.nav_tag
+            ),
+            binding.drawerLayout
+        )
+        setupActionBarWithNavController(navController, appBarConfiguration)
+
         binding.navView?.let {
-            appBarConfiguration = AppBarConfiguration(
-                setOf(
-                    R.id.nav_display, R.id.nav_list, R.id.nav_collecting, R.id.nav_tag
-                ),
-                binding.drawerLayout
-            )
-            setupActionBarWithNavController(navController, appBarConfiguration)
-            it.setupWithNavController(navController)
+            setupDrawer(it)
         }
 
-        binding.appBarMain.contentMain.bottomNavView?.let {
-            appBarConfiguration = AppBarConfiguration(
-                setOf(
-                    R.id.nav_display, R.id.nav_list, R.id.nav_collecting, R.id.nav_tag
-                )
-            )
-            setupActionBarWithNavController(navController, appBarConfiguration)
-            it.setupWithNavController(navController)
-        }
+        binding.appBarMain.contentMain.bottomNavView?.setupWithNavController(navController)
     }
 
 

@@ -19,7 +19,9 @@
             android:id="@+id/image_item_cover"
             android:layout_width="60dp"
             android:layout_height="80dp"
-            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/image_view_item_transform_content_description"
             android:src="@drawable/ic_gallery_black_24dp"
             app:tint="?android:attr/textColorSecondary" />
 
@@ -52,7 +54,8 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_settings_black_24dp"
+            android:contentDescription="@string/edit"
+            android:src="@android:drawable/ic_menu_edit"
             app:tint="?attr/colorPrimary" />
 
         <ImageButton
@@ -61,6 +64,7 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="@string/delete"
             app:tint="@android:color/holo_red_dark" />
 
     </LinearLayout>

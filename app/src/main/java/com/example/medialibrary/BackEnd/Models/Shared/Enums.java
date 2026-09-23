@@ -2,7 +2,7 @@ package com.example.medialibrary.backend.models.shared;
 
 public class Enums {
     public enum Genre {
-        NoneSelected,Drama, Fantasy, Romance, SliceOfLife, Thriller,  Msytery, SciFi, Horror,
+        NoneSelected,Drama, Fantasy, Romance, SliceOfLife, Thriller, Mystery, SciFi, Horror,
         BL, Yuri, Supernatural, HistoricalFiction,MemoirBiography,SelfHelp,Science,Action,Art,History,
         Humour,Isekai,
     }

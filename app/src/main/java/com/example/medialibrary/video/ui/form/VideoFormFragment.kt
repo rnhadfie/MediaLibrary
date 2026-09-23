@@ -59,7 +59,7 @@ class VideoFormFragment : Fragment() {
 
     private lateinit var itemAdapter: VideoItemAdapter
 
-    private var pendingImageTarget: String? = null // "book" or "item"
+    private var pendingImageTarget: String? = null
     private var pendingItemPosition: Int = -1
     private var currentSheetBinding: VideoItemBottomSheetBinding? = null
 
@@ -119,8 +119,8 @@ class VideoFormFragment : Fragment() {
         if(setup == null)
             setup = VideoSetup();
 
-        setupVideoTypeRadioGroup()
-        setupVideoTagRadioGroup();
+        setupVideoTypeRadioGroup(setup.Types)
+        setupVideoTagRadioGroup(setup.VideoTags);
         setupGenreSelection()
         setupTagSelection(setup)
         setupRecyclerView()
@@ -186,7 +186,15 @@ class VideoFormFragment : Fragment() {
             // Update RadioGroup
             for (i in 0 until binding.radioGroupVideoType.childCount) {
                 val rb = binding.radioGroupVideoType.getChildAt(i) as RadioButton
-                if (rb.tag == book.Type) {
+                if (VideoType.entries[rb.tag as Int] == book.Type) {
+                    rb.isChecked = true
+                    break
+                }
+            }
+
+            for (i in 0 until binding.radioGroupVideoType.childCount) {
+                val rb = binding.radioGroupVideoTag.getChildAt(i) as RadioButton
+                if (VideoTag.entries[rb.tag as Int] == book.VideoTag) {
                     rb.isChecked = true
                     break
                 }
@@ -210,39 +218,40 @@ class VideoFormFragment : Fragment() {
         }
     }
 
-    private fun setupVideoTypeRadioGroup() {
-        VideoType.values().forEach { type ->
-            if (type == VideoType.NoneSelected) return@forEach
+    private fun setupVideoTypeRadioGroup(types: Map<Int, String>) {
+        types.forEach { (key, value) ->
+            if (VideoType.entries[key] == VideoType.NoneSelected) return@forEach
             val rb = RadioButton(requireContext()).apply {
                 id = View.generateViewId()
-                text = type.name
-                tag = type
+                text = value
+                tag = key
             }
             binding.radioGroupVideoType.addView(rb)
-            if (type == VideoType.NoneSelected) rb.isChecked = true
+            if (VideoType.entries[key] == VideoType.NoneSelected) rb.isChecked = true
         }
 
         binding.radioGroupVideoType.setOnCheckedChangeListener { group, checkedId ->
             val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateVideoType(rb.tag as VideoType)
+            viewModel.updateVideoType(VideoType.entries[rb.tag as Int])
         }
     }
 
-    private fun setupVideoTagRadioGroup() {
-        VideoTag.values().forEach { type ->
-            if (type == VideoTag.None) return@forEach
+    private fun setupVideoTagRadioGroup(videoTags: Map<Int, String>) {
+
+        videoTags.forEach { (key, value) ->
+            if (VideoTag.entries[key] == VideoTag.None) return@forEach
             val rb = RadioButton(requireContext()).apply {
                 id = View.generateViewId()
-                text = type.name
-                tag = type
+                text = value
+                tag = key
             }
             binding.radioGroupVideoTag.addView(rb)
-            if (type == VideoTag.None) rb.isChecked = true
+            if (VideoTag.entries[key] == VideoTag.None) rb.isChecked = true
         }
 
         binding.radioGroupVideoTag.setOnCheckedChangeListener { group, checkedId ->
             val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateVideoTag(rb.tag as VideoTag)
+            viewModel.updateVideoTag(VideoTag.entries[rb.tag as Int])
         }
     }
 
@@ -456,6 +465,14 @@ class VideoFormFragment : Fragment() {
                     .show()
             }
 
+            if(item.DiscTitle == null || item.DiscTitle.isEmpty())
+            {
+                holder.binding.textVolumeInfo.text = item.DiscNumber.toString() + " - " + item.DiscTitle
+            }
+            else
+            {
+                holder.binding.textVolumeInfo.text = item.DiscNumber.toString()
+            }
             holder.binding.textStatusInfo.text = context.getString(
                 com.example.medialibrary.R.string.volume_status_format,
                 if (item.Owned) "Yes" else "No",

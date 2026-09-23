@@ -1,7 +1,5 @@
 package com.example.medialibrary.backend.models.shared;
 
-import com.example.medialibrary.backend.models.book.Publisher;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

@@ -5,9 +5,14 @@ public class Enums {
         NoneSelected,
         Pop,
         Rock,
-        RAndB,
-        Rap,
+        RB,
+        HipHop,
         JPop,
+        Electronic,
+        Blues,
+        Jazz,
+        Country,
+        Folk,
         Compilation
     }
 }

@@ -1,11 +1,7 @@
 package com.example.medialibrary.backend.controllers;
 
-import com.example.medialibrary.backend.Serivce.MainSerivce;
+import com.example.medialibrary.backend.Serivce.MainService;
 import com.example.medialibrary.backend.models.shared.*;
-import com.example.medialibrary.backend.repository.BookRepository;
-import com.example.medialibrary.backend.repository.MusicRepository;
-import com.example.medialibrary.backend.repository.OtherRepository;
-import com.example.medialibrary.backend.repository.VideoRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import java.util.List;
@@ -15,7 +11,7 @@ import kotlin.LazyKt;
 
 public class MainController {
 
-    public Lazy<MainSerivce> mainSerivce;
+    public Lazy<MainService> mainSerivce;
     protected MediaLibraryDbHelper dbHelper;
 
     public MainController() {
@@ -23,7 +19,7 @@ public class MainController {
     }
     public MainController(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
-        this.mainSerivce = LazyKt.lazy(() -> new MainSerivce(dbHelper));
+        this.mainSerivce = LazyKt.lazy(() -> new MainService(dbHelper));
     }
 
     public List<DisplayMediaItem> GetAllItems(Filter  filter) {

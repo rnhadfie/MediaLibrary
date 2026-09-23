@@ -16,7 +16,6 @@ class MusicFormViewModel : ViewModel() {
 
 
     private val _newTag = MutableLiveData<String>()
-    val newTag: LiveData<String> = _newTag
 
     fun updateTitle(title: String) {
         _music.value?.Title = title
@@ -56,7 +55,7 @@ class MusicFormViewModel : ViewModel() {
         _music.value?.HasCollectedAllItems = collected
     }
 
-    fun updateBookType(type: Enums.MusicGenre) {
+    fun updateMusicGenre(type: Enums.MusicGenre) {
         _music.value?.MusicGenre = type
     }
 

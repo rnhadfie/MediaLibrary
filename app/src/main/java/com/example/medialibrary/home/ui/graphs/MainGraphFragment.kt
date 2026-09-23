@@ -24,12 +24,8 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
-import android.graphics.Color
 
 class MainGraphFragment : Fragment() {
 
@@ -46,7 +42,7 @@ class MainGraphFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(MainGraphViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MainGraphViewModel::class.java]
         _binding = MainFragmentDisplayBinding.inflate(inflater, container, false)
 
         // Initialize controller
@@ -76,7 +72,7 @@ class MainGraphFragment : Fragment() {
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -96,14 +92,15 @@ class MainGraphFragment : Fragment() {
 
         if (items.isEmpty()) {
             binding.emptyStateContainer.visibility = View.VISIBLE
-            binding.scrollViewAllGraphs.visibility = View.GONE
+            binding.mainStatsContainer.visibility = View.GONE
         } else {
             binding.emptyStateContainer.visibility = View.GONE
-            binding.scrollViewAllGraphs.visibility = View.VISIBLE
+            binding.mainStatsContainer.visibility = View.VISIBLE
         }
 
         viewModel.setMediaItems(items)
         setupCharts(items)
+
     }
 
     private fun setupCharts(items: List<MediaItem>) {
@@ -130,41 +127,24 @@ class MainGraphFragment : Fragment() {
         }
 
         val barData = BarData(dataSets)
-        binding.barChart.data = barData
-        binding.barChart.description.isEnabled = false
-        binding.barChart.xAxis.isEnabled = false
-        
-        val legend = binding.barChart.legend
-        legend.isEnabled = true
-        legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-        legend.orientation = Legend.LegendOrientation.HORIZONTAL
-        legend.setDrawInside(false)
-        
-        binding.barChart.animateY(1000)
-        binding.barChart.invalidate()
-
-        // Pie Chart Data
-        val pieEntries = ArrayList<PieEntry>()
-        val collectingCount = items.count { it.Collecting == true }
-        val completedCount = items.count { it.HasCollectedAllItems == true }
-        
-        if (collectingCount > 0) pieEntries.add(PieEntry(collectingCount.toFloat(), "Collecting"))
-        if (completedCount > 0) pieEntries.add(PieEntry(completedCount.toFloat(), "Completed"))
-        if (pieEntries.isEmpty()) {
-            pieEntries.add(PieEntry(0f, "No Data"))
+        binding.barChart.setNoDataText("No data to display")
+        if (dataSets.isEmpty()) {
+            binding.barChart.data = null
+        } else {
+            binding.barChart.data = barData
+            binding.barChart.description.isEnabled = false
+            binding.barChart.xAxis.isEnabled = false
+            
+            val legend = binding.barChart.legend
+            legend.isEnabled = true
+            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            legend.orientation = Legend.LegendOrientation.HORIZONTAL
+            legend.setDrawInside(false)
+            
+            binding.barChart.animateY(1000)
         }
-
-        val pieDataSet = PieDataSet(pieEntries, "Collection Status")
-        pieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-        val pieData = PieData(pieDataSet)
-        binding.pieChart.data = pieData
-        binding.pieChart.description.isEnabled = false
-        binding.pieChart.setHoleColor(Color.TRANSPARENT)
-        binding.pieChart.setTransparentCircleColor(Color.TRANSPARENT)
-        binding.pieChart.setBackgroundColor(Color.TRANSPARENT)
-        binding.pieChart.animateXY(1000, 1000)
-        binding.pieChart.invalidate()
+        binding.barChart.invalidate()
     }
 
     override fun onDestroyView() {

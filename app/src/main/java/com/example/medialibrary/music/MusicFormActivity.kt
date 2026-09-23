@@ -7,7 +7,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.music.ui.form.MusicFormFragment
-import com.example.medialibrary.video.ui.form.VideoFormFragment
 
 class MusicFormActivity : AppCompatActivity() {
 
@@ -25,7 +24,7 @@ class MusicFormActivity : AppCompatActivity() {
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, VideoFormFragment.newInstance(videoId, isEdit))
+                .replace(R.id.main, MusicFormFragment.newInstance(videoId, isEdit))
                 .commitNow()
         }
     }

@@ -69,7 +69,7 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@null"
-                android:src="@drawable/ic_settings_black_24dp"
+                android:src="@android:drawable/ic_menu_edit"
                 app:tint="?attr/colorPrimary" />
 
             <ImageButton

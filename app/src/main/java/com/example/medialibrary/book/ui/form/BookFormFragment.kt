@@ -1,6 +1,5 @@
 package com.example.medialibrary.book.ui.form
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -27,9 +26,7 @@ import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.BookItem
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.book.Enums
-import com.example.medialibrary.backend.models.book.Publisher
 import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.shared.Tag
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentFormBinding
@@ -110,13 +107,13 @@ class BookFormFragment : Fragment() {
         val isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
 
         if (isEdit && bookId != -1) {
-            viewModel.loadVideo(bookId, controller)
+            viewModel.loadBook(bookId, controller)
         }
 
-       var setup = controller?.GetBookSetup();
+       var setup = controller?.GetBookSetup()
 
         if(setup == null)
-            setup = BookSetup();
+            setup = BookSetup()
 
         setupBookTypeRadioGroup(setup.Type)
         setupGenreSelection()
@@ -153,7 +150,7 @@ class BookFormFragment : Fragment() {
                         // Log or process the save object
                         println("Saving book: ${saveObj.book?.Title} with ${saveObj.book.Items?.size} items")
 
-                        ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
 
                         Toast.makeText(
                             requireContext(),
@@ -219,26 +216,33 @@ class BookFormFragment : Fragment() {
     }
 
     private fun setupBookTypeRadioGroup(types: Map<Int, String>) {
+        val bookTypes = Enums.BookType.entries.toTypedArray()
         types.forEach { (key, value) ->
-            if (Enums.BookType.entries[key] == Enums.BookType.NoneSelected) return@forEach
-            val rb = RadioButton(requireContext()).apply {
-                id = key
-                text = value
-                tag = key
+            if (key >= 0 && key < bookTypes.size) {
+                val type = bookTypes[key]
+                if (type == Enums.BookType.NoneSelected) return@forEach
+                val rb = RadioButton(requireContext()).apply {
+                    id = View.generateViewId()
+                    text = value
+                    tag = type
+                }
+                binding.radioGroupBookType.addView(rb)
             }
-            binding.radioGroupBookType.addView(rb)
-            if (Enums.BookType.entries[key] == Enums.BookType.Novel) rb.isChecked = true
         }
 
         binding.radioGroupBookType.setOnCheckedChangeListener { group, checkedId ->
-            val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateBookType(rb.tag as Enums.BookType)
+            if (checkedId != -1) {
+                val rb = group.findViewById<RadioButton>(checkedId)
+                (rb?.tag as? Enums.BookType)?.let {
+                    viewModel.updateBookType(it)
+                }
+            }
         }
     }
 
     private fun setupGenreSelection() {
         binding.buttonSelectGenres.setOnClickListener {
-            val genres = SharedEnums.Genre.values()
+            val genres = SharedEnums.Genre.entries.toTypedArray()
             val genreNames = genres.map { it.name }.toTypedArray()
             val selected = viewModel.selectedGenres.value ?: mutableSetOf()
             val checkedItems = genres.map { selected.contains(it) }.toBooleanArray()
@@ -255,7 +259,7 @@ class BookFormFragment : Fragment() {
 
     private fun setupTagSelection(setup: BookSetup) {
         val tags = setup.Tag
-        val adapter = ArrayAdapter<Tag>(requireContext(), R.layout.simple_dropdown_item_1line, tags)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.bookTagAutocomplete.setAdapter(adapter)
 
         binding.bookTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
@@ -280,7 +284,7 @@ class BookFormFragment : Fragment() {
 
     private fun setupPublisherSelection(setup: BookSetup) {
         val publishers = setup.Publishers
-        val adapter = ArrayAdapter<Publisher>(requireContext(), R.layout.simple_dropdown_item_1line, publishers)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, publishers)
         binding.bookPublisherAutocomplete.setAdapter(adapter)
 
         binding.bookPublisherAutocomplete.setOnItemClickListener { _, _, position, _ ->
@@ -363,10 +367,10 @@ class BookFormFragment : Fragment() {
         sheetBinding.textSheetTitle.text = if (item == null) "Add Volume" else "Edit Volume"
 
         // Setup Format dropdown
-        val formats = Enums.BookFormat.values().filter { it != Enums.BookFormat.NoneSelected }
+        val formats = Enums.BookFormat.entries.filter { it != Enums.BookFormat.NoneSelected }
         val adapter = ArrayAdapter(
             requireContext(),
-            R.layout.simple_dropdown_item_1line,
+            android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
         sheetBinding.dropdownSheetFormat.setAdapter(adapter)
 
@@ -459,7 +463,7 @@ class BookFormFragment : Fragment() {
                 holder.binding.imageItemCover.imageTintList = null
             } else {
                 holder.binding.imageItemCover.setImageResource(com.example.medialibrary.R.drawable.ic_gallery_black_24dp)
-                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, R.color.darker_gray, null)
+                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, android.R.color.darker_gray, null)
             }
 
             holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }

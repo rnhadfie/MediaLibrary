@@ -10,6 +10,7 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/secondary_light"
         android:fillViewport="true">
 
         <LinearLayout
@@ -39,7 +40,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:hint="@string/title_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -51,7 +52,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_margin="8dp"
                 android:hint="@string/author_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -63,7 +64,7 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_margin="8dp"
                 android:hint="@string/artist_hint">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -75,7 +76,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:text="@string/book_type_label"
                 android:textAppearance="?attr/textAppearanceSubtitle1" />
 
@@ -92,7 +93,7 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:text="@string/select_genres" />
 
             <com.google.android.material.chip.ChipGroup
@@ -105,7 +106,7 @@
                 android:id="@+id/book_publisher"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:orientation="vertical"
                 android:hint="@string/select_or_type_an_publisher"
                 android:padding="16dp">
@@ -123,7 +124,7 @@
                 android:id="@+id/book_collecting"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:text="@string/collecting"
             />
 
@@ -131,7 +132,7 @@
                 android:id="@+id/book_has_ended"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:text="@string/completed"
                 />
 
@@ -139,16 +140,8 @@
                 android:id="@+id/book_completed_collecting"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:text="@string/completed_series"
-                />
-
-            <CheckBox
-                android:id="@+id/book_standalone"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="16dp"
-                android:text="Standalone"
                 />
 
 
@@ -156,8 +149,9 @@
                 android:id="@+id/book_tag"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_margin="8dp"
                 android:orientation="vertical"
+                android:hint="@string/select_or_type_an_tag"
                 android:padding="16dp">
 
                 <AutoCompleteTextView
@@ -165,6 +159,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
+                    android:hint="@string/select_or_type_an_tag"
                     android:minHeight="48dp" />
 
             </com.google.android.material.textfield.TextInputLayout>

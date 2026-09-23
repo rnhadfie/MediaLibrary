@@ -22,7 +22,6 @@ import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.book.ui.book_list.BookListViewModel
 import com.example.medialibrary.databinding.BookFragmentCollectingBinding
 import com.example.medialibrary.databinding.ItemTransformBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -32,21 +31,19 @@ class CollectingBookFragment : Fragment() {
     private var _binding: BookFragmentCollectingBinding? = null
     private val binding get() = _binding!!
 
-    private var currentFilter: BookFilter? = null;
+    private var currentFilter: BookFilter? = null
 
 
-    private var bookController: BookController = BookController();
-    private var viewModel: BookListViewModel = BookListViewModel();
+    private var bookController: BookController = BookController()
+    private var viewModel: CollectingBookViewModel = CollectingBookViewModel()
 
-    private var setup: BookSetup = BookSetup();
+    private var setup: BookSetup = BookSetup()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val slideshowViewModel =
-            ViewModelProvider(this).get(CollectingBookViewModel::class.java)
 
         _binding = BookFragmentCollectingBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -73,7 +70,7 @@ class CollectingBookFragment : Fragment() {
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -97,7 +94,7 @@ class CollectingBookFragment : Fragment() {
         if (currentFilter == null) {
             currentFilter = BookFilter()
         }
-        currentFilter?.Collecting = true;
+        currentFilter?.Collecting = true
         val items = bookController.GetListOfBooks(currentFilter)
         setup = bookController.GetBookSetup()
         viewModel.setItems(items ?: emptyList())
@@ -122,9 +119,9 @@ class CollectingBookFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
             }
 
             holder.itemView.setOnClickListener {
@@ -135,7 +132,7 @@ class CollectingBookFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, BookFormActivity::class.java).apply {
                     putExtra("EXTRA_ID", item.Id)
@@ -143,22 +140,23 @@ class CollectingBookFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                var bookController = BookController(dbHelper)
+                val bookController = BookController(dbHelper)
 
                 MaterialAlertDialogBuilder(holder.itemView.context)
                     .setTitle("Confirm Action")
                     .setMessage("Are you sure you want to delete this Book Series?")
                     .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
+                    .setPositiveButton("Confirm") { dialog, _ ->
                         bookController.DeleteBook(item.Id)
                         (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
+                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
+                            act.finish()
                         }
                         dialog.dismiss()
                     }
-                    .setNegativeButton("Cancel") { dialog, which ->
+                    .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()

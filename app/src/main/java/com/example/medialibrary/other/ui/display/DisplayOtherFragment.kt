@@ -1,11 +1,9 @@
 package com.example.medialibrary.other.ui.display
 
-import android.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -13,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.Other
-import com.example.medialibrary.backend.models.other.OtherFitler
+import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherFragmentDisplayBinding
@@ -24,7 +22,7 @@ class DisplayOtherFragment : Fragment() {
     private var _binding: OtherFragmentDisplayBinding? = null
     private val binding get() = _binding!!
 
-    private var currentFilter = OtherFitler()
+    private var currentFilter = OtherFilter()
     private var otherController: OtherController? = null
     private var viewModel: DisplayOtherViewModel? = null
     private var setup: MainSetup? = null

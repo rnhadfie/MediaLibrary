@@ -1,11 +1,11 @@
-package com.example.medialibrary.book.ui.settings
+package com.example.medialibrary.video.ui.collecting
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 
-class SettingsViewModel : ViewModel() {
+class CollectingViewModel : ViewModel() {
 
     private val _items = MutableLiveData<List<DisplayMediaItem>>()
     val items: LiveData<List<DisplayMediaItem>> = _items

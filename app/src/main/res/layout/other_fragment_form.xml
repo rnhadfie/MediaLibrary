@@ -9,6 +9,7 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
+        android:background="@color/secondary_light"
         android:layout_height="match_parent"
         android:fillViewport="true">
 
@@ -24,6 +25,7 @@
                 android:layout_height="200dp"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
+                android:contentDescription="@string/image_view_item_transform_content_description"
                 android:src="@drawable/ic_gallery_black_24dp"
                 app:tint="?android:attr/textColorSecondary" />
 
@@ -53,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
-                android:text="Currently Collecting"
+                android:text="@string/collecting"
                 />
 
             <CheckBox
@@ -61,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
-                android:text="Completely Collected"
+                android:text="@string/completely_collected"
                 />
 
             <TextView

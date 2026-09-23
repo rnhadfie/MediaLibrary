@@ -1,35 +1,28 @@
 package com.example.medialibrary.music.ui.display
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
-import com.example.medialibrary.backend.models.book.Enums.BookType
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.Music
 import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import android.graphics.Color
-import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.example.medialibrary.Utils.SafePieChartRenderer
 
 /**
  * Fragment that demonstrates a responsive layout pattern where the format of the content
@@ -52,7 +45,7 @@ class MusicDisplayFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(MusicDisplayViewModel::class.java)
+        viewModel = ViewModelProvider(this)[MusicDisplayViewModel::class.java]
         _binding = MusicFragmentDisplayBinding.inflate(inflater, container, false)
 
         // Initialize controller
@@ -62,7 +55,7 @@ class MusicDisplayFragment : Fragment() {
         loadData()
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -93,33 +86,52 @@ class MusicDisplayFragment : Fragment() {
         setup?.let { setupCharts(items, it) }
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupCharts(items: List<Music>, setup: MusicSetup) {
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
 
-        binding.musicTotalItemsCardText?.text = "Total Number of CDs: " + items.count().toString()
+        binding.musicTotalItemsCardText.text = "Total Number of CDs: " + items.count().toString()
 
         //region Genre Pie Chart
         val pieEntries = ArrayList<PieEntry>()
 
-        val genreList = setup.MusicGenre;
+        val genreList = setup.MusicGenre
 
         genreList.forEach { (key, value) ->
-            val total = items.filter { it.MusicGenre == MusicGenre.entries[key] }.size;
-            if(total > 0) {
+            val total = items.filter { it.MusicGenre == MusicGenre.entries[key] }.size
+            if(total > 0 && MusicGenre.entries[key] != MusicGenre.NoneSelected) {
                 pieEntries.add(PieEntry(total.toFloat(), value))
             }
         }
 
-        val genrePieDataSet = PieDataSet(pieEntries, "Genre")
-        genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-        val genrePieData = PieData(genrePieDataSet)
-        binding.musicGenrePieChart?.data = genrePieData
-        binding.musicGenrePieChart?.setHoleColor(Color.TRANSPARENT)
-        binding.musicGenrePieChart?.setTransparentCircleColor(Color.TRANSPARENT)
-        binding.musicGenrePieChart?.setBackgroundColor(Color.TRANSPARENT)
 
-        binding.musicGenrePieChart?.animateXY(1000, 1000)
-        binding.musicGenrePieChart?.invalidate()
+
+        val genrePieChart = binding.musicGenrePieChart
+
+        if (pieEntries.isEmpty()) {
+            genrePieChart.setNoDataText("No Genre data to display")
+            genrePieChart.data = null
+            genrePieChart.setNoDataTextColor(Color.BLACK)
+            genrePieChart.setCenterTextSize(20f)
+        } else {
+            val genrePieDataSet = PieDataSet(pieEntries, "Genre")
+            genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+            val genrePieData = PieData(genrePieDataSet)
+            genrePieChart.data = genrePieData
+            genrePieChart.setHoleColor(Color.TRANSPARENT)
+            genrePieChart.description.isEnabled = false
+            genrePieChart.setTransparentCircleColor(Color.TRANSPARENT)
+            genrePieChart.setBackgroundColor(Color.TRANSPARENT)
+            genrePieChart.centerText = "Music Genre"
+            genrePieChart.legend.isEnabled=false
+            genrePieChart.setNoDataTextColor(Color.BLACK)
+            genrePieChart.animateXY(1000, 1000)
+            genrePieChart.renderer = SafePieChartRenderer(
+                genrePieChart,
+                genrePieChart.animator,
+                genrePieChart.viewPortHandler
+            )
+        }
+        genrePieChart.invalidate()
 
         //endregion
 

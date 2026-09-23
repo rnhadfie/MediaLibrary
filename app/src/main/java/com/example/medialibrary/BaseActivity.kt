@@ -1,12 +1,13 @@
 package com.example.medialibrary
 
 import android.content.ContentResolver
-import android.content.Intent;
+import android.content.Intent
 import android.net.Uri
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.Utils.SharedRefreshViewModel
@@ -33,7 +34,7 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        ViewModelProvider(this).get(SharedRefreshViewModel::class.java).incrementVersion()
+        ViewModelProvider(this)[SharedRefreshViewModel::class.java].incrementVersion()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -49,10 +50,21 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         return result
     }
 
+    protected fun setupDrawer(navView: NavigationView) {
+        navView.setNavigationItemSelectedListener { item ->
+            val handled = onOptionsItemSelected(item)
+            if (handled) {
+                val drawerLayout: DrawerLayout? = findViewById(R.id.drawer_layout)
+                drawerLayout?.closeDrawers()
+            }
+            handled
+        }
+    }
+
     private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("text/xml")) { uri ->
         var dbHelper = MediaLibraryDbHelper(this)
         uri?.let {
-            ExportData(it, contentResolver, binding, dbHelper)
+            exportData(it, contentResolver, binding, dbHelper)
 
         }
     }
@@ -61,7 +73,7 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         var dbHelper = MediaLibraryDbHelper(this)
 
         uri?.let {
-            ImportData(it, contentResolver, binding, dbHelper)
+            importData(it, contentResolver, binding, dbHelper)
             recreate()
         }
     }
@@ -106,7 +118,7 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun <T : ViewBinding> ExportData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
+    private fun <T : ViewBinding> exportData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
         try {
             val xmlRepository = XmlRepository(dbHelper)
             val data = xmlRepository.GetAllData()
@@ -121,7 +133,7 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         }
     }
 
-    private fun <T : ViewBinding> ImportData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
+    private fun <T : ViewBinding> importData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
         try {
             val xmlString = contentResolver.openInputStream(uri)?.use { inputStream ->
                 inputStream.bufferedReader().readText()
@@ -138,5 +150,6 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
             Snackbar.make(binding.root, "Import failed: ${e.message}", Snackbar.LENGTH_LONG).show()
         }
     }
+
 
 }

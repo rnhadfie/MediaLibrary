@@ -13,7 +13,6 @@ public class MediaItem {
     public Boolean HasCollectedAllItems;
     public Boolean CurrentOwnAny;
     public int Tag;
-
     public byte[] Cover;
 
 }

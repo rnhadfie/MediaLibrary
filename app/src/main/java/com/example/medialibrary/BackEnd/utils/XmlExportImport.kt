@@ -6,7 +6,8 @@ import com.example.medialibrary.backend.models.book.*
 import com.example.medialibrary.backend.models.book.Enums.*
 import com.example.medialibrary.backend.models.music.Music
 import com.example.medialibrary.backend.models.other.Other
-import com.example.medialibrary.backend.models.shared.*;
+import com.example.medialibrary.backend.models.shared.*
+import com.example.medialibrary.backend.models.video.Enums
 import com.example.medialibrary.backend.models.video.Video
 import com.example.medialibrary.backend.models.video.VideoItem
 import org.xmlpull.v1.XmlPullParser
@@ -124,7 +125,7 @@ object XmlExportImport {
 
     private fun writeMediaItemFields(serializer: XmlSerializer, item: MediaItem) {
         serializer.startTag("", "Title").text(item.Title ?: "").endTag("", "Title")
-        serializer.startTag("", "Collecting").text(item.Collecting.toString()).endTag("", "Collecting")
+        serializer.startTag("", "collecting").text(item.Collecting.toString()).endTag("", "collecting")
         serializer.startTag("", "HasEnded").text(item.HasSeriesEnded.toString()).endTag("", "HasEnded")
         serializer.startTag("", "CompletedCollecting").text(item.HasCollectedAllItems.toString()).endTag("", "CompletedCollecting")
         serializer.startTag("", "TagId").text(item.Tag.toString()).endTag("", "TagId")
@@ -186,7 +187,7 @@ object XmlExportImport {
                             currentMusic?.Title = text
                             currentOther?.Title = text
                         }
-                        "Collecting" -> {
+                        "collecting" -> {
                             val text = parser.nextText().toBoolean()
                             currentBook?.Collecting = text
                             currentVideo?.Collecting = text
@@ -239,10 +240,10 @@ object XmlExportImport {
                         "Type" -> {
                             val text = parser.nextText()
                             currentBook?.let { b ->
-                                b.Type = BookType.values().find { it.name == text } ?: BookType.NoneSelected
+                                b.Type = BookType.entries.find { it.name == text } ?: BookType.NoneSelected
                             }
                             currentVideo?.let { v ->
-                                v.Type = com.example.medialibrary.backend.models.video.Enums.VideoType.values().find { it.name == text }
+                                v.Type = Enums.VideoType.entries.find { it.name == text }
                             }
                         }
                         "PublisherId" -> currentBook?.Publisher = parser.nextText().toIntOrNull() ?: 0
@@ -257,10 +258,10 @@ object XmlExportImport {
                         "Format" -> {
                             val text = parser.nextText()
                             currentBookItem?.let { i ->
-                                i.Format = BookFormat.values().find { it.name == text } ?: BookFormat.NoneSelected
+                                i.Format = BookFormat.entries.find { it.name == text } ?: BookFormat.NoneSelected
                             }
                             currentVideoItem?.let { i ->
-                                i.Format = com.example.medialibrary.backend.models.video.Enums.VideoFormat.values().find { it.name == text }
+                                i.Format = Enums.VideoFormat.entries.find { it.name == text }
                             }
                         }
                         "ItemCover" -> {
@@ -271,7 +272,7 @@ object XmlExportImport {
                         }
                         "VideoTag" -> {
                             val text = parser.nextText()
-                            currentVideo?.VideoTag = com.example.medialibrary.backend.models.video.Enums.VideoTag.values().find { it.name == text }
+                            currentVideo?.VideoTag = Enums.VideoTag.entries.find { it.name == text }
                         }
                         "DiscNumber" -> currentVideoItem?.DiscNumber = parser.nextText().toIntOrNull() ?: 0
                         "DiscTitle" -> currentVideoItem?.DiscTitle = parser.nextText()

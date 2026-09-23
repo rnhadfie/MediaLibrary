@@ -11,7 +11,7 @@ import com.example.medialibrary.backend.models.shared.Tag
 
 class BookFormViewModel : ViewModel() {
 
-    private val _book = MutableLiveData<Book>(Book().apply {
+    private val _book = MutableLiveData(Book().apply {
         MediaType = SharedEnums.MediaType.Book
         Type = Enums.BookType.NoneSelected
         Genre = mutableListOf()
@@ -25,10 +25,8 @@ class BookFormViewModel : ViewModel() {
     val selectedGenres: LiveData<MutableSet<SharedEnums.Genre>> = _selectedGenres
 
     private val _newPublisher = MutableLiveData<String>()
-    val newPublisher: LiveData<String> = _newPublisher
 
     private val _newTag = MutableLiveData<String>()
-    val newTag: LiveData<String> = _newTag
 
     fun updateTitle(title: String) {
         _book.value?.Title = title
@@ -125,14 +123,17 @@ class BookFormViewModel : ViewModel() {
         }
     }
 
-    fun loadVideo(id: Int, controller: BookController?) {
+    fun loadBook(id: Int, controller: BookController?) {
         val loadedBook = controller?.GetBook(id)
         loadedBook?.let {
             _book.value = it
             _items.value = it.Items?.toMutableList() ?: mutableListOf()
             _selectedGenres.value = it.Genre?.mapNotNull { id ->
-                SharedEnums.Genre.values().getOrNull(id)
+                SharedEnums.Genre.entries.getOrNull(id)
             }?.toMutableSet() ?: mutableSetOf()
+            _newPublisher.value = ""
+            _newTag.value = ""
+
         }
     }
 
@@ -141,7 +142,7 @@ class BookFormViewModel : ViewModel() {
         saveObj.book = _book.value
         saveObj.book.Items = _items.value
         saveObj.NewTag = _newTag.value
-        saveObj.NewPubliser = _newPublisher.value
+        saveObj.NewPublisher = _newPublisher.value
         return saveObj
     }
 

@@ -9,6 +9,8 @@ import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.repository.MusicRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 import com.example.medialibrary.backend.models.music.Enums.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,16 +32,20 @@ public class MusicService {
 
     public List<Music> GetMusics(MusicFilter filter) {
         var repo = this.musicRepository.getValue();
-        List<Music> music = repo.GetMusic(filter);
-        return music;
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);
+        return repo.GetMusic(whereClause, selectionArgs);
     }
 
     public List<DisplayMediaItem> GetMusicDisplayLists(MusicFilter filter) {
         var repo = this.musicRepository.getValue();
-        var musics =repo.GetMusic(filter);
         var sharedService = this.sharedService.getValue();
 
-        return sharedService.mapToDisplayItems(musics);
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        List<Music> music = repo.GetMusic(whereClause, selectionArgs);
+
+        return sharedService.mapToDisplayItems(music);
     }
 
 
@@ -82,6 +88,6 @@ public class MusicService {
             mGanreMap.put(mGenre.ordinal(), sharedService.GetSeperatedString(mGenre.toString()));
         }
         return mGanreMap;
-    };
+    }
 
 }

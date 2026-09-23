@@ -1,6 +1,5 @@
 package com.example.medialibrary.backend.repository.Interface.Interface;
 
-import com.example.medialibrary.backend.models.book.Publisher;
 import com.example.medialibrary.backend.models.shared.Tag;
 
 import java.util.List;

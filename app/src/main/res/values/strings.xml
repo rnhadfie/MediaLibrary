@@ -2,8 +2,7 @@
     <string name="app_name">MediaLibrary</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_title">Media Library</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
@@ -19,9 +18,7 @@
         type specimen book"
     </string>
     <string name="fab_content_description">Represents a view to invoke an action</string>
-    <string name="image_view_item_transform_content_description">Represents an image view in the
-        item
-    </string>
+    <string name="image_view_item_transform_content_description">Item Image</string>
     <string name="title_activity_book">BookActivity</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="no_items_found">No items found</string>
@@ -71,6 +68,7 @@
     <string name="watched">Watched</string>
     <string name="completed_series">Series or Collection is Complete</string>
     <string name="select_or_type_an_publisher">Select or type an publisher</string>
+    <string name="select_or_type_an_tag">Select or type an Tag</string>
     <string name="movies_and_tv">Movies and TV</string>
     <string name="home">Home</string>
     <string name="books">Books</string>
@@ -90,4 +88,9 @@
     <string name="no_data_available">No Data Available</string>
     <string name="music_statistics">Music Statistics</string>
     <string name="total_cds">Total Cds</string>
+    <string name="video_type">Video Type</string>
+    <string name="video_tag">Video Tag</string>
+    <string name="delete">delete</string>
+    <string name="edit">edit</string>
+    <string name="get_list_of_items">Get list of items</string>
 </resources>

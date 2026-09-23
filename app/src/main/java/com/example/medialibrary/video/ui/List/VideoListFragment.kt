@@ -94,6 +94,9 @@ class VideoListFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 currentFilter?.Search = newText
+                if (newText.isNullOrEmpty()) {
+                    loadData()
+                }
                 return true
             }
         })

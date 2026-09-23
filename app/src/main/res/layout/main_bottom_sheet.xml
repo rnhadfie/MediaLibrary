@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:background="@color/secondary_light"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent">
 
         <Button
             android:id="@+id/button_sheet_clear_book"
@@ -23,8 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/type"
             android:labelFor="@id/dropdown_sheet_type_book"
+            android:text="@string/type"
             android:textAppearance="?attr/textAppearanceCaption" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -59,37 +61,16 @@
             android:layout_height="wrap_content"
             android:text="@string/started_collecting" />
 
-        <TextView
-            android:id="@+id/text_sheet_format_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/format_label"
-            android:labelFor="@id/dropdown_sheet_format"
-            android:textAppearance="?attr/textAppearanceCaption" />
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_format"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/text_sheet_tag_book"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/tag"
             android:labelFor="@id/dropdown_sheet_tag_book"
+            android:text="@string/tag"
             android:textAppearance="?attr/textAppearanceCaption" />
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
@@ -108,9 +89,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/genre"
             android:labelFor="@id/dropdown_sheet_genre_book"
+            android:text="@string/genre"
             android:textAppearance="?attr/textAppearanceCaption" />
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"

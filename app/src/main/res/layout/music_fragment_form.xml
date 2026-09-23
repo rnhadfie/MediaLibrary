@@ -25,6 +25,7 @@
                 android:layout_height="200dp"
                 android:layout_gravity="center"
                 android:scaleType="centerCrop"
+                android:contentDescription="@string/image_view_item_transform_content_description"
                 android:src="@drawable/ic_gallery_black_24dp"
                 app:tint="?android:attr/textColorSecondary" />
 

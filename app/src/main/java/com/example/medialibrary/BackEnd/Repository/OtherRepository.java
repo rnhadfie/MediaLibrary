@@ -7,49 +7,73 @@ import com.example.medialibrary.backend.models.other.Other;
 import com.example.medialibrary.backend.models.other.OtherItem;
 import com.example.medialibrary.backend.models.other.OtherSaveObj;
 import com.example.medialibrary.backend.models.shared.Enums;
-import com.example.medialibrary.backend.models.shared.Filter;
 import com.example.medialibrary.backend.repository.Interface.Interface.IOtherRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 import android.content.ContentValues;
+import android.util.LruCache;
 
-import static com.example.medialibrary.backend.repository.database.DatabaseKeyNames.*;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class OtherRepository extends BaseRepository implements IOtherRepository {
+
+    private final LruCache<String, List<Other>> listCache;
     public OtherRepository(MediaLibraryDbHelper dbHelper) {
+
         super(dbHelper);
+        this.listCache = new LruCache<>(30);
     }
 
     @Override
-    public List<Other> GetOtherCollections(Filter filter) {
+    public List<Other> GetOtherCollections() {
+
+        return GetOtherCollections("", new ArrayList<>());
+    }
+
+    @Override
+    public List<Other> GetOtherCollections(String whereClause, List<String> selectionArgs) {
         List<Other> others = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        List<String> selectionArgs = new ArrayList<>();
-        String whereClause = buildWhereClause(filter, selectionArgs);
 
-        Cursor cursor = db.query(
-                TABLE_OTHERS,
-                null,
-                whereClause,
-                selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
-                null,
-                null,
-                null
-        );
-
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                Other other = new Other();
-                mapMediaItem(cursor, other);
-                other.MediaType = Enums.MediaType.Other;
-                others.add(other);
-            } while (cursor.moveToNext());
-            cursor.close();
+        if (whereClause == null) {
+            whereClause = "";
         }
 
+        String cacheKey = "Other_" + whereClause;
+        List<Other> cachedList = listCache.get(cacheKey);
+        if (cachedList != null) {
+            return cachedList; // Cache hit!
+        }
+
+        try {
+            Cursor cursor = db.query(
+                    TABLE_OTHERS,
+                    null,
+                    whereClause,
+                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    null,
+                    null,
+                    null
+            );
+
+            if (cursor.moveToFirst()) {
+                do {
+                    Other other = new Other();
+                    mapMediaItem(cursor, other);
+                    other.Items = GetOtherItems(other.Id);
+                    other.MediaType = Enums.MediaType.Other;
+                    others.add(other);
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        }
+        catch (Exception e) {
+            return null;
+        }
+        listCache.put(cacheKey, others);
         return others;
     }
 
@@ -66,13 +90,13 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
                     TABLE_OTHERS,
                     null,
                     whereClause,
-                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    selectionArgs.toArray(new String[0]),
                     null,
                     null,
                     null
             );
 
-            if (cursor != null && cursor.moveToFirst()) {
+            if (cursor.moveToFirst()) {
                 do {
                     mapMediaItem(cursor, other);
                     other.MediaType = Enums.MediaType.Other;
@@ -84,10 +108,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         catch (Exception e) {
             return null;
         }
-        finally {
-            db.endTransaction();
-            return other;
-        }
+        return other;
     }
 
     @Override
@@ -96,15 +117,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         db.beginTransaction();
         var other = otherObj.Other;
         try {
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_TITLE, other.Title);
-            values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);
-            values.put(COLUMN_HAS_ENDED, (other.HasSeriesEnded != null && other.HasSeriesEnded) ? 1 : 0);
-            values.put(COLUMN_COMPLETED_COLLECTING, (other.HasCollectedAllItems != null && other.HasCollectedAllItems) ? 1 : 0);
-            values.put(COLUMN_TAG, other.Tag);
-            values.put(COLUMN_COVER, compressBitmap(other.Cover));
-            values.put(COLUMN_GENRE, serializeGenre(other.Genre));
-
+            ContentValues values = mapOtherContentValues(other.Tag, other);
 
             long id = db.insert(TABLE_OTHERS, null, values);
             db.setTransactionSuccessful();
@@ -112,6 +125,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         } catch (Exception e) {
             return false;
         } finally {
+            listCache.evictAll();
             db.endTransaction();
         }
     }
@@ -129,14 +143,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
                 tagId = db.insert(TABLE_TAGS, null, tagValues);
             }
 
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_TITLE, other.Title);
-            values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);
-            values.put(COLUMN_HAS_ENDED, (other.HasSeriesEnded != null && other.HasSeriesEnded) ? 1 : 0);
-            values.put(COLUMN_COMPLETED_COLLECTING, (other.HasCollectedAllItems != null && other.HasCollectedAllItems) ? 1 : 0);
-            values.put(COLUMN_TAG, other.Tag);
-            values.put(COLUMN_COVER, compressBitmap(other.Cover));
-            values.put(COLUMN_GENRE, serializeGenre(other.Genre));
+            ContentValues values = mapOtherContentValues(tagId, other);
 
             var result = db.update(TABLE_OTHERS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(other.Id)});
             db.setTransactionSuccessful();
@@ -147,6 +154,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             return false;
         }
         finally {
+            listCache.evictAll();
             db.endTransaction();
         }
     }
@@ -165,6 +173,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             return false;
         }
         finally {
+            listCache.evictAll();
             db.endTransaction();
         }
     }
@@ -177,15 +186,15 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         selectionArgs.add(String.valueOf(bookId));
         String whereClause = COLUMN_SERIES + " = ?";
         Cursor cursor = db.query(
-                TABLE_BOOK_ITEMS,
+                TABLE_OTHER_ITEMS,
                 null,
                 whereClause,
-                selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                selectionArgs.toArray(new String[0]),
                 null,
                 null,
                 null
         );
-        if (cursor != null && cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) {
             do {
                 OtherItem item = new OtherItem();
                 mapOtherItem(cursor, item);
@@ -202,5 +211,18 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
         item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
         item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
+    }
+
+    private ContentValues mapOtherContentValues(long tagId, Other other)
+    {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TITLE, other.Title);
+        values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);
+        values.put(COLUMN_HAS_ENDED, (other.HasSeriesEnded != null && other.HasSeriesEnded) ? 1 : 0);
+        values.put(COLUMN_COMPLETED_COLLECTING, (other.HasCollectedAllItems != null && other.HasCollectedAllItems) ? 1 : 0);
+        values.put(COLUMN_TAG, tagId);
+        values.put(COLUMN_COVER, compressBitmap(other.Cover));
+        values.put(COLUMN_GENRE, serializeGenre(other.Genre));
+        return values;
     }
 }

@@ -17,7 +17,7 @@ import java.util.Map;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
-public class MainSerivce {
+public class MainService {
     private final MediaLibraryDbHelper dbHelper;
 
     public Lazy<BookRepository> bookRepository;
@@ -27,7 +27,7 @@ public class MainSerivce {
 
     public Lazy<SharedService> sharedService;
 
-    public MainSerivce(MediaLibraryDbHelper dbHelper) {
+    public MainService(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
         this.bookRepository = LazyKt.lazy(() -> new BookRepository(dbHelper));
         this.videoRepository = LazyKt.lazy(() -> new VideoRepository(dbHelper));
@@ -41,10 +41,24 @@ public class MainSerivce {
 
         var sharedService = this.sharedService.getValue();
 
-        allItems.addAll(sharedService.mapToDisplayItems(bookRepository.getValue().GetBooks(filter)));
-        allItems.addAll(sharedService.mapToDisplayItems(videoRepository.getValue().GetVideos(filter)));
-        allItems.addAll(sharedService.mapToDisplayItems(musicRepository.getValue().GetMusic(filter)));
-        allItems.addAll(sharedService.mapToDisplayItems(otherRepository.getValue().GetOtherCollections(filter)));
+
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.None;
+
+        if(allMedia || filter.MediaType == Enums.MediaType.Book) {
+            allItems.addAll(sharedService.mapToDisplayItems(bookRepository.getValue().GetBooks(whereClause, selectionArgs)));
+        }
+        if(allMedia || filter.MediaType == Enums.MediaType.Video) {
+            allItems.addAll(sharedService.mapToDisplayItems(videoRepository.getValue().GetVideos(whereClause, selectionArgs)));
+        }
+        if(allMedia || filter.MediaType == Enums.MediaType.Music){
+            allItems.addAll(sharedService.mapToDisplayItems(musicRepository.getValue().GetMusic(whereClause, selectionArgs)));
+        }
+        if(allMedia || filter.MediaType == Enums.MediaType.Other) {
+            allItems.addAll(sharedService.mapToDisplayItems(otherRepository.getValue().GetOtherCollections(whereClause, selectionArgs)));
+        }
+
 
         return allItems;
     }
@@ -53,10 +67,22 @@ public class MainSerivce {
         List<MediaItem> allItems = new ArrayList<>();
         var sharedService = this.sharedService.getValue();
 
-        allItems.addAll(sharedService.mapToMediaItems(bookRepository.getValue().GetBooks(filter)));
-        allItems.addAll(sharedService.mapToMediaItems(videoRepository.getValue().GetVideos(null)));
-        allItems.addAll(sharedService.mapToMediaItems(musicRepository.getValue().GetMusic(null)));
-        allItems.addAll(sharedService.mapToMediaItems(otherRepository.getValue().GetOtherCollections(null)));
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.None;
+
+        if(allMedia || filter.MediaType == Enums.MediaType.Book) {
+            allItems.addAll(sharedService.mapToMediaItems(bookRepository.getValue().GetBooks(whereClause, selectionArgs)));
+        }
+        if(allMedia || filter.MediaType == Enums.MediaType.Video) {
+            allItems.addAll(sharedService.mapToMediaItems(videoRepository.getValue().GetVideos(whereClause, selectionArgs)));
+        }
+        if(allMedia || filter.MediaType == Enums.MediaType.Music){
+            allItems.addAll(sharedService.mapToMediaItems(musicRepository.getValue().GetMusic(whereClause, selectionArgs)));
+        }
+        if(allMedia || filter.MediaType == Enums.MediaType.Other) {
+            allItems.addAll(sharedService.mapToMediaItems(otherRepository.getValue().GetOtherCollections(whereClause, selectionArgs)));
+        }
 
         return allItems;
     }
@@ -93,7 +119,7 @@ public class MainSerivce {
             genreMap.put(genre.ordinal(), sharedService.GetSeperatedString(genre.toString()));
         }
         return genreMap;
-    };
+    }
 
     public Map<Integer,String> GetMediaTypes() {
         var sharedService = this.sharedService.getValue();
@@ -103,7 +129,7 @@ public class MainSerivce {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
-    };
+    }
 
 
 

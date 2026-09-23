@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -34,7 +33,7 @@ class TagListFragment: Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(TagViewModel::class.java)
+        viewModel = ViewModelProvider(this)[TagViewModel::class.java]
         _binding = TagFragmentListBinding.inflate(inflater, container, false)
 
         controller = MainController(MediaLibraryDbHelper(requireContext()))
@@ -56,7 +55,7 @@ class TagListFragment: Fragment() {
         loadTags()
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -92,7 +91,7 @@ class TagListFragment: Fragment() {
                     } else {
                         controller.UpdateTag(Tag(tag.Id, name))
                     }
-                    ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                    ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                     loadTags()
                 } else {
                     Toast.makeText(requireContext(), "Name cannot be empty", Toast.LENGTH_SHORT).show()
@@ -108,7 +107,7 @@ class TagListFragment: Fragment() {
             .setMessage("Are you sure you want to delete ${tag.Name}?")
             .setPositiveButton("Delete") { _, _ ->
                 controller.DeleteTag(tag.Id)
-                ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                 loadTags()
             }
             .setNegativeButton("Cancel", null)

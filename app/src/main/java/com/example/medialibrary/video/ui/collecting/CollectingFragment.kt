@@ -1,4 +1,4 @@
-package com.example.medialibrary.video.ui.Collecting
+package com.example.medialibrary.video.ui.collecting
 
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -31,13 +30,13 @@ class CollectingFragment : Fragment() {
 
     private var _binding: VideoFragmentCollectingBinding? = null
 
-    private var currentFilter: VideoFilter? = null;
+    private var currentFilter: VideoFilter? = null
 
 
-    private var videoController: VideoController = VideoController();
-    private var viewModel: CollectingViewModel = CollectingViewModel();
+    private var videoController: VideoController = VideoController()
+    private var viewModel: CollectingViewModel = CollectingViewModel()
 
-    private var setup: VideoSetup = VideoSetup();
+    private var setup: VideoSetup = VideoSetup()
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -49,7 +48,7 @@ class CollectingFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel =
-            ViewModelProvider(this).get(CollectingViewModel::class.java)
+            ViewModelProvider(this)[CollectingViewModel::class.java]
 
         _binding = VideoFragmentCollectingBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -76,7 +75,7 @@ class CollectingFragment : Fragment() {
         }
 
         activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
             viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
                 override fun onResume(owner: LifecycleOwner) {
@@ -100,7 +99,7 @@ class CollectingFragment : Fragment() {
         if (currentFilter == null) {
             currentFilter = VideoFilter()
         }
-        currentFilter?.Collecting = true;
+        currentFilter?.Collecting = true
         val items = videoController.GetListOfVideos(currentFilter)
         setup = videoController.GetVideoSetup()
         viewModel.setItems(items ?: emptyList())
@@ -125,9 +124,9 @@ class CollectingFragment : Fragment() {
 
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover?.setImageBitmap(bitmap)
+                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
             } else {
-                holder.binding.mediaItemImageCover?.setImageResource(R.drawable.ic_gallery_black_24dp)
+                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
             }
 
             holder.itemView.setOnClickListener {
@@ -138,7 +137,7 @@ class CollectingFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemEditItem?.setOnClickListener {
+            holder.binding.mediaItemEditItem.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, VideoFormActivity::class.java).apply {
                     putExtra("EXTRA_ID", item.Id)
@@ -146,22 +145,24 @@ class CollectingFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.mediaItemDeleteItem?.setOnClickListener {
+            holder.binding.mediaItemDeleteItem.setOnClickListener {
                 val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                var videoController = VideoController(dbHelper)
+                val videoController = VideoController(dbHelper)
 
                 MaterialAlertDialogBuilder(holder.itemView.context)
                     .setTitle("Confirm Action")
                     .setMessage("Are you sure you want to delete this Video?")
                     .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
+                    .setPositiveButton("Confirm") { dialog, _ ->
                         videoController.DeleteVideo(item.Id)
                         (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
+                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
+                            act.finish()
                         }
+
                         dialog.dismiss()
                     }
-                    .setNegativeButton("Cancel") { dialog, which ->
+                    .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()
