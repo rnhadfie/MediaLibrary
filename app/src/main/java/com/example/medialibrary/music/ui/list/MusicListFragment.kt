@@ -3,50 +3,35 @@ package com.example.medialibrary.music.ui.list
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
-import com.example.medialibrary.R
+import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.music.MusicSetup
-import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentListBinding
-import com.example.medialibrary.databinding.ItemTransformBinding
-import com.example.medialibrary.music.MusicFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
-class MusicListFragment : Fragment() {
-
-    private var _binding: MusicFragmentListBinding? = null
-    private val binding get() = _binding!!
+class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewModel>(
+    MusicFragmentListBinding::inflate
+) {
 
     private var currentFilter: MusicFilter? = null
-
-
     private var musicController: MusicController = MusicController()
-    private var viewModel: MusicListViewModel = MusicListViewModel()
-
     private var setup: MusicSetup = MusicSetup()
 
     override fun onCreateView(
@@ -55,28 +40,27 @@ class MusicListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MusicListViewModel::class.java]
-        _binding = MusicFragmentListBinding.inflate(inflater, container, false)
+        setFragmentType(FragmentType.List)
+
+        val root = super.onCreateView(inflater, container, savedInstanceState)
 
         val recyclerView = binding.recyclerviewCds
-        val adapter = TransformAdapter()
+        val adapter = BaseTransformAdapter()
         recyclerView.adapter = adapter
 
-        // Initialize controller
         val dbHelper = MediaLibraryDbHelper(requireContext())
         musicController = MusicController(dbHelper)
 
         loadData()
 
-        viewModel.items.observe(viewLifecycleOwner) { itemList ->
-            if (itemList.isNullOrEmpty()) {
-                binding.recyclerviewCds.visibility = View.GONE
-                binding.emptyStateContainer.root.visibility = View.VISIBLE
-            } else {
-                binding.recyclerviewCds.visibility = View.VISIBLE
-                binding.emptyStateContainer.root.visibility = View.GONE
-                adapter.submitList(itemList)
-            }
-        }
+        setupEmptyStateObserver(
+            viewModel.items,
+            recyclerView,
+            binding.emptyStateContainer.root,
+            adapter
+        )
+
+        //region binding
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -102,7 +86,6 @@ class MusicListFragment : Fragment() {
 
         binding.musicItemList.setOnClickListener {
             val cds = viewModel.items.value
-
             val sortedCds = cds?.sortedBy { it.Title }
             val cdList = buildString {
                 sortedCds?.forEach { book ->
@@ -114,6 +97,8 @@ class MusicListFragment : Fragment() {
             clipboard.setPrimaryClip(clipData)
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
+
+        //endregion
 
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
@@ -128,7 +113,11 @@ class MusicListFragment : Fragment() {
             })
         }
 
-        return binding.root
+        return root
+    }
+
+    override fun onRefreshData() {
+        loadData()
     }
 
     private fun loadData() {
@@ -138,11 +127,6 @@ class MusicListFragment : Fragment() {
         val items = musicController.GetListOfBooks(currentFilter)
         setup = musicController.GetMusicSetup()
         viewModel.setItems(items ?: emptyList())
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     private fun showFilterSheet(setup: MusicSetup, filter: MusicFilter?) {
@@ -191,71 +175,4 @@ class MusicListFragment : Fragment() {
 
         dialog.show()
     }
-
-    class TransformAdapter :
-        ListAdapter<DisplayMediaItem, TransformViewHolder>(object : DiffUtil.ItemCallback<DisplayMediaItem>() {
-            override fun areItemsTheSame(oldItem: DisplayMediaItem, newItem: DisplayMediaItem): Boolean = oldItem.Id == newItem.Id
-            override fun areContentsTheSame(oldItem: DisplayMediaItem, newItem: DisplayMediaItem): Boolean =
-                oldItem.Title == newItem.Title && (oldItem.Cover?.contentEquals(newItem.Cover ?: byteArrayOf()) ?: (newItem.Cover == null))
-        }) {
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransformViewHolder {
-            val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return TransformViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: TransformViewHolder, position: Int) {
-            val item = getItem(position)
-            holder.binding.item = item
-            holder.binding.executePendingBindings()
-
-            if (item.Cover != null && item.Cover.isNotEmpty()) {
-                val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
-            } else {
-                holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
-            }
-
-
-            holder.itemView.setOnClickListener {
-                val context = holder.itemView.context
-                val intent = Intent(context, MusicFormActivity::class.java).apply {
-                    putExtra("EXTRA_ID", item.Id)
-                    putExtra("EXTRA_IS_EDIT", true)
-                }
-                context.startActivity(intent)
-            }
-            holder.binding.mediaItemEditItem.setOnClickListener {
-                val context = holder.itemView.context
-                val intent = Intent(context, MusicFormActivity::class.java).apply {
-                    putExtra("EXTRA_ID", item.Id)
-                    putExtra("EXTRA_IS_EDIT", true)
-                }
-                context.startActivity(intent)
-            }
-            holder.binding.mediaItemDeleteItem.setOnClickListener {
-                val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                val bookController = MusicController(dbHelper)
-
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Confirm Action")
-                    .setMessage("Are you sure you want to delete this Book Series?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, _ ->
-                        bookController.DeleteMusic(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
-                            act.finish()
-                        }
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-    }
-
-    class TransformViewHolder(val binding: ItemTransformBinding) : RecyclerView.ViewHolder(binding.root)
 }

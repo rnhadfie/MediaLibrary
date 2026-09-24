@@ -121,6 +121,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
 
             db.setTransactionSuccessful();
         } finally {
+            clearAllCaches();
             db.endTransaction();
         }
     }

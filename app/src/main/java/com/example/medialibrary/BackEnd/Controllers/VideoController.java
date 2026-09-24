@@ -19,9 +19,8 @@ import java.util.List;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
-public class VideoController {
+public class VideoController extends BaseController {
     public Lazy<VideoService> videoSerivce;
-    protected MediaLibraryDbHelper dbHelper;
     public VideoController(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
         this.videoSerivce = LazyKt.lazy(() -> new VideoService(dbHelper));

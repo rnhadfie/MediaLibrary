@@ -6,52 +6,56 @@
     android:layout_height="match_parent"
     tools:context=".other.ui.display.DisplayOtherFragment">
 
-    <ScrollView
-        android:id="@+id/scroll_view_other_display"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <LinearLayout
+        android:id="@+id/title_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:id="@+id/title_layout"
+        <TextView
+            android:id="@+id/text_display_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
+            android:layout_weight="1"
+            android:text="@string/other_statistics"
+            android:textAppearance="?attr/textAppearanceHeadline4"
+            android:textColor="?attr/colorOnBackground" />
 
-            <TextView
-                android:id="@+id/text_display_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:text="@string/other_statistics"
-                android:textAppearance="?attr/textAppearanceHeadline4"
-                app:layout_constraintStart_toStartOf="parent"
-                />
-            <ImageButton
-                android:id="@+id/other_item_list"
-                android:contentDescription="@string/get_list_of_items"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_agenda"
-                android:tooltipText="Get list of All Other collections"
-                app:tint="?attr/colorPrimaryDark"
-                />
-        </LinearLayout>
+        <ImageButton
+            android:id="@+id/other_item_list"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/get_list_of_items"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:tooltipText="Get list of All Other collections"
+            app:tint="?attr/colorPrimary" />
+    </LinearLayout>
 
-        <include
-            android:id="@+id/empty_state_container"
-            layout="@layout/view_empty_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ScrollView
+        android:id="@+id/scroll_view_other_display"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_layout">
 
     </ScrollView>
 
+    <include
+        android:id="@+id/empty_state_container"
+        layout="@layout/view_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/nav_list"
         android:name="com.example.medialibrary.other.ui.list.OtherListFragment"
-        android:label="List"
+        android:label="@string/other_collections_list"
         tools:layout="@layout/other_fragment_list" />
 
 
@@ -16,7 +16,7 @@
     <fragment
         android:id="@+id/nav_collecting"
         android:name="com.example.medialibrary.other.ui.collecting.OtherCollectingFragment"
-        android:label="Collecting"
+        android:label="@string/other_collections_currently_collecting"
         tools:layout="@layout/other_fragment_collecting" />
 
 

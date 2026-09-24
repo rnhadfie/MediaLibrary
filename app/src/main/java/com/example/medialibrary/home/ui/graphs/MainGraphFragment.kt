@@ -5,10 +5,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MainController
 import com.example.medialibrary.backend.models.shared.Enums
@@ -27,15 +28,12 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 
-class MainGraphFragment : Fragment() {
-
-    private var _binding: MainFragmentDisplayBinding? = null
-    private val binding get() = _binding!!
+class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphViewModel>(
+    MainFragmentDisplayBinding::inflate
+) {
 
     private var currentFilter = Filter()
-
     private lateinit var controller: MainController
-    private lateinit var viewModel: MainGraphViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,13 +41,22 @@ class MainGraphFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MainGraphViewModel::class.java]
-        _binding = MainFragmentDisplayBinding.inflate(inflater, container, false)
+        setFragmentType(FragmentType.Display)
 
-        // Initialize controller
+        val root = super.onCreateView(inflater, container, savedInstanceState)
+
         val dbHelper = MediaLibraryDbHelper(requireContext())
         controller = MainController(dbHelper)
 
         loadData()
+
+        setupEmptyStateMediaItemObserver(
+            viewModel.mediaItems,
+            binding.mainStatsContainer,
+            binding.emptyStateContainer.root
+        )
+
+        //region binding
 
         binding.buttonBook.setOnClickListener {
             val intent = Intent(requireContext(), BookActivity::class.java)
@@ -71,6 +78,8 @@ class MainGraphFragment : Fragment() {
             startActivity(intent)
         }
 
+        //endregion
+
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
             var lastVersion = refreshViewModel.refreshVersion
@@ -84,27 +93,20 @@ class MainGraphFragment : Fragment() {
             })
         }
 
-        return binding.root
+        return root
+    }
+
+    override fun onRefreshData() {
+        loadData()
     }
 
     private fun loadData() {
         val items = controller.GetMediaItems(currentFilter)
-
-        if (items.isEmpty()) {
-            binding.emptyStateContainer.root.visibility = View.VISIBLE
-            binding.mainStatsContainer.visibility = View.GONE
-        } else {
-            binding.emptyStateContainer.root.visibility = View.GONE
-            binding.mainStatsContainer.visibility = View.VISIBLE
-        }
-
         viewModel.setMediaItems(items)
         setupCharts(items)
-
     }
 
     private fun setupCharts(items: List<MediaItem>) {
-        // Bar Chart Data
         val totalBooks = items.count { it.MediaType == Enums.MediaType.Book }
         val totalVideo = items.count { it.MediaType == Enums.MediaType.Video }
         val totalMusic = items.count { it.MediaType == Enums.MediaType.Music }
@@ -134,21 +136,16 @@ class MainGraphFragment : Fragment() {
             binding.barChart.data = barData
             binding.barChart.description.isEnabled = false
             binding.barChart.xAxis.isEnabled = false
-            
+
             val legend = binding.barChart.legend
             legend.isEnabled = true
             legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
             legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
             legend.orientation = Legend.LegendOrientation.HORIZONTAL
             legend.setDrawInside(false)
-            
+
             binding.barChart.animateY(1000)
         }
         binding.barChart.invalidate()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

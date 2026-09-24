@@ -8,13 +8,13 @@
     <fragment
         android:id="@+id/nav_display"
         android:name="com.example.medialibrary.book.ui.display.BookDisplayFragment"
-        android:label="@string/menu_transform"
+        android:label="@string/book_collection_stats"
         tools:layout="@layout/book_fragment_display" />
 
     <fragment
         android:id="@+id/nav_list"
         android:name="com.example.medialibrary.book.ui.book_list.BookListFragment"
-        android:label="@string/menu_reflow"
+        android:label="@string/book_collection_list"
         tools:layout="@layout/book_fragment_list" />
 
     <fragment
@@ -26,6 +26,6 @@
     <fragment
         android:id="@+id/nav_collecting"
         android:name="com.example.medialibrary.book.ui.collecting.CollectingBookFragment"
-        android:label="collecting"
+        android:label="@string/book_collection_currently_collecting"
         tools:layout="@layout/book_fragment_collecting" />
 </navigation>

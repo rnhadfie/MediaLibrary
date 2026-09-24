@@ -36,12 +36,10 @@ import kotlin.Lazy;
 import kotlin.LazyKt;
 
 public class SharedService {
-    private final MediaLibraryDbHelper dbHelper;
 
     public Lazy<SharedRepository> sharedRepository;
 
     public SharedService(MediaLibraryDbHelper dbHelper) {
-        this.dbHelper = dbHelper;
         this.sharedRepository = LazyKt.lazy(() -> new SharedRepository(dbHelper));
     }
     public <T extends MediaItem> List<MediaItem> mapToMediaItems(List<T> items) {

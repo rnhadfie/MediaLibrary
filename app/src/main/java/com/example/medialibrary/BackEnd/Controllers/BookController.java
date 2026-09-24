@@ -15,10 +15,10 @@ import java.util.List;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
-public class BookController {
+public class BookController extends BaseController {
 
     public Lazy<BookService> bookSerivce;
-    protected MediaLibraryDbHelper dbHelper;
+
     public BookController(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
         this.bookSerivce = LazyKt.lazy(() -> new BookService(dbHelper));

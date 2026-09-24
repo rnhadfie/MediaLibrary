@@ -18,7 +18,6 @@ import kotlin.Lazy;
 import kotlin.LazyKt;
 
 public class MainService {
-    private final MediaLibraryDbHelper dbHelper;
 
     public Lazy<BookRepository> bookRepository;
     public Lazy<VideoRepository> videoRepository;
@@ -28,7 +27,6 @@ public class MainService {
     public Lazy<SharedService> sharedService;
 
     public MainService(MediaLibraryDbHelper dbHelper) {
-        this.dbHelper = dbHelper;
         this.bookRepository = LazyKt.lazy(() -> new BookRepository(dbHelper));
         this.videoRepository = LazyKt.lazy(() -> new VideoRepository(dbHelper));
         this.musicRepository = LazyKt.lazy(() -> new MusicRepository(dbHelper));

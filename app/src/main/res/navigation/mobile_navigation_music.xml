@@ -8,19 +8,19 @@
     <fragment
         android:id="@+id/nav_display"
         android:name="com.example.medialibrary.music.ui.display.MusicDisplayFragment"
-        android:label="Display"
+        android:label="@string/music_collection_stats"
         tools:layout="@layout/music_fragment_display" />
 
     <fragment
         android:id="@+id/nav_list"
         android:name="com.example.medialibrary.music.ui.list.MusicListFragment"
-        android:label="@string/menu_reflow"
+        android:label="@string/music_collection_list"
         tools:layout="@layout/music_fragment_list" />
 
     <fragment
         android:id="@+id/nav_collecting"
         android:name="com.example.medialibrary.music.ui.collecting.MusicCollectingFragment"
-        android:label="Collecting"
+        android:label="@string/music_collection_currently_collecting"
         tools:layout="@layout/music_fragment_collecting" />
 
 </navigation>

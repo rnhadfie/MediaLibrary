@@ -19,9 +19,8 @@ import java.util.List;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
-public class MusicController {
+public class MusicController  extends BaseController{
     public Lazy<MusicService> musicSerivce;
-    protected MediaLibraryDbHelper dbHelper;
     public MusicController(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
         this.musicSerivce = LazyKt.lazy(() -> new MusicService(dbHelper));

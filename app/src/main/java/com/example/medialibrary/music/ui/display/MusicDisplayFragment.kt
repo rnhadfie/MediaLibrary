@@ -4,14 +4,18 @@ import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.widget.Toast
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.Utils.FragmentType
+import com.example.medialibrary.Utils.SafePieChartRenderer
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
@@ -24,24 +28,13 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
-import android.graphics.Color
-import android.widget.Toast
-import com.example.medialibrary.Utils.SafePieChartRenderer
 
-/**
- * Fragment that demonstrates a responsive layout pattern where the format of the content
- * transforms depending on the size of the screen. Specifically this Fragment shows items in
- * the [RecyclerView] using LinearLayoutManager in a small screen
- * and shows items using GridLayoutManager in a large screen.
- */
-class MusicDisplayFragment : Fragment() {
-
-    private var _binding: MusicFragmentDisplayBinding? = null
-    private val binding get() = _binding!!
+class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisplayViewModel>(
+    MusicFragmentDisplayBinding::inflate
+) {
 
     private var currentFilter = MusicFilter()
     private var bookController: MusicController? = null
-    private var viewModel: MusicDisplayViewModel? = null
     private var setup: MusicSetup? = null
 
     override fun onCreateView(
@@ -50,13 +43,34 @@ class MusicDisplayFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MusicDisplayViewModel::class.java]
-        _binding = MusicFragmentDisplayBinding.inflate(inflater, container, false)
+        setFragmentType(FragmentType.Display)
 
-        // Initialize controller
+        val root = super.onCreateView(inflater, container, savedInstanceState)
+
         val dbHelper = MediaLibraryDbHelper(requireContext())
         bookController = MusicController(dbHelper)
 
         loadData()
+
+        setupEmptyStateMediaItemObserver(
+            viewModel.MediaItems,
+            binding.scrollViewMusicDisplay,
+            binding.emptyStateContainer.root
+        )
+
+        binding.musicItemList.setOnClickListener {
+            val cds = viewModel.MediaItems.value
+            val sortedCds = cds?.sortedBy { it.Title }
+            val cdList = buildString {
+                sortedCds?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("CD List", cdList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
 
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
@@ -71,58 +85,33 @@ class MusicDisplayFragment : Fragment() {
             })
         }
 
-        binding.musicItemList?.setOnClickListener {
-            val cds = viewModel?.MediaItems?.value
+        return root
+    }
 
-            val sortedCds = cds?.sortedBy { it.Title }
-            val cdList = buildString {
-                sortedCds?.forEach { book ->
-                    appendLine(book.Title)
-                }
-            }
-            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText("CD List", cdList)
-            clipboard.setPrimaryClip(clipData)
-            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-        }
-
-        return binding.root
+    override fun onRefreshData() {
+        loadData()
     }
 
     private fun loadData() {
         val items = bookController?.GetMusics(currentFilter) ?: emptyList()
-
-        if (items.isEmpty()) {
-            binding.emptyStateContainer.root.visibility = View.VISIBLE
-            binding.scrollViewMusicDisplay.visibility = View.GONE
-        } else {
-            binding.emptyStateContainer.root.visibility = View.GONE
-            binding.scrollViewMusicDisplay.visibility = View.VISIBLE
-        }
-
         setup = bookController?.GetMusicSetup()
-        viewModel?.setMediaItems(items)
+        viewModel.setMediaItems(items)
         setup?.let { setupCharts(items, it) }
     }
 
     @SuppressLint("SetTextI18n")
     private fun setupCharts(items: List<Music>, setup: MusicSetup) {
-
         binding.musicTotalItemsCardText.text = "Total Number of CDs: " + items.count().toString()
 
-        //region Genre Pie Chart
         val pieEntries = ArrayList<PieEntry>()
-
         val genreList = setup.MusicGenre
 
         genreList.forEach { (key, value) ->
             val total = items.filter { it.MusicGenre == MusicGenre.entries[key] }.size
-            if(total > 0 && MusicGenre.entries[key] != MusicGenre.NoneSelected) {
+            if (total > 0 && MusicGenre.entries[key] != MusicGenre.NoneSelected) {
                 pieEntries.add(PieEntry(total.toFloat(), value))
             }
         }
-
-
 
         val genrePieChart = binding.musicGenrePieChart
 
@@ -141,7 +130,7 @@ class MusicDisplayFragment : Fragment() {
             genrePieChart.setTransparentCircleColor(Color.TRANSPARENT)
             genrePieChart.setBackgroundColor(Color.TRANSPARENT)
             genrePieChart.centerText = "Music Genre"
-            genrePieChart.legend.isEnabled=false
+            genrePieChart.legend.isEnabled = false
             genrePieChart.setNoDataTextColor(Color.BLACK)
             genrePieChart.animateXY(1000, 1000)
             genrePieChart.renderer = SafePieChartRenderer(
@@ -151,13 +140,5 @@ class MusicDisplayFragment : Fragment() {
             )
         }
         genrePieChart.invalidate()
-
-        //endregion
-
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

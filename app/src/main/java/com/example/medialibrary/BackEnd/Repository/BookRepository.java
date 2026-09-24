@@ -18,15 +18,17 @@ import android.util.LruCache;
 
 public class BookRepository extends BaseRepository implements IBookRepository {
 
-    private final LruCache<String, List<Book>> listCache;
-    private final LruCache<String, List<Publisher>> listPubCache;
-    public BookRepository(MediaLibraryDbHelper dbHelper) {
+    private static final LruCache<String, List<Book>> listCache = new LruCache<>(30);
+    private static final LruCache<String, List<Publisher>> listPubCache = new LruCache<>(5);
 
+    public BookRepository(MediaLibraryDbHelper dbHelper) {
         super(dbHelper);
-        this.listCache = new LruCache<>(30);
-        this.listPubCache = new LruCache<>(5);
     }
 
+    public static void clearCache() {
+        listCache.evictAll();
+        listPubCache.evictAll();
+    }
 
     //region Books
 
@@ -40,11 +42,12 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         List<Book> books = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        String cacheKey = "Book_" + whereClause;
-
         if (whereClause == null) {
             whereClause = "";
         }
+
+        String argsKey = (selectionArgs != null && !selectionArgs.isEmpty()) ? String.join(",", selectionArgs) : "";
+        String cacheKey = "Book_" + whereClause + "_" + argsKey;
 
         List<Book> cachedList = listCache.get(cacheKey);
         if (cachedList != null) {
@@ -56,7 +59,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                     TABLE_BOOKS,
                     null,
                     whereClause,
-                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    (selectionArgs == null || selectionArgs.isEmpty()) ? null : selectionArgs.toArray(new String[0]),
                     null,
                     null,
                     null
@@ -70,9 +73,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 } while (bookCursor.moveToNext());
                 bookCursor.close();
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return null;
         }
         listCache.put(cacheKey, books);
@@ -81,7 +82,6 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
     @Override
     public Book GetBook(int id) {
-
         Book book = new Book();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try {
@@ -89,8 +89,6 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             selectionArgs.add(String.valueOf(id));
 
             String whereClause = COLUMN_ID + " = ?";
-
-            //region Book
 
             Cursor bookCursor = db.query(
                     TABLE_BOOKS,
@@ -108,12 +106,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 } while (bookCursor.moveToNext());
                 bookCursor.close();
             }
-
-
-            //endregion
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return null;
         }
 
@@ -156,7 +149,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -184,7 +177,6 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
             db.update(TABLE_BOOKS, bookValues, COLUMN_ID + " = ?", new String[]{String.valueOf(bookObj.book.Id)});
 
-            // Delete old items and insert new ones to keep it simple and consistent with AddBook's structure
             db.delete(TABLE_BOOK_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(bookObj.book.Id)});
 
             if (bookObj.book.Items != null) {
@@ -200,7 +192,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -210,19 +202,15 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            // Delete all associated book items first
             db.delete(TABLE_BOOK_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(id)});
-            
-            // Delete the book itself
             int deletedRows = db.delete(TABLE_BOOKS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
-            
             db.setTransactionSuccessful();
             return deletedRows > 0;
         } catch (Exception e) {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -233,13 +221,12 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
     public List<Publisher> GetPublishers() {
         List<Publisher> publishers = new ArrayList<>();
-
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         String cacheKey = "Publisher";
         List<Publisher> cachedList = listPubCache.get(cacheKey);
         if (cachedList != null) {
-            return cachedList; // Cache hit!
+            return cachedList;
         }
 
         try {
@@ -261,11 +248,10 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 } while (cursor.moveToNext());
                 cursor.close();
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return null;
         }
+        listPubCache.put(cacheKey, publishers);
         return publishers;
     }
 
@@ -287,7 +273,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listPubCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -307,7 +293,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listPubCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -317,25 +303,21 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-
-            // Delete the book itself
             int deletedRows = db.delete(TABLE_PUBLISHERS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
-
             db.setTransactionSuccessful();
             return deletedRows > 0;
         } catch (Exception e) {
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listPubCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
 
     //endregion
 
-    private List<BookItem> GetBookItems(int bookId)
-    {
+    private List<BookItem> GetBookItems(int bookId) {
         List<BookItem> items = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> selectionArgs = new ArrayList<>();
@@ -388,8 +370,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         }
     }
 
-    private ContentValues mapBookItemContentValues(long bookId, BookItem item)
-    {
+    private ContentValues mapBookItemContentValues(long bookId, BookItem item) {
         ContentValues itemValues = new ContentValues();
         itemValues.put(COLUMN_SERIES, bookId);
         itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber);
@@ -397,19 +378,18 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
-        itemValues.put(COLUMN_ITEM_COVER,  compressBitmap(item.ItemCover));
+        itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
         return itemValues;
     }
 
-    private ContentValues mapBookContentValues(long publisherId, long tagId, Book book)
-    {
+    private ContentValues mapBookContentValues(long publisherId, long tagId, Book book) {
         ContentValues bookValues = new ContentValues();
         bookValues.put(COLUMN_TITLE, book.Title);
         bookValues.put(COLUMN_COLLECTING, (book.Collecting != null && book.Collecting) ? 1 : 0);
         bookValues.put(COLUMN_HAS_ENDED, (book.HasSeriesEnded != null && book.HasSeriesEnded) ? 1 : 0);
         bookValues.put(COLUMN_COMPLETED_COLLECTING, (book.HasCollectedAllItems != null && book.HasCollectedAllItems) ? 1 : 0);
         bookValues.put(COLUMN_TAG, tagId);
-        bookValues.put(COLUMN_COVER,  compressBitmap(book.Cover));
+        bookValues.put(COLUMN_COVER, compressBitmap(book.Cover));
         bookValues.put(COLUMN_GENRE, serializeGenre(book.Genre));
         bookValues.put(COLUMN_AUTHOR, book.Author);
         bookValues.put(COLUMN_ARTIST, book.Artist);
@@ -417,5 +397,4 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         bookValues.put(COLUMN_PUBLISHER, publisherId);
         return bookValues;
     }
-
 }

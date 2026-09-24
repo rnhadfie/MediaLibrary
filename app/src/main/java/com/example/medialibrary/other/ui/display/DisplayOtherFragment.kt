@@ -8,10 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.Other
@@ -19,16 +20,13 @@ import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherFragmentDisplayBinding
-import com.github.mikephil.charting.utils.ColorTemplate
 
-class DisplayOtherFragment : Fragment() {
-
-    private var _binding: OtherFragmentDisplayBinding? = null
-    private val binding get() = _binding!!
+class DisplayOtherFragment : BaseFragment<OtherFragmentDisplayBinding, DisplayOtherViewModel>(
+    OtherFragmentDisplayBinding::inflate
+) {
 
     private var currentFilter = OtherFilter()
     private var otherController: OtherController? = null
-    private var viewModel: DisplayOtherViewModel? = null
     private var setup: MainSetup? = null
 
     override fun onCreateView(
@@ -36,22 +34,28 @@ class DisplayOtherFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this).get(DisplayOtherViewModel::class.java)
-        _binding = OtherFragmentDisplayBinding.inflate(inflater, container, false)
+        viewModel = ViewModelProvider(this)[DisplayOtherViewModel::class.java]
+        setFragmentType(FragmentType.Display)
 
-        viewModel!!.text.observe(viewLifecycleOwner) {
+        val root = super.onCreateView(inflater, container, savedInstanceState)
+
+        viewModel.text.observe(viewLifecycleOwner) {
             binding.textDisplayTitle?.text = it
         }
 
-        // Initialize controller
         val dbHelper = MediaLibraryDbHelper(requireContext())
         otherController = OtherController(dbHelper)
 
         loadData()
 
-        binding.otherItemList.setOnClickListener {
-            val collection = viewModel?.MediaItems?.value
+        setupEmptyStateMediaItemObserver(
+            viewModel.MediaItems,
+            binding.scrollViewOtherDisplay,
+            binding.emptyStateContainer.root
+        )
 
+        binding.otherItemList.setOnClickListener {
+            val collection = viewModel.MediaItems.value
             val sortedCollections = collection?.sortedBy { it.Title }
             val collectionList = buildString {
                 sortedCollections?.forEach { collection ->
@@ -62,50 +66,35 @@ class DisplayOtherFragment : Fragment() {
             val clipData = ClipData.newPlainText("Collection List", collectionList)
             clipboard.setPrimaryClip(clipData)
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-        }
 
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act).get(SharedRefreshViewModel::class.java)
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
+            activity?.let { act ->
+                val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+                var lastVersion = refreshViewModel.refreshVersion
+                viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+                    override fun onResume(owner: LifecycleOwner) {
+                        if (refreshViewModel.refreshVersion != lastVersion) {
+                            lastVersion = refreshViewModel.refreshVersion
+                            loadData()
+                        }
                     }
-                }
-            })
+                })
+            }
         }
 
-        return binding.root
+        return root
+    }
+
+    override fun onRefreshData() {
+        loadData()
     }
 
     private fun loadData() {
         val items = otherController?.GetOtherCollections(currentFilter) ?: emptyList()
-
-        if (items.isEmpty()) {
-            binding.emptyStateContainer.root.visibility = View.VISIBLE
-            binding.scrollViewOtherDisplay.visibility = View.GONE
-        } else {
-            binding.emptyStateContainer.root.visibility = View.GONE
-            binding.scrollViewOtherDisplay.visibility = View.VISIBLE
-        }
-
         setup = otherController?.GetSetup()
-        viewModel?.setMediaItems(items)
+        viewModel.setMediaItems(items)
         setup?.let { setupCharts(items, it) }
     }
 
-
-
     private fun setupCharts(items: List<Other>, setup: MainSetup) {
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
-
-
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

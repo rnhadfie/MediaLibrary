@@ -9,10 +9,9 @@ import java.util.List;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
-public class MainController {
+public class MainController extends BaseController {
 
     public Lazy<MainService> mainSerivce;
-    protected MediaLibraryDbHelper dbHelper;
 
     public MainController() {
 

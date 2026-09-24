@@ -20,16 +20,18 @@ import java.util.List;
 
 public class OtherRepository extends BaseRepository implements IOtherRepository {
 
-    private final LruCache<String, List<Other>> listCache;
-    public OtherRepository(MediaLibraryDbHelper dbHelper) {
+    private static final LruCache<String, List<Other>> listCache = new LruCache<>(30);
 
+    public OtherRepository(MediaLibraryDbHelper dbHelper) {
         super(dbHelper);
-        this.listCache = new LruCache<>(30);
+    }
+
+    public static void clearCache() {
+        listCache.evictAll();
     }
 
     @Override
     public List<Other> GetOtherCollections() {
-
         return GetOtherCollections("", new ArrayList<>());
     }
 
@@ -42,7 +44,9 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             whereClause = "";
         }
 
-        String cacheKey = "Other_" + whereClause;
+        String argsKey = (selectionArgs != null && !selectionArgs.isEmpty()) ? String.join(",", selectionArgs) : "";
+        String cacheKey = "Other_" + whereClause + "_" + argsKey;
+
         List<Other> cachedList = listCache.get(cacheKey);
         if (cachedList != null) {
             return cachedList; // Cache hit!
@@ -53,7 +57,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
                     TABLE_OTHERS,
                     null,
                     whereClause,
-                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    (selectionArgs == null || selectionArgs.isEmpty()) ? null : selectionArgs.toArray(new String[0]),
                     null,
                     null,
                     null
@@ -69,8 +73,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
                 } while (cursor.moveToNext());
                 cursor.close();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
         listCache.put(cacheKey, others);
@@ -104,8 +107,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
                 } while (cursor.moveToNext());
                 cursor.close();
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return null;
         }
         return other;
@@ -125,7 +127,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         } catch (Exception e) {
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -148,13 +150,10 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             var result = db.update(TABLE_OTHERS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(other.Id)});
             db.setTransactionSuccessful();
             return result > -1;
-
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
-        }
-        finally {
-            listCache.evictAll();
+        } finally {
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -168,18 +167,15 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             db.delete(TABLE_OTHERS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
             db.setTransactionSuccessful();
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
-        }
-        finally {
-            listCache.evictAll();
+        } finally {
+            clearAllCaches();
             db.endTransaction();
         }
     }
 
-    private List<OtherItem> GetOtherItems(int bookId)
-    {
+    private List<OtherItem> GetOtherItems(int bookId) {
         List<OtherItem> items = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> selectionArgs = new ArrayList<>();
@@ -213,8 +209,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
     }
 
-    private ContentValues mapOtherContentValues(long tagId, Other other)
-    {
+    private ContentValues mapOtherContentValues(long tagId, Other other) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, other.Title);
         values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);

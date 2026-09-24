@@ -5,47 +5,76 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".music.ui.display.MusicDisplayFragment">
-    <TextView
-        android:id="@+id/text_display_title"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:id="@+id/title_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:text="Music Statistics"
-        android:textAppearance="?attr/textAppearanceHeadline5"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/text_display_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/music_statistics"
+            android:textAppearance="?attr/textAppearanceHeadline4"
+            android:textColor="?attr/colorOnBackground" />
+
+        <ImageButton
+            android:id="@+id/music_item_list"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/get_list_of_items"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:tooltipText="Get list of All Cds"
+            app:tint="?attr/colorPrimary" />
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scroll_view_music_display"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/text_display_title">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_layout">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/music_total_items_card_view"
                 android:layout_width="match_parent"
+                android:layout_height="80dp"
                 android:layout_margin="16dp"
-                android:layout_height="match_parent">
+                app:cardBackgroundColor="@color/card">
+
                 <TextView
+                    android:id="@+id/music_total_items_card_text"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:id="@+id/music_total_items_card_text"
-                    android:text="Total Cds"/>
+                    android:gravity="center"
+                    android:text="@string/total_cds"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:textColor="@color/black" />
             </androidx.cardview.widget.CardView>
-
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/music_genre_pie_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:layout_marginTop="16dp" />
-
+                android:layout_marginTop="16dp"
+                android:background="@color/base" />
 
         </LinearLayout>
     </ScrollView>
@@ -58,5 +87,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/title_layout" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

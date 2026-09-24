@@ -19,15 +19,18 @@ import java.util.logging.Logger;
 
 public class VideoRepository extends BaseRepository implements IVideoRepository {
 
-    private final LruCache<String, List<Video>> listCache;
+    private static final LruCache<String, List<Video>> listCache = new LruCache<>(30);
+
     public VideoRepository(MediaLibraryDbHelper dbHelper) {
         super(dbHelper);
-        this.listCache = new LruCache<>(30);
+    }
+
+    public static void clearCache() {
+        listCache.evictAll();
     }
 
     @Override
     public List<Video> GetVideos() {
-
         return GetVideos("", new ArrayList<>());
     }
 
@@ -36,12 +39,13 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         List<Video> videos = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-
         if (whereClause == null) {
             whereClause = "";
         }
 
-        String cacheKey = "Video_" + whereClause;
+        String argsKey = (selectionArgs != null && !selectionArgs.isEmpty()) ? String.join(",", selectionArgs) : "";
+        String cacheKey = "Video_" + whereClause + "_" + argsKey;
+
         List<Video> cachedList = listCache.get(cacheKey);
         if (cachedList != null) {
             return cachedList; // Cache hit!
@@ -52,7 +56,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
                     TABLE_VIDEOS,
                     null,
                     whereClause,
-                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    (selectionArgs == null || selectionArgs.isEmpty()) ? null : selectionArgs.toArray(new String[0]),
                     null,
                     null,
                     null
@@ -66,9 +70,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
                 } while (cursor.moveToNext());
                 cursor.close();
             }
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return null;
         }
         listCache.put(cacheKey, videos);
@@ -78,7 +80,6 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
 
     @Override
     public Video GetVideo(int id) {
-
         Video video = new Video();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -87,8 +88,6 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
             selectionArgs.add(String.valueOf(id));
 
             String whereClause = COLUMN_ID + " = ?";
-
-            //region Video
 
             Cursor videoCursor = db.query(
                     TABLE_VIDEOS,
@@ -103,16 +102,10 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
             if (videoCursor.moveToFirst()) {
                 do {
                     mapVideo(videoCursor, video);
-
                 } while (videoCursor.moveToNext());
                 videoCursor.close();
             }
-
-            //endregion
-
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             return null;
         }
 
@@ -124,7 +117,6 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-
             long tagId = videoObj.video.Tag;
             if (videoObj.NewTag != null && !videoObj.NewTag.isEmpty()) {
                 ContentValues tagValues = new ContentValues();
@@ -149,7 +141,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
             Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -159,7 +151,6 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-
             long tagId = videoObj.video.Tag;
             if (videoObj.NewTag != null && !videoObj.NewTag.isEmpty()) {
                 ContentValues tagValues = new ContentValues();
@@ -171,12 +162,10 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
 
             db.update(TABLE_VIDEOS, videoValues, COLUMN_ID + " = ?", new String[]{String.valueOf(videoObj.video.Id)});
 
-            // Delete old items and insert new ones to keep it simple and consistent with AddBook's structure
             db.delete(TABLE_VIDEO_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(videoObj.video.Id)});
 
             if (videoObj.video.Items != null) {
                 for (VideoItem item : videoObj.video.Items) {
-
                     ContentValues itemValues = mapVideoItemContentValues(videoObj.video.Id, item);
                     db.insert(TABLE_VIDEO_ITEMS, null, itemValues);
                 }
@@ -188,7 +177,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
             Logger.getLogger(VideoRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -198,26 +187,20 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            // Delete all associated book items first
             db.delete(TABLE_VIDEO_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(id)});
-
-            // Delete the book itself
             int deletedRows = db.delete(TABLE_VIDEOS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
-
             db.setTransactionSuccessful();
             return deletedRows > 0;
         } catch (Exception e) {
             Logger.getLogger(VideoRepository.class.getName()).severe(e.getMessage());
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
 
-
-    private List<VideoItem> GetVideoItems(Integer id)
-    {
+    private List<VideoItem> GetVideoItems(Integer id) {
         List<VideoItem> items = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -252,8 +235,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
     }
 
-    private void mapVideo(Cursor videoCursor, Video video)
-    {
+    private void mapVideo(Cursor videoCursor, Video video) {
         mapMediaItem(videoCursor, video);
         video.MediaType = MediaType.Video;
         video.Items = GetVideoItems(video.Id);
@@ -266,8 +248,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         }
     }
 
-    private ContentValues mapVideoContentValues(long tagId, Video video)
-    {
+    private ContentValues mapVideoContentValues(long tagId, Video video) {
         ContentValues videoValues = new ContentValues();
         videoValues.put(COLUMN_TITLE, video.Title);
         videoValues.put(COLUMN_COLLECTING, (video.Collecting != null && video.Collecting) ? 1 : 0);
@@ -281,8 +262,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         return videoValues;
     }
 
-    private ContentValues mapVideoItemContentValues(long videoId, VideoItem item)
-    {
+    private ContentValues mapVideoItemContentValues(long videoId, VideoItem item) {
         ContentValues itemValues = new ContentValues();
         itemValues.put(COLUMN_SERIES, videoId);
         itemValues.put(COLUMN_DISC_NUMBER, item.DiscNumber);

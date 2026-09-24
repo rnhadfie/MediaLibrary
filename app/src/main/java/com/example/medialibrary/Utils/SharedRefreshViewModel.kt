@@ -1,11 +1,14 @@
 package com.example.medialibrary.Utils
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class SharedRefreshViewModel : ViewModel() {
-    var refreshVersion = 0
+    private val _refreshVersion = MutableLiveData(0)
+    val refreshVersion: LiveData<Int> = _refreshVersion
 
     fun incrementVersion() {
-        refreshVersion++
+        _refreshVersion.value = (_refreshVersion.value ?: 0) + 1
     }
 }

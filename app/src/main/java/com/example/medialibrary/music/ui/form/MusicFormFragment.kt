@@ -80,6 +80,7 @@ class MusicFormFragment : Fragment() {
         controller = MusicController(dbHelper)
 
         _binding = MusicFragmentFormBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 

@@ -8,18 +8,18 @@
     <fragment
         android:id="@+id/nav_list"
         android:name="com.example.medialibrary.video.ui.List.VideoListFragment"
-        android:label="List"
+        android:label="@string/movie_and_tv_collection_stats"
         tools:layout="@layout/video_fragment_list" />
 
     <fragment
         android:id="@+id/nav_display"
         android:name="com.example.medialibrary.video.ui.Display.VideoDisplayFragment"
-        android:label="Display"
+        android:label="@string/moive_and_tv_collections_list"
         tools:layout="@layout/video_fragment_display" />
 
     <fragment
         android:id="@+id/nav_collecting"
         android:name="com.example.medialibrary.video.ui.collecting.CollectingFragment"
-        android:label="Collecting"
+        android:label="@string/movie_and_tv_collection_currently_collecting"
         tools:layout="@layout/video_fragment_collecting" />
 </navigation>

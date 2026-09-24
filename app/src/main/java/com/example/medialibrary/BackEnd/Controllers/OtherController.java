@@ -14,10 +14,9 @@ import java.util.List;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
-public class OtherController {
+public class OtherController extends BaseController{
     public Lazy<OtherService> otherSerivce;
     public Lazy<MainService> mainService;
-    protected MediaLibraryDbHelper dbHelper;
     public OtherController(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
         this.otherSerivce = LazyKt.lazy(() -> new OtherService(dbHelper));

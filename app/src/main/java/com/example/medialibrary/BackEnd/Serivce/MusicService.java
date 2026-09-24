@@ -19,13 +19,10 @@ import kotlin.LazyKt;
 
 public class MusicService {
 
-    private final MediaLibraryDbHelper dbHelper;
-
     public Lazy<MusicRepository> musicRepository;
     public Lazy<SharedService> sharedService;
 
     public MusicService(MediaLibraryDbHelper dbHelper) {
-        this.dbHelper = dbHelper;
         this.musicRepository = LazyKt.lazy(() -> new MusicRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
     }

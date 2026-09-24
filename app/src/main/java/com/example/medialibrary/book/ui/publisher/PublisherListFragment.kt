@@ -7,13 +7,12 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.Publisher
@@ -21,12 +20,10 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.PublisherFragmentListBinding
 import com.example.medialibrary.databinding.PublisherItemBinding
 
-class PublisherListFragment : Fragment() {
+class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, PublisherViewModel>(
+    PublisherFragmentListBinding::inflate
+) {
 
-    private var _binding: PublisherFragmentListBinding? = null
-    private val binding get() = _binding!!
-
-    private lateinit var viewModel: PublisherViewModel
     private lateinit var controller: BookController
 
     override fun onCreateView(
@@ -35,7 +32,9 @@ class PublisherListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[PublisherViewModel::class.java]
-        _binding = PublisherFragmentListBinding.inflate(inflater, container, false)
+        setFragmentType(FragmentType.Publisher)
+
+        val root = super.onCreateView(inflater, container, savedInstanceState)
 
         controller = BookController(MediaLibraryDbHelper(requireContext()))
 
@@ -55,20 +54,11 @@ class PublisherListFragment : Fragment() {
 
         loadPublishers()
 
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadPublishers()
-                    }
-                }
-            })
-        }
+        return root
+    }
 
-        return binding.root
+    override fun onRefreshData() {
+        loadPublishers()
     }
 
     private fun loadPublishers() {
@@ -113,11 +103,6 @@ class PublisherListFragment : Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     class PublisherAdapter(

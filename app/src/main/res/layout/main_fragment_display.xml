@@ -6,6 +6,73 @@
     android:layout_height="match_parent"
     tools:context=".home.ui.graphs.MainGraphFragment">
 
+    <LinearLayout
+        android:id="@+id/buttons_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_book"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="8dp"
+            android:text="@string/see_all_books"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:icon="@drawable/ic_book_small"
+            app:iconGravity="start"
+            app:iconPadding="16dp"
+            app:iconSize="28dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_video"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="8dp"
+            android:text="@string/see_all_movies_and_tv_shows"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:icon="@drawable/ic_movie"
+            app:iconGravity="start"
+            app:iconPadding="16dp"
+            app:iconSize="28dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_music"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="8dp"
+            android:text="@string/see_all_cds"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:icon="@drawable/ic_music"
+            app:iconGravity="start"
+            app:iconPadding="16dp"
+            app:iconSize="28dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/button_other"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_margin="8dp"
+            android:text="@string/see_other_items"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            app:icon="@drawable/other_item_large"
+            app:iconGravity="start"
+            app:iconPadding="16dp"
+            app:iconSize="28dp" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="?android:attr/listDivider" />
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/scroll_view_all_graphs"
         android:layout_width="0dp"
@@ -13,92 +80,33 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/buttons_container">
 
         <LinearLayout
+            android:id="@+id/main_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_book"
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/bar_chart"
                 android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_margin="8dp"
-                android:text="@string/see_all_books"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                app:icon="@drawable/ic_book_small"
-                app:iconGravity="start"
-                app:iconPadding="16dp"
-                app:iconSize="28dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_video"
-                android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_margin="8dp"
-                android:text="@string/see_all_movies_and_tv_shows"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                app:icon="@drawable/ic_movie"
-                app:iconGravity="start"
-                app:iconPadding="16dp"
-                app:iconSize="28dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_music"
-                android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_margin="8dp"
-                android:text="@string/see_all_cds"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                app:icon="@drawable/ic_music"
-                app:iconGravity="start"
-                app:iconPadding="16dp"
-                app:iconSize="28dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_other"
-                android:layout_width="match_parent"
-                android:layout_height="72dp"
-                android:layout_margin="8dp"
-                android:text="@string/see_other_items"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                app:icon="@drawable/other_item_large"
-                app:iconGravity="start"
-                app:iconPadding="16dp"
-                app:iconSize="28dp" />
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp"
-                android:background="?android:attr/listDivider" />
-
-            <LinearLayout
-                android:id="@+id/main_stats_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/bar_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginTop="16dp" />
-
-            </LinearLayout>
-
-            <include
-                android:id="@+id/empty_state_container"
-                layout="@layout/view_empty_state"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp" />
 
         </LinearLayout>
 
     </ScrollView>
+
+    <include
+        android:id="@+id/empty_state_container"
+        layout="@layout/view_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttons_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

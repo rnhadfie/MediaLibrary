@@ -19,18 +19,20 @@ import java.util.List;
 
 public class MusicRepository extends BaseRepository implements IMusicRepository {
 
-    private final LruCache<String, List<Music>> listCache;
+    private static final LruCache<String, List<Music>> listCache = new LruCache<>(30);
 
     public MusicRepository(MediaLibraryDbHelper dbHelper) {
         super(dbHelper);
-        this.listCache = new LruCache<>(30);
+    }
+
+    public static void clearCache() {
+        listCache.evictAll();
     }
 
     @Override
     public List<Music> GetMusic() {
         return GetMusic("", new ArrayList<>());
     }
-
 
     @Override
     public List<Music> GetMusic(String whereClause, List<String> selectionArgs) {
@@ -40,19 +42,20 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             whereClause = "";
         }
 
-        String cacheKey = "Music_" + whereClause;
+        String argsKey = (selectionArgs != null && !selectionArgs.isEmpty()) ? String.join(",", selectionArgs) : "";
+        String cacheKey = "Music_" + whereClause + "_" + argsKey;
+
         List<Music> cachedList = listCache.get(cacheKey);
         if (cachedList != null) {
             return cachedList; // Cache hit!
         }
 
         try {
-
             Cursor cursor = db.query(
                     TABLE_MUSIC,
                     null,
                     whereClause,
-                    selectionArgs.isEmpty() ? null : selectionArgs.toArray(new String[0]),
+                    (selectionArgs == null || selectionArgs.isEmpty()) ? null : selectionArgs.toArray(new String[0]),
                     null,
                     null,
                     null
@@ -98,7 +101,6 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
                 } while (cursor.moveToNext());
                 cursor.close();
             }
-            db.setTransactionSuccessful();
             return music;
         } catch (Exception ex) {
             return null;
@@ -110,7 +112,6 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-
             long tagId = musicObj.Music.Tag;
             if (musicObj.NewTag != null && !musicObj.NewTag.isEmpty()) {
                 ContentValues tagValues = new ContentValues();
@@ -126,9 +127,8 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             return id != -1;
         } catch (Exception e) {
             return false;
-
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -145,8 +145,10 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             long result = db.update(TABLE_MUSIC, values, COLUMN_ID + " = ?", new String[]{String.valueOf(music.Id)});
             db.setTransactionSuccessful();
             return result != -1;
+        } catch (Exception e) {
+            return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
         }
     }
@@ -162,9 +164,8 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         } catch (Exception e) {
             return false;
         } finally {
-            listCache.evictAll();
+            clearAllCaches();
             db.endTransaction();
-
         }
     }
 
@@ -172,7 +173,6 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         if (musicGenre == null || musicGenre == MusicGenre.NoneSelected) {
             return "";
         }
-
         return String.valueOf(musicGenre.ordinal());
     }
 
@@ -181,12 +181,10 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             return MusicGenre.NoneSelected;
         }
         int musicGenre = Integer.parseInt(genre);
-
         return MusicGenre.values()[musicGenre];
     }
 
     private void MapMusicItems(Cursor cursor, Music music) {
-
         mapMediaItem(cursor, music);
         music.MediaType = Enums.MediaType.Music;
         music.Artist = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ARTIST));
@@ -194,8 +192,7 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         music.MusicGenre = deserializeMusicGenre(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_GENRE)));
     }
 
-    private ContentValues MapMusicContentValues(long tagId, Music music)
-    {
+    private ContentValues MapMusicContentValues(long tagId, Music music) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, music.Title);
         values.put(COLUMN_COLLECTING, (music.Collecting != null && music.Collecting) ? 1 : 0);
@@ -209,5 +206,4 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         values.put(COLUMN_COVER, compressBitmap(music.Cover));
         return values;
     }
-
 }

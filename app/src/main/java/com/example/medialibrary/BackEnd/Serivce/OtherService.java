@@ -14,13 +14,11 @@ import kotlin.Lazy;
 import kotlin.LazyKt;
 
 public class OtherService {
-    private final MediaLibraryDbHelper dbHelper;
 
     public Lazy<OtherRepository> otherRepository;
     public Lazy<SharedService> sharedService;
 
     public OtherService(MediaLibraryDbHelper dbHelper) {
-        this.dbHelper = dbHelper;
         this.otherRepository = LazyKt.lazy(() -> new OtherRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
     }

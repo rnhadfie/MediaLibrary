@@ -7,6 +7,72 @@
     android:label="@string/book_collection_stats"
     tools:context=".book.ui.display.BookDisplayFragment">
 
+    <LinearLayout
+        android:id="@+id/top_controls_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/title_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/text_display_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/book_statistics"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                android:textColor="?attr/colorOnBackground" />
+
+            <ImageButton
+                android:id="@+id/book_item_list"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/get_list_of_items"
+                android:src="@android:drawable/ic_menu_agenda"
+                android:tooltipText="Get list of visible books and book series"
+                app:tint="?attr/colorPrimary" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/text_sheet_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:labelFor="@id/dropdown_sheet_type"
+            android:text="@string/book_type_label"
+            android:textAppearance="?attr/textAppearanceCaption"
+            android:textColor="?attr/colorOnBackground" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dropdown_layout_sheet_type"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            app:boxBackgroundColor="@color/card">
+
+            <AutoCompleteTextView
+                android:id="@+id/dropdown_sheet_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:saveEnabled="false"
+                android:textColor="@color/black" />
+        </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
     <ScrollView
         android:id="@+id/scroll_view_book_display"
         android:layout_width="0dp"
@@ -14,9 +80,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/top_controls_container">
 
         <LinearLayout
+            android:id="@+id/book_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -25,191 +92,138 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="16dp">
+                android:orientation="horizontal">
 
-                <TextView
-                    android:id="@+id/text_display_title"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/book_total_Series_card_view"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="120dp"
+                    android:layout_margin="8dp"
                     android:layout_weight="1"
-                    android:text="@string/book_statistics"
-                    android:textAppearance="?attr/textAppearanceHeadline4"
-                    android:textColor="?attr/colorOnBackground" />
+                    android:textSize="16sp"
+                    app:cardBackgroundColor="@color/card">
 
-                <ImageButton
-                    android:id="@+id/book_item_list"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/get_list_of_items"
-                    android:src="@android:drawable/ic_menu_agenda"
-                    android:tooltipText="Get list of visible books and book series"
-                    app:tint="?attr/colorPrimary" />
+                    <TextView
+                        android:id="@+id/book_total_Series_card_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="@string/total_number_of_series"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="@color/black" />
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/book_total_books_card_view"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_margin="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/card">
+
+                    <TextView
+                        android:id="@+id/book_total_card_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="16sp"
+                        android:text="@string/total_number_of_books"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="@color/black" />
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/text_sheet_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:labelFor="@id/dropdown_sheet_type"
-                android:text="@string/book_type_label"
-                android:textAppearance="?attr/textAppearanceCaption"
-                android:textColor="?attr/colorOnBackground" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/dropdown_layout_sheet_type"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:boxBackgroundColor="@color/card">
-
-                <AutoCompleteTextView
-                    android:id="@+id/dropdown_sheet_type"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:saveEnabled="false"
-                    android:textColor="@color/black" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
-                android:id="@+id/book_stats_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/book_total_ongoing_card_view"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_margin="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/card">
 
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/book_total_Series_card_view"
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="@color/card">
+                    <TextView
+                        android:id="@+id/book_ongoing_card_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:textSize="14sp"
+                        android:text="@string/total_number_of_books"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="@color/black" />
+                </androidx.cardview.widget.CardView>
 
-                        <TextView
-                            android:id="@+id/book_total_Series_card_text"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:text="@string/total_number_of_series"
-                            android:textAppearance="?attr/textAppearanceHeadline6"
-                            android:textColor="@color/black" />
-                    </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/book_completed_card_view"
+                    android:layout_width="0dp"
+                    android:layout_height="120dp"
+                    android:layout_margin="8dp"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/card">
 
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/book_total_books_card_view"
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="@color/card">
-
-                        <TextView
-                            android:id="@+id/book_total_card_text"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:text="@string/total_number_of_books"
-                            android:textAppearance="?attr/textAppearanceHeadline6"
-                            android:textColor="@color/black" />
-                    </androidx.cardview.widget.CardView>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/book_total_ongoing_card_view"
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="@color/card">
-
-                        <TextView
-                            android:id="@+id/book_ongoing_card_text"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:text="@string/total_number_of_books"
-                            android:textAppearance="?attr/textAppearanceHeadline6"
-                            android:textColor="@color/black" />
-                    </androidx.cardview.widget.CardView>
-
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/book_completed_card_view"
-                        android:layout_width="0dp"
-                        android:layout_height="120dp"
-                        android:layout_margin="8dp"
-                        android:layout_weight="1"
-                        app:cardBackgroundColor="@color/card">
-
-                        <TextView
-                            android:id="@+id/book_completed_card_text"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:padding="8dp"
-                            android:textAppearance="?attr/textAppearanceHeadline6"
-                            android:textColor="@color/black" />
-                    </androidx.cardview.widget.CardView>
-                </LinearLayout>
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/book_read_progress"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_margin="16dp"
-                    android:background="@color/base" />
-
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/book_type_bar_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginTop="16dp" />
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/book_genre_pie_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@color/base" />
-
-                <com.github.mikephil.charting.charts.BarChart
-                    android:id="@+id/book_publisher_bar_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginTop="16dp" />
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/book_format_pie_chart"
-                    android:layout_width="match_parent"
-                    android:layout_height="300dp"
-                    android:layout_marginTop="16dp"
-                    android:background="@color/base" />
-
+                    <TextView
+                        android:id="@+id/book_completed_card_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textSize="14sp"
+                        android:padding="8dp"
+                        android:textAppearance="?attr/textAppearanceHeadline6"
+                        android:textColor="@color/black" />
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
 
-            <include
-                android:id="@+id/empty_state_container"
-                layout="@layout/view_empty_state"
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/book_read_progress"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="300dp"
+                android:layout_margin="16dp"
+                android:background="@color/base" />
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/book_type_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp" />
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/book_genre_pie_chart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/base" />
+
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/book_publisher_bar_chart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp" />
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/book_format_pie_chart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/base" />
+
         </LinearLayout>
     </ScrollView>
+
+    <include
+        android:id="@+id/empty_state_container"
+        layout="@layout/view_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/top_controls_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

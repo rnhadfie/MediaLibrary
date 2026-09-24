@@ -7,13 +7,12 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MainController
 import com.example.medialibrary.backend.models.shared.Tag
@@ -21,11 +20,10 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.TagFragmentListBinding
 import com.example.medialibrary.databinding.TagItemBinding
 
-class TagListFragment: Fragment() {
-    private var _binding: TagFragmentListBinding? = null
-    private val binding get() = _binding!!
+class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
+    TagFragmentListBinding::inflate
+) {
 
-    private lateinit var viewModel: TagViewModel
     private lateinit var controller: MainController
 
     override fun onCreateView(
@@ -34,7 +32,9 @@ class TagListFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[TagViewModel::class.java]
-        _binding = TagFragmentListBinding.inflate(inflater, container, false)
+        setFragmentType(FragmentType.Tag)
+
+        val root = super.onCreateView(inflater, container, savedInstanceState)
 
         controller = MainController(MediaLibraryDbHelper(requireContext()))
 
@@ -54,20 +54,11 @@ class TagListFragment: Fragment() {
 
         loadTags()
 
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadTags()
-                    }
-                }
-            })
-        }
+        return root
+    }
 
-        return binding.root
+    override fun onRefreshData() {
+        loadTags()
     }
 
     private fun loadTags() {
@@ -112,11 +103,6 @@ class TagListFragment: Fragment() {
             }
             .setNegativeButton("Cancel", null)
             .show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 
     class TagAdapter(

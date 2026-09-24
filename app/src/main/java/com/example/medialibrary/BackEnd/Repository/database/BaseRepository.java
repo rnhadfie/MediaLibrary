@@ -7,6 +7,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import com.example.medialibrary.backend.models.video.Enums.*;
 import com.example.medialibrary.backend.models.shared.MediaItem;
+import com.example.medialibrary.backend.repository.BookRepository;
+import com.example.medialibrary.backend.repository.MusicRepository;
+import com.example.medialibrary.backend.repository.OtherRepository;
+import com.example.medialibrary.backend.repository.VideoRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -15,9 +19,15 @@ import java.util.List;
 public abstract class BaseRepository {
     protected MediaLibraryDbHelper dbHelper;
 
-
     public BaseRepository(MediaLibraryDbHelper dbHelper) {
         this.dbHelper = dbHelper;
+    }
+
+    public static void clearAllCaches() {
+        BookRepository.clearCache();
+        VideoRepository.clearCache();
+        MusicRepository.clearCache();
+        OtherRepository.clearCache();
     }
 
     protected void mapMediaItem(Cursor cursor, MediaItem item) {
@@ -41,8 +51,6 @@ public abstract class BaseRepository {
         }
     }
 
-
-
     protected String serializeGenre(List<Integer> genre) {
         if (genre == null || genre.isEmpty()) {
             return "";
@@ -57,7 +65,7 @@ public abstract class BaseRepository {
         return sb.toString();
     }
 
-    protected  List<Integer> deserializeGenre(String genre) {
+    protected List<Integer> deserializeGenre(String genre) {
         if (genre == null || genre.isEmpty()) {
             return new ArrayList<>();
         }
@@ -82,7 +90,6 @@ public abstract class BaseRepository {
 
         return outputStream.toByteArray();
     }
-
 
     protected byte[] decompressBitmap(byte[] compressedBytes) {
         return compressedBytes;

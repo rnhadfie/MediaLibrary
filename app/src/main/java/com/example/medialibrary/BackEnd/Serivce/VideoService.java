@@ -16,13 +16,11 @@ import kotlin.Lazy;
 import kotlin.LazyKt;
 
 public class VideoService {
-    private final MediaLibraryDbHelper dbHelper;
 
     public Lazy<VideoRepository> videoRepository;
     public Lazy<SharedService> sharedService;
 
     public VideoService(MediaLibraryDbHelper dbHelper) {
-        this.dbHelper = dbHelper;
         this.videoRepository = LazyKt.lazy(() -> new VideoRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
     }

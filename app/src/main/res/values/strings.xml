@@ -101,4 +101,11 @@
     <string name="music_collection_stats">Music Collection Stats</string>
     <string name="other_collections_currently_collecting">Other Collections - Currently Collecting</string>
     <string name="moive_and_tv_collections_list">Movie and TV collections List</string>
+    <string name="other_collections_list">Other Collections List</string>
+    <string name="music_collection_list">Music Collection List</string>
+    <string name="music_collection_currently_collecting">Music Collection - Currently Collecting</string>
+    <string name="media_collection_currently_collecting">Media Collection - Currently Collecting</string>
+    <string name="movie_and_tv_collection_currently_collecting">Movie and TV Collection - Currently Collecting</string>
+    <string name="movie_and_tv_collection_stats">Movie and TV Collection Stats</string>
+    <string name="book_collection_currently_collecting">Book Collection - Currently Collecting</string>
 </resources>
