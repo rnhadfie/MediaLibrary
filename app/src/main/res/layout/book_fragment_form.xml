@@ -17,33 +17,9 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="150dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/card"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+            <include layout="@layout/view_change_image"
+                android:id="@+id/change_image"/>
 
-                <ImageView
-                    android:id="@+id/image_book_cover"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/change_cover"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_gallery_black_24dp"
-                    app:tint="?attr/colorPrimary" />
-            </androidx.cardview.widget.CardView>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_change_cover"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:text="@string/change_cover" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
@@ -117,42 +93,13 @@
                 android:layout_marginTop="4dp"
                 android:orientation="vertical" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_select_genres"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/select_genres"
-                app:cornerRadius="12dp" />
+            <include layout="@layout/view_genre_multiselect"
+                android:id="@+id/genre_multiselect" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group_genres"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/book_publisher"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="@string/select_or_type_an_publisher"
-                app:boxBackgroundColor="@color/card"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/book_publisher_autocomplete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:textColor="?attr/colorOnBackground" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <include layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/publisher_autocomplete"
+                app:autoCompleteLabel="@string/publisher" />
 
             <CheckBox
                 android:id="@+id/book_collecting"
@@ -178,27 +125,10 @@
                 android:text="@string/completed_series"
                 android:textColor="?attr/colorOnBackground" />
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/book_tag"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="@string/select_or_type_an_tag"
-                app:boxBackgroundColor="@color/card"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp">
+            <include layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"
+                app:autoCompleteLabel="@string/tag" />
 
-                <AutoCompleteTextView
-                    android:id="@+id/book_tag_autocomplete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:textColor="?attr/colorOnBackground" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <View
                 android:layout_width="match_parent"

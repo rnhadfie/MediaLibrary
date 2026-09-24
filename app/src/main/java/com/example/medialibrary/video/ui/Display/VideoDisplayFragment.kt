@@ -10,20 +10,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
+import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SafePieChartRenderer
-import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.video.Enums
 import com.example.medialibrary.backend.models.video.Video
 import com.example.medialibrary.backend.models.video.VideoFilter
 import com.example.medialibrary.backend.models.video.VideoSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -34,6 +35,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisplayViewModel>(
     VideoFragmentDisplayBinding::inflate
@@ -64,7 +66,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             binding.emptyStateContainer.root
         )
 
-        //region binding
+        binding.buttonFilter.setOnClickListener {
+            setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
 
         binding.videoItemList.setOnClickListener {
             val videos = viewModel.MediaItems.value
@@ -86,7 +90,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             val typeEnum = Enums.VideoType.entries.find { it.name == selectedItem }
 
             currentFilter.Type = typeEnum
-            reloadData()
+            loadData()
         }
 
         binding.dropdownVideoTag.setOnItemClickListener { parent, _, position, _ ->
@@ -95,22 +99,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             val typeEnum = Enums.VideoTag.entries.find { it.name == selectedItem }
 
             currentFilter.VideoTag = typeEnum
-            reloadData()
-        }
-
-        //endregion
-
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
+            loadData()
         }
 
         return root
@@ -120,18 +109,21 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         loadData()
     }
 
-    private fun reloadData() {
-        val items = videoController?.GetVideos(currentFilter) ?: emptyList()
-        viewModel.setMediaItems(items)
-        setupCharts(items, setup!!)
-    }
-
     private fun loadData() {
         val items = videoController?.GetVideos(currentFilter) ?: emptyList()
 
         setup = videoController?.GetVideoSetup()
         viewModel.setMediaItems(items)
         setup?.let { setupCharts(items, it) }
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = VideoFilter()
+            loadData()
+        }
 
         val types = setup?.Types ?: emptyMap()
         val typeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types.values.toList())
@@ -152,6 +144,72 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         binding.dropdownVideoTag.setText(defaultTagText, false)
     }
 
+    private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
+        val dialog = BottomSheetDialog(requireContext())
+        val sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        val f = filter
+        val tags = setup.Tag
+
+        val videoTagOptions = setup.VideoTags.filter { it.key != 0 }.map { FilterOption(Enums.VideoTag.entries[it.key], it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetVideoTag,
+            "Video Tags",
+            videoTagOptions,
+            f.IncludedVideoTags,
+            f.ExcludedVideoTags
+        )
+
+        val typeOptions = setup.Types.filter { it.key != 0 }.map { FilterOption(Enums.VideoType.entries[it.key], it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTypeVideo,
+            "Video Types",
+            typeOptions,
+            f.IncludedTypes,
+            f.ExcludedTypes
+        )
+
+        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTagVideo,
+            "Tags",
+            tagOptions,
+            f.IncludedTags,
+            f.ExcludedTags
+        )
+
+        val genreOptions = setup.Genre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetGenreVideo,
+            "Genres",
+            genreOptions,
+            f.IncludedGenres,
+            f.ExcludedGenres
+        )
+
+        sheetBinding.switchSheetCompletedVideo.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCollectedVideo.isChecked = f.Collecting ?: false
+        sheetBinding.switchSheetStartedVideo.isChecked = f.AnyOwned ?: false
+
+        sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
+            f.CompletedSeries = sheetBinding.switchSheetCompletedVideo.isChecked
+            f.Collecting = sheetBinding.switchSheetCollectedVideo.isChecked
+            f.AnyOwned = sheetBinding.switchSheetStartedVideo.isChecked
+
+            loadData()
+            dialog.dismiss()
+        }
+
+        sheetBinding.buttonSheetClearVideo.setOnClickListener {
+            currentFilter = VideoFilter()
+            loadData()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
 
@@ -159,8 +217,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         var totalDvds = 0
 
         for (book in items) {
-            watchedCount = book.Items?.count { it.Watched == true } ?: 0
-            totalDvds = book.Items?.count() ?: 0
+            watchedCount += book.Items?.count { it.Watched } ?: 0
+            totalDvds += book.Items?.count() ?: 0
         }
 
         binding.videoTotalSeriesCardText.text = getString(R.string.total_number_of_series, items.count())
@@ -168,7 +226,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         setupWatchedPieChart(watchedCount, totalDvds)
         setupFormatPieChart(items)
-        setupGenrePieChart(items, setup)
+        setupGenreBarChart(items, setup)
         setupVideoTagBarChart(items, setup, colors)
         setupVideoTypeBarChart(items, colors)
     }
@@ -252,6 +310,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 formatPieChart.setBackgroundColor(Color.TRANSPARENT)
                 formatPieChart.centerText = "Format"
                 formatPieChart.legend.isEnabled = false
+                formatPieChart.description.isEnabled = false
                 formatPieChart.animateXY(1000, 1000)
                 formatPieChart.renderer = SafePieChartRenderer(
                     formatPieChart,
@@ -264,45 +323,44 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
     }
 
-    private fun setupGenrePieChart(items: List<Video>, setup: VideoSetup) {
-        val pieEntries = ArrayList<PieEntry>()
+    private fun setupGenreBarChart(items: List<Video>, setup: VideoSetup) {
+        val colors = ColorTemplate.MATERIAL_COLORS.toList()
+        val genreDataSets = ArrayList<IBarDataSet>()
         val genreList = setup.Genre
 
+        var index = 1
         genreList.forEach { genre ->
             val total = items.filter { it.Genre?.contains(genre.key) == true }.size
             if (total > 0) {
-                pieEntries.add(PieEntry(total.toFloat(), genre.value))
+                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total.toFloat())), genre.value)
+                set.color = colors[index % colors.size]
+                genreDataSets.add(set)
+                index++
             }
         }
 
-        val genrePieChart = binding.videoGenrePieChart
-        if (pieEntries.isEmpty()) {
-            genrePieChart.setNoDataText("No Genre data to display")
-            genrePieChart.data = null
-            genrePieChart.setNoDataTextColor(Color.BLACK)
-            genrePieChart.setCenterTextSize(20f)
-        } else {
-            val genrePieDataSet = PieDataSet(pieEntries, "Genre")
-            genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-            val genrePieData = PieData(genrePieDataSet)
-            genrePieChart.data = genrePieData
-            genrePieChart.setHoleColor(Color.TRANSPARENT)
-            genrePieChart.setTransparentCircleColor(Color.TRANSPARENT)
-            genrePieChart.setBackgroundColor(Color.TRANSPARENT)
-            genrePieChart.description?.isEnabled = false
-            genrePieChart.legend?.isEnabled = false
-            genrePieChart.setUsePercentValues(true)
-            genrePieChart.centerText = "Genre"
+        val genreChart = binding.videoGenreBarChart
+        genreChart.let { chart ->
+            if (genreDataSets.isEmpty()) {
+                chart.setNoDataText("No Publisher data to display")
+                chart.setNoDataTextColor(Color.BLACK)
+                chart.data = null
+            } else {
+                chart.data = BarData(genreDataSets)
+                chart.description.isEnabled = false
+                chart.xAxis.isEnabled = false
 
-            genrePieChart.renderer = SafePieChartRenderer(
-                genrePieChart,
-                genrePieChart.animator,
-                genrePieChart.viewPortHandler
-            )
+                val legend = chart.legend
+                legend.isEnabled = true
+                legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
+                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+                legend.orientation = Legend.LegendOrientation.VERTICAL
+                legend.setDrawInside(false)
 
-            genrePieChart.animateXY(1000, 1000)
+                chart.animateY(1000)
+            }
+            chart.invalidate()
         }
-        genrePieChart.invalidate()
     }
 
     private fun setupVideoTagBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {

@@ -28,7 +28,6 @@ class VideoFormViewModel : ViewModel() {
     val selectedGenres: LiveData<MutableSet<Enums.Genre>> = _selectedGenres
 
     private val _newTag = MutableLiveData<String>()
-    val newTag: LiveData<String> = _newTag
 
     fun updateTitle(title: String) {
         _video.value?.Title = title
@@ -113,7 +112,7 @@ class VideoFormViewModel : ViewModel() {
             _video.value = it
             _items.value = it.Items?.toMutableList() ?: mutableListOf()
             _selectedGenres.value = it.Genre?.mapNotNull { id ->
-                Enums.Genre.values().getOrNull(id)
+                Enums.Genre.entries.getOrNull(id)
             }?.toMutableSet() ?: mutableSetOf()
         }
     }

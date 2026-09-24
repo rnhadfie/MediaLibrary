@@ -1,155 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:fillViewport="true">
 
-        <Button
-            android:id="@+id/button_sheet_clear_book"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/clear_filters" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-
-        <TextView
-            android:id="@+id/text_sheet_publisher_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/publisher"
-            android:labelFor="@id/dropdown_sheet_publisher"
-            android:textAppearance="?attr/textAppearanceCaption" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_publisher"
+            <Button
+                android:id="@+id/button_sheet_clear_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp"
+                android:text="@string/clear_filters" />
 
-        <TextView
-            android:id="@+id/text_sheet_type_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/type"
-            android:labelFor="@id/dropdown_sheet_type_book"
-            android:textAppearance="?attr/textAppearanceCaption" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_type_book"
+            <include
+                android:id="@+id/publisher_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_completed_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/completed" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_collected_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/collecting" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_started_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/started_collecting" />
-
-        <TextView
-            android:id="@+id/text_sheet_format_book"
-            android:labelFor="@id/dropdown_sheet_format"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/format_label"
-            android:textAppearance="?attr/textAppearanceCaption" />
-
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_format"
+            <include
+                android:id="@+id/book_type_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp" />
 
-        <TextView
-            android:id="@+id/text_sheet_tag_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/tag"
-            android:labelFor="@id/dropdown_sheet_tag_book"
-            android:textAppearance="?attr/textAppearanceCaption" />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_tag_book"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_sheet_completed_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp"
+                android:text="@string/completed" />
 
-        <TextView
-            android:id="@+id/text_sheet_genre_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/genre"
-            android:labelFor="@id/dropdown_sheet_genre_book"
-            android:textAppearance="?attr/textAppearanceCaption" />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_genre_book"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_sheet_collected_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:text="@string/collecting" />
 
-        <Button
-            android:id="@+id/button_sheet_fitler_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:minHeight="48dp"
-            android:text="@string/apply_filter" />
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_sheet_started_book"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/started_collecting" />
 
-    </LinearLayout>
+            <include
+                android:id="@+id/book_format_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <include
+                android:id="@+id/tag_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <TextView
+                android:id="@+id/text_sheet_genre_book"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:labelFor="@id/dropdown_sheet_genre_book"
+                android:text="@string/genre"
+                android:textAppearance="?attr/textAppearanceCaption" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_sheet_genre_book"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/button_sheet_fitler_book"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:minHeight="48dp"
+                android:text="@string/apply_filter" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

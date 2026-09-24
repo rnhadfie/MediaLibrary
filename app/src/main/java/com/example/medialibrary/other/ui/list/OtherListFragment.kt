@@ -5,15 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.MultiSelectFilterHelper
-import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.MainSetup
@@ -56,8 +55,6 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
             adapter
         )
 
-        //region binding
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 currentFilter.Search = query
@@ -78,21 +75,6 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
             showFilterSheet(setup, currentFilter)
         }
 
-        //endregion
-
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
-        }
-
         return root
     }
 
@@ -104,6 +86,16 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         val items = controller.GetListOfOtherCollections(currentFilter)
         setup = controller.GetSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = OtherFilter()
+            binding.searchView.setQuery("", false)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: MainSetup, filter: OtherFilter?) {

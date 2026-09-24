@@ -1,12 +1,6 @@
 package com.example.medialibrary.backend.controllers;
 
-import com.example.medialibrary.backend.Serivce.BookService;
 import com.example.medialibrary.backend.Serivce.MusicService;
-import com.example.medialibrary.backend.models.book.Book;
-import com.example.medialibrary.backend.models.book.BookFilter;
-import com.example.medialibrary.backend.models.book.BookSaveObject;
-import com.example.medialibrary.backend.models.book.BookSetup;
-import com.example.medialibrary.backend.models.book.Publisher;
 import com.example.medialibrary.backend.models.music.Music;
 import com.example.medialibrary.backend.models.music.MusicFilter;
 import com.example.medialibrary.backend.models.music.MusicObj;
@@ -39,9 +33,7 @@ public class MusicController  extends BaseController{
     }
 
     public Music GetMusic(int id) {
-        Music music = new Music();
-        music = this.musicSerivce.getValue().GetCd(id);
-        return music;
+        return this.musicSerivce.getValue().GetCd(id);
     }
 
     public boolean AddMusic(MusicObj music) {

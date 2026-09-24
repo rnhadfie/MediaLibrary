@@ -8,34 +8,57 @@
     tools:context=".music.ui.display.MusicDisplayFragment">
 
     <LinearLayout
-        android:id="@+id/title_layout"
+        android:id="@+id/top_controls_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="16dp"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/text_display_title"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/title_layout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/music_statistics"
-            android:textAppearance="?attr/textAppearanceHeadline4"
-            android:textColor="?attr/colorOnBackground" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
 
-        <ImageButton
-            android:id="@+id/music_item_list"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/get_list_of_items"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:tooltipText="Get list of All Cds"
-            app:tint="?attr/colorPrimary" />
+            <TextView
+                android:id="@+id/text_display_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/music_statistics"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                android:textColor="?attr/colorOnBackground" />
+
+            <ImageButton
+                android:id="@+id/button_filter"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/filter"
+                android:src="@drawable/ic_settings_black_24dp"
+                android:tooltipText="Filter CDs"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
+                android:id="@+id/music_item_list"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/get_list_of_items"
+                android:src="@android:drawable/ic_menu_agenda"
+                android:tooltipText="Get list of All Cds"
+                app:tint="?attr/colorPrimary" />
+        </LinearLayout>
+
+        <include
+            android:id="@+id/card_active_filter"
+            layout="@layout/view_active_filter_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ScrollView
@@ -44,7 +67,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_layout">
+        app:layout_constraintTop_toBottomOf="@id/top_controls_container">
 
         <LinearLayout
             android:id="@+id/scroll_view_music_display"
@@ -88,6 +111,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_layout" />
+        app:layout_constraintTop_toBottomOf="@id/top_controls_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

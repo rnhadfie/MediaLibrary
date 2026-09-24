@@ -34,6 +34,16 @@
                 android:textColor="?attr/colorOnBackground" />
 
             <ImageButton
+                android:id="@+id/button_filter"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/filter"
+                android:src="@drawable/ic_settings_black_24dp"
+                android:tooltipText="Filter movies and tv shows"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
                 android:id="@+id/video_item_list"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -97,6 +107,12 @@
                 android:saveEnabled="false"
                 android:textColor="@color/black" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <include
+            android:id="@+id/card_active_filter"
+            layout="@layout/view_active_filter_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ScrollView
@@ -165,8 +181,8 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp" />
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/video_genre_pie_chart"
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/video_genre_bar_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"

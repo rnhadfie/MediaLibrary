@@ -1,81 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:fillViewport="true">
 
-        <Button
-            android:id="@+id/button_sheet_clear_book"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/clear_filters" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_collected_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/collecting" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_started_book"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/started_collecting" />
-
-
-        <TextView
-            android:id="@+id/text_sheet_tag_music"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/tag"
-            android:labelFor="@id/dropdown_sheet_tag_music"
-            android:textAppearance="?attr/textAppearanceCaption" />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_tag_music"
+            <Button
+                android:id="@+id/button_sheet_clear_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp"
+                android:text="@string/clear_filters" />
 
-        <TextView
-            android:id="@+id/text_sheet_genre_music"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:labelFor="@id/dropdown_sheet_genre_music"
-            android:text="@string/music_genre"
-            android:textAppearance="?attr/textAppearanceCaption" />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_genre_music"
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_sheet_collected_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp"
+                android:text="@string/collecting" />
 
-        <Button
-            android:id="@+id/button_sheet_fitler_music"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/apply_filter" />
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switch_sheet_started_book"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/started_collecting" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/text_sheet_tag_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:labelFor="@id/dropdown_sheet_tag_music"
+                android:text="@string/tag"
+                android:textAppearance="?attr/textAppearanceCaption" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_sheet_tag_music"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:id="@+id/text_sheet_genre_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:labelFor="@id/dropdown_sheet_genre_music"
+                android:text="@string/music_genre"
+                android:textAppearance="?attr/textAppearanceCaption" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_sheet_genre_music"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:id="@+id/button_sheet_fitler_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:minHeight="48dp"
+                android:text="@string/apply_filter" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

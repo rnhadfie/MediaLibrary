@@ -5,6 +5,8 @@ public class DisplayMediaItem {
     public String Title;
     public boolean Collecting;
     public boolean ToCollect;
+
+    public boolean CollectedOrOnGoing;
     public Enums.MediaType MediaType;
     public byte[] Cover;
 }

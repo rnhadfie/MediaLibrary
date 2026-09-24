@@ -1,6 +1,5 @@
 package com.example.medialibrary.video.ui.form
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -114,14 +113,14 @@ class VideoFormFragment : Fragment() {
             viewModel.loadVideo(videoId, controller)
         }
 
-        var setup = controller?.GetVideoSetup();
+        var setup = controller?.GetVideoSetup()
 
         if(setup == null)
-            setup = VideoSetup();
+            setup = VideoSetup()
 
         setupVideoTypeRadioGroup(setup.Types)
-        setupVideoTagRadioGroup(setup.VideoTags);
-        setupGenreSelection()
+        setupVideoTagRadioGroup(setup.VideoTags)
+        setupGenreSelection(setup)
         setupTagSelection(setup)
         setupRecyclerView()
         setupInputListeners()
@@ -154,11 +153,11 @@ class VideoFormFragment : Fragment() {
                         // Log or process the save object
                         println("Saving book: ${saveObj.video?.Title} with ${saveObj.video.Items?.size} items")
 
-                        ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
 
                         Toast.makeText(
                             requireContext(),
-                            if (isEdit) "Book Updated" else "Book Saved",
+                            if (isEdit) "Moive/TV Show Updated" else "Moive/TV Show Saved",
                             Toast.LENGTH_SHORT
                         )
                             .show()
@@ -255,17 +254,20 @@ class VideoFormFragment : Fragment() {
         }
     }
 
-    private fun setupGenreSelection() {
+    private fun setupGenreSelection(setup: VideoSetup) {
         binding.buttonSelectGenres.setOnClickListener {
-            val genres = Enums.Genre.values()
-            val genreNames = genres.map { it.name }.toTypedArray()
+            val genres = setup.Genre
+            val genreNames = genres.map { it.value }.toTypedArray()
             val selected = viewModel.selectedGenres.value ?: mutableSetOf()
-            val checkedItems = genres.map { selected.contains(it) }.toBooleanArray()
+            val checkedItems = genres.map {
+                selected.contains(Enums.Genre.entries[it.key])
+            }.toBooleanArray()
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Genres")
                 .setMultiChoiceItems(genreNames, checkedItems) { _, which, _ ->
-                    viewModel.toggleGenre(genres[which])
+
+                    viewModel.toggleGenre(Enums.Genre.entries[which])
                 }
                 .setPositiveButton("OK", null)
                 .show()
@@ -274,7 +276,7 @@ class VideoFormFragment : Fragment() {
 
     private fun setupTagSelection(setup: VideoSetup) {
         val tags = setup.Tag
-        val adapter = ArrayAdapter<Tag>(requireContext(), R.layout.simple_dropdown_item_1line, tags)
+        val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.videoTagAutocomplete.setAdapter(adapter)
 
         binding.videoTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
@@ -349,10 +351,10 @@ class VideoFormFragment : Fragment() {
         sheetBinding.textSheetTitle.text = if (item == null) "Add Volume" else "Edit Volume"
 
         // Setup Format dropdown
-        val formats = VideoFormat.values().filter { it != VideoFormat.NoneSelected }
+        val formats = VideoFormat.entries.filter { it != VideoFormat.NoneSelected }
         val adapter = ArrayAdapter(
             requireContext(),
-            R.layout.simple_dropdown_item_1line,
+            android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
         sheetBinding.dropdownSheetFormat.setAdapter(adapter)
 
@@ -436,7 +438,7 @@ class VideoFormFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.buttonEditItem?.setOnClickListener {
+            holder.binding.buttonEditItem.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, VideoFormActivity::class.java).apply {
                     putExtra("EXTRA_ID", item.Id)
@@ -444,22 +446,22 @@ class VideoFormFragment : Fragment() {
                 }
                 context.startActivity(intent)
             }
-            holder.binding.buttonDeleteItem?.setOnClickListener {
+            holder.binding.buttonDeleteItem.setOnClickListener {
                 val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                var videoController = VideoController(dbHelper)
+                val videoController = VideoController(dbHelper)
 
                 MaterialAlertDialogBuilder(holder.itemView.context)
                     .setTitle("Confirm Action")
                     .setMessage("Are you sure you want to delete this Video?")
                     .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, which ->
+                    .setPositiveButton("Confirm") { dialog, _ ->
                         videoController.DeleteVideo(item.Id)
                         (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act).get(SharedRefreshViewModel::class.java).incrementVersion()
+                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
                         }
                         dialog.dismiss()
                     }
-                    .setNegativeButton("Cancel") { dialog, which ->
+                    .setNegativeButton("Cancel") { dialog, _ ->
                         dialog.dismiss()
                     }
                     .show()
@@ -467,14 +469,19 @@ class VideoFormFragment : Fragment() {
 
             if(item.DiscTitle == null || item.DiscTitle.isEmpty())
             {
-                holder.binding.textVolumeInfo.text = item.DiscNumber.toString() + " - " + item.DiscTitle
+                holder.binding.textVolumeInfo.text = item.DiscNumber.toString()
             }
             else
             {
-                holder.binding.textVolumeInfo.text = item.DiscNumber.toString()
+
+                holder.binding.textVolumeInfo.text = getString(
+                    com.example.medialibrary.R.string.video_item_display_text,
+                    item.DiscNumber,
+                    item.DiscTitle
+                )
             }
             holder.binding.textStatusInfo.text = context.getString(
-                com.example.medialibrary.R.string.volume_status_format,
+                com.example.medialibrary.R.string.movie_status_format,
                 if (item.Owned) "Yes" else "No",
                 if (item.Watched) "Yes" else "No"
             )
@@ -485,7 +492,7 @@ class VideoFormFragment : Fragment() {
                 holder.binding.imageItemCover.imageTintList = null
             } else {
                 holder.binding.imageItemCover.setImageResource(com.example.medialibrary.R.drawable.ic_gallery_black_24dp)
-                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, R.color.darker_gray, null)
+                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, android.R.color.darker_gray, null)
             }
 
             holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }

@@ -85,7 +85,7 @@ public class BookService {
             return new ArrayList<>();
         }
 
-        List<Book> filteredList = new ArrayList<>();
+        List<Book> filteredList;
         for (Book book : listOfBooks) {
             if (book.Items != null && !book.Items.isEmpty()) {
                 boolean hasOwned = false;
@@ -97,30 +97,32 @@ public class BookService {
                 }
                 book.CurrentOwnAny = hasOwned;
             } else {
-                book.CurrentOwnAny = true; // Match stream logic: count() <= 0 || anyMatch(Owned) -> true if count is 0
+                book.CurrentOwnAny = false; // Match stream logic: count() <= 0 || anyMatch(Owned) -> true if count is 0
             }
+        }
+        filteredList = listOfBooks;
+        if(filter != null && filter.AnyOwned != null && filter.AnyOwned)
+        {
+            filteredList = filteredList.stream().filter(b -> b.CurrentOwnAny).collect(Collectors.toList());
+        }
 
-            if (filter != null) {
-                if (filter.AnyOwned != null && book.CurrentOwnAny != filter.AnyOwned) {
-                    continue;
-                }
-                Enums.BookFormat commonFormat = book.Items != null ? GetCommonBookFormat(book.Items) : null;
-                if (filter.IncludedFormats != null && !filter.IncludedFormats.isEmpty()) {
-                    if (commonFormat == null || !filter.IncludedFormats.contains(commonFormat)) {
-                        continue;
+        if(filter != null)
+        {
+            filteredList = filteredList.stream().filter(b -> {
+                Enums.BookFormat commonFormat = b.Items != null ? GetCommonBookFormat(b.Items) : null;
+                if(commonFormat != null) {
+                    var fomartNotIncluded = false;
+                    var formatExcluded = false;
+                    if (filter.IncludedFormats != null && !filter.IncludedFormats.isEmpty()) {
+                        fomartNotIncluded =  !filter.IncludedFormats.contains(commonFormat);
                     }
-                } else if (filter.PrimaryFormat != null && filter.PrimaryFormat != Enums.BookFormat.NoneSelected) {
-                    if (commonFormat != filter.PrimaryFormat) {
-                        continue;
+                    if (filter.ExcludedFormats != null && !filter.ExcludedFormats.isEmpty()) {
+                        formatExcluded =  filter.ExcludedFormats.contains(commonFormat);
                     }
+                    return !(fomartNotIncluded || formatExcluded);
                 }
-                if (filter.ExcludedFormats != null && !filter.ExcludedFormats.isEmpty()) {
-                    if (commonFormat != null && filter.ExcludedFormats.contains(commonFormat)) {
-                        continue;
-                    }
-                }
-            }
-            filteredList.add(book);
+                return true;
+            }).collect(Collectors.toList());
         }
 
         return filteredList;

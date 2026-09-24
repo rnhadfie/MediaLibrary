@@ -63,6 +63,8 @@ public class SharedService {
         displayItem.Cover = item.Cover;
         displayItem.Collecting = Boolean.TRUE.equals(item.Collecting);
         displayItem.ToCollect = !Boolean.TRUE.equals(item.CurrentOwnAny);
+        displayItem.CollectedOrOnGoing = Boolean.TRUE.equals(item.HasCollectedAllItems);
+
 
         if(item instanceof Book)
         {
@@ -214,14 +216,14 @@ public class SharedService {
 
         // region common filters
 
-        if (filter.Collecting != null) {
+        if (filter.Collecting != null && filter.Collecting) {
             conditions.add(COLUMN_COLLECTING + " = ?");
-            selectionArgs.add(filter.Collecting ? "1" : "0");
+            selectionArgs.add("1");
         }
 
-        if (filter.CompletedCollecting != null) {
+        if (filter.CompletedCollecting != null && filter.CompletedCollecting) {
             conditions.add(COLUMN_COMPLETED_COLLECTING + " = ?");
-            selectionArgs.add(filter.CompletedCollecting ? "1" : "0");
+            selectionArgs.add("1");
         }
 
         // Tags
@@ -303,6 +305,7 @@ public class SharedService {
         if (filter instanceof BookFilter) {
             var bFilter = (BookFilter) filter;
 
+            // Book Types
             List<String> incTypes = new ArrayList<>();
             if (bFilter.IncludedTypes != null && !bFilter.IncludedTypes.isEmpty()) {
                 for (var t : bFilter.IncludedTypes) {
@@ -325,6 +328,7 @@ public class SharedService {
             }
             appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excTypes);
 
+            //Publishers
             List<String> incPubs = new ArrayList<>();
             if (bFilter.IncludedPublishers != null && !bFilter.IncludedPublishers.isEmpty()) {
                 for (Integer pId : bFilter.IncludedPublishers) {
@@ -342,6 +346,7 @@ public class SharedService {
                 }
             }
             appendNotInClause(conditions, selectionArgs, COLUMN_PUBLISHER, excPubs);
+
         }
 
         //endregion

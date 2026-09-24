@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.repository.XmlRepository
+import com.example.medialibrary.backend.repository.database.BaseRepository
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.backend.utils.XmlExportImport
 import com.example.medialibrary.book.BookActivity
@@ -19,9 +20,9 @@ import com.example.medialibrary.home.MainActivity
 import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
 import com.example.medialibrary.video.VideoActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-
 
 open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
@@ -62,15 +63,14 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
     }
 
     private val exportLauncher = registerForActivityResult(ActivityResultContracts.CreateDocument("text/xml")) { uri ->
-        var dbHelper = MediaLibraryDbHelper(this)
+        val dbHelper = MediaLibraryDbHelper(this)
         uri?.let {
             exportData(it, contentResolver, binding, dbHelper)
-
         }
     }
 
     private val importLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        var dbHelper = MediaLibraryDbHelper(this)
+        val dbHelper = MediaLibraryDbHelper(this)
 
         uri?.let {
             importData(it, contentResolver, binding, dbHelper)
@@ -78,7 +78,7 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         }
     }
 
-    override  fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.nav_import -> {
                 importLauncher.launch("text/xml")
@@ -86,6 +86,10 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
             }
             R.id.nav_export -> {
                 exportLauncher.launch("library_export.xml")
+                return true
+            }
+            R.id.nav_reset_app -> {
+                showResetAppConfirmationDialog()
                 return true
             }
             R.id.nav_home -> {
@@ -113,9 +117,27 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
                 startActivity(intent)
                 return true
             }
-
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showResetAppConfirmationDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.reset_app_confirm_title)
+            .setMessage(R.string.reset_app_confirm_message)
+            .setPositiveButton(R.string.reset_app) { dialog, _ ->
+                val dbHelper = MediaLibraryDbHelper(this)
+                dbHelper.resetDatabase()
+                BaseRepository.clearAllCaches()
+                ViewModelProvider(this)[SharedRefreshViewModel::class.java].incrementVersion()
+                Snackbar.make(binding.root, "App reset successfully", Snackbar.LENGTH_SHORT).show()
+                recreate()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun <T : ViewBinding> exportData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
@@ -144,12 +166,9 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
                 val xmlRepository = XmlRepository(dbHelper)
                 xmlRepository.SaveAllData(data)
                 Snackbar.make(binding.root, "Data imported successfully", Snackbar.LENGTH_LONG).show()
-
             }
         } catch (e: Exception) {
             Snackbar.make(binding.root, "Import failed: ${e.message}", Snackbar.LENGTH_LONG).show()
         }
     }
-
-
 }

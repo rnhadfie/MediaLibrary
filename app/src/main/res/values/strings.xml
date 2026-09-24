@@ -36,6 +36,7 @@
     <string name="save_item">Save Item</string>
     <string name="change_item_cover">Change Item Cover</string>
     <string name="volume_status_format">Owned: %1$s | Read: %2$s</string>
+    <string name="movie_status_format">Owned: %1$s | Watched: %2$s</string>
     <string name="Other_volume_status_format">Owned: %1$s</string>
     <string name="volume_info_format">Vol %1$s: %2$s</string>
     <string name="title_activity_video">VideoActivity</string>
@@ -69,6 +70,10 @@
     <string name="other">Other</string>
     <string name="import_data">Import data</string>
     <string name="export_data">Export data</string>
+    <string name="reset_app">Reset App</string>
+    <string name="reset_app_confirm_title">Reset App</string>
+    <string name="reset_app_confirm_message">Are you sure you want to reset the app? All data will be permanently deleted.</string>
+    <string name="cancel">Cancel</string>
     <string name="book_statistics">Book Statistics</string>
     <string name="total_number_of_series">Total Number of Series: %1$d</string>
     <string name="total_number_of_books">Total Number of Books: %1$d</string>
@@ -108,4 +113,7 @@
     <string name="movie_and_tv_collection_currently_collecting">Movie and TV Collection - Currently Collecting</string>
     <string name="movie_and_tv_collection_stats">Movie and TV Collection Stats</string>
     <string name="book_collection_currently_collecting">Book Collection - Currently Collecting</string>
+    <string name="save_movie_or_tv_show">Save Movie or TV Show</string>
+    <string name="video_item_display_text">%1$d - %2$s</string>
+    <string name="template">template</string>
 </resources>

@@ -1,12 +1,6 @@
 package com.example.medialibrary.backend.controllers;
 
-import com.example.medialibrary.backend.Serivce.BookService;
 import com.example.medialibrary.backend.Serivce.VideoService;
-import com.example.medialibrary.backend.models.book.Book;
-import com.example.medialibrary.backend.models.book.BookFilter;
-import com.example.medialibrary.backend.models.book.BookSaveObject;
-import com.example.medialibrary.backend.models.book.BookSetup;
-import com.example.medialibrary.backend.models.book.Publisher;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.models.video.Video;
 import com.example.medialibrary.backend.models.video.VideoFilter;
@@ -39,9 +33,7 @@ public class VideoController extends BaseController {
     }
 
     public Video GetVideo(int id) {
-        Video video = new Video();
-        video = this.videoSerivce.getValue().GetVideo(id);
-        return video;
+        return this.videoSerivce.getValue().GetVideo(id);
     }
 
     public boolean AddVideo(VideoSaveObject video) {

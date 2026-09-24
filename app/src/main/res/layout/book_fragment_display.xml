@@ -35,6 +35,16 @@
                 android:textColor="?attr/colorOnBackground" />
 
             <ImageButton
+                android:id="@+id/button_filter"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/filter"
+                android:src="@drawable/ic_settings_black_24dp"
+                android:tooltipText="Filter books"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
                 android:id="@+id/book_item_list"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
@@ -45,32 +55,11 @@
                 app:tint="?attr/colorPrimary" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/text_sheet_type"
+        <include
+            android:id="@+id/card_active_filter"
+            layout="@layout/view_active_filter_summary"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:labelFor="@id/dropdown_sheet_type"
-            android:text="@string/book_type_label"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/colorOnBackground" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/dropdown_layout_sheet_type"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:boxBackgroundColor="@color/card">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:saveEnabled="false"
-                android:textColor="@color/black" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ScrollView
@@ -193,8 +182,8 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp" />
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/book_genre_pie_chart"
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/book_genre_bar_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"

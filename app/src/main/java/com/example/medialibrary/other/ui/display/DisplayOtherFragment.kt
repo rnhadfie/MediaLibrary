@@ -15,7 +15,6 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
-import com.example.medialibrary.backend.models.other.Other
 import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
@@ -40,7 +39,7 @@ class DisplayOtherFragment : BaseFragment<OtherFragmentDisplayBinding, DisplayOt
         val root = super.onCreateView(inflater, container, savedInstanceState)
 
         viewModel.text.observe(viewLifecycleOwner) {
-            binding.textDisplayTitle?.text = it
+            binding.textDisplayTitle.text = it
         }
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
@@ -92,9 +91,5 @@ class DisplayOtherFragment : BaseFragment<OtherFragmentDisplayBinding, DisplayOt
         val items = otherController?.GetOtherCollections(currentFilter) ?: emptyList()
         setup = otherController?.GetSetup()
         viewModel.setMediaItems(items)
-        setup?.let { setupCharts(items, it) }
-    }
-
-    private fun setupCharts(items: List<Other>, setup: MainSetup) {
     }
 }

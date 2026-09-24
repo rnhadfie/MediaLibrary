@@ -25,10 +25,6 @@ public class MainController extends BaseController {
         return this.mainSerivce.getValue().GetDisplayList(filter);
     }
 
-    public MediaItem GetItem(int id) {
-       return null;
-    }
-
     public List<MediaItem> GetMediaItems(Filter  filter)
     {
         return this.mainSerivce.getValue().GetAllItems(filter);

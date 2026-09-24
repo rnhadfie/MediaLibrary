@@ -11,9 +11,33 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "MediaLibrary.db";
     private static final int DATABASE_VERSION = 1;
 
-
     public MediaLibraryDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public void resetDatabase() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete(TABLE_OTHER_ITEMS, null, null);
+            db.delete(TABLE_OTHERS, null, null);
+            db.delete(TABLE_VIDEO_ITEMS, null, null);
+            db.delete(TABLE_VIDEOS, null, null);
+            db.delete(TABLE_MUSIC, null, null);
+            db.delete(TABLE_BOOK_ITEMS, null, null);
+            db.delete(TABLE_BOOKS, null, null);
+            db.delete(TABLE_PUBLISHERS, null, null);
+            db.delete(TABLE_TAGS, null, null);
+
+            db.execSQL("DELETE FROM sqlite_sequence WHERE name IN ('" +
+                    TABLE_TAGS + "', '" + TABLE_PUBLISHERS + "', '" + TABLE_BOOKS + "', '" +
+                    TABLE_BOOK_ITEMS + "', '" + TABLE_MUSIC + "', '" + TABLE_VIDEOS + "', '" +
+                    TABLE_VIDEO_ITEMS + "', '" + TABLE_OTHERS + "', '" + TABLE_OTHER_ITEMS + "')");
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     @Override

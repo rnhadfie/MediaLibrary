@@ -9,15 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.MultiSelectFilterHelper
-import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.music.MusicSetup
@@ -60,8 +59,6 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
             adapter
         )
 
-        //region binding
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (currentFilter == null) currentFilter = MusicFilter()
@@ -98,21 +95,6 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
-        //endregion
-
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
-        }
-
         return root
     }
 
@@ -127,6 +109,16 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         val items = musicController.GetListOfBooks(currentFilter)
         setup = musicController.GetMusicSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = MusicFilter()
+            binding.searchView.setQuery("", false)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: MusicSetup, filter: MusicFilter?) {

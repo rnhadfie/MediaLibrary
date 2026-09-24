@@ -65,20 +65,6 @@ public abstract class BaseRepository {
         return sb.toString();
     }
 
-    protected List<Integer> deserializeGenre(String genre) {
-        if (genre == null || genre.isEmpty()) {
-            return new ArrayList<>();
-        }
-        String[] genres = genre.split(",");
-        List<Integer> result = new ArrayList<>();
-        for (String s : genres) {
-            try {
-                result.add(Integer.parseInt(s.trim()));
-            } catch (NumberFormatException ignored) {}
-        }
-        return result;
-    }
-
     protected byte[] compressBitmap(byte[] byteArray) {
         if (byteArray == null || byteArray.length == 0){
             return byteArray;

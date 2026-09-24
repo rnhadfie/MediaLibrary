@@ -12,14 +12,14 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.book.BookSetup
-import com.example.medialibrary.backend.models.book.Enums
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.book.ui.Utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -108,66 +108,26 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         val items = bookController.GetListOfBooks(currentFilter)
         setup = bookController.GetBookSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = BookFilter()
+            binding.searchView.setQuery("", false)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: BookSetup, filter: BookFilter?) {
         val dialog = BottomSheetDialog(requireContext())
-        val sheetBinding = BookBottomSheetBinding.inflate(layoutInflater)
+        var sheetBinding = BookBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: BookFilter()
 
-        val publishers = setup.Publishers
-        val tags = setup.Tag
-
-        val publisherOptions = publishers.map { FilterOption(it.Id, it.Name) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetPublisher,
-            "Publishers",
-            publisherOptions,
-            f.IncludedPublishers,
-            f.ExcludedPublishers
-        )
-
-        val typeOptions = setup.Type.filter { it.key != 0 }.map { FilterOption(Enums.BookType.entries[it.key], it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTypeBook,
-            "Book Types",
-            typeOptions,
-            f.IncludedTypes,
-            f.ExcludedTypes
-        )
-
-        val formatOptions = setup.Format.filter { it.key != 0 }.map { FilterOption(Enums.BookFormat.entries[it.key], it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetFormat,
-            "Formats",
-            formatOptions,
-            f.IncludedFormats,
-            f.ExcludedFormats
-        )
-
-        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTagBook,
-            "Tags",
-            tagOptions,
-            f.IncludedTags,
-            f.ExcludedTags
-        )
-
-        val genreOptions = setup.Genre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetGenreBook,
-            "Genres",
-            genreOptions,
-            f.IncludedGenres,
-            f.ExcludedGenres
-        )
-
-        sheetBinding.switchSheetCompletedBook.isChecked = f.CompletedSeries ?: false
-        sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
-        sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
+        sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
             f.CompletedSeries = sheetBinding.switchSheetCompletedBook.isChecked

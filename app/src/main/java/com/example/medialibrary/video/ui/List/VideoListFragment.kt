@@ -9,15 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.MultiSelectFilterHelper
-import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.video.Enums
 import com.example.medialibrary.backend.models.video.VideoFilter
@@ -61,8 +60,6 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             adapter
         )
 
-        //region binding
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (currentFilter == null) currentFilter = VideoFilter()
@@ -103,21 +100,6 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
-        //endregion
-
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
-        }
-
         return root
     }
 
@@ -129,6 +111,16 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         val items = videoController.GetListOfVideos(currentFilter) ?: emptyList()
         setup = videoController.GetVideoSetup()
         viewModel.setItems(items)
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = VideoFilter()
+            binding.searchView.setQuery("", false)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {

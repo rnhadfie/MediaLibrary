@@ -1,6 +1,5 @@
 package com.example.medialibrary.other.ui.otherform
 
-import android.R
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -107,10 +106,10 @@ class OtherFormFragment : Fragment() {
             viewModel.loadOtherCollection(bookId, controller)
         }
 
-        var setup = controller?.GetSetup();
+        var setup = controller?.GetSetup()
 
         if(setup == null)
-            setup = MainSetup();
+            setup = MainSetup()
 
         setupTagSelection(setup)
         setupRecyclerView()
@@ -141,10 +140,10 @@ class OtherFormFragment : Fragment() {
                     }
 
                     if(result) {
-                        ViewModelProvider(requireActivity()).get(SharedRefreshViewModel::class.java).incrementVersion()
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                         Toast.makeText(
                             requireContext(),
-                            if (isEdit) "Book Updated" else "Book Saved",
+                            if (isEdit) "Other Collection Updated" else "Other Collection Saved",
                             Toast.LENGTH_SHORT
                         )
                             .show()
@@ -187,7 +186,7 @@ class OtherFormFragment : Fragment() {
 
     private fun setupTagSelection(setup: MainSetup) {
         val tags = setup.Tag
-        val adapter = ArrayAdapter<Tag>(requireContext(), R.layout.simple_dropdown_item_1line, tags)
+        val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.otherTagAutocomplete.setAdapter(adapter)
 
         binding.otherTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
@@ -330,7 +329,7 @@ class OtherFormFragment : Fragment() {
                 holder.binding.imageItemCover.imageTintList = null
             } else {
                 holder.binding.imageItemCover.setImageResource(com.example.medialibrary.R.drawable.ic_gallery_black_24dp)
-                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, R.color.darker_gray, null)
+                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, android.R.color.darker_gray, null)
             }
 
             holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }

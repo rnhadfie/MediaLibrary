@@ -58,6 +58,15 @@
                     android:textAppearance="?attr/textAppearanceCaption"
                     android:textColor="@color/black"
                     tools:text="Collecting: Yes" />
+                <TextView
+                    android:id="@+id/text_media_status_info2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text='@{(item.CollectedOrOnGoing &amp; !item.Collecting) ? "Collected: Yes" : "Collected: No"}'
+                    android:textAppearance="?attr/textAppearanceCaption"
+                    android:textColor="@color/black"
+                    tools:text="Collecting: Yes" />
             </LinearLayout>
 
             <ImageButton

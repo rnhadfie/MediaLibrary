@@ -9,15 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.MultiSelectFilterHelper
-import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MainController
 import com.example.medialibrary.backend.models.shared.*
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
@@ -59,8 +58,6 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             adapter
         )
 
-        //region binding
-
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 currentFilter.Search = query
@@ -82,33 +79,37 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         }
 
         binding.allItemList?.setOnClickListener {
-            val books = viewModel.items.value
-            val sortedBooks = books?.sortedBy { it.Title }
-            val bookList = buildString {
+            val mediaItems = viewModel.items.value
+            val sortedBooks = mediaItems?.filter { it.MediaType == Enums.MediaType.Book }?.sortedBy { it.Title }
+            val sortedVideos = mediaItems?.filter { it.MediaType == Enums.MediaType.Video }?.sortedBy { it.Title }
+            val sortedMusics = mediaItems?.filter { it.MediaType == Enums.MediaType.Music }?.sortedBy { it.Title }
+            val sortedOthers = mediaItems?.filter { it.MediaType == Enums.MediaType.Other }?.sortedBy { it.Title }
+            val list = buildString {
+                appendLine("Books:")
                 sortedBooks?.forEach { book ->
                     appendLine(book.Title)
+                }
+                appendLine()
+                appendLine("Videos:")
+                sortedVideos?.forEach { video ->
+                    appendLine(video.Title)
+                }
+                appendLine()
+                appendLine("Music Collection:")
+                sortedMusics?.forEach { music ->
+                    appendLine(music.Title)
+                }
+                appendLine()
+                appendLine("Other Collection:")
+                sortedOthers?.forEach { other ->
+                    appendLine(other.Title)
                 }
             }
 
             val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText("Book List", bookList)
+            val clipData = ClipData.newPlainText("Media Collection List", list)
             clipboard.setPrimaryClip(clipData)
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-        }
-
-        //endregion
-
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
         }
 
         return root
@@ -122,6 +123,16 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         val items = controller.GetAllItems(currentFilter)
         setup = controller.GetSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = Filter()
+            binding.searchView.setQuery("", false)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: MainSetup, filter: Filter?) {

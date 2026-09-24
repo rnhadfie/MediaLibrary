@@ -28,5 +28,9 @@
         android:id="@+id/nav_export"
         android:icon="@drawable/ic_settings_black_24dp"
         android:title="@string/export_data" />
+    <item
+        android:id="@+id/nav_reset_app"
+        android:icon="@drawable/ic_settings_black_24dp"
+        android:title="@string/reset_app" />
 
 </menu>

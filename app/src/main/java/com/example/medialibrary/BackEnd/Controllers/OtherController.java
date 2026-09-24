@@ -36,9 +36,7 @@ public class OtherController extends BaseController{
     }
 
     public Other GetOtherItem(int id) {
-        Other other = new Other();
-        other = this.otherSerivce.getValue().GetOtherCollection(id);
-        return other;
+        return this.otherSerivce.getValue().GetOtherCollection(id);
     }
 
     public boolean AddOther(OtherSaveObj otherObj) {

@@ -10,24 +10,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterOption
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
+import com.example.medialibrary.Utils.MultiSelectFilterHelper
 import com.example.medialibrary.Utils.SafePieChartRenderer
-import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.Music
 import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisplayViewModel>(
     MusicFragmentDisplayBinding::inflate
@@ -58,6 +61,10 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             binding.emptyStateContainer.root
         )
 
+        binding.buttonFilter?.setOnClickListener {
+            setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
+
         binding.musicItemList.setOnClickListener {
             val cds = viewModel.MediaItems.value
             val sortedCds = cds?.sortedBy { it.Title }
@@ -72,19 +79,6 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
-        }
-
         return root
     }
 
@@ -97,6 +91,62 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         setup = bookController?.GetMusicSetup()
         viewModel.setMediaItems(items)
         setup?.let { setupCharts(items, it) }
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = MusicFilter()
+            loadData()
+        }
+    }
+
+    private fun showFilterSheet(setup: MusicSetup, filter: MusicFilter) {
+        val dialog = BottomSheetDialog(requireContext())
+        val sheetBinding = MusicBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        val f = filter
+        val tags = setup.Tags
+
+        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetTagMusic,
+            "Tags",
+            tagOptions,
+            f.IncludedTags,
+            f.ExcludedTags
+        )
+
+        val genreOptions = setup.MusicGenre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+        MultiSelectFilterHelper.setupTriStateDropdown(
+            sheetBinding.dropdownSheetGenreMusic,
+            "Music Genres",
+            genreOptions,
+            f.IncludedMusicGenres,
+            f.ExcludedMusicGenres
+        )
+
+        sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
+        sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
+
+        sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
+            f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
+            f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
+
+            currentFilter = f
+            loadData()
+            dialog.dismiss()
+        }
+
+        sheetBinding.buttonSheetClearBook.setOnClickListener {
+            currentFilter = MusicFilter()
+            loadData()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     @SuppressLint("SetTextI18n")

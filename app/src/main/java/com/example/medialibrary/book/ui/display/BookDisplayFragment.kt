@@ -1,6 +1,5 @@
 package com.example.medialibrary.book.ui.display
 
-import android.R
 import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -10,10 +9,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.R
+import com.example.medialibrary.Utils.FilterSummaryHelper
 import com.example.medialibrary.Utils.FragmentType
 import com.example.medialibrary.Utils.SafePieChartRenderer
 import com.example.medialibrary.backend.controllers.BookController
@@ -22,8 +22,9 @@ import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.book.Enums.BookFormat
 import com.example.medialibrary.backend.models.book.Enums.BookType
-import com.example.medialibrary.backend.models.video.Enums
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.book.ui.Utils.SharedUtils
+import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -34,6 +35,7 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplayViewModel>(
     BookFragmentDisplayBinding::inflate
@@ -64,14 +66,10 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             binding.emptyStateContainer.root,
         )
 
-        binding.dropdownSheetType?.setOnItemClickListener { parent, _, position, _ ->
-            var selectedItem = parent.getItemAtPosition(position).toString()
-            selectedItem = selectedItem.replace(" ", "")
-            val typeEnum = BookType.entries.find { it.name == selectedItem }
-
-            currentFilter.Type = typeEnum
-            reloadData()
+        binding.buttonFilter?.setOnClickListener {
+            setup?.let { s -> showFilterSheet(s, currentFilter) }
         }
+
 
         binding.bookItemList.setOnClickListener {
             val books = viewModel.mediaItems.value
@@ -100,20 +98,39 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         viewModel.setMediaItems(items)
         setup?.let { setupCharts(items, it) }
 
-        val types = setup?.Type ?: emptyMap()
-        val typeAdapter = ArrayAdapter(requireContext(), R.layout.simple_dropdown_item_1line, types.values.toList())
-        binding.dropdownSheetType?.setAdapter(typeAdapter)
-
-        val defaultTypeText = types[currentFilter.Type?.ordinal ?: Enums.VideoType.NoneSelected.ordinal]
-            ?: types[BookType.NoneSelected.ordinal]
-            ?: ""
-        binding.dropdownSheetType?.setText(defaultTypeText, false)
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup
+        ) {
+            currentFilter = BookFilter()
+            loadData()
+        }
     }
 
-    private fun reloadData() {
-        val items = bookController?.GetBooks(currentFilter) ?: emptyList()
-        viewModel.setMediaItems(items)
-        setupCharts(items, setup!!)
+    private fun showFilterSheet(setup: BookSetup, filter: BookFilter) {
+        val dialog = BottomSheetDialog(requireContext())
+        var sheetBinding = BookBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
+        sheetBinding.buttonSheetFitlerBook.setOnClickListener {
+            filter.CompletedCollecting = sheetBinding.switchSheetCompletedBook.isChecked
+            filter.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
+            filter.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
+
+            currentFilter = filter
+            loadData()
+            dialog.dismiss()
+        }
+
+        sheetBinding.buttonSheetClearBook.setOnClickListener {
+            currentFilter = BookFilter()
+            loadData()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     @SuppressLint("SetTextI18n")
@@ -138,7 +155,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
         setBookTypeBarChart(items, setup, colors)
-        setBookGenrePieChart(items, setup)
+        setupGenreBarChart(items, setup)
         setPublisherBarChart(items, setup, colors)
         setBookFormatPieChart(items)
     }
@@ -219,43 +236,43 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         }
     }
 
-    private fun setBookGenrePieChart(items: List<Book>, setup: BookSetup) {
-        val pieEntries = ArrayList<PieEntry>()
+    private fun setupGenreBarChart(items: List<Book>, setup: BookSetup) {
+        val colors = ColorTemplate.MATERIAL_COLORS.toList()
+        val genreDataSets = ArrayList<IBarDataSet>()
         val genreList = setup.Genre
+
+        var index = 1
         genreList.forEach { genre ->
             val total = items.filter { it.Genre?.contains(genre.key) == true }.size
             if (total > 0) {
-                pieEntries.add(PieEntry(total.toFloat(), genre.value))
+                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total.toFloat())), genre.value)
+                set.color = colors[index % colors.size]
+                genreDataSets.add(set)
+                index++
             }
         }
 
-        val genrePieChart = binding.bookGenrePieChart
-        if (pieEntries.isEmpty()) {
-            genrePieChart.data = null
-            genrePieChart.setNoDataTextColor(Color.BLACK)
-            genrePieChart.setNoDataText("No Genre data to display")
-            genrePieChart.setCenterTextSize(20f)
-        } else {
-            val genrePieDataSet = PieDataSet(pieEntries, "Genre")
-            genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-            val genrePieData = PieData(genrePieDataSet)
-            genrePieChart.data = genrePieData
-            genrePieChart.description?.isEnabled = false
-            genrePieChart.setHoleColor(Color.TRANSPARENT)
-            genrePieChart.setTransparentCircleColor(Color.TRANSPARENT)
-            genrePieChart.setBackgroundColor(Color.TRANSPARENT)
-            genrePieChart.setUsePercentValues(true)
-            genrePieChart.centerText = "Genre"
-            genrePieChart.legend.isEnabled = false
+        binding.bookGenreBarChart?.let { chart ->
+            if (genreDataSets.isEmpty()) {
+                chart.setNoDataText("No Genre data to display")
+                chart.setNoDataTextColor(Color.BLACK)
+                chart.data = null
+            } else {
+                chart.data = BarData(genreDataSets)
+                chart.description.isEnabled = false
+                chart.xAxis.isEnabled = false
 
-            genrePieChart.animateXY(1000, 1000)
-            genrePieChart.renderer = SafePieChartRenderer(
-                genrePieChart,
-                genrePieChart.animator,
-                genrePieChart.viewPortHandler
-            )
+                val legend = chart.legend
+                legend.isEnabled = true
+                legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
+                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+                legend.orientation = Legend.LegendOrientation.VERTICAL
+                legend.setDrawInside(false)
+
+                chart.animateY(1000)
+            }
+            chart.invalidate()
         }
-        genrePieChart.invalidate()
     }
 
     private fun setPublisherBarChart(items: List<Book>, setup: BookSetup, colors: List<Int>) {

@@ -73,8 +73,8 @@ class BookFormFragment : Fragment() {
 
                 if (pendingImageTarget == "book") {
                     viewModel.updateCover(byteArray)
-                    binding.imageBookCover.setImageBitmap(bitmap)
-                    binding.imageBookCover.imageTintList = null
+                    binding.changeImage.imageBookCover.setImageBitmap(bitmap)
+                    binding.changeImage.imageBookCover.imageTintList = null
                 } else if (pendingImageTarget == "item") {
                     currentSheetBinding?.let { sheet ->
                         sheet.imageSheetCover.setImageBitmap(bitmap)
@@ -116,13 +116,13 @@ class BookFormFragment : Fragment() {
             setup = BookSetup()
 
         setupBookTypeRadioGroup(setup.Type)
-        setupGenreSelection()
+        setupGenreSelection(setup)
         setupPublisherSelection(setup)
         setupTagSelection(setup)
         setupRecyclerView()
         setupInputListeners()
 
-        binding.buttonChangeCover.setOnClickListener {
+        binding.changeImage.buttonChangeCover.setOnClickListener {
             pendingImageTarget = "book"
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             pickImageLauncher.launch(intent)
@@ -192,17 +192,17 @@ class BookFormFragment : Fragment() {
 
             if (book.Cover != null) {
                 val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
-                binding.imageBookCover.setImageBitmap(bitmap)
-                binding.imageBookCover.imageTintList = null
+                binding.changeImage.imageBookCover.setImageBitmap(bitmap)
+                binding.changeImage.imageBookCover.imageTintList = null
             }
 
             // Update Publisher and Tag if setup is available
             setup.let { s ->
                 val pub = s.Publishers.find { it.Id == book.Publisher }
-                pub?.let { binding.bookPublisherAutocomplete.setText(it.Name, false) }
+                pub?.let { binding.publisherAutocomplete.autocomplete.setText(it.Name, false) }
 
                 val tag = s.Tag.find { it.Id == book.Tag }
-                tag?.let { binding.bookTagAutocomplete.setText(it.Name, false) }
+                tag?.let { binding.publisherAutocomplete.autocomplete.setText(it.Name, false) }
             }
         }
 
@@ -240,17 +240,20 @@ class BookFormFragment : Fragment() {
         }
     }
 
-    private fun setupGenreSelection() {
-        binding.buttonSelectGenres.setOnClickListener {
-            val genres = SharedEnums.Genre.entries.toTypedArray()
-            val genreNames = genres.map { it.name }.toTypedArray()
+    private fun setupGenreSelection(setup: BookSetup) {
+        binding.genreMultiselect.buttonSelectGenres.setOnClickListener {
+            val genres = setup.Genre
+            val genreNames = genres.map { it.value }.toTypedArray()
             val selected = viewModel.selectedGenres.value ?: mutableSetOf()
-            val checkedItems = genres.map { selected.contains(it) }.toBooleanArray()
+            val checkedItems = genres.map {
+                selected.contains(SharedEnums.Genre.entries[it.key])
+            }.toBooleanArray()
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Genres")
                 .setMultiChoiceItems(genreNames, checkedItems) { _, which, _ ->
-                    viewModel.toggleGenre(genres[which])
+
+                    viewModel.toggleGenre(SharedEnums.Genre.entries[which])
                 }
                 .setPositiveButton("OK", null)
                 .show()
@@ -260,14 +263,16 @@ class BookFormFragment : Fragment() {
     private fun setupTagSelection(setup: BookSetup) {
         val tags = setup.Tag
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.bookTagAutocomplete.setAdapter(adapter)
+        val tagBinding = binding.tagAutocomplete.autocomplete
 
-        binding.bookTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
+        tagBinding.setAdapter(adapter)
+
+        tagBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.bookTagAutocomplete.addTextChangedListener(object : TextWatcher {
+        tagBinding.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -285,14 +290,15 @@ class BookFormFragment : Fragment() {
     private fun setupPublisherSelection(setup: BookSetup) {
         val publishers = setup.Publishers
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, publishers)
-        binding.bookPublisherAutocomplete.setAdapter(adapter)
+        val publisherBinding = binding.publisherAutocomplete.autocomplete
+        publisherBinding.setAdapter(adapter)
 
-        binding.bookPublisherAutocomplete.setOnItemClickListener { _, _, position, _ ->
+        publisherBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedPublisher = adapter.getItem(position)
             selectedPublisher?.let { viewModel.updatePublisher(it) }
         }
 
-        binding.bookPublisherAutocomplete.addTextChangedListener(object : TextWatcher {
+        publisherBinding.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -308,14 +314,14 @@ class BookFormFragment : Fragment() {
     }
 
     private fun updateGenreChips(genres: Set<SharedEnums.Genre>) {
-        binding.chipGroupGenres.removeAllViews()
+        binding.genreMultiselect.chipGroupGenres.removeAllViews()
         genres.forEach { genre ->
             val chip = Chip(requireContext()).apply {
                 text = genre.name
                 isCloseIconVisible = true
                 setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
             }
-            binding.chipGroupGenres.addView(chip)
+            binding.genreMultiselect.chipGroupGenres.addView(chip)
         }
     }
 
