@@ -107,20 +107,21 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         val tags = setup.Tag
 
         val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
         MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTagOther,
+            sheetBinding.tagAutocomplete.autocomplete,
             "Tags",
             tagOptions,
             f.IncludedTags,
             f.ExcludedTags
         )
 
-        sheetBinding.switchSheetCompletedOther.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCompletedOther.isChecked = f.StandaloneOrSeriesIsComplete ?: false
         sheetBinding.switchSheetCollectedOther.isChecked = f.Collecting ?: false
         sheetBinding.switchSheetStartedOther.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
-            f.CompletedSeries = sheetBinding.switchSheetCompletedOther.isChecked
+            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedOther.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedOther.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedOther.isChecked
 

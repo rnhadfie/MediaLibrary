@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
@@ -84,24 +83,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
-        binding.dropdownType.setOnItemClickListener { parent, _, position, _ ->
-            var selectedItem = parent.getItemAtPosition(position).toString()
-            selectedItem = selectedItem.replace(" ", "")
-            val typeEnum = Enums.VideoType.entries.find { it.name == selectedItem }
-
-            currentFilter.Type = typeEnum
-            loadData()
-        }
-
-        binding.dropdownVideoTag.setOnItemClickListener { parent, _, position, _ ->
-            var selectedItem = parent.getItemAtPosition(position).toString()
-            selectedItem = selectedItem.replace(" ", "")
-            val typeEnum = Enums.VideoTag.entries.find { it.name == selectedItem }
-
-            currentFilter.VideoTag = typeEnum
-            loadData()
-        }
-
         return root
     }
 
@@ -124,24 +105,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             currentFilter = VideoFilter()
             loadData()
         }
-
-        val types = setup?.Types ?: emptyMap()
-        val typeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, types.values.toList())
-        binding.dropdownType.setAdapter(typeAdapter)
-
-        val defaultTypeText = types[currentFilter.Type?.ordinal ?: Enums.VideoType.NoneSelected.ordinal]
-            ?: types[Enums.VideoType.NoneSelected.ordinal]
-            ?: ""
-        binding.dropdownType.setText(defaultTypeText, false)
-
-        val tags = setup?.VideoTags ?: emptyMap()
-        val tagAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags.values.toList())
-        binding.dropdownVideoTag.setAdapter(tagAdapter)
-
-        val defaultTagText = tags[currentFilter.VideoTag?.ordinal ?: Enums.VideoTag.None.ordinal]
-            ?: tags[Enums.VideoTag.None.ordinal]
-            ?: ""
-        binding.dropdownVideoTag.setText(defaultTagText, false)
     }
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
@@ -188,12 +151,12 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             f.ExcludedGenres
         )
 
-        sheetBinding.switchSheetCompletedVideo.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCompletedVideo.isChecked = f.StandaloneOrSeriesIsComplete ?: false
         sheetBinding.switchSheetCollectedVideo.isChecked = f.Collecting ?: false
         sheetBinding.switchSheetStartedVideo.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            f.CompletedSeries = sheetBinding.switchSheetCompletedVideo.isChecked
+            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedVideo.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedVideo.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedVideo.isChecked
 

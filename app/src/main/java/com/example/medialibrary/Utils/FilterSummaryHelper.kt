@@ -52,7 +52,7 @@ object FilterSummaryHelper {
         }
 
         if (filter.Collecting == true) parts.add("Collecting: Yes")
-        if (filter.CompletedSeries == true) parts.add("Completed: Yes")
+        if (filter.StandaloneOrSeriesIsComplete == true) parts.add("Completed: Yes")
         if (filter.AnyOwned == true) parts.add("Started: Yes")
 
         when (filter) {

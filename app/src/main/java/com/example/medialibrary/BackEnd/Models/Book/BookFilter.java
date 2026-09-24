@@ -7,7 +7,9 @@ import java.util.List;
 public class BookFilter extends Filter {
     public Enums.BookType Type;
     public int Publisher;
-    public Enums.BookFormat PrimaryFormat;
+
+    public boolean Read;
+    public boolean Reading;
 
     public List<Enums.BookType> IncludedTypes = new ArrayList<>();
     public List<Enums.BookType> ExcludedTypes = new ArrayList<>();

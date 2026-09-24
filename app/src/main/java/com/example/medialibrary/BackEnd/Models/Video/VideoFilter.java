@@ -8,6 +8,8 @@ public class VideoFilter extends Filter {
     public Enums.VideoType Type;
     public Enums.VideoTag VideoTag;
 
+    public boolean Watched;
+    public boolean Watching;
     public List<Enums.VideoType> IncludedTypes = new ArrayList<>();
     public List<Enums.VideoType> ExcludedTypes = new ArrayList<>();
 

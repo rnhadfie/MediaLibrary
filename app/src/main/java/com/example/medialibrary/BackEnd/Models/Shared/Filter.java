@@ -9,9 +9,9 @@ public class Filter {
     public int Genre;
     public Enums.MediaType MediaType;
     public Boolean Collecting;
-    public Boolean CompletedSeries;
+    public Boolean StandaloneOrSeriesIsComplete;
     public Boolean AnyOwned;
-    public Boolean CompletedCollecting;
+    public Boolean Collected;
 
     public List<Integer> IncludedTags = new ArrayList<>();
     public List<Integer> ExcludedTags = new ArrayList<>();

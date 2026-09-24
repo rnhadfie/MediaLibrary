@@ -32,49 +32,13 @@
                 android:layout_height="wrap_content"
                 android:text="@string/started_collecting" />
 
-            <TextView
-                android:id="@+id/text_sheet_tag_music"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:labelFor="@id/dropdown_sheet_tag_music"
-                android:text="@string/tag"
-                android:textAppearance="?attr/textAppearanceCaption" />
+           <include layout="@layout/view_filter_autocomplete_dropdown"
+               android:id="@+id/tag_autocomplete"
+               />
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/music_genre_autocomplete"/>
 
-                <AutoCompleteTextView
-                    android:id="@+id/dropdown_sheet_tag_music"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <TextView
-                android:id="@+id/text_sheet_genre_music"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:labelFor="@id/dropdown_sheet_genre_music"
-                android:text="@string/music_genre"
-                android:textAppearance="?attr/textAppearanceCaption" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/dropdown_sheet_genre_music"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/button_sheet_fitler_music"

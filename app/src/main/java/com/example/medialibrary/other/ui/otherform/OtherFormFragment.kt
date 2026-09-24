@@ -28,6 +28,7 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
+import com.google.android.material.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.io.ByteArrayOutputStream
 
@@ -73,10 +74,10 @@ class OtherFormFragment : Fragment() {
                     binding.imageOtherCover.imageTintList = null
                 } else if (pendingImageTarget == "item") {
                     currentSheetBinding?.let { sheet ->
-                        sheet.imageSheetCover.setImageBitmap(bitmap)
-                        sheet.imageSheetCover.imageTintList = null
+                        sheet.imageItemCover.imageBookCover.setImageBitmap(bitmap)
+                        sheet.imageItemCover.imageBookCover.imageTintList = null
                         // We store the byte array in the Tag or similar until saved
-                        sheet.imageSheetCover.tag = byteArray
+                        sheet.imageItemCover.imageBookCover.tag = byteArray
                     }
                 }
             }
@@ -187,14 +188,14 @@ class OtherFormFragment : Fragment() {
     private fun setupTagSelection(setup: MainSetup) {
         val tags = setup.Tag
         val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.otherTagAutocomplete.setAdapter(adapter)
-
-        binding.otherTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
+        binding.tagAutocomplete.autocomplete.setAdapter(adapter)
+        binding.tagAutocomplete.autoCompleteLabel.setText(com.example.medialibrary.R.string.tag)
+        binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.otherTagAutocomplete.addTextChangedListener(object : TextWatcher {
+        binding.tagAutocomplete.autocomplete.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -257,13 +258,13 @@ class OtherFormFragment : Fragment() {
             sheetBinding.switchSheetOwned.isChecked = it.Owned
             if (it.ItemCover != null) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
-                sheetBinding.imageSheetCover.setImageBitmap(bitmap)
-                sheetBinding.imageSheetCover.imageTintList = null
-                sheetBinding.imageSheetCover.tag = it.ItemCover
+                sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
+                sheetBinding.imageItemCover.imageBookCover.imageTintList = null
+                sheetBinding.imageItemCover.imageBookCover.tag = it.ItemCover
             }
         }
 
-        sheetBinding.buttonSheetChangeCover.setOnClickListener {
+        sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
             pendingImageTarget = "item"
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             pickImageLauncher.launch(intent)
@@ -279,7 +280,7 @@ class OtherFormFragment : Fragment() {
             val newItem = OtherItem().apply {
                 Title = sheetBinding.editSheetVolumeTitle.text.toString()
                 Owned = sheetBinding.switchSheetOwned.isChecked
-                ItemCover = sheetBinding.imageSheetCover.tag as? ByteArray
+                ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
             }
 
             viewModel.addOrUpdateItem(newItem, position)

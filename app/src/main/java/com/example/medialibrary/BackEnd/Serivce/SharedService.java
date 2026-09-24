@@ -221,7 +221,7 @@ public class SharedService {
             selectionArgs.add("1");
         }
 
-        if (filter.CompletedCollecting != null && filter.CompletedCollecting) {
+        if (filter.Collected != null && filter.Collected) {
             conditions.add(COLUMN_COMPLETED_COLLECTING + " = ?");
             selectionArgs.add("1");
         }

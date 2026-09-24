@@ -167,12 +167,12 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             f.ExcludedGenres
         )
 
-        sheetBinding.switchSheetCompletedVideo.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCompletedVideo.isChecked = f.StandaloneOrSeriesIsComplete ?: false
         sheetBinding.switchSheetCollectedVideo.isChecked = f.Collecting ?: false
         sheetBinding.switchSheetStartedVideo.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            f.CompletedSeries = sheetBinding.switchSheetCompletedVideo.isChecked
+            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedVideo.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedVideo.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedVideo.isChecked
 

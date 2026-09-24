@@ -130,8 +130,9 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         val tags = setup.Tags
 
         val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+        sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
         MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTagMusic,
+            sheetBinding.tagAutocomplete.autocomplete,
             "Tags",
             tagOptions,
             f.IncludedTags,
@@ -139,8 +140,9 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         )
 
         val genreOptions = setup.MusicGenre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+        sheetBinding.musicGenreAutocomplete.autoCompleteLabel.setText(R.string.tag)
         MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetGenreMusic,
+            sheetBinding.musicGenreAutocomplete.autocomplete,
             "Music Genres",
             genreOptions,
             f.IncludedMusicGenres,

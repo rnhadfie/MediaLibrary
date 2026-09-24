@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.video.*
@@ -76,14 +77,14 @@ class VideoFormFragment : Fragment() {
 
                 if (pendingImageTarget == "book") {
                     viewModel.updateCover(byteArray)
-                    binding.imageVideoCover.setImageBitmap(bitmap)
-                    binding.imageVideoCover.imageTintList = null
+                    binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
+                    binding.itemImageCover.imageBookCover.imageTintList = null
                 } else if (pendingImageTarget == "item") {
                     currentSheetBinding?.let { sheet ->
-                        sheet.imageSheetCover.setImageBitmap(bitmap)
-                        sheet.imageSheetCover.imageTintList = null
+                        sheet.imageItemCover.imageBookCover.setImageBitmap(bitmap)
+                        sheet.imageItemCover.imageBookCover.imageTintList = null
                         // We store the byte array in the Tag or similar until saved
-                        sheet.imageSheetCover.tag = byteArray
+                        sheet.imageItemCover.imageBookCover.tag = byteArray
                     }
                 }
             }
@@ -125,7 +126,7 @@ class VideoFormFragment : Fragment() {
         setupRecyclerView()
         setupInputListeners()
 
-        binding.buttonChangeCover.setOnClickListener {
+        binding.itemImageCover.buttonChangeCover.setOnClickListener {
             pendingImageTarget = "book"
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             pickImageLauncher.launch(intent)
@@ -201,8 +202,8 @@ class VideoFormFragment : Fragment() {
 
             if (book.Cover != null) {
                 val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
-                binding.imageVideoCover.setImageBitmap(bitmap)
-                binding.imageVideoCover.imageTintList = null
+                binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
+                binding.itemImageCover.imageBookCover.imageTintList = null
             }
 
 
@@ -255,7 +256,7 @@ class VideoFormFragment : Fragment() {
     }
 
     private fun setupGenreSelection(setup: VideoSetup) {
-        binding.buttonSelectGenres.setOnClickListener {
+        binding.genreMultiselect.buttonSelectGenres.setOnClickListener {
             val genres = setup.Genre
             val genreNames = genres.map { it.value }.toTypedArray()
             val selected = viewModel.selectedGenres.value ?: mutableSetOf()
@@ -277,14 +278,14 @@ class VideoFormFragment : Fragment() {
     private fun setupTagSelection(setup: VideoSetup) {
         val tags = setup.Tag
         val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.videoTagAutocomplete.setAdapter(adapter)
-
-        binding.videoTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
+        binding.tagAutocomplete.autocomplete.setAdapter(adapter)
+        binding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+        binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.videoTagAutocomplete.addTextChangedListener(object : TextWatcher {
+        binding.tagAutocomplete.autocomplete.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -301,14 +302,14 @@ class VideoFormFragment : Fragment() {
 
 
     private fun updateGenreChips(genres: Set<Enums.Genre>) {
-        binding.chipGroupGenres.removeAllViews()
+        binding.genreMultiselect.chipGroupGenres.removeAllViews()
         genres.forEach { genre ->
             val chip = Chip(requireContext()).apply {
                 text = genre.name
                 isCloseIconVisible = true
                 setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
             }
-            binding.chipGroupGenres.addView(chip)
+            binding.genreMultiselect.chipGroupGenres.addView(chip)
         }
     }
 
@@ -356,7 +357,8 @@ class VideoFormFragment : Fragment() {
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
-        sheetBinding.dropdownSheetFormat.setAdapter(adapter)
+        sheetBinding.formatAutocomplete.autocomplete.setAdapter(adapter)
+        sheetBinding.formatAutocomplete.autoCompleteLabel.setText(R.string.format_label)
 
         // Populate if editing
         item?.let {
@@ -364,17 +366,17 @@ class VideoFormFragment : Fragment() {
             sheetBinding.editSheetVolumeTitle.setText(it.DiscTitle)
             sheetBinding.switchSheetOwned.isChecked = it.Owned
             sheetBinding.switchSheetWatched.isChecked = it.Watched
-            sheetBinding.dropdownSheetFormat.setText(it.Format.name, false)
+            sheetBinding.formatAutocomplete.autocomplete.setText(it.Format.name, false)
 
             if (it.ItemCover != null) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
-                sheetBinding.imageSheetCover.setImageBitmap(bitmap)
-                sheetBinding.imageSheetCover.imageTintList = null
-                sheetBinding.imageSheetCover.tag = it.ItemCover
+                sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
+                sheetBinding.imageItemCover.imageBookCover.imageTintList = null
+                sheetBinding.imageItemCover.imageBookCover.tag = it.ItemCover
             }
         }
 
-        sheetBinding.buttonSheetChangeCover.setOnClickListener {
+        sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
             pendingImageTarget = "item"
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             pickImageLauncher.launch(intent)
@@ -392,8 +394,8 @@ class VideoFormFragment : Fragment() {
                 DiscTitle = (sheetBinding.editSheetVolumeTitle.text ?: "").toString()
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 Watched = sheetBinding.switchSheetWatched.isChecked
-                Format = VideoFormat.valueOf(sheetBinding.dropdownSheetFormat.text.toString())
-                ItemCover = sheetBinding.imageSheetCover.tag as? ByteArray
+                Format = VideoFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+                ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
             }
 
             viewModel.addOrUpdateItem(newItem, position)

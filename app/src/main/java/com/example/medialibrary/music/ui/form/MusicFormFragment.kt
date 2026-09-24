@@ -17,6 +17,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
@@ -63,8 +64,8 @@ class MusicFormFragment : Fragment() {
 
                 if (pendingImageTarget == "music") {
                     viewModel.updateCover(byteArray)
-                    binding.imageMusicCover.setImageBitmap(bitmap)
-                    binding.imageMusicCover.imageTintList = null
+                    binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
+                    binding.itemImageCover.imageBookCover.imageTintList = null
                 }
             }
         }
@@ -103,7 +104,7 @@ class MusicFormFragment : Fragment() {
         setupTagSelection(setup)
         setupInputListeners()
 
-        binding.buttonChangeCover.setOnClickListener {
+        binding.itemImageCover.buttonChangeCover.setOnClickListener {
             pendingImageTarget = "book"
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             pickImageLauncher.launch(intent)
@@ -162,8 +163,8 @@ class MusicFormFragment : Fragment() {
 
             if (music.Cover != null) {
                 val bitmap = BitmapFactory.decodeByteArray(music.Cover, 0, music.Cover.size)
-                binding.imageMusicCover.setImageBitmap(bitmap)
-                binding.imageMusicCover.imageTintList = null
+                binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
+                binding.itemImageCover.imageBookCover.imageTintList = null
             }
         }
 
@@ -189,14 +190,14 @@ class MusicFormFragment : Fragment() {
     private fun setupTagSelection(setup: MusicSetup) {
         val tags = setup.Tags
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.musicTagAutocomplete.setAdapter(adapter)
-
-        binding.musicTagAutocomplete.setOnItemClickListener { _, _, position, _ ->
+        binding.tagAutocomplete.autocomplete.setAdapter(adapter)
+        binding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+        binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.musicTagAutocomplete.addTextChangedListener(object : TextWatcher {
+        binding.tagAutocomplete.autocomplete.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {

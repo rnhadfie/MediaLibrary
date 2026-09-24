@@ -54,60 +54,6 @@
                 app:tint="?attr/colorPrimary" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/text_video_tag"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:labelFor="@id/dropdown_video_tag"
-            android:text="@string/video_tags"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/colorOnBackground" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/dropdown_layout_video_tag"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:boxBackgroundColor="@color/card">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_video_tag"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:saveEnabled="false"
-                android:textColor="@color/black" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/text_type"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:labelFor="@id/dropdown_type"
-            android:text="@string/video_type"
-            android:textAppearance="?attr/textAppearanceCaption"
-            android:textColor="?attr/colorOnBackground" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/dropdown_layout_type"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            app:boxBackgroundColor="@color/card">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_type"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                android:saveEnabled="false"
-                android:textColor="@color/black" />
-        </com.google.android.material.textfield.TextInputLayout>
-
         <include
             android:id="@+id/card_active_filter"
             layout="@layout/view_active_filter_summary"

@@ -69,7 +69,7 @@ class SharedUtils {
                 filter.ExcludedGenres
             )
 
-            sheetBinding.switchSheetCompletedBook.isChecked = filter.CompletedSeries ?: false
+            sheetBinding.switchSheetCompletedBook.isChecked = filter.StandaloneOrSeriesIsComplete ?: false
             sheetBinding.switchSheetCollectedBook.isChecked = filter.Collecting ?: false
             sheetBinding.switchSheetStartedBook.isChecked = filter.AnyOwned ?: false
 

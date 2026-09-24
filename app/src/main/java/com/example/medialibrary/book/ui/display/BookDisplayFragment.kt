@@ -115,7 +115,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            filter.CompletedCollecting = sheetBinding.switchSheetCompletedBook.isChecked
+            filter.Collected = sheetBinding.switchSheetCompletedBook.isChecked
             filter.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
             filter.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
 

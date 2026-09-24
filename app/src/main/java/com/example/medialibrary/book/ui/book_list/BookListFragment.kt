@@ -130,7 +130,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            f.CompletedSeries = sheetBinding.switchSheetCompletedBook.isChecked
+            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedBook.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
 

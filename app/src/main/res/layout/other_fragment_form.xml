@@ -81,36 +81,9 @@
                 android:text="@string/completely_collected"
                 android:textColor="?attr/colorOnBackground" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:labelFor="@+id/other_tag_autocomplete"
-                android:text="@string/tag"
-                android:textAppearance="?attr/textAppearanceSubtitle1"
-                android:textColor="?attr/colorOnBackground" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/other_tag"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:hint="@string/select_or_type_an_tag"
-                app:boxBackgroundColor="@color/card"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp">
-
-                <AutoCompleteTextView
-                    android:id="@+id/other_tag_autocomplete"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:minHeight="48dp"
-                    android:textColor="?attr/colorOnBackground" />
-            </com.google.android.material.textfield.TextInputLayout>
+            <include
+                layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"/>
 
             <View
                 android:layout_width="match_parent"

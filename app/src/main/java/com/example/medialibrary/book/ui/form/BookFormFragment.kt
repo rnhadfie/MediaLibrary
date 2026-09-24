@@ -21,6 +21,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.R
 import com.example.medialibrary.Utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.BookItem
@@ -77,10 +78,10 @@ class BookFormFragment : Fragment() {
                     binding.changeImage.imageBookCover.imageTintList = null
                 } else if (pendingImageTarget == "item") {
                     currentSheetBinding?.let { sheet ->
-                        sheet.imageSheetCover.setImageBitmap(bitmap)
-                        sheet.imageSheetCover.imageTintList = null
+                        sheet.itemImageCover.imageBookCover.setImageBitmap(bitmap)
+                        sheet.itemImageCover.imageBookCover.imageTintList = null
                         // We store the byte array in the Tag or similar until saved
-                        sheet.imageSheetCover.tag = byteArray
+                        sheet.itemImageCover.imageBookCover.tag = byteArray
                     }
                 }
             }
@@ -378,7 +379,8 @@ class BookFormFragment : Fragment() {
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
-        sheetBinding.dropdownSheetFormat.setAdapter(adapter)
+        sheetBinding.formatAutocomplete.autocomplete.setAdapter(adapter)
+        sheetBinding.formatAutocomplete.autoCompleteLabel.setText(R.string.format_label)
 
         // Populate if editing
         item?.let {
@@ -386,16 +388,16 @@ class BookFormFragment : Fragment() {
             sheetBinding.editSheetVolumeTitle.setText(it.VolumeTitle)
             sheetBinding.switchSheetOwned.isChecked = it.Owned
             sheetBinding.switchSheetRead.isChecked = it.Read
-            sheetBinding.dropdownSheetFormat.setText(it.Format.name, false)
+            sheetBinding.formatAutocomplete.autocomplete.setText(it.Format.name, false)
             if (it.ItemCover != null) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
-                sheetBinding.imageSheetCover.setImageBitmap(bitmap)
-                sheetBinding.imageSheetCover.imageTintList = null
-                sheetBinding.imageSheetCover.tag = it.ItemCover
+                sheetBinding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
+                sheetBinding.itemImageCover.imageBookCover.imageTintList = null
+                sheetBinding.itemImageCover.imageBookCover.tag = it.ItemCover
             }
         }
 
-        sheetBinding.buttonSheetChangeCover.setOnClickListener {
+        sheetBinding.itemImageCover.buttonChangeCover.setOnClickListener {
             pendingImageTarget = "item"
             val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
             pickImageLauncher.launch(intent)
@@ -413,8 +415,8 @@ class BookFormFragment : Fragment() {
                 VolumeTitle = sheetBinding.editSheetVolumeTitle.text.toString()
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 Read = sheetBinding.switchSheetRead.isChecked
-                Format = Enums.BookFormat.valueOf(sheetBinding.dropdownSheetFormat.text.toString())
-                ItemCover = sheetBinding.imageSheetCover.tag as? ByteArray
+                Format = Enums.BookFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+                ItemCover = sheetBinding.itemImageCover.imageBookCover.tag as? ByteArray
             }
 
             viewModel.addOrUpdateItem(newItem, position)

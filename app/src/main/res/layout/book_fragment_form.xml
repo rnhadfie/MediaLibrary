@@ -99,7 +99,7 @@
 
             <include layout="@layout/view_autocomplete_dropdown"
                 android:id="@+id/publisher_autocomplete"
-                app:autoCompleteLabel="@string/publisher" />
+                />
 
             <CheckBox
                 android:id="@+id/book_collecting"
@@ -127,7 +127,7 @@
 
             <include layout="@layout/view_autocomplete_dropdown"
                 android:id="@+id/tag_autocomplete"
-                app:autoCompleteLabel="@string/tag" />
+                 />
 
 
             <View

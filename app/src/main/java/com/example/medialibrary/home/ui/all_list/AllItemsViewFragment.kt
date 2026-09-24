@@ -170,12 +170,12 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             f.ExcludedGenres
         )
 
-        sheetBinding.switchSheetCompletedBook.isChecked = f.CompletedSeries ?: false
+        sheetBinding.switchSheetCompletedBook.isChecked = f.StandaloneOrSeriesIsComplete ?: false
         sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
         sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            f.CompletedSeries = sheetBinding.switchSheetCompletedBook.isChecked
+            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedBook.isChecked
             f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
             f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
 
