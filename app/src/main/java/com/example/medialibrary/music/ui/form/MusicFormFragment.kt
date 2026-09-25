@@ -8,17 +8,16 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ImageView
 import android.widget.RadioButton
+import android.widget.TableLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -30,6 +29,7 @@ import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.utils.ImageUtils
+import com.example.medialibrary.utils.RadioGridUtils
 
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -85,13 +85,13 @@ class MusicFormFragment : Fragment() {
         val byteArray = outputStream.toByteArray()
 
         viewModel.updateCover(byteArray)
-        ImageUtils.handleImageBitmap(bitmap, "music", binding, null);
+        ImageUtils.handleImageBitmap(bitmap, "music", binding, null)
 
     }
 
     private fun clearImage() {
         viewModel.updateCover(null)
-        ImageUtils.clearImage("music", binding, null, requireContext(), resources);
+        ImageUtils.clearImage("music", binding, null, requireContext(), resources)
     }
 
 
@@ -155,7 +155,7 @@ class MusicFormFragment : Fragment() {
         if(setup == null)
             setup = MusicSetup()
 
-        setupMusicGenreRadioGroup()
+        setupMusicGenreRadioGroup(setup)
         setupTagSelection(setup)
         setupInputListeners()
 
@@ -209,12 +209,12 @@ class MusicFormFragment : Fragment() {
             binding.musicCollecting.isChecked = music.Collecting ?: false
 
             // Update RadioGroup
-            for (i in 0 until binding.radioGroupMusicGenre.childCount) {
-                val rb = binding.radioGroupMusicGenre.getChildAt(i) as RadioButton
-                if (rb.tag == music.MusicGenre) {
-                    rb.isChecked = true
-                    break
-                }
+            val musicGenreId = music.MusicGenre?.ordinal ?: 0
+            if(musicGenreId != 0) {
+                RadioGridUtils.setSelection(
+                    binding.musicGenreRadio.dynamicTableLayout,
+                    musicGenreId
+                )
             }
 
             if (music.Cover != null && music.Cover.isNotEmpty()) {
@@ -230,21 +230,26 @@ class MusicFormFragment : Fragment() {
 
     }
 
-    private fun setupMusicGenreRadioGroup() {
-        MusicGenre.entries.forEach { type ->
-            if (type == MusicGenre.NoneSelected) return@forEach
-            val rb = RadioButton(requireContext()).apply {
-                id = View.generateViewId()
-                text = type.name
-                tag = type
-            }
-            binding.radioGroupMusicGenre.addView(rb)
-        }
+    private fun setupMusicGenreRadioGroup(setup: MusicSetup) {
 
-        binding.radioGroupMusicGenre.setOnCheckedChangeListener { group, checkedId ->
-            val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateMusicGenre(rb.tag as MusicGenre)
+        binding.musicGenreRadio.radioButtonLabel.setText(R.string.music_genre)
+        val tableLayout = binding.musicGenreRadio.dynamicTableLayout
+        val musicGenre = setup.MusicGenre.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = tableLayout,
+            optionsMap = musicGenre,
+            columnCount = 2
+        ) { selectedId ->
+            // This block acts as your changeListener.
+            // It triggers immediately when any RadioButton in the grid is selected.
+            handleRadioSelectionChange(selectedId)
         }
+    }
+
+    private fun handleRadioSelectionChange(id: Int) {
+        // You can update a ViewModel, save state, or trigger network calls here
+        val genre = MusicGenre.entries.find { it.ordinal == id } ?: return
+        viewModel.updateMusicGenre(genre)
     }
 
     private fun setupTagSelection(setup: MusicSetup) {

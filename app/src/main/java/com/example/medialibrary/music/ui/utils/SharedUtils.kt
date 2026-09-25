@@ -27,6 +27,7 @@ class SharedUtils {
                 filter.ExcludedTags
             )
 
+            sheetBinding.musicGenreAutocomplete.autoCompleteLabel.setText(R.string.music_genre)
             val genreOptions = setup.MusicGenre.filter { it.key != 0 }.map {
                 FilterOption(
                     it.key,

@@ -93,12 +93,18 @@
                     android:textColor="@color/black" />
             </androidx.cardview.widget.CardView>
 
+            <include layout="@layout/view_dual_column_card"
+                android:id="@+id/artist_card"/>
+
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/music_genre_pie_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"
                 android:background="@color/base" />
+
+
+
 
         </LinearLayout>
     </ScrollView>

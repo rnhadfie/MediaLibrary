@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
@@ -17,6 +18,8 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.backend.controllers.MusicController
+import com.example.medialibrary.backend.models.book.Book
+import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.Music
 import com.example.medialibrary.backend.models.music.MusicFilter
@@ -119,6 +122,8 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             dialog.dismiss()
         }
 
+
+
         sheetBinding.buttonSheetClearBook.setOnClickListener {
             currentFilter = MusicFilter()
             loadData()
@@ -126,6 +131,57 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         }
 
         dialog.show()
+    }
+
+    private fun setArtistChart(items: List<Music>) {
+       val artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues { it.value.size }
+
+
+        val dualColumnViewOne = binding.artistCard?.dualCardColumnOne
+        val dualColumnViewTwo = binding.artistCard?.dualCardColumnTwo
+        val title = binding.artistCard?.cardTitle
+        val emptyState = binding.artistCard?.emptyStateContainer
+        title?.text = getString(R.string.total_number_of_books_per_publisher)
+
+        if(artistInformationMap.isEmpty())
+        {
+            dualColumnViewOne?.visibility = View.GONE
+            dualColumnViewTwo?.visibility = View.GONE
+            emptyState?.root?.visibility = View.VISIBLE
+            emptyState?.root?.text = getString(R.string.no_publisher_data_to_display)
+        }
+        else {
+
+            dualColumnViewOne?.visibility = View.VISIBLE
+            dualColumnViewTwo?.visibility = View.VISIBLE
+            emptyState?.root?.visibility = View.GONE
+
+            val publisherInformationSortedMap = artistInformationMap.toList()
+                .sortedByDescending { (_, value) -> value } // Sort list by the value
+                .toMap()
+
+            val halfSize = (publisherInformationSortedMap.size + 1) / 2
+            val chunks = publisherInformationSortedMap.entries.chunked(halfSize)
+
+            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
+            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
+
+            dualColumnViewOne?.removeAllViews()
+            dualColumnViewTwo?.removeAllViews()
+
+            for ((key, value) in firstHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewOne?.addView(textView)
+            }
+            for ((key, value) in secondHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewTwo?.addView(textView)
+            }
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -169,5 +225,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             )
         }
         genrePieChart.invalidate()
+
+        setArtistChart(items)
     }
 }
