@@ -19,7 +19,7 @@
             android:padding="16dp">
 
             <include layout="@layout/view_change_image"
-                android:id="@+id/item_image_cover"
+                android:id="@+id/change_image"
                 />
 
             <com.google.android.material.textfield.TextInputLayout

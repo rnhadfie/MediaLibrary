@@ -4,13 +4,16 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,8 +25,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
+import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.BookController
+import java.io.ByteArrayOutputStream
+import java.io.File
 import com.example.medialibrary.backend.models.book.BookItem
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.book.Enums
@@ -34,7 +40,6 @@ import com.example.medialibrary.databinding.BookFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
-import java.io.ByteArrayOutputStream
 
 class BookFormFragment : Fragment() {
 
@@ -62,31 +67,77 @@ class BookFormFragment : Fragment() {
 
     private var controller: BookController? = null
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private var tempPhotoFile: File? = null
+    private var tempPhotoUri: Uri? = null
+
+
+    // region Image Handling
+    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data?.data
-            uri?.let {
-                val inputStream = requireContext().contentResolver.openInputStream(it)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                val outputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
-                val byteArray = outputStream.toByteArray()
+            uri?.let { ImageUtils.handleImageUri(it, requireContext(), ::handleImageBitmap) }
+        }
+    }
 
-                if (pendingImageTarget == "book") {
-                    viewModel.updateCover(byteArray)
-                    binding.changeImage.imageBookCover.setImageBitmap(bitmap)
-                    binding.changeImage.imageBookCover.imageTintList = null
-                } else if (pendingImageTarget == "item") {
-                    currentSheetBinding?.let { sheet ->
-                        sheet.itemImageCover.imageBookCover.setImageBitmap(bitmap)
-                        sheet.itemImageCover.imageBookCover.imageTintList = null
-                        // We store the byte array in the Tag or similar until saved
-                        sheet.itemImageCover.imageBookCover.tag = byteArray
+    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && tempPhotoUri != null) {
+            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
+        }
+        tempPhotoFile?.delete()
+        tempPhotoFile = null
+        tempPhotoUri = null
+    }
+
+    private fun handleImageBitmap(bitmap: Bitmap) {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+        val byteArray = outputStream.toByteArray()
+        ImageUtils.handleImageBitmap(bitmap, pendingImageTarget, binding, currentSheetBinding )
+
+        if (pendingImageTarget == "book") {
+            viewModel.updateCover(byteArray)
+        }
+
+    }
+
+    private fun clearImage(target: String) {
+
+        ImageUtils.clearImage(target, binding, currentSheetBinding,requireContext(),resources)
+        if (target == "book") {
+            viewModel.updateCover(null)
+        }
+    }
+
+    private fun showImageOptionsDialog(target: String) {
+        pendingImageTarget = target
+        val options = arrayOf(
+            getString(R.string.choose_from_gallery),
+            getString(R.string.take_photo),
+            getString(R.string.clear_image)
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_image_source)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+                        pickGalleryLauncher.launch(intent)
+                    }
+                    1 -> {
+                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
+                        tempPhotoFile = file
+                        tempPhotoUri = uri
+                        takePhotoLauncher.launch(uri)
+                    }
+                    2 -> {
+                        clearImage(target)
                     }
                 }
             }
-        }
+            .show()
     }
+
+    //endregion
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -115,9 +166,6 @@ class BookFormFragment : Fragment() {
             viewModel.loadBook(bookId, controller, setup)
         }
 
-
-
-
         setupBookTypeRadioGroup(setup.Type)
         setupGenreSelection(setup)
         setupPublisherSelection(setup)
@@ -126,9 +174,10 @@ class BookFormFragment : Fragment() {
         setupInputListeners()
 
         binding.changeImage.buttonChangeCover.setOnClickListener {
-            pendingImageTarget = "book"
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-            pickImageLauncher.launch(intent)
+            showImageOptionsDialog("book")
+        }
+        binding.changeImage.buttonClearCover.setOnClickListener {
+            clearImage("book")
         }
 
         binding.buttonAddItem.setOnClickListener {
@@ -193,10 +242,14 @@ class BookFormFragment : Fragment() {
                 }
             }
 
-            if (book.Cover != null) {
+            if (book.Cover != null && book.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
                 binding.changeImage.imageBookCover.setImageBitmap(bitmap)
                 binding.changeImage.imageBookCover.imageTintList = null
+                binding.changeImage.buttonClearCover.visibility = View.VISIBLE
+            } else {
+                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                binding.changeImage.buttonClearCover.visibility = View.GONE
             }
 
             // Update Publisher and Tag if setup is available
@@ -394,18 +447,28 @@ class BookFormFragment : Fragment() {
             sheetBinding.switchSheetOwned.isChecked = it.Owned
             sheetBinding.switchSheetRead.isChecked = it.Read
             sheetBinding.formatAutocomplete.autocomplete.setText(it.Format.name, false)
-            if (it.ItemCover != null) {
+            if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
-                sheetBinding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
-                sheetBinding.itemImageCover.imageBookCover.imageTintList = null
-                sheetBinding.itemImageCover.imageBookCover.tag = it.ItemCover
+                sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
+                sheetBinding.imageItemCover.imageBookCover.imageTintList = null
+                sheetBinding.imageItemCover.imageBookCover.tag = it.ItemCover
+                sheetBinding.imageItemCover.buttonClearCover.visibility = View.VISIBLE
+            } else {
+                ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources)
+                sheetBinding.imageItemCover.imageBookCover.tag = null
+                sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
             }
+        } ?: run {
+            ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources)
+            sheetBinding.imageItemCover.imageBookCover.tag = null
+            sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
-        sheetBinding.itemImageCover.buttonChangeCover.setOnClickListener {
-            pendingImageTarget = "item"
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-            pickImageLauncher.launch(intent)
+        sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
+            showImageOptionsDialog("item")
+        }
+        sheetBinding.imageItemCover.buttonClearCover.setOnClickListener {
+            clearImage("item")
         }
 
         sheetBinding.buttonSheetSave.setOnClickListener {
@@ -426,7 +489,7 @@ class BookFormFragment : Fragment() {
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 Read = sheetBinding.switchSheetRead.isChecked
                 Format = format
-                ItemCover = sheetBinding.itemImageCover.imageBookCover.tag as? ByteArray
+                ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
             }
 
             viewModel.addOrUpdateItem(newItem, position)

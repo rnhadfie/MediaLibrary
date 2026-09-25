@@ -125,4 +125,8 @@
     <string name="total_number_of_video_per_genre">Total Number of Movies @&amp; TV Shows per Genre</string>
     <string name="no_publisher_data_to_display">No Publisher data to display</string>
     <string name="no_genre_data_to_display">No Genre data to display</string>
+    <string name="clear_image">Clear Image</string>
+    <string name="choose_from_gallery">Choose from Gallery</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="select_image_source">Select Image Source</string>
 </resources>

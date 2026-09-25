@@ -11,6 +11,7 @@ public class BindingAdapters {
         if (bytes != null && bytes.length > 0) {
             Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
             imageView.setImageBitmap(bitmap);
+            imageView.setImageTintList(null);
         } else {
             imageView.setImageDrawable(null);
         }

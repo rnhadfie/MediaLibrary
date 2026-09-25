@@ -21,7 +21,7 @@ import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentListBinding
-import com.example.medialibrary.music.ui.Utils.SharedUtils
+import com.example.medialibrary.music.ui.utils.SharedUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewModel>(

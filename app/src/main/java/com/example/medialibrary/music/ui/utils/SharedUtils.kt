@@ -1,4 +1,4 @@
-package com.example.medialibrary.music.ui.Utils
+package com.example.medialibrary.music.ui.utils
 
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterOption

@@ -18,33 +18,8 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="150dp"
-                android:layout_height="200dp"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                app:cardBackgroundColor="@color/card"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <ImageView
-                    android:id="@+id/image_other_cover"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:contentDescription="@string/image_view_item_transform_content_description"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_gallery_black_24dp"
-                    app:tint="?attr/colorPrimary" />
-            </androidx.cardview.widget.CardView>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_change_cover"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:text="@string/change_cover" />
+            <include layout="@layout/view_change_image"
+                android:id="@+id/change_image" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"

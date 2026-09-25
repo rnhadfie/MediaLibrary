@@ -4,18 +4,23 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.fragment.app.viewModels
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.SharedRefreshViewModel
@@ -24,10 +29,10 @@ import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
-
+import com.example.medialibrary.utils.ImageUtils
 
 import java.io.ByteArrayOutputStream
-import kotlin.collections.forEach
+import java.io.File
 
 class MusicFormFragment : Fragment() {
 
@@ -46,30 +51,80 @@ class MusicFormFragment : Fragment() {
     private val viewModel: MusicFormViewModel by viewModels()
     private var _binding: MusicFragmentFormBinding? = null
     private val binding get() = _binding!!
-
-    private var pendingImageTarget: String? = null
-
-
+    
     private var controller: MusicController? = null
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private var tempPhotoFile: File? = null
+    private var tempPhotoUri: Uri? = null
+
+    //region Image Handling
+
+    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data?.data
             uri?.let {
-                val inputStream = requireContext().contentResolver.openInputStream(it)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                val outputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
-                val byteArray = outputStream.toByteArray()
-
-                if (pendingImageTarget == "music") {
-                    viewModel.updateCover(byteArray)
-                    binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
-                    binding.itemImageCover.imageBookCover.imageTintList = null
-                }
+                ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
             }
         }
     }
+
+    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && tempPhotoUri != null) {
+            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
+        }
+        tempPhotoFile?.delete()
+        tempPhotoFile = null
+        tempPhotoUri = null
+    }
+
+
+
+    private fun handleImageBitmap(bitmap: Bitmap) {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+        val byteArray = outputStream.toByteArray()
+
+        viewModel.updateCover(byteArray)
+        ImageUtils.handleImageBitmap(bitmap, "music", binding, null);
+
+    }
+
+    private fun clearImage() {
+        viewModel.updateCover(null)
+        ImageUtils.clearImage("music", binding, null, requireContext(), resources);
+    }
+
+
+
+    private fun showImageOptionsDialog() {
+        val options = arrayOf(
+            getString(R.string.choose_from_gallery),
+            getString(R.string.take_photo),
+            getString(R.string.clear_image)
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_image_source)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+                        pickGalleryLauncher.launch(intent)
+                    }
+                    1 -> {
+                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
+                        tempPhotoFile = file
+                        tempPhotoUri = uri
+                        takePhotoLauncher.launch(uri)
+                    }
+                    2 -> {
+                        clearImage()
+                    }
+                }
+            }
+            .show()
+    }
+
+    //endregion
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -104,10 +159,11 @@ class MusicFormFragment : Fragment() {
         setupTagSelection(setup)
         setupInputListeners()
 
-        binding.itemImageCover.buttonChangeCover.setOnClickListener {
-            pendingImageTarget = "book"
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-            pickImageLauncher.launch(intent)
+        binding.changeImage.buttonChangeCover.setOnClickListener {
+            showImageOptionsDialog()
+        }
+        binding.changeImage.buttonClearCover.setOnClickListener {
+            clearImage()
         }
 
         binding.buttonSaveMusic.setOnClickListener {
@@ -161,10 +217,14 @@ class MusicFormFragment : Fragment() {
                 }
             }
 
-            if (music.Cover != null) {
+            if (music.Cover != null && music.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(music.Cover, 0, music.Cover.size)
-                binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
-                binding.itemImageCover.imageBookCover.imageTintList = null
+                binding.changeImage.imageBookCover.setImageBitmap(bitmap)
+                binding.changeImage.imageBookCover.imageTintList = null
+                binding.changeImage.buttonClearCover.visibility = View.VISIBLE
+            } else {
+                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                binding.changeImage.buttonClearCover.visibility = View.GONE
             }
         }
 

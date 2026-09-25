@@ -4,11 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.fragment.app.viewModels
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,14 +17,15 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
-import com.example.medialibrary.backend.models.book.Enums
 import com.example.medialibrary.backend.models.video.*
 import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.models.video.Enums.*
@@ -34,11 +34,13 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
+import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.ByteArrayOutputStream
+import java.io.File
 
 class VideoFormFragment : Fragment() {
 
@@ -66,31 +68,76 @@ class VideoFormFragment : Fragment() {
 
     private var controller: VideoController? = null
 
-    private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private var tempPhotoFile: File? = null
+    private var tempPhotoUri: Uri? = null
+
+    // region Image Handling
+    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val uri = result.data?.data
-            uri?.let {
-                val inputStream = requireContext().contentResolver.openInputStream(it)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                val outputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream)
-                val byteArray = outputStream.toByteArray()
+            uri?.let { ImageUtils.handleImageUri(it, requireContext(), ::handleImageBitmap) }
+        }
+    }
 
-                if (pendingImageTarget == "book") {
-                    viewModel.updateCover(byteArray)
-                    binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
-                    binding.itemImageCover.imageBookCover.imageTintList = null
-                } else if (pendingImageTarget == "item") {
-                    currentSheetBinding?.let { sheet ->
-                        sheet.imageItemCover.imageBookCover.setImageBitmap(bitmap)
-                        sheet.imageItemCover.imageBookCover.imageTintList = null
-                        // We store the byte array in the Tag or similar until saved
-                        sheet.imageItemCover.imageBookCover.tag = byteArray
+    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success && tempPhotoUri != null) {
+            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
+        }
+        tempPhotoFile?.delete()
+        tempPhotoFile = null
+        tempPhotoUri = null
+    }
+
+    private fun handleImageBitmap(bitmap: Bitmap) {
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+        val byteArray = outputStream.toByteArray()
+        ImageUtils.handleImageBitmap(bitmap, pendingImageTarget, binding, currentSheetBinding )
+
+        if (pendingImageTarget == "book") {
+            viewModel.updateCover(byteArray)
+        }
+
+    }
+
+    private fun clearImage(target: String) {
+
+        ImageUtils.clearImage(target, binding, currentSheetBinding,requireContext(),resources)
+        if (target == "book") {
+            viewModel.updateCover(null)
+        }
+    }
+
+    private fun showImageOptionsDialog(target: String) {
+        pendingImageTarget = target
+        val options = arrayOf(
+            getString(R.string.choose_from_gallery),
+            getString(R.string.take_photo),
+            getString(R.string.clear_image)
+        )
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.select_image_source)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+                        pickGalleryLauncher.launch(intent)
+                    }
+                    1 -> {
+                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
+                        tempPhotoFile = file
+                        tempPhotoUri = uri
+                        takePhotoLauncher.launch(uri)
+                    }
+                    2 -> {
+                        clearImage(target)
                     }
                 }
             }
-        }
+            .show()
     }
+
+    //endregion
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -129,10 +176,11 @@ class VideoFormFragment : Fragment() {
         setupRecyclerView()
         setupInputListeners()
 
-        binding.itemImageCover.buttonChangeCover.setOnClickListener {
-            pendingImageTarget = "book"
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-            pickImageLauncher.launch(intent)
+        binding.changeImage.buttonChangeCover.setOnClickListener {
+            showImageOptionsDialog("video")
+        }
+        binding.changeImage.buttonClearCover.setOnClickListener {
+            clearImage("video")
         }
 
         binding.buttonAddItem.setOnClickListener {
@@ -203,10 +251,14 @@ class VideoFormFragment : Fragment() {
                 }
             }
 
-            if (book.Cover != null) {
+            if (book.Cover != null && book.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
-                binding.itemImageCover.imageBookCover.setImageBitmap(bitmap)
-                binding.itemImageCover.imageBookCover.imageTintList = null
+                binding.changeImage.imageBookCover.setImageBitmap(bitmap)
+                binding.changeImage.imageBookCover.imageTintList = null
+                binding.changeImage.buttonClearCover.visibility = View.VISIBLE
+            } else {
+                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                binding.changeImage.buttonClearCover.visibility = View.GONE
             }
 
 
@@ -374,18 +426,28 @@ class VideoFormFragment : Fragment() {
             sheetBinding.switchSheetWatched.isChecked = it.Watched
             sheetBinding.formatAutocomplete.autocomplete.setText(it.Format.name, false)
 
-            if (it.ItemCover != null) {
+            if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
                 sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
                 sheetBinding.imageItemCover.imageBookCover.imageTintList = null
                 sheetBinding.imageItemCover.imageBookCover.tag = it.ItemCover
+                sheetBinding.imageItemCover.buttonClearCover.visibility = View.VISIBLE
+            } else {
+                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                sheetBinding.imageItemCover.imageBookCover.tag = null
+                sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
             }
+        } ?: run {
+            ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+            sheetBinding.imageItemCover.imageBookCover.tag = null
+            sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
         sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
-            pendingImageTarget = "item"
-            val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-            pickImageLauncher.launch(intent)
+            showImageOptionsDialog("item")
+        }
+        sheetBinding.imageItemCover.buttonClearCover.setOnClickListener {
+            clearImage("item")
         }
 
         sheetBinding.buttonSheetSave.setOnClickListener {

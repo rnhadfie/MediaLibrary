@@ -1,8 +1,10 @@
 package com.example.medialibrary
 
 import android.graphics.BitmapFactory
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -25,8 +27,14 @@ open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAda
         if (item.Cover != null && item.Cover.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
             holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
+            holder.binding.mediaItemImageCover.imageTintList = null
         } else {
             holder.binding.mediaItemImageCover.setImageResource(R.drawable.ic_gallery_black_24dp)
+            val typedValue = TypedValue()
+            holder.itemView.context.theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
+            holder.binding.mediaItemImageCover.imageTintList = ResourcesCompat.getColorStateList(
+                holder.itemView.resources, typedValue.resourceId, holder.itemView.context.theme
+            )
         }
 
         val crudUtil = SaveEditDeleteUtils(item, holder)

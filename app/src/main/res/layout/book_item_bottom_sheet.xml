@@ -17,7 +17,7 @@
             android:textColor="?attr/colorOnBackground" />
 
         <include layout="@layout/view_change_image"
-            android:id="@+id/item_image_cover"
+            android:id="@+id/image_item_cover"
             />
 
         <com.google.android.material.textfield.TextInputLayout
