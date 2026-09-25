@@ -5,12 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.shared.Enums
+import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.models.shared.Tag
 import com.example.medialibrary.backend.models.video.Enums.VideoTag
 import com.example.medialibrary.backend.models.video.Enums.VideoType
 import com.example.medialibrary.backend.models.video.Video
 import com.example.medialibrary.backend.models.video.VideoItem
 import com.example.medialibrary.backend.models.video.VideoSaveObject
+import com.example.medialibrary.backend.models.video.VideoSetup
 
 class VideoFormViewModel : ViewModel() {
 
@@ -24,8 +26,8 @@ class VideoFormViewModel : ViewModel() {
     private val _items = MutableLiveData<MutableList<VideoItem>>(mutableListOf())
     val items: LiveData<MutableList<VideoItem>> = _items
 
-    private val _selectedGenres = MutableLiveData<MutableSet<Enums.Genre>>(mutableSetOf())
-    val selectedGenres: LiveData<MutableSet<Enums.Genre>> = _selectedGenres
+    private val _selectedGenres = MutableLiveData<MutableSet<GenreObject>>(mutableSetOf())
+    val selectedGenres: LiveData<MutableSet<GenreObject>> = _selectedGenres
 
     private val _newTag = MutableLiveData<String>()
 
@@ -49,7 +51,7 @@ class VideoFormViewModel : ViewModel() {
 
 
 
-    fun updateVideoType(type: com.example.medialibrary.backend.models.video.Enums.VideoType) {
+    fun updateVideoType(type: VideoType) {
         _video.value?.Type = type
     }
 
@@ -62,7 +64,7 @@ class VideoFormViewModel : ViewModel() {
         _video.value = _video.value // Trigger observers
     }
 
-    fun toggleGenre(genre: Enums.Genre) {
+    fun toggleGenre(genre: GenreObject) {
         val current = _selectedGenres.value ?: mutableSetOf()
         if (current.contains(genre)) {
             current.remove(genre)
@@ -72,7 +74,7 @@ class VideoFormViewModel : ViewModel() {
         _selectedGenres.value = current
 
         // Update book genres list as integers (assuming ordinal or some mapping)
-        _video.value?.Genre = current.map { it.ordinal }.toMutableList()
+        _video.value?.Genre = current.map { it.genreId }.toMutableList()
     }
 
     fun toggleCollecting(collecting: Boolean) {
@@ -106,14 +108,14 @@ class VideoFormViewModel : ViewModel() {
         }
     }
 
-    fun loadVideo(id: Int, controller: VideoController?) {
+    fun loadVideo(id: Int, controller: VideoController?, setup: VideoSetup) {
         val loadedVideo = controller?.GetVideo(id)
         loadedVideo?.let {
             _video.value = it
             _items.value = it.Items?.toMutableList() ?: mutableListOf()
-            _selectedGenres.value = it.Genre?.mapNotNull { id ->
-                Enums.Genre.entries.getOrNull(id)
-            }?.toMutableSet() ?: mutableSetOf()
+            (it.Genre?.mapNotNull { id ->
+                setup.Genre.firstOrNull  { it.genreId == id }
+            }?.toMutableSet() ?: mutableSetOf()).also { _selectedGenres.value = it }
         }
     }
 

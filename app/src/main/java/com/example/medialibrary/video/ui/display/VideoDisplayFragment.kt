@@ -252,9 +252,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         var index = 1
         genreList.forEach { genre ->
-            val total = items.filter { it.Genre?.contains(genre.key) == true }.size
+            val total = items.filter { it.Genre?.contains(genre.genreId) == true }.size
             if (total > 0) {
-                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total.toFloat())), genre.value)
+                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total.toFloat())), genre.genreName)
                 set.color = colors[index % colors.size]
                 genreDataSets.add(set)
                 index++

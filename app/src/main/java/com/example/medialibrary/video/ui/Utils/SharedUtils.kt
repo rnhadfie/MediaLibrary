@@ -45,7 +45,7 @@ class SharedUtils {
                 f.ExcludedTags
             )
 
-            val genreOptions = setup.Genre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
+            val genreOptions = setup.Genre.filter { it.genreId != 0 }.map { FilterOption(it.genreId, it.genreName) }
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.dropdownSheetGenreVideo,
                 "Genres",

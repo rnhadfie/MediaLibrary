@@ -96,11 +96,6 @@
             <include layout="@layout/view_genre_multiselect"
                 android:id="@+id/genre_multiselect" />
 
-
-            <include layout="@layout/view_autocomplete_dropdown"
-                android:id="@+id/publisher_autocomplete"
-                />
-
             <CheckBox
                 android:id="@+id/book_collecting"
                 android:layout_width="match_parent"
@@ -124,11 +119,6 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/completed_series"
                 android:textColor="?attr/colorOnBackground" />
-
-            <include layout="@layout/view_autocomplete_dropdown"
-                android:id="@+id/tag_autocomplete"
-                 />
-
 
             <View
                 android:layout_width="match_parent"
@@ -166,6 +156,22 @@
                 android:layout_marginTop="8dp"
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/book_item_volume" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="?android:attr/listDivider" />
+
+            <include layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/publisher_autocomplete"
+                />
+
+
+
+            <include layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"
+                 />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_save_book"

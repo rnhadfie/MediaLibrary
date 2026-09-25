@@ -1,5 +1,6 @@
 package com.example.medialibrary.backend.models.book;
 
+import com.example.medialibrary.backend.models.shared.GenreObject;
 import com.example.medialibrary.backend.models.shared.Tag;
 
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ public class BookSetup {
     public BookSetup() {
 
     }
-    public Map<Integer, String> Genre = new HashMap<>();
+    public List<GenreObject> Genre = new ArrayList<>();
+    //ublic Map<Integer, String> Genre = new HashMap<>();
     public List<Publisher> Publishers = new ArrayList<>();
     public List<Tag> Tag = new ArrayList<>();
     public Map<Integer, String> Type = new HashMap<>();

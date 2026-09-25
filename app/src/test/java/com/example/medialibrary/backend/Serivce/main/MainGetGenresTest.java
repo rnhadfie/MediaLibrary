@@ -5,10 +5,10 @@ import static org.mockito.Mockito.*;
 
 import com.example.medialibrary.backend.Serivce.MainService;
 import com.example.medialibrary.backend.Serivce.SharedService;
-import com.example.medialibrary.backend.models.shared.Enums;
-import java.util.Map;
+import com.example.medialibrary.backend.models.shared.GenreObject;
+import java.util.List;
+import java.util.Objects;
 import org.junit.Test;
-
 import kotlin.LazyKt;
 
 public class MainGetGenresTest {
@@ -20,8 +20,8 @@ public class MainGetGenresTest {
         MainService service = new MainService(null);
         service.sharedService = LazyKt.lazy(() -> sharedService);
         
-        Map<Integer, String> genres = service.GetGenres();
+        List<GenreObject> genres = service.GetGenres();
         assertNotNull(genres);
-        assertTrue(genres.containsKey(Enums.Genre.Action.ordinal()));
+        assertTrue(genres.stream().anyMatch(it -> Objects.equals(it.genreName, "Action")));
     }
 }

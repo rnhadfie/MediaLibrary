@@ -171,7 +171,9 @@ public class BookService {
 
     public List<Publisher> GetPublishers() {
         var repo = this.bookRepository.getValue();
-        return repo.GetPublishers();
+        var publishers = repo.GetPublishers();
+        publishers.sort(Comparator.comparing(o -> o.Name));
+        return publishers;
     }
 
     public boolean AddPublisher(Publisher publisher) {

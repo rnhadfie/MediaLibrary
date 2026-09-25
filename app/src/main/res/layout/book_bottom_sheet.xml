@@ -19,19 +19,7 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/clear_filters" />
 
-            <include
-                android:id="@+id/publisher_autocomplete"
-                layout="@layout/view_filter_autocomplete_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
 
-            <include
-                android:id="@+id/book_type_autocomplete"
-                layout="@layout/view_filter_autocomplete_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
 
             <include android:id="@+id/read"
                 layout="@layout/view_filter_checkbox"
@@ -65,6 +53,13 @@
                 android:layout_marginTop="8dp" />
 
             <include
+                android:id="@+id/book_type_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+            <include
                 android:id="@+id/book_format_autocomplete"
                 layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
@@ -72,11 +67,13 @@
                 android:layout_marginTop="8dp" />
 
             <include
-                android:id="@+id/tag_autocomplete"
+                android:id="@+id/publisher_autocomplete"
                 layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
+
+
 
             <TextView
                 android:id="@+id/text_sheet_genre_book"
@@ -99,6 +96,13 @@
                     android:layout_height="wrap_content"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <include
+                android:id="@+id/tag_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
 
             <Button
                 android:id="@+id/button_sheet_fitler_book"

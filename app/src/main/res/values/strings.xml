@@ -119,4 +119,9 @@
     <string name="video_item_display_text">%1$d - %2$s</string>
     <string name="template">template</string>
     <string name="box">☐</string>
+    <string name="dual_card_text">%1$s: %2$d</string>
+    <string name="total_number_of_books_per_publisher">Total Number of Books per Publisher</string>
+    <string name="total_number_of_books_per_genre">Total Number of Books per Genre</string>
+    <string name="no_publisher_data_to_display">No Publisher data to display</string>
+    <string name="no_genre_data_to_display">No Genre data to display</string>
 </resources>

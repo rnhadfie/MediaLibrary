@@ -12,6 +12,7 @@ import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 import android.util.LruCache;
@@ -340,6 +341,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             } while (cursor.moveToNext());
             cursor.close();
         }
+        items.sort(Comparator.comparing(o -> o.VolumeNumber));
         return items;
     }
 

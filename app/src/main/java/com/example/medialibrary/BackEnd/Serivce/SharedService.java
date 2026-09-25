@@ -21,18 +21,19 @@ import com.example.medialibrary.backend.models.other.Other;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.models.shared.Enums;
 import com.example.medialibrary.backend.models.shared.Filter;
+import com.example.medialibrary.backend.models.shared.GenreObject;
 import com.example.medialibrary.backend.models.shared.MediaItem;
 import com.example.medialibrary.backend.models.shared.Tag;
 import com.example.medialibrary.backend.models.video.Video;
 import com.example.medialibrary.backend.models.video.VideoFilter;
 import com.example.medialibrary.backend.repository.SharedRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
-
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.stream.Collectors;
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
@@ -135,13 +136,13 @@ public class SharedService {
         return mostCommon;
     }
 
-    public Map<Integer, String> GetGenres() {
+    public List<GenreObject> GetGenres() {
         Enums.Genre[] genres = Enums.Genre.values();
-        Map<Integer, String> genreMap = new HashMap<>();
+        List<GenreObject> genreMap = new ArrayList<>();
         for (Enums.Genre genre : genres) {
-            genreMap.put(genre.ordinal(), GetSeperatedString(genre.toString()));
+            genreMap.add(new GenreObject(genre.ordinal(), GetSeperatedString(genre.toString())));
         }
-        return genreMap;
+        return genreMap.stream().sorted(Comparator.comparing(g -> g.genreName)).collect(Collectors.toList());
     }
 
     private void appendInClause(List<String> conditions, List<String> selectionArgs, String columnName, List<String> values) {

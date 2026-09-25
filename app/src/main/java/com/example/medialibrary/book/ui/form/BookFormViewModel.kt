@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.*
 import com.example.medialibrary.backend.models.book.Enums
+import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
 import com.example.medialibrary.backend.models.shared.Tag
 
@@ -21,8 +22,8 @@ class BookFormViewModel : ViewModel() {
     private val _items = MutableLiveData<MutableList<BookItem>>(mutableListOf())
     val items: LiveData<MutableList<BookItem>> = _items
 
-    private val _selectedGenres = MutableLiveData<MutableSet<SharedEnums.Genre>>(mutableSetOf())
-    val selectedGenres: LiveData<MutableSet<SharedEnums.Genre>> = _selectedGenres
+    private val _selectedGenres = MutableLiveData<MutableSet<GenreObject>>(mutableSetOf())
+    val selectedGenres: LiveData<MutableSet<GenreObject>> = _selectedGenres
 
     private val _newPublisher = MutableLiveData<String>()
 
@@ -79,7 +80,7 @@ class BookFormViewModel : ViewModel() {
         _book.value = _book.value // Trigger observers
     }
 
-    fun toggleGenre(genre: SharedEnums.Genre) {
+    fun toggleGenre(genre: GenreObject) {
         val current = _selectedGenres.value ?: mutableSetOf()
         if (current.contains(genre)) {
             current.remove(genre)
@@ -89,7 +90,7 @@ class BookFormViewModel : ViewModel() {
         _selectedGenres.value = current
 
         // Update book genres list as integers (assuming ordinal or some mapping)
-        _book.value?.Genre = current.map { it.ordinal }.toMutableList()
+        _book.value?.Genre = current.map { it.genreId }.toMutableList()
     }
 
     fun toggleCollecting(collecting: Boolean) {
@@ -123,14 +124,16 @@ class BookFormViewModel : ViewModel() {
         }
     }
 
-    fun loadBook(id: Int, controller: BookController?) {
+    fun loadBook(id: Int, controller: BookController?, setup: BookSetup) {
         val loadedBook = controller?.GetBook(id)
-        loadedBook?.let {
+        loadedBook?.let { it ->
             _book.value = it
             _items.value = it.Items?.toMutableList() ?: mutableListOf()
-            _selectedGenres.value = it.Genre?.mapNotNull { id ->
-                SharedEnums.Genre.entries.getOrNull(id)
-            }?.toMutableSet() ?: mutableSetOf()
+
+            (it.Genre?.mapNotNull { id ->
+                setup.Genre.firstOrNull  { it.genreId == id }
+            }?.toMutableSet() ?: mutableSetOf()).also { _selectedGenres.value = it }
+
             _newPublisher.value = ""
             _newTag.value = ""
 

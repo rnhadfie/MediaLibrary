@@ -3,6 +3,7 @@ package com.example.medialibrary.backend.Serivce;
 import com.example.medialibrary.backend.models.shared.Enums;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.models.shared.Filter;
+import com.example.medialibrary.backend.models.shared.GenreObject;
 import com.example.medialibrary.backend.models.shared.MainSetup;
 import com.example.medialibrary.backend.models.shared.MediaItem;
 import com.example.medialibrary.backend.models.shared.Tag;
@@ -10,6 +11,7 @@ import com.example.medialibrary.backend.repository.*;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,7 +96,9 @@ public class MainService {
     }
 
     public List<Tag> GetTags() {
-        return this.sharedService.getValue().GetTags();
+        var tags = this.sharedService.getValue().GetTags();
+         tags.sort(Comparator.comparing(o -> o.Name));
+        return tags;
     }
 
     public boolean AddTag(Tag tag) {
@@ -109,14 +113,9 @@ public class MainService {
         return this.sharedService.getValue().DeleteTag(id);
     }
 
-    public Map<Integer,String> GetGenres() {
+    public List<GenreObject> GetGenres() {
         var sharedService = this.sharedService.getValue();
-        com.example.medialibrary.backend.models.shared.Enums.Genre[] genres = com.example.medialibrary.backend.models.shared.Enums.Genre.values();
-        Map<Integer,String> genreMap = new HashMap<>();
-        for (com.example.medialibrary.backend.models.shared.Enums.Genre genre : genres) {
-            genreMap.put(genre.ordinal(), sharedService.GetSeperatedString(genre.toString()));
-        }
-        return genreMap;
+        return  sharedService.GetGenres();
     }
 
     public Map<Integer,String> GetMediaTypes() {

@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
@@ -115,6 +116,13 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
+            filter.Read = sheetBinding.read.triStateButton.tag as Boolean?
+            filter.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
+            filter.StandaloneOrSeriesIsComplete = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
+            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+
             currentFilter = filter
             loadData()
             dialog.dismiss()
@@ -141,18 +149,22 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val completedCount = items.count { it.HasCollectedAllItems == true && it.HasSeriesEnded == true }
         val updateToDate = items.count { it.HasSeriesEnded == false && it.HasCollectedAllItems == false }
+        val collecting = items.count { it.Collecting }
 
         binding.bookTotalSeriesCardText.text = "Total Number of Series: " + items.count().toString()
         binding.bookTotalCardText.text = "Total Number of Books: $totalBook"
-        binding.bookCompletedCardText.text = "Total Number of Completed Series: $completedCount"
+        binding.bookCompletedCardText.text = "Total Number Series or Standalone books Collected: $completedCount"
         binding.bookOngoingCardText?.text = "Total Number of Ongoing Series: $updateToDate"
+        binding.bookCollectingCardText?.text = "Total Number of Series or Books Currently Collecting: $collecting"
+
+
 
         setReadPercentChart(readCount, totalBook)
 
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
         setBookTypeBarChart(items, setup, colors)
         setupGenreBarChart(items, setup)
-        setPublisherBarChart(items, setup, colors)
+        setPublisherBarChart(items, setup)
         setBookFormatPieChart(items)
     }
 
@@ -233,77 +245,126 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setupGenreBarChart(items: List<Book>, setup: BookSetup) {
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
-        val genreDataSets = ArrayList<IBarDataSet>()
         val genreList = setup.Genre
+        val genreInformationMap = mutableMapOf<String, Int>()
 
-        var index = 1
-        genreList.forEach { genre ->
-            val total = items.filter { it.Genre?.contains(genre.key) == true }.size
-            if (total > 0) {
-                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total.toFloat())), genre.value)
-                set.color = colors[index % colors.size]
-                genreDataSets.add(set)
-                index++
+        genreList.forEach {  genre ->
+            val items = items.filter { it.Genre.contains(genre.genreId) }
+            var totalBooksPerGenre = 0
+            if(!items.isEmpty()) {
+                for (book in items) {
+                    totalBooksPerGenre += book.Items?.count() ?: 0
+                }
+                genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
         }
 
-        binding.bookGenreBarChart?.let { chart ->
-            if (genreDataSets.isEmpty()) {
-                chart.setNoDataText("No Genre data to display")
-                chart.setNoDataTextColor(Color.BLACK)
-                chart.data = null
-            } else {
-                chart.data = BarData(genreDataSets)
-                chart.description.isEnabled = false
-                chart.xAxis.isEnabled = false
+        val dualColumnViewOne = binding.genreCard?.dualCardColumnOne
+        val dualColumnViewTwo = binding.genreCard?.dualCardColumnTwo
+        val title = binding.genreCard?.cardTitle
+        val emptyState = binding.genreCard?.emptyStateContainer
+        title?.text = getString(R.string.total_number_of_books_per_genre)
 
-                val legend = chart.legend
-                legend.isEnabled = true
-                legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
-                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                legend.orientation = Legend.LegendOrientation.VERTICAL
-                legend.setDrawInside(false)
+        if(genreInformationMap.isEmpty())
+        {
+            dualColumnViewOne?.visibility = View.GONE
+            dualColumnViewTwo?.visibility = View.GONE
+            emptyState?.root?.visibility = View.VISIBLE
+            emptyState?.root?.text = getString(R.string.no_genre_data_to_display)
+        }
+        else {
 
-                chart.animateY(1000)
+            dualColumnViewOne?.visibility = View.VISIBLE
+            dualColumnViewTwo?.visibility = View.VISIBLE
+            emptyState?.root?.visibility = View.GONE
+
+            val genreInformationSortedMap = genreInformationMap.toList()
+                .sortedByDescending { (_, value) -> value } // Sort list by the value
+                .toMap()
+
+            val halfSize = (genreInformationSortedMap.size + 1) / 2
+            val chunks = genreInformationSortedMap.entries.chunked(halfSize)
+
+            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
+            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
+
+            dualColumnViewOne?.removeAllViews()
+            dualColumnViewTwo?.removeAllViews()
+
+            for ((key, value) in firstHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewOne?.addView(textView)
             }
-            chart.invalidate()
+            for ((key, value) in secondHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewTwo?.addView(textView)
+            }
         }
     }
 
-    private fun setPublisherBarChart(items: List<Book>, setup: BookSetup, colors: List<Int>) {
+    private fun setPublisherBarChart(items: List<Book>, setup: BookSetup) {
         val publishers = setup.Publishers
-        val pubDataSets = ArrayList<IBarDataSet>()
+        val publisherInformationMap = mutableMapOf<String, Int>()
 
-        publishers.forEachIndexed { index, publisher ->
-            val total = items.count { it.Publisher == publisher.Id }.toFloat()
-            if (total > 0) {
-                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total)), publisher.Name)
-                set.color = colors[index % colors.size]
-                pubDataSets.add(set)
+        publishers.forEach {  publisher ->
+            val items = items.filter { it.Publisher == publisher.Id }
+            var totalBooksPerPublisher = 0
+            if(!items.isEmpty()) {
+                for (book in items) {
+                    totalBooksPerPublisher += book.Items?.count() ?: 0
+                }
+                publisherInformationMap[publisher.Name] = totalBooksPerPublisher
             }
         }
 
-        binding.bookPublisherBarChart.let { chart ->
-            if (pubDataSets.isEmpty()) {
-                chart.setNoDataText("No Publisher data to display")
-                chart.setNoDataTextColor(Color.BLACK)
-                chart.data = null
-            } else {
-                chart.data = BarData(pubDataSets)
-                chart.description.isEnabled = false
-                chart.xAxis.isEnabled = false
+        val dualColumnViewOne = binding.publisherCard?.dualCardColumnOne
+        val dualColumnViewTwo = binding.publisherCard?.dualCardColumnTwo
+        val title = binding.publisherCard?.cardTitle
+        val emptyState = binding.publisherCard?.emptyStateContainer
+        title?.text = getString(R.string.total_number_of_books_per_publisher)
 
-                val legend = chart.legend
-                legend.isEnabled = true
-                legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
-                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                legend.orientation = Legend.LegendOrientation.VERTICAL
-                legend.setDrawInside(false)
+        if(publisherInformationMap.isEmpty())
+        {
+            dualColumnViewOne?.visibility = View.GONE
+            dualColumnViewTwo?.visibility = View.GONE
+            emptyState?.root?.visibility = View.VISIBLE
+            emptyState?.root?.text = getString(R.string.no_publisher_data_to_display)
+        }
+        else {
 
-                chart.animateY(1000)
+            dualColumnViewOne?.visibility = View.VISIBLE
+            dualColumnViewTwo?.visibility = View.VISIBLE
+            emptyState?.root?.visibility = View.GONE
+
+            val publisherInformationSortedMap = publisherInformationMap.toList()
+                .sortedByDescending { (_, value) -> value } // Sort list by the value
+                .toMap()
+
+            val halfSize = (publisherInformationSortedMap.size + 1) / 2
+            val chunks = publisherInformationSortedMap.entries.chunked(halfSize)
+
+            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
+            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
+
+            dualColumnViewOne?.removeAllViews()
+            dualColumnViewTwo?.removeAllViews()
+
+            for ((key, value) in firstHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewOne?.addView(textView)
             }
-            chart.invalidate()
+            for ((key, value) in secondHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewTwo?.addView(textView)
+            }
         }
     }
 

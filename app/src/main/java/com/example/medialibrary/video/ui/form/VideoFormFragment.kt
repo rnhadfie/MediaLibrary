@@ -26,7 +26,7 @@ import com.example.medialibrary.R
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.video.*
-import com.example.medialibrary.backend.models.shared.Enums
+import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.models.video.Enums.*
 import com.example.medialibrary.backend.models.shared.Tag
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
@@ -110,14 +110,16 @@ class VideoFormFragment : Fragment() {
         val videoId = arguments?.getInt(ARG_ID) ?: -1
         val isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
 
-        if (isEdit && videoId != -1) {
-            viewModel.loadVideo(videoId, controller)
-        }
-
         var setup = controller?.GetVideoSetup()
 
         if(setup == null)
             setup = VideoSetup()
+
+        if (isEdit && videoId != -1) {
+            viewModel.loadVideo(videoId, controller, setup)
+        }
+
+
 
         setupVideoTypeRadioGroup(setup.Types)
         setupVideoTagRadioGroup(setup.VideoTags)
@@ -258,17 +260,20 @@ class VideoFormFragment : Fragment() {
     private fun setupGenreSelection(setup: VideoSetup) {
         binding.genreMultiselect.buttonSelectGenres.setOnClickListener {
             val genres = setup.Genre
-            val genreNames = genres.map { it.value }.toTypedArray()
-            val selected = viewModel.selectedGenres.value ?: mutableSetOf()
+            val genreNames = genres.map { it.genreName }.toTypedArray()
+            val selected = viewModel.selectedGenres.value ?: mutableSetOf<GenreObject>()
             val checkedItems = genres.map {
-                selected.contains(Enums.Genre.entries[it.key])
+                selected.contains(it)
             }.toBooleanArray()
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Genres")
                 .setMultiChoiceItems(genreNames, checkedItems) { _, which, _ ->
-
-                    viewModel.toggleGenre(Enums.Genre.entries[which])
+                    val selectedText = genreNames[which]
+                    val selectedGenre = genres.find { it.genreName == selectedText }
+                    if (selectedGenre != null) {
+                        viewModel.toggleGenre(selectedGenre)
+                    }
                 }
                 .setPositiveButton("OK", null)
                 .show()
@@ -301,11 +306,11 @@ class VideoFormFragment : Fragment() {
     }
 
 
-    private fun updateGenreChips(genres: Set<Enums.Genre>) {
+    private fun updateGenreChips(genres: Set<GenreObject>) {
         binding.genreMultiselect.chipGroupGenres.removeAllViews()
         genres.forEach { genre ->
             val chip = Chip(requireContext()).apply {
-                text = genre.name
+                text = genre.genreName
                 isCloseIconVisible = true
                 setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
             }
@@ -477,13 +482,13 @@ class VideoFormFragment : Fragment() {
             {
 
                 holder.binding.textVolumeInfo.text = getString(
-                    com.example.medialibrary.R.string.video_item_display_text,
+                    R.string.video_item_display_text,
                     item.DiscNumber,
                     item.DiscTitle
                 )
             }
             holder.binding.textStatusInfo.text = context.getString(
-                com.example.medialibrary.R.string.movie_status_format,
+                R.string.movie_status_format,
                 if (item.Owned) "Yes" else "No",
                 if (item.Watched) "Yes" else "No"
             )
@@ -493,7 +498,7 @@ class VideoFormFragment : Fragment() {
                 holder.binding.imageItemCover.setImageBitmap(bitmap)
                 holder.binding.imageItemCover.imageTintList = null
             } else {
-                holder.binding.imageItemCover.setImageResource(com.example.medialibrary.R.drawable.ic_gallery_black_24dp)
+                holder.binding.imageItemCover.setImageResource(R.drawable.ic_gallery_black_24dp)
                 holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, android.R.color.darker_gray, null)
             }
 

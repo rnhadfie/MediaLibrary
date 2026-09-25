@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class MainSetup {
 
-    public Map<Integer, String> Genre = new HashMap<>();
+    public List<GenreObject> Genre = new ArrayList<>();
     public Map<Integer, String> MediaType = new HashMap<>();
     public List<Tag> Tag = new ArrayList<>();
 }
