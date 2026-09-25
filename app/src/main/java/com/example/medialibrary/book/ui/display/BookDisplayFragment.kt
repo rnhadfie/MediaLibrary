@@ -210,8 +210,14 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         typeCounts.forEach { (key, value) ->
             if (BookType.entries[key] != BookType.NoneSelected) {
                 val bookType = BookType.entries[key]
-                val count = items.count { it.Type == bookType }.toFloat()
-                val set = BarDataSet(listOf(BarEntry(index.toFloat(), count)), value)
+                val books = items.filter { it.Type == bookType }
+                var count = 0;
+                books.forEach {
+                    if (it.Items != null) {
+                        count += it.Items.count()
+                    }
+                }
+                val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
                 set.color = colors[index % colors.size]
                 dataSets.add(set)
                 index++
@@ -222,6 +228,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         binding.bookTypeBarChart.let { chart ->
             chart.setNoDataText("No data to display")
+
             if (dataSets.isEmpty()) {
                 chart.data = null
                 chart.setNoDataTextColor(Color.BLACK)

@@ -58,6 +58,9 @@
                 android:textColor="?attr/colorOnBackground" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <include layout="@layout/view_autocomplete_dropdown"
+            android:id="@+id/format_autocomplete"/>
+
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switch_sheet_owned"
             android:layout_width="match_parent"
@@ -71,8 +74,7 @@
             android:layout_height="wrap_content"
             android:text="@string/watched" />
 
-       <include layout="@layout/view_autocomplete_dropdown"
-            android:id="@+id/format_autocomplete"/>
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/button_sheet_save"

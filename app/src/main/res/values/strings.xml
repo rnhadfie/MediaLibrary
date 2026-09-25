@@ -59,7 +59,7 @@
     <string name="completed">Has Collected All Items</string>
     <string name="completed_series">Series or Collection is Complete</string>
     <string name="started_collecting">Started Collecting</string>
-    <string name="video_tags">Video Tags</string>
+    <string name="video_tags">Video Category</string>
     <string name="disc_number">Disc Number</string>
     <string name="disc_title">Disc Title</string>
     <string name="watched">Watched</string>
@@ -90,7 +90,7 @@
     <string name="music_statistics">Music Statistics</string>
     <string name="total_cds">Total Cds</string>
     <string name="video_type">Video Type</string>
-    <string name="video_tag">Video Tag</string>
+    <string name="video_tag">Video Category</string>
     <string name="delete">delete</string>
     <string name="edit">edit</string>
     <string name="get_list_of_items">Get list of items</string>
@@ -122,6 +122,7 @@
     <string name="dual_card_text">%1$s: %2$d</string>
     <string name="total_number_of_books_per_publisher">Total Number of Books per Publisher</string>
     <string name="total_number_of_books_per_genre">Total Number of Books per Genre</string>
+    <string name="total_number_of_video_per_genre">Total Number of Movies @&amp; TV Shows per Genre</string>
     <string name="no_publisher_data_to_display">No Publisher data to display</string>
     <string name="no_genre_data_to_display">No Genre data to display</string>
 </resources>

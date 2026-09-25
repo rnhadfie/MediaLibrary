@@ -52,10 +52,10 @@ object FilterSummaryHelper {
         }
 
 
-        if (filter.Collecting == true) parts.add("Collecting: "+ if (filter.Collecting) "Yes" else "No")
-        if (filter.Collected == true) parts.add("Collected: "+ if (filter.Collecting) "Yes" else "No")
-        if (filter.StandaloneOrSeriesIsComplete == true) parts.add("Completed: "+ if (filter.Collecting) "Yes" else "No")
-        if (filter.AnyOwned == true) parts.add("Started: "+ if (filter.Collecting) "Yes" else "No")
+        if (filter.Collecting != null) parts.add("Collecting: "+ if (filter.Collecting) "Yes" else "No")
+        if (filter.Collected  != null) parts.add("Collected: "+ if (filter.Collected) "Yes" else "No")
+        if (filter.StandaloneOrSeriesIsComplete  != null) parts.add("Completed: "+ if (filter.StandaloneOrSeriesIsComplete) "Yes" else "No")
+        if (filter.AnyOwned  != null) parts.add("Started: "+ if (filter.AnyOwned) "Yes" else "No")
 
         when (filter) {
             is BookFilter -> {
@@ -93,8 +93,8 @@ object FilterSummaryHelper {
                 formatTriStateNames(filter.IncludedGenres, filter.ExcludedGenres, "Genre", parts) { id ->
                     videoSetup?.Genre?.find { it.genreId == id }?.genreName ?: id.toString()
                 }
-                if (filter.Watched == true) parts.add("Watched: "+ if (filter.Watched) "Yes" else "No")
-                if (filter.Watching == true) parts.add("Watching: "+ if (filter.Watching) "Yes" else "No")
+                if (filter.Watched  != null) parts.add("Watched: "+ if (filter.Watched) "Yes" else "No")
+                if (filter.Watching != null) parts.add("Watching: "+ if (filter.Watching) "Yes" else "No")
             }
             is MusicFilter -> {
                 val musicSetup = setup as? MusicSetup

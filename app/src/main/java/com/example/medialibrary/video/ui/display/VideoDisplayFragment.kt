@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
@@ -232,6 +233,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 formatPieChart.setBackgroundColor(Color.TRANSPARENT)
                 formatPieChart.centerText = "Format"
                 formatPieChart.legend.isEnabled = false
+                formatPieChart.setUsePercentValues(true)
                 formatPieChart.description.isEnabled = false
                 formatPieChart.animateXY(1000, 1000)
                 formatPieChart.renderer = SafePieChartRenderer(
@@ -246,42 +248,64 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupGenreBarChart(items: List<Video>, setup: VideoSetup) {
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
-        val genreDataSets = ArrayList<IBarDataSet>()
         val genreList = setup.Genre
+        val genreInformationMap = mutableMapOf<String, Int>()
 
-        var index = 1
-        genreList.forEach { genre ->
-            val total = items.filter { it.Genre?.contains(genre.genreId) == true }.size
-            if (total > 0) {
-                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total.toFloat())), genre.genreName)
-                set.color = colors[index % colors.size]
-                genreDataSets.add(set)
-                index++
+        genreList.forEach {  genre ->
+            val items = items.filter { it.Genre.contains(genre.genreId) }
+            var totalBooksPerGenre = 0
+            if(!items.isEmpty()) {
+                for (book in items) {
+                    totalBooksPerGenre += book.Items?.count() ?: 0
+                }
+                genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
         }
 
-        val genreChart = binding.videoGenreBarChart
-        genreChart.let { chart ->
-            if (genreDataSets.isEmpty()) {
-                chart.setNoDataText("No Publisher data to display")
-                chart.setNoDataTextColor(Color.BLACK)
-                chart.data = null
-            } else {
-                chart.data = BarData(genreDataSets)
-                chart.description.isEnabled = false
-                chart.xAxis.isEnabled = false
+        val dualColumnViewOne = binding.genreCard.dualCardColumnOne
+        val dualColumnViewTwo = binding.genreCard.dualCardColumnTwo
+        val title = binding.genreCard.cardTitle
+        val emptyState = binding.genreCard.emptyStateContainer
+        title.text = getString(R.string.total_number_of_video_per_genre)
 
-                val legend = chart.legend
-                legend.isEnabled = true
-                legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
-                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
-                legend.orientation = Legend.LegendOrientation.VERTICAL
-                legend.setDrawInside(false)
+        if(genreInformationMap.isEmpty())
+        {
+            dualColumnViewOne.visibility = View.GONE
+            dualColumnViewTwo.visibility = View.GONE
+            emptyState.root.visibility = View.VISIBLE
+            emptyState.root.text = getString(R.string.no_genre_data_to_display)
+        }
+        else {
 
-                chart.animateY(1000)
+            dualColumnViewOne.visibility = View.VISIBLE
+            dualColumnViewTwo.visibility = View.VISIBLE
+            emptyState.root.visibility = View.GONE
+
+            val genreInformationSortedMap = genreInformationMap.toList()
+                .sortedByDescending { (_, value) -> value } // Sort list by the value
+                .toMap()
+
+            val halfSize = (genreInformationSortedMap.size + 1) / 2
+            val chunks = genreInformationSortedMap.entries.chunked(halfSize)
+
+            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
+            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
+
+            dualColumnViewOne.removeAllViews()
+            dualColumnViewTwo.removeAllViews()
+
+            for ((key, value) in firstHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewOne.addView(textView)
             }
-            chart.invalidate()
+            for ((key, value) in secondHalf) {
+                val textView = TextView(context)
+                textView.text = getString(R.string.dual_card_text, key, value)
+                textView.setPadding(8, 8, 8, 8)
+                dualColumnViewTwo.addView(textView)
+            }
         }
     }
 
@@ -298,7 +322,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             }
         }
 
-        binding.videoTagTypeBarChart.let { chart ->
+        binding.videoTagCagBarChart.let { chart ->
             chart.setNoDataText("No media types data to display")
             if (tagDataSets.isEmpty()) {
                 chart.data = null

@@ -272,7 +272,7 @@ class BookFormFragment : Fragment() {
         val tagBinding = binding.tagAutocomplete.autocomplete
 
         tagBinding.setAdapter(adapter)
-        binding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+        binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
         tagBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
@@ -298,7 +298,7 @@ class BookFormFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, publishers)
         val publisherBinding = binding.publisherAutocomplete.autocomplete
         publisherBinding.setAdapter(adapter)
-        binding.publisherAutocomplete.autoCompleteLabel.setText(R.string.publisher)
+        binding.publisherAutocomplete.autoCompleteLabel.setHint(R.string.publisher)
         publisherBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedPublisher = adapter.getItem(position)
             selectedPublisher?.let { viewModel.updatePublisher(it) }
@@ -385,7 +385,7 @@ class BookFormFragment : Fragment() {
             android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
         sheetBinding.formatAutocomplete.autocomplete.setAdapter(adapter)
-        sheetBinding.formatAutocomplete.autoCompleteLabel.setText(R.string.format_label)
+        sheetBinding.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
 
         // Populate if editing
         item?.let {

@@ -188,7 +188,7 @@ class OtherFormFragment : Fragment() {
         val tags = setup.Tag
         val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.tagAutocomplete.autocomplete.setAdapter(adapter)
-        binding.tagAutocomplete.autoCompleteLabel.setText(com.example.medialibrary.R.string.tag)
+        binding.tagAutocomplete.autoCompleteLabel.setHint(com.example.medialibrary.R.string.tag)
         binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }

@@ -191,7 +191,7 @@ class MusicFormFragment : Fragment() {
         val tags = setup.Tags
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.tagAutocomplete.autocomplete.setAdapter(adapter)
-        binding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+        binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
         binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }

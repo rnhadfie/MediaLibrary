@@ -55,13 +55,13 @@ class SharedUtils {
             )
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.read?.root,
+                sheetBinding.watched?.root,
                 R.string.watched,
                 f.Watched
             ) { f.Watched = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.reading?.root,
+                sheetBinding.watching?.root,
                 R.string.watching_label,
                 f.Watching
             ) { f.Watching = it }

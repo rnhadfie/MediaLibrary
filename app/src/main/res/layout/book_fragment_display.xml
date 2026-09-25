@@ -210,12 +210,6 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp" />
 
-            <!--<com.github.mikephil.charting.charts.BarChart
-                android:id="@+id/book_genre_bar_chart"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/base" />-->
 
             <include layout="@layout/view_dual_column_card"
                 android:id="@+id/genre_card"

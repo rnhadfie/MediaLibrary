@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
+import com.example.medialibrary.backend.models.book.Enums
 import com.example.medialibrary.backend.models.video.*
 import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.models.video.Enums.*
@@ -284,7 +285,7 @@ class VideoFormFragment : Fragment() {
         val tags = setup.Tag
         val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.tagAutocomplete.autocomplete.setAdapter(adapter)
-        binding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+        binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
         binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
@@ -363,7 +364,7 @@ class VideoFormFragment : Fragment() {
             android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
         sheetBinding.formatAutocomplete.autocomplete.setAdapter(adapter)
-        sheetBinding.formatAutocomplete.autoCompleteLabel.setText(R.string.format_label)
+        sheetBinding.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
 
         // Populate if editing
         item?.let {
@@ -394,12 +395,17 @@ class VideoFormFragment : Fragment() {
                 return@setOnClickListener
             }
 
+            var format = VideoFormat.NoneSelected
+            if(sheetBinding.formatAutocomplete.autocomplete.text != null && !sheetBinding.formatAutocomplete.autocomplete.text.isEmpty())
+            {
+                format = VideoFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+            }
             val newItem = VideoItem().apply {
                 DiscNumber = volNum.toIntOrNull() ?: 0
                 DiscTitle = (sheetBinding.editSheetVolumeTitle.text ?: "").toString()
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 Watched = sheetBinding.switchSheetWatched.isChecked
-                Format = VideoFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+                Format = format
                 ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
             }
 

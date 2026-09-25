@@ -133,7 +133,8 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             filter.Collecting = sheetBinding.collecting?.triStateButton?.tag as Boolean?
             filter.AnyOwned = sheetBinding.anyItemsOwned?.triStateButton?.tag as Boolean?
             filter.Collected = sheetBinding.collected?.triStateButton?.tag as Boolean?
-
+            filter.Watched = sheetBinding.watched?.triStateButton?.tag as Boolean?
+            filter.Watching = sheetBinding.watching?.triStateButton?.tag as Boolean?
             loadData()
             dialog.dismiss()
         }
