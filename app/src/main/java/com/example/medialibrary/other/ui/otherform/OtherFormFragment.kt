@@ -19,7 +19,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.OtherItem
 import com.example.medialibrary.backend.models.shared.MainSetup
@@ -28,7 +28,6 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
-import com.google.android.material.R
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import java.io.ByteArrayOutputStream
 

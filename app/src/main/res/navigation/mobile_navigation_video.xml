@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/nav_display"
-        android:name="com.example.medialibrary.video.ui.Display.VideoDisplayFragment"
+        android:name="com.example.medialibrary.video.ui.display.VideoDisplayFragment"
         android:label="@string/moive_and_tv_collections_list"
         tools:layout="@layout/video_fragment_display" />
 

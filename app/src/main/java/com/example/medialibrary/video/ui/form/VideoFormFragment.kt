@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.video.*
 import com.example.medialibrary.backend.models.shared.Enums

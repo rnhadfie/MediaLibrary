@@ -32,6 +32,8 @@
     <string name="volume_title_hint">Volume Title (Optional)</string>
     <string name="owned_label">Owned</string>
     <string name="read_label">Read</string>
+    <string name="reading_label">Currently Reading</string>
+    <string name="watching_label">Currently Watching</string>
     <string name="format_label">Format</string>
     <string name="save_item">Save Item</string>
     <string name="change_item_cover">Change Item Cover</string>
@@ -55,12 +57,12 @@
     <string name="genre">Genre</string>
     <string name="collecting">Currently Collecting</string>
     <string name="completed">Has Collected All Items</string>
+    <string name="completed_series">Series or Collection is Complete</string>
     <string name="started_collecting">Started Collecting</string>
     <string name="video_tags">Video Tags</string>
     <string name="disc_number">Disc Number</string>
     <string name="disc_title">Disc Title</string>
     <string name="watched">Watched</string>
-    <string name="completed_series">Series or Collection is Complete</string>
     <string name="select_or_type_an_publisher">Select or type an publisher</string>
     <string name="select_or_type_an_tag">Select or type an Tag</string>
     <string name="movies_and_tv">Movies and TV</string>
@@ -116,4 +118,5 @@
     <string name="save_movie_or_tv_show">Save Movie or TV Show</string>
     <string name="video_item_display_text">%1$d - %2$s</string>
     <string name="template">template</string>
+    <string name="box">☐</string>
 </resources>

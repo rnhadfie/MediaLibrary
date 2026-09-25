@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.BookItem
 import com.example.medialibrary.backend.models.book.BookSetup
@@ -267,7 +267,7 @@ class BookFormFragment : Fragment() {
         val tagBinding = binding.tagAutocomplete.autocomplete
 
         tagBinding.setAdapter(adapter)
-
+        binding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
         tagBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
@@ -293,7 +293,7 @@ class BookFormFragment : Fragment() {
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, publishers)
         val publisherBinding = binding.publisherAutocomplete.autocomplete
         publisherBinding.setAdapter(adapter)
-
+        binding.publisherAutocomplete.autoCompleteLabel.setText(R.string.publisher)
         publisherBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedPublisher = adapter.getItem(position)
             selectedPublisher?.let { viewModel.updatePublisher(it) }
@@ -409,13 +409,18 @@ class BookFormFragment : Fragment() {
                 Toast.makeText(requireContext(), "Volume number is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            var format = Enums.BookFormat.NoneSelected
+            if(sheetBinding.formatAutocomplete.autocomplete.text != null)
+            {
+                format = Enums.BookFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+            }
 
             val newItem = BookItem().apply {
                 VolumeNumber = volNum
                 VolumeTitle = sheetBinding.editSheetVolumeTitle.text.toString()
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 Read = sheetBinding.switchSheetRead.isChecked
-                Format = Enums.BookFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+                Format = format
                 ItemCover = sheetBinding.itemImageCover.imageBookCover.tag as? ByteArray
             }
 

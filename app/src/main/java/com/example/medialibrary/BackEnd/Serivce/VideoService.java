@@ -1,7 +1,7 @@
 package com.example.medialibrary.backend.Serivce;
 
-import com.example.medialibrary.backend.models.video.Enums.*;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
+import com.example.medialibrary.backend.models.video.Enums.*;
 import com.example.medialibrary.backend.models.video.Video;
 import com.example.medialibrary.backend.models.video.VideoFilter;
 import com.example.medialibrary.backend.models.video.VideoSaveObject;
@@ -43,15 +43,12 @@ public class VideoService {
 
         List<Video> videos = repo.GetVideos(whereClause, selectionArgs);
 
-
         return sharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter));
     }
-
 
     public Video GetVideo(int id) {
         var repo = this.videoRepository.getValue();
         return repo.GetVideo(id);
-
     }
 
     public boolean AddVideo(VideoSaveObject video) {
@@ -69,7 +66,7 @@ public class VideoService {
         return repo.DeleteVideo(id);
     }
 
-    public VideoSetup GetVideoSetup () {
+    public VideoSetup GetVideoSetup() {
         var videoSetup = new VideoSetup();
         var sharedService = this.sharedService.getValue();
         videoSetup.VideoTags = this.GetVideoTags();
@@ -80,48 +77,41 @@ public class VideoService {
         return videoSetup;
     }
 
-
-
-
-    public Map<Integer,String> GetFormats() {
+    public Map<Integer, String> GetFormats() {
         var sharedService = this.sharedService.getValue();
         VideoFormat[] formats = VideoFormat.values();
-        Map<Integer,String> formatMap = new HashMap<>();
+        Map<Integer, String> formatMap = new HashMap<>();
         for (VideoFormat format : formats) {
             formatMap.put(format.ordinal(), sharedService.GetSeperatedString(format.toString()));
         }
         return formatMap;
     }
 
-
-
-    public Map<Integer,String> GetTypes() {
+    public Map<Integer, String> GetTypes() {
         var sharedService = this.sharedService.getValue();
         VideoType[] types = VideoType.values();
-        Map<Integer,String> typeMap = new HashMap<>();
+        Map<Integer, String> typeMap = new HashMap<>();
         for (VideoType type : types) {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
     }
 
-    public Map<Integer,String> GetVideoTags() {
+    public Map<Integer, String> GetVideoTags() {
         var sharedService = this.sharedService.getValue();
         VideoTag[] types = VideoTag.values();
-        Map<Integer,String> typeMap = new HashMap<>();
+        Map<Integer, String> typeMap = new HashMap<>();
         for (VideoTag type : types) {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
     }
 
-    public List<Video> VideoItemBasedFilters(List<Video> listOfVideos, VideoFilter filter)
-    {
+    public List<Video> VideoItemBasedFilters(List<Video> listOfVideos, VideoFilter filter) {
         if (listOfVideos == null || listOfVideos.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<Video> filteredList = new ArrayList<>();
         for (Video video : listOfVideos) {
             if (video.Items != null && !video.Items.isEmpty()) {
                 boolean hasOwned = false;
@@ -133,11 +123,36 @@ public class VideoService {
                 }
                 video.CurrentOwnAny = hasOwned;
             } else {
-                video.CurrentOwnAny = true;
+                video.CurrentOwnAny = false;
             }
+        }
 
-            if (filter != null && filter.AnyOwned != null && video.CurrentOwnAny != filter.AnyOwned) {
-                continue;
+        List<Video> filteredList = new ArrayList<>();
+        for (Video video : listOfVideos) {
+            if (filter != null) {
+                if (filter.AnyOwned != null && video.CurrentOwnAny != filter.AnyOwned) {
+                    continue;
+                }
+
+                if (filter.Watched != null) {
+                    boolean allWatched = video.Items != null && !video.Items.isEmpty() && video.Items.stream().allMatch(i -> i.Watched);
+                    boolean isComplete = Boolean.TRUE.equals(video.HasSeriesEnded) || Boolean.TRUE.equals(video.HasCollectedAllItems);
+                    boolean isWatched = isComplete && allWatched;
+                    if (isWatched != filter.Watched) {
+                        continue;
+                    }
+                }
+
+                if (filter.Watching != null) {
+                    boolean anyWatched = video.Items != null && video.Items.stream().anyMatch(i -> i.Watched);
+                    boolean allWatched = video.Items != null && !video.Items.isEmpty() && video.Items.stream().allMatch(i -> i.Watched);
+                    boolean isComplete = Boolean.TRUE.equals(video.HasSeriesEnded) || Boolean.TRUE.equals(video.HasCollectedAllItems);
+                    boolean isWatched = isComplete && allWatched;
+                    boolean isWatching = anyWatched && !isWatched;
+                    if (isWatching != filter.Watching) {
+                        continue;
+                    }
+                }
             }
 
             filteredList.add(video);
@@ -145,5 +160,4 @@ public class VideoService {
 
         return filteredList;
     }
-
 }

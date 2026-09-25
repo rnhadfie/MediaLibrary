@@ -1,4 +1,4 @@
-package com.example.medialibrary.Utils
+package com.example.medialibrary.utils
 
 import android.content.Intent
 import androidx.fragment.app.FragmentActivity

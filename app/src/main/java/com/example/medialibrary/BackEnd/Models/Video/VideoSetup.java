@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 public class VideoSetup {
+    public Boolean Watched;
+    public Boolean Watching;
     public Map<Integer, String> Genre = new HashMap<>();
     public Map<Integer, String> VideoTags = new HashMap<>();
     public Map<Integer, String> Types = new HashMap<>();

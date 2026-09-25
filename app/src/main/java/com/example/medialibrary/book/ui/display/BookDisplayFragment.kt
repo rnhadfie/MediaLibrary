@@ -13,9 +13,9 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.FilterSummaryHelper
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.SafePieChartRenderer
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.Book
 import com.example.medialibrary.backend.models.book.BookFilter
@@ -23,7 +23,7 @@ import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.book.Enums.BookFormat
 import com.example.medialibrary.backend.models.book.Enums.BookType
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.book.ui.Utils.SharedUtils
+import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.github.mikephil.charting.components.Legend
@@ -70,7 +70,6 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             setup?.let { s -> showFilterSheet(s, currentFilter) }
         }
 
-
         binding.bookItemList.setOnClickListener {
             val books = viewModel.mediaItems.value
             val sortedBooks = books?.sortedBy { it.Title }
@@ -114,11 +113,8 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         dialog.setContentView(sheetBinding.root)
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
-        sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            filter.Collected = sheetBinding.switchSheetCompletedBook.isChecked
-            filter.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
-            filter.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
 
+        sheetBinding.buttonSheetFitlerBook.setOnClickListener {
             currentFilter = filter
             loadData()
             dialog.dismiss()

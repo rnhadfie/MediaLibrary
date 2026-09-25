@@ -45,11 +45,9 @@ public class BookService {
         return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter));
     }
 
-
     public Book GetBook(int id) {
         var repo = this.bookRepository.getValue();
         return repo.GetBook(id);
-
     }
 
     public boolean AddBook(BookSaveObject book) {
@@ -67,7 +65,7 @@ public class BookService {
         return repo.DeleteBook(id);
     }
 
-    public BookSetup GetBookSetup () {
+    public BookSetup GetBookSetup() {
         var bookSetup = new BookSetup();
         var sharedService = this.sharedService.getValue();
         bookSetup.Format = this.GetBookItemFormats();
@@ -75,17 +73,14 @@ public class BookService {
         bookSetup.Type = this.GetBookTypes();
         bookSetup.Publishers = this.GetPublishers();
         bookSetup.Tag = this.sharedService.getValue().GetTags();
-        //get tags
         return bookSetup;
     }
 
-    public List<Book> BookItemBasedFilters(List<Book> listOfBooks, BookFilter filter)
-    {
+    public List<Book> BookItemBasedFilters(List<Book> listOfBooks, BookFilter filter) {
         if (listOfBooks == null || listOfBooks.isEmpty()) {
             return new ArrayList<>();
         }
 
-        List<Book> filteredList;
         for (Book book : listOfBooks) {
             if (book.Items != null && !book.Items.isEmpty()) {
                 boolean hasOwned = false;
@@ -97,29 +92,55 @@ public class BookService {
                 }
                 book.CurrentOwnAny = hasOwned;
             } else {
-                book.CurrentOwnAny = false; // Match stream logic: count() <= 0 || anyMatch(Owned) -> true if count is 0
+                book.CurrentOwnAny = false;
             }
         }
-        filteredList = listOfBooks;
-        if(filter != null && filter.AnyOwned != null && filter.AnyOwned)
-        {
-            filteredList = filteredList.stream().filter(b -> b.CurrentOwnAny).collect(Collectors.toList());
-        }
 
-        if(filter != null)
-        {
+        List<Book> filteredList = listOfBooks;
+
+        if (filter != null) {
+            if (filter.AnyOwned != null) {
+                filteredList = filteredList.stream()
+                        .filter(b -> b.CurrentOwnAny == filter.AnyOwned)
+                        .collect(Collectors.toList());
+            }
+
+            if (filter.Read != null) {
+                filteredList = filteredList.stream()
+                        .filter(b -> {
+                            boolean allRead = b.Items != null && !b.Items.isEmpty() && b.Items.stream().allMatch(i -> i.Read);
+                            boolean isComplete = Boolean.TRUE.equals(b.HasSeriesEnded) || Boolean.TRUE.equals(b.HasCollectedAllItems);
+                            boolean isRead = isComplete && allRead;
+                            return isRead == filter.Read;
+                        })
+                        .collect(Collectors.toList());
+            }
+
+            if (filter.Reading != null) {
+                filteredList = filteredList.stream()
+                        .filter(b -> {
+                            boolean anyRead = b.Items != null && b.Items.stream().anyMatch(i -> i.Read);
+                            boolean allRead = b.Items != null && !b.Items.isEmpty() && b.Items.stream().allMatch(i -> i.Read);
+                            boolean isComplete = Boolean.TRUE.equals(b.HasSeriesEnded) || Boolean.TRUE.equals(b.HasCollectedAllItems);
+                            boolean isRead = isComplete && allRead;
+                            boolean isReading = anyRead && !isRead;
+                            return isReading == filter.Reading;
+                        })
+                        .collect(Collectors.toList());
+            }
+
             filteredList = filteredList.stream().filter(b -> {
                 Enums.BookFormat commonFormat = b.Items != null ? GetCommonBookFormat(b.Items) : null;
-                if(commonFormat != null) {
-                    var fomartNotIncluded = false;
+                if (commonFormat != null) {
+                    var formatNotIncluded = false;
                     var formatExcluded = false;
                     if (filter.IncludedFormats != null && !filter.IncludedFormats.isEmpty()) {
-                        fomartNotIncluded =  !filter.IncludedFormats.contains(commonFormat);
+                        formatNotIncluded = !filter.IncludedFormats.contains(commonFormat);
                     }
                     if (filter.ExcludedFormats != null && !filter.ExcludedFormats.isEmpty()) {
-                        formatExcluded =  filter.ExcludedFormats.contains(commonFormat);
+                        formatExcluded = filter.ExcludedFormats.contains(commonFormat);
                     }
-                    return !(fomartNotIncluded || formatExcluded);
+                    return !(formatNotIncluded || formatExcluded);
                 }
                 return true;
             }).collect(Collectors.toList());
@@ -128,22 +149,20 @@ public class BookService {
         return filteredList;
     }
 
-
-    public Map<Integer,String> GetBookItemFormats() {
+    public Map<Integer, String> GetBookItemFormats() {
         var sharedService = this.sharedService.getValue();
         Enums.BookFormat[] formats = Enums.BookFormat.values();
-        Map<Integer,String> formatMap = new HashMap<>();
+        Map<Integer, String> formatMap = new HashMap<>();
         for (Enums.BookFormat format : formats) {
             formatMap.put(format.ordinal(), sharedService.GetSeperatedString(format.toString()));
         }
         return formatMap;
     }
 
-
-    public Map<Integer,String> GetBookTypes() {
+    public Map<Integer, String> GetBookTypes() {
         var sharedService = this.sharedService.getValue();
         Enums.BookType[] types = Enums.BookType.values();
-        Map<Integer,String> typeMap = new HashMap<>();
+        Map<Integer, String> typeMap = new HashMap<>();
         for (Enums.BookType type : types) {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
@@ -172,11 +191,11 @@ public class BookService {
 
     public Enums.BookFormat GetCommonBookFormat(List<BookItem> items) {
         Optional<Enums.BookFormat> mostCommonCity = items.stream()
-                .map(BookItem::getFormat) // 1. Extract the property
-                .filter(Objects::nonNull) // Optional: filter out nulls
-                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())) // 2. Count occurrences
+                .map(BookItem::getFormat)
+                .filter(Objects::nonNull)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
-                .max(Map.Entry.comparingByValue()) // 3. Find the highest count
+                .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey);
         return mostCommonCity.orElse(null);
     }

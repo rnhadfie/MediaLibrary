@@ -13,13 +13,13 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.FilterSummaryHelper
-import com.example.medialibrary.Utils.FragmentType
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.book.ui.Utils.SharedUtils.Companion.filterSheetSetup
+import com.example.medialibrary.book.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -130,10 +130,6 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedBook.isChecked
-            f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
-            f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
-
             currentFilter = f
             loadData()
             dialog.dismiss()

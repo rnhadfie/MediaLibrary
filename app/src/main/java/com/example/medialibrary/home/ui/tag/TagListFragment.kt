@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MainController
 import com.example.medialibrary.backend.models.shared.Tag
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper

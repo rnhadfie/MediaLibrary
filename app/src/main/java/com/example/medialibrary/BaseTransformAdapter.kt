@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.medialibrary.Utils.SaveEditDeleteUtils
+import com.example.medialibrary.utils.SaveEditDeleteUtils
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.databinding.ItemTransformBinding
 

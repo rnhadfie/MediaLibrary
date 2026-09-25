@@ -18,7 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.MusicSetup

@@ -13,11 +13,9 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.FilterOption
-import com.example.medialibrary.Utils.FilterSummaryHelper
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.MultiSelectFilterHelper
-import com.example.medialibrary.Utils.SafePieChartRenderer
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.Music
@@ -26,6 +24,7 @@ import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
+import com.example.medialibrary.music.ui.Utils.SharedUtils
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -107,35 +106,13 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val sheetBinding = MusicBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter
-        val tags = setup.Tags
+        val f = filter ?: MusicFilter()
 
-        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.tagAutocomplete.autocomplete,
-            "Tags",
-            tagOptions,
-            f.IncludedTags,
-            f.ExcludedTags
-        )
-
-        val genreOptions = setup.MusicGenre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
-        sheetBinding.musicGenreAutocomplete.autoCompleteLabel.setText(R.string.music_genre)
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.musicGenreAutocomplete.autocomplete,
-            "Music Genres",
-            genreOptions,
-            f.IncludedMusicGenres,
-            f.ExcludedMusicGenres
-        )
-
-        sheetBinding.switchSheetCollectedBook.isChecked = f.Collecting ?: false
-        sheetBinding.switchSheetStartedBook.isChecked = f.AnyOwned ?: false
+        SharedUtils.filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
-            f.Collecting = sheetBinding.switchSheetCollectedBook.isChecked
-            f.AnyOwned = sheetBinding.switchSheetStartedBook.isChecked
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
+            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
             currentFilter = f
             loadData()

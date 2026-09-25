@@ -82,8 +82,8 @@
                 android:textColor="?attr/colorOnBackground" />
 
             <include
-                layout="@layout/view_autocomplete_dropdown"
-                android:id="@+id/tag_autocomplete"/>
+                android:id="@+id/tag_autocomplete"
+                layout="@layout/view_autocomplete_dropdown" />
 
             <View
                 android:layout_width="match_parent"
@@ -108,10 +108,12 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_add_item"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/add_item" />
+                    android:text="@string/add_item"
+                    app:icon="@android:drawable/ic_input_add"
+                    app:iconPadding="8dp" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView

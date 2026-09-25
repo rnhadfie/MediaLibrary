@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".video.ui.Display.VideoDisplayFragment">
+    tools:context=".video.ui.display.VideoDisplayFragment">
 
     <LinearLayout
         android:id="@+id/top_controls_container"

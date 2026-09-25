@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.repository.XmlRepository
 import com.example.medialibrary.backend.repository.database.BaseRepository
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper

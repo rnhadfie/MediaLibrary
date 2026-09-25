@@ -9,10 +9,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.FilterOption
-import com.example.medialibrary.Utils.FilterSummaryHelper
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.FilterOption
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.MainSetup
@@ -116,15 +117,31 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
             f.ExcludedTags
         )
 
-        sheetBinding.switchSheetCompletedOther.isChecked = f.StandaloneOrSeriesIsComplete ?: false
-        sheetBinding.switchSheetCollectedOther.isChecked = f.Collecting ?: false
-        sheetBinding.switchSheetStartedOther.isChecked = f.AnyOwned ?: false
+        TriStateCheckBoxHelper.setupTriStateCheckBox(
+            sheetBinding.standaloneOrSeriesComplete.root,
+            R.string.completed_series,
+            f.StandaloneOrSeriesIsComplete
+        ) { f.StandaloneOrSeriesIsComplete = it }
+
+        TriStateCheckBoxHelper.setupTriStateCheckBox(
+            sheetBinding.collected.root,
+            R.string.completely_collected,
+            f.Collected
+        ) { f.Collected = it }
+
+        TriStateCheckBoxHelper.setupTriStateCheckBox(
+            sheetBinding.collecting.root,
+            R.string.collecting,
+            f.Collecting
+        ) { f.Collecting = it }
+
+        TriStateCheckBoxHelper.setupTriStateCheckBox(
+            sheetBinding.anyItemsOwned.root,
+            R.string.started_collecting,
+            f.AnyOwned
+        ) { f.AnyOwned = it }
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
-            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedOther.isChecked
-            f.Collecting = sheetBinding.switchSheetCollectedOther.isChecked
-            f.AnyOwned = sheetBinding.switchSheetStartedOther.isChecked
-
             currentFilter = f
             loadData()
             dialog.dismiss()

@@ -13,17 +13,15 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.FilterOption
-import com.example.medialibrary.Utils.FilterSummaryHelper
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.backend.controllers.VideoController
-import com.example.medialibrary.backend.models.video.Enums
 import com.example.medialibrary.backend.models.video.VideoFilter
 import com.example.medialibrary.backend.models.video.VideoSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentListBinding
+import com.example.medialibrary.video.ui.Utils.SharedUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>(
@@ -125,56 +123,16 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
         val dialog = BottomSheetDialog(requireContext())
-        val sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
+        var sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter
-        val tags = setup.Tag
-
-        val videoTagOptions = setup.VideoTags.filter { it.key != 0 }.map { FilterOption(Enums.VideoTag.entries[it.key], it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetVideoTag,
-            "Video Tags",
-            videoTagOptions,
-            f.IncludedVideoTags,
-            f.ExcludedVideoTags
-        )
-
-        val typeOptions = setup.Types.filter { it.key != 0 }.map { FilterOption(Enums.VideoType.entries[it.key], it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTypeVideo,
-            "Video Types",
-            typeOptions,
-            f.IncludedTypes,
-            f.ExcludedTypes
-        )
-
-        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTagVideo,
-            "Tags",
-            tagOptions,
-            f.IncludedTags,
-            f.ExcludedTags
-        )
-
-        val genreOptions = setup.Genre.filter { it.key != 0 }.map { FilterOption(it.key, it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetGenreVideo,
-            "Genres",
-            genreOptions,
-            f.IncludedGenres,
-            f.ExcludedGenres
-        )
-
-        sheetBinding.switchSheetCompletedVideo.isChecked = f.StandaloneOrSeriesIsComplete ?: false
-        sheetBinding.switchSheetCollectedVideo.isChecked = f.Collecting ?: false
-        sheetBinding.switchSheetStartedVideo.isChecked = f.AnyOwned ?: false
+        sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            f.StandaloneOrSeriesIsComplete = sheetBinding.switchSheetCompletedVideo.isChecked
-            f.Collecting = sheetBinding.switchSheetCollectedVideo.isChecked
-            f.AnyOwned = sheetBinding.switchSheetStartedVideo.isChecked
+            filter.StandaloneOrSeriesIsComplete = sheetBinding.standaloneOrSeriesComplete?.triStateButton?.tag as Boolean?
+            filter.Collecting = sheetBinding.collecting?.triStateButton?.tag as Boolean?
+            filter.AnyOwned = sheetBinding.anyItemsOwned?.triStateButton?.tag as Boolean?
+            filter.Collected = sheetBinding.collected?.triStateButton?.tag as Boolean?
 
             loadData()
             dialog.dismiss()

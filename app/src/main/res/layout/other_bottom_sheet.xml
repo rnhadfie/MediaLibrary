@@ -19,24 +19,26 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/clear_filters" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_sheet_completed_other"
+            <include android:id="@+id/collected"
+                layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/completed" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_sheet_collected_other"
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/collecting"
+                layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/collecting" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_sheet_started_other"
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/anyItemsOwned"
+                layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/started_collecting" />
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/standaloneOrSeriesComplete"
+                layout="@layout/view_filter_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
 
 
             <include layout="@layout/view_filter_autocomplete_dropdown"

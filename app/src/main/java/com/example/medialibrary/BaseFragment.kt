@@ -12,8 +12,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ListAdapter
 import androidx.viewbinding.ViewBinding
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.models.shared.MediaItem
 

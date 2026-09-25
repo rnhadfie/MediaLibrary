@@ -122,6 +122,12 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             ContentValues values = mapOtherContentValues(other.Tag, other);
 
             long id = db.insert(TABLE_OTHERS, null, values);
+            if (other.Items != null) {
+                for (OtherItem item : other.Items) {
+                    ContentValues itemValues = mapOtherItemContentValues(id, item);
+                    db.insert(TABLE_OTHER_ITEMS, null, itemValues);
+                }
+            }
             db.setTransactionSuccessful();
             return id != -1;
         } catch (Exception e) {
@@ -148,6 +154,16 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             ContentValues values = mapOtherContentValues(tagId, other);
 
             var result = db.update(TABLE_OTHERS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(other.Id)});
+
+            db.delete(TABLE_OTHER_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(other.Id)});
+
+            if (other.Items != null) {
+                for (OtherItem item : other.Items) {
+                    ContentValues itemValues = mapOtherItemContentValues(other.Id, item);
+                    db.insert(TABLE_OTHER_ITEMS, null, itemValues);
+                }
+            }
+
             db.setTransactionSuccessful();
             return result > -1;
         } catch (Exception e) {
@@ -164,6 +180,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         db.beginTransaction();
 
         try {
+            db.delete(TABLE_OTHER_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(id)});
             db.delete(TABLE_OTHERS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
             db.setTransactionSuccessful();
             return true;
@@ -207,6 +224,15 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
         item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
         item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
+    }
+
+    private ContentValues mapOtherItemContentValues(long seriesId, OtherItem item) {
+        ContentValues itemValues = new ContentValues();
+        itemValues.put(COLUMN_SERIES, seriesId);
+        itemValues.put(COLUMN_VOLUME_TITLE, item.Title);
+        itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
+        itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
+        return itemValues;
     }
 
     private ContentValues mapOtherContentValues(long tagId, Other other) {

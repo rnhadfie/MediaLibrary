@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import com.example.medialibrary.Utils.FragmentType
+import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.book.BookSetup

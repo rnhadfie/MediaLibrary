@@ -1,4 +1,4 @@
-package com.example.medialibrary.Utils
+package com.example.medialibrary.utils
 import android.graphics.Canvas
 import com.github.mikephil.charting.animation.ChartAnimator
 import com.github.mikephil.charting.charts.PieChart

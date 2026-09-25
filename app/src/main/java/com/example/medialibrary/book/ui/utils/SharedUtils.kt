@@ -1,8 +1,9 @@
-package com.example.medialibrary.book.ui.Utils
+package com.example.medialibrary.book.ui.utils
 
 import com.example.medialibrary.R
-import com.example.medialibrary.Utils.FilterOption
-import com.example.medialibrary.Utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.FilterOption
+import com.example.medialibrary.utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.book.Enums.BookFormat
@@ -51,7 +52,7 @@ class SharedUtils {
             )
 
             val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-            sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag);
+            sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.tagAutocomplete.autocomplete,
                 "Tags",
@@ -69,9 +70,41 @@ class SharedUtils {
                 filter.ExcludedGenres
             )
 
-            sheetBinding.switchSheetCompletedBook.isChecked = filter.StandaloneOrSeriesIsComplete ?: false
-            sheetBinding.switchSheetCollectedBook.isChecked = filter.Collecting ?: false
-            sheetBinding.switchSheetStartedBook.isChecked = filter.AnyOwned ?: false
+            TriStateCheckBoxHelper.setupTriStateCheckBox(
+                sheetBinding.read.root,
+                R.string.read_label,
+                filter.Read
+            ) { filter.Read = it }
+
+            TriStateCheckBoxHelper.setupTriStateCheckBox(
+                sheetBinding.reading.root,
+                R.string.reading_label,
+                filter.Reading
+            ) { filter.Reading = it }
+
+            TriStateCheckBoxHelper.setupTriStateCheckBox(
+                sheetBinding.standaloneOrSeriesComplete.root,
+                R.string.completed_series,
+                filter.StandaloneOrSeriesIsComplete
+            ) { filter.StandaloneOrSeriesIsComplete = it }
+
+            TriStateCheckBoxHelper.setupTriStateCheckBox(
+                sheetBinding.collected.root,
+                R.string.completely_collected,
+                filter.Collected
+            ) { filter.Collected = it }
+
+            TriStateCheckBoxHelper.setupTriStateCheckBox(
+                sheetBinding.collecting.root,
+                R.string.collecting,
+                filter.Collecting
+            ) { filter.Collecting = it }
+
+            TriStateCheckBoxHelper.setupTriStateCheckBox(
+                sheetBinding.anyItemsOwned.root,
+                R.string.started_collecting,
+                filter.AnyOwned
+            ) { filter.AnyOwned = it }
 
             return sheetBinding
         }

@@ -9,8 +9,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import com.example.medialibrary.Utils.FragmentType
-import com.example.medialibrary.Utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MainController
 import com.example.medialibrary.backend.models.shared.Filter
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper

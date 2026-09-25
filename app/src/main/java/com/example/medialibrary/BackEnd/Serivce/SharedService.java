@@ -5,6 +5,7 @@ import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_AUT
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COLLECTING;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COMPLETED_COLLECTING;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_GENRE;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_HAS_ENDED;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_PUBLISHER;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TAG;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TITLE;
@@ -42,6 +43,7 @@ public class SharedService {
     public SharedService(MediaLibraryDbHelper dbHelper) {
         this.sharedRepository = LazyKt.lazy(() -> new SharedRepository(dbHelper));
     }
+
     public <T extends MediaItem> List<MediaItem> mapToMediaItems(List<T> items) {
         if (items == null) return new ArrayList<>();
         return items.stream()
@@ -65,27 +67,17 @@ public class SharedService {
         displayItem.ToCollect = !Boolean.TRUE.equals(item.CurrentOwnAny);
         displayItem.CollectedOrOnGoing = Boolean.TRUE.equals(item.HasCollectedAllItems);
 
-
-        if(item instanceof Book)
-        {
+        if (item instanceof Book) {
             displayItem.MediaType = Enums.MediaType.Book;
-        }
-        else if(item instanceof Video)
-        {
+        } else if (item instanceof Video) {
             displayItem.MediaType = Enums.MediaType.Video;
-        }
-        else if(item instanceof Music)
-        {
+        } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;
-        }
-        else if(item instanceof Other)
-        {
+        } else if (item instanceof Other) {
             displayItem.MediaType = Enums.MediaType.Other;
-        }
-        else {
+        } else {
             displayItem.MediaType = Enums.MediaType.None;
         }
-
 
         return displayItem;
     }
@@ -110,8 +102,7 @@ public class SharedService {
         return sharedRepository.getValue().DeleteTag(id);
     }
 
-    public String GetSeperatedString(String inputString)
-    {
+    public String GetSeperatedString(String inputString) {
         return inputString.replaceAll(
                 String.format("%s|%s|%s",
                         "(?<=[A-Z])(?=[A-Z][a-z])",
@@ -123,30 +114,30 @@ public class SharedService {
     }
 
     public <T> T FindMostCommon(List<T> list) {
-            if (list == null || list.isEmpty()) {
-                return null;
-            }
-
-            Map<T, Integer> frequencyMap = new HashMap<>();
-            T mostCommon = null;
-            int maxCount = 0;
-
-            for (T element : list) {
-                int count = frequencyMap.getOrDefault(element, 0) + 1;
-                frequencyMap.put(element, count);
-
-                if (count > maxCount) {
-                    maxCount = count;
-                    mostCommon = element;
-                }
-            }
-
-            return mostCommon;
+        if (list == null || list.isEmpty()) {
+            return null;
         }
 
-    public Map<Integer,String> GetGenres() {
+        Map<T, Integer> frequencyMap = new HashMap<>();
+        T mostCommon = null;
+        int maxCount = 0;
+
+        for (T element : list) {
+            int count = frequencyMap.getOrDefault(element, 0) + 1;
+            frequencyMap.put(element, count);
+
+            if (count > maxCount) {
+                maxCount = count;
+                mostCommon = element;
+            }
+        }
+
+        return mostCommon;
+    }
+
+    public Map<Integer, String> GetGenres() {
         Enums.Genre[] genres = Enums.Genre.values();
-        Map<Integer,String> genreMap = new HashMap<>();
+        Map<Integer, String> genreMap = new HashMap<>();
         for (Enums.Genre genre : genres) {
             genreMap.put(genre.ordinal(), GetSeperatedString(genre.toString()));
         }
@@ -216,14 +207,19 @@ public class SharedService {
 
         // region common filters
 
-        if (filter.Collecting != null && filter.Collecting) {
+        if (filter.Collecting != null) {
             conditions.add(COLUMN_COLLECTING + " = ?");
-            selectionArgs.add("1");
+            selectionArgs.add(filter.Collecting ? "1" : "0");
         }
 
-        if (filter.Collected != null && filter.Collected) {
+        if (filter.Collected != null) {
             conditions.add(COLUMN_COMPLETED_COLLECTING + " = ?");
-            selectionArgs.add("1");
+            selectionArgs.add(filter.Collected ? "1" : "0");
+        }
+
+        if (filter.StandaloneOrSeriesIsComplete != null) {
+            conditions.add(COLUMN_HAS_ENDED + " = ?");
+            selectionArgs.add(filter.StandaloneOrSeriesIsComplete ? "1" : "0");
         }
 
         // Tags
@@ -346,7 +342,6 @@ public class SharedService {
                 }
             }
             appendNotInClause(conditions, selectionArgs, COLUMN_PUBLISHER, excPubs);
-
         }
 
         //endregion
@@ -404,6 +399,4 @@ public class SharedService {
 
         return conditions.isEmpty() ? null : String.join(" AND ", conditions);
     }
-
-
 }

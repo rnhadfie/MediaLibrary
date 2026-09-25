@@ -8,8 +8,8 @@ public class BookFilter extends Filter {
     public Enums.BookType Type;
     public int Publisher;
 
-    public boolean Read;
-    public boolean Reading;
+    public Boolean Read;
+    public Boolean Reading;
 
     public List<Enums.BookType> IncludedTypes = new ArrayList<>();
     public List<Enums.BookType> ExcludedTypes = new ArrayList<>();
