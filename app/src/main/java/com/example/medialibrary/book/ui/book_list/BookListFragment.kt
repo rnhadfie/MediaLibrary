@@ -125,6 +125,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         var sheetBinding = BookBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
+
         val f = filter ?: BookFilter()
 
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)

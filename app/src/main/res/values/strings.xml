@@ -129,4 +129,7 @@
     <string name="choose_from_gallery">Choose from Gallery</string>
     <string name="take_photo">Take Photo</string>
     <string name="select_image_source">Select Image Source</string>
+    <string name="collected">Collected</string>
+    <string name="x">X</string>
+    <string name="add_set_or_season">Add Set or Season</string>
 </resources>

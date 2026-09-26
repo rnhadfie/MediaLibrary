@@ -14,19 +14,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/autoComplete_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:labelFor="@id/autocomplete"
-            android:text="@string/template"
-            android:textAppearance="?attr/textAppearanceCaption" />
-
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/autoComplete_label"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/template"
             android:layout_marginTop="4dp">
 
             <AutoCompleteTextView

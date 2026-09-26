@@ -19,10 +19,12 @@ class BookFormActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         if (savedInstanceState == null) {
             val bookId = intent.getIntExtra("EXTRA_ID", -1)
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
+            supportActionBar?.title =  if(isEdit)  "Edit Book" else "Add Book"
             supportFragmentManager.beginTransaction()
                 .replace(R.id.main, BookFormFragment.newInstance(bookId, isEdit))
                 .commitNow()

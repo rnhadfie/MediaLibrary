@@ -178,7 +178,7 @@ class OtherFormFragment : Fragment() {
             showOtherItemSheet()
         }
 
-        binding.buttonSaveBook.setOnClickListener {
+        binding.buttonSaveOther.setOnClickListener {
             val error = viewModel.validate()
             if (error != null) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
@@ -216,9 +216,9 @@ class OtherFormFragment : Fragment() {
 
         // Observe ViewModel
         viewModel.other.observe(viewLifecycleOwner) { other ->
-            binding.editBookTitle.setText(other.Title)
+            binding.editOtherTitle.setText(other.Title)
             binding.otherCollecting.isChecked = other.Collecting ?: false
-            binding.otherCollected.isChecked = other.HasCollectedAllItems ?: false
+            binding.otherCompletedCollecting.isChecked = other.HasCollectedAllItems ?: false
 
             if (other.Cover != null && other.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(other.Cover, 0, other.Cover.size)
@@ -274,7 +274,7 @@ class OtherFormFragment : Fragment() {
     }
 
     private fun setupInputListeners() {
-        binding.editBookTitle.addTextChangedListener(object : TextWatcher {
+        binding.editOtherTitle.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) { viewModel.updateTitle(s.toString()) }
@@ -284,19 +284,21 @@ class OtherFormFragment : Fragment() {
                 _, isChecked -> viewModel.toggleCollecting(isChecked)
         }
 
-        binding.otherCollected.setOnCheckedChangeListener {
+        binding.otherCompletedCollecting.setOnCheckedChangeListener {
                 _, isChecked -> viewModel.toggleCollectionComplete(isChecked)
         }
     }
 
     private fun showOtherItemSheet(item: OtherItem? = null, position: Int = -1) {
         val dialog = BottomSheetDialog(requireContext())
+        dialog.setCancelable(false)
         val sheetBinding = OtherItemBottomSheetBinding.inflate(layoutInflater)
         currentSheetBinding = sheetBinding
         pendingItemPosition = position
         dialog.setContentView(sheetBinding.root)
 
-        sheetBinding.textSheetTitle.text = if (item == null) "Add Item" else "Edit Item"
+        sheetBinding.labelText.text = if (item == null) "Add Item" else "Edit Item"
+        sheetBinding.cancelButton.setOnClickListener { dialog.dismiss() }
 
         // Populate if editing
         item?.let {

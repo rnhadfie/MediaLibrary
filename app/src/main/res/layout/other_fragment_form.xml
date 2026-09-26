@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/other_form"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="other.ui.otherform.OtherFormFragment">
+    tools:context=".other.ui.otherform.OtherFormFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -19,7 +18,8 @@
             android:padding="16dp">
 
             <include layout="@layout/view_change_image"
-                android:id="@+id/change_image" />
+                android:id="@+id/change_image"/>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
@@ -34,11 +34,13 @@
                 app:boxCornerRadiusTopStart="12dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edit_book_title"
+                    android:id="@+id/edit_other_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColor="?attr/colorOnBackground" />
             </com.google.android.material.textfield.TextInputLayout>
+
+
 
             <CheckBox
                 android:id="@+id/other_collecting"
@@ -48,17 +50,14 @@
                 android:text="@string/collecting"
                 android:textColor="?attr/colorOnBackground" />
 
+
             <CheckBox
-                android:id="@+id/other_collected"
+                android:id="@+id/other_completed_collecting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/completely_collected"
+                android:text="@string/collected"
                 android:textColor="?attr/colorOnBackground" />
-
-            <include
-                android:id="@+id/tag_autocomplete"
-                layout="@layout/view_autocomplete_dropdown" />
 
             <View
                 android:layout_width="match_parent"
@@ -83,12 +82,10 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/button_add_item"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/add_item"
-                    app:icon="@android:drawable/ic_input_add"
-                    app:iconPadding="8dp" />
+                    android:text="@string/add_volume" />
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -99,8 +96,18 @@
                 android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/book_item_volume" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="24dp"
+                android:background="?android:attr/listDivider" />
+
+            <include layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"
+                />
+
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_save_book"
+                android:id="@+id/button_save_other"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -110,4 +117,4 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

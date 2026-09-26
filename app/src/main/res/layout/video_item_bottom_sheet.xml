@@ -8,13 +8,41 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/text_sheet_title"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/add_volume"
-            android:textAppearance="?attr/textAppearanceHeadline6"
-            android:textColor="?attr/colorOnBackground" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/label_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start|center_vertical"
+                android:padding="8dp"
+                android:text="@string/add_set_or_season"
+                android:textAppearance="?attr/textAppearanceSubtitle1"
+                android:textColor="?attr/colorOnBackground"
+                />
+
+            <Button
+                android:id="@+id/cancel_button"
+                android:src="@android:drawable/ic_menu_crop"
+                app:layout_constraintVertical_bias="0.814"
+                android:background="@android:color/transparent"
+                android:text="@string/x"
+                android:textSize="20sp"
+                android:textColor="@android:color/black"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:tag="null"/>
+        </LinearLayout>
 
         <include layout="@layout/view_change_image"
             android:id="@+id/image_item_cover"/>

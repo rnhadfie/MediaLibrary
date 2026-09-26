@@ -23,6 +23,8 @@ class VideoFormActivity : AppCompatActivity() {
             val videoId = intent.getIntExtra("EXTRA_ID", -1)
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
+            supportActionBar?.title =  if(isEdit)  "Edit Movie or TV Show" else "Add Movie or TV Show"
+
             supportFragmentManager.beginTransaction()
                 .replace(R.id.main, VideoFormFragment.newInstance(videoId, isEdit))
                 .commitNow()

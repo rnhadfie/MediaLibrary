@@ -358,7 +358,6 @@ class VideoFormFragment : Fragment() {
         })
     }
 
-
     private fun updateGenreChips(genres: Set<GenreObject>) {
         binding.genreMultiselect.chipGroupGenres.removeAllViews()
         genres.forEach { genre ->
@@ -403,11 +402,13 @@ class VideoFormFragment : Fragment() {
     private fun showVideoItemSheet(item: VideoItem? = null, position: Int = -1) {
         val dialog = BottomSheetDialog(requireContext())
         val sheetBinding = VideoItemBottomSheetBinding.inflate(layoutInflater)
+        dialog.setCancelable(false)
         currentSheetBinding = sheetBinding
         pendingItemPosition = position
         dialog.setContentView(sheetBinding.root)
 
-        sheetBinding.textSheetTitle.text = if (item == null) "Add Volume" else "Edit Volume"
+        sheetBinding.labelText.text = if (item == null) "Add Set or Season" else "Edit Set or Season"
+        sheetBinding.cancelButton.setOnClickListener { dialog.dismiss() }
 
         // Setup Format dropdown
         val formats = VideoFormat.entries.filter { it != VideoFormat.NoneSelected }

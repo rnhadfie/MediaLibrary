@@ -108,7 +108,7 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         val tags = setup.Tag
 
         val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+        sheetBinding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
         MultiSelectFilterHelper.setupTriStateDropdown(
             sheetBinding.tagAutocomplete.autocomplete,
             "Tags",

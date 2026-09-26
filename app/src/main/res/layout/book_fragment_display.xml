@@ -97,6 +97,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
+                        android:textSize="14sp"
                         android:padding="8dp"
                         android:text="@string/total_number_of_series"
                         android:textAppearance="?attr/textAppearanceHeadline6"
@@ -117,7 +118,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:textSize="16sp"
+                        android:textSize="14sp"
                         android:text="@string/total_number_of_books"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:textColor="@color/black" />
@@ -162,7 +163,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:textSize="14sp"
+                        android:textSize="12sp"
                         android:padding="8dp"
                         android:textAppearance="?attr/textAppearanceHeadline6"
                         android:textColor="@color/black" />

@@ -424,12 +424,15 @@ class BookFormFragment : Fragment() {
 
     private fun showBookItemSheet(item: BookItem? = null, position: Int = -1) {
         val dialog = BottomSheetDialog(requireContext())
+        dialog.setCancelable(false)
         val sheetBinding = BookItemBottomSheetBinding.inflate(layoutInflater)
         currentSheetBinding = sheetBinding
         pendingItemPosition = position
         dialog.setContentView(sheetBinding.root)
 
-        sheetBinding.textSheetTitle.text = if (item == null) "Add Volume" else "Edit Volume"
+        sheetBinding.labelText.text = if (item == null) "Add Volume" else "Edit Volume"
+        sheetBinding.cancelButton.setOnClickListener { dialog.dismiss() }
+
 
         // Setup Format dropdown
         val formats = Enums.BookFormat.entries.filter { it != Enums.BookFormat.NoneSelected }

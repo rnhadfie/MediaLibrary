@@ -24,6 +24,8 @@ class OtherFormActivity : AppCompatActivity() {
             val videoId = intent.getIntExtra("EXTRA_ID", -1)
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
+            supportActionBar?.title =  if(isEdit)  "Edit Collection" else "Add Collection"
+
             supportFragmentManager.beginTransaction()
                 .replace(R.id.main, OtherFormFragment.newInstance(videoId, isEdit))
                 .commitNow()

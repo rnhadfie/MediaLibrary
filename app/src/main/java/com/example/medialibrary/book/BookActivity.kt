@@ -32,6 +32,7 @@ class BookActivity : BaseActivity<BookActivityBinding>() {
         super.onCreate(savedInstanceState)
         binding = BookActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         setSupportActionBar(binding.appBarBook.toolbar)
 
         binding.appBarBook.fab?.setOnClickListener { _ ->
@@ -45,6 +46,7 @@ class BookActivity : BaseActivity<BookActivityBinding>() {
         val navHostFragment =
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_book) as NavHostFragment?)!!
         val navController = navHostFragment.navController
+
 
         appBarConfiguration = AppBarConfiguration(
             setOf(

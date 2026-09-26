@@ -22,7 +22,7 @@ class SharedUtils {
             val tags = setup.Tag
 
             val publisherOptions = publishers.map { FilterOption(it.Id, it.Name) }
-            sheetBinding.publisherAutocomplete.autoCompleteLabel.setText(R.string.publisher)
+            sheetBinding.publisherAutocomplete.autoCompleteLabel.setHint(R.string.publisher)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.publisherAutocomplete.autocomplete,
                 "Publishers",
@@ -32,7 +32,7 @@ class SharedUtils {
             )
 
             val typeOptions = setup.Type.filter { it.key != 0 }.map { FilterOption(BookType.entries[it.key], it.value) }
-            sheetBinding.bookTypeAutocomplete.autoCompleteLabel.setText(R.string.book_type_label)
+            sheetBinding.bookTypeAutocomplete.autoCompleteLabel.setHint(R.string.book_type_label)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.bookTypeAutocomplete.autocomplete,
                 "Book Types",
@@ -42,7 +42,7 @@ class SharedUtils {
             )
 
             val formatOptions = setup.Format.filter { it.key != 0 }.map { FilterOption(BookFormat.entries[it.key], it.value) }
-            sheetBinding.bookFormatAutocomplete.autoCompleteLabel.setText(R.string.format_label)
+            sheetBinding.bookFormatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.bookFormatAutocomplete.autocomplete,
                 "Formats",
@@ -52,7 +52,7 @@ class SharedUtils {
             )
 
             val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-            sheetBinding.tagAutocomplete.autoCompleteLabel.setText(R.string.tag)
+            sheetBinding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.tagAutocomplete.autocomplete,
                 "Tags",
