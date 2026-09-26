@@ -24,14 +24,14 @@
             app:queryHint="Search books..." />
 
         <ImageButton
-            android:id="@+id/button_filter"
+            android:id="@+id/filter_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_settings_black_24dp"
             app:tint="?attr/colorPrimary" />
         <ImageButton
-            android:id="@+id/book_item_list"
+            android:id="@+id/copy_list_btn"
             android:contentDescription="@string/get_list_of_items"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -43,7 +43,7 @@
     </LinearLayout>
 
     <include
-        android:id="@+id/card_active_filter"
+        android:id="@+id/active_filter_card"
         layout="@layout/view_active_filter_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
         android:layout_height="0dp"
         app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_active_filter" />
+        app:layout_constraintTop_toBottomOf="@id/active_filter_card" />
 
     <include
         android:id="@+id/empty_state_container"
@@ -67,6 +67,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/card_active_filter" />
+        app:layout_constraintTop_toBottomOf="@id/active_filter_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

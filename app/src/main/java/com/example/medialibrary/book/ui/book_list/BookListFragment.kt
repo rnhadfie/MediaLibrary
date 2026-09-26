@@ -76,11 +76,11 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             }
         })
 
-        binding.buttonFilter.setOnClickListener {
+        binding.filterBtn.setOnClickListener {
             showFilterSheet(setup, currentFilter)
         }
 
-        binding.bookItemList?.setOnClickListener {
+        binding.copyListBtn?.setOnClickListener {
             val books = viewModel.items.value
             val sortedBooks = books?.sortedBy { it.Title }
             val bookList = buildString {
@@ -110,7 +110,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         viewModel.setItems(items ?: emptyList())
 
         FilterSummaryHelper.bindFilterSummary(
-            binding.root.findViewById(R.id.card_active_filter),
+            binding.root.findViewById(R.id.active_filter_card),
             currentFilter,
             setup
         ) {
@@ -130,7 +130,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
 
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
-        sheetBinding.buttonSheetFitlerBook.setOnClickListener {
+        sheetBinding.applyFilterBtn.setOnClickListener {
             f.Read = sheetBinding.read.triStateButton.tag as Boolean?
             f.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
             f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
@@ -142,7 +142,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             dialog.dismiss()
         }
 
-        sheetBinding.buttonSheetClearBook.setOnClickListener {
+        sheetBinding.clearActiveFilter.setOnClickListener {
             currentFilter = BookFilter()
             loadData()
             dialog.dismiss()

@@ -14,7 +14,6 @@ class MusicFormViewModel : ViewModel() {
     })
     val music: LiveData<Music> = _music
 
-
     private val _newTag = MutableLiveData<String>()
 
     fun updateTitle(title: String) {
@@ -44,7 +43,6 @@ class MusicFormViewModel : ViewModel() {
         _music.value?.Cover = cover
         _music.value = _music.value // Trigger observers
     }
-
 
 
     fun toggleCollecting(collecting: Boolean) {

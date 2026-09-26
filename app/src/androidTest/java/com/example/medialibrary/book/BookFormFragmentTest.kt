@@ -22,9 +22,9 @@ class BookFormFragmentTest {
         )
         scenario.moveToState(Lifecycle.State.RESUMED)
 
-        onView(withId(R.id.edit_book_title)).check(matches(isDisplayed()))
-        onView(withId(R.id.edit_book_author)).check(matches(isDisplayed()))
-        onView(withId(R.id.edit_book_artist)).check(matches(isDisplayed()))
-        onView(withId(R.id.button_save_book)).check(matches(isDisplayed()))
+        onView(withId(R.id.input_title_field)).check(matches(isDisplayed()))
+        onView(withId(R.id.input_author_text)).check(matches(isDisplayed()))
+        onView(withId(R.id.input_artist_text)).check(matches(isDisplayed()))
+        onView(withId(R.id.form_save_btn)).check(matches(isDisplayed()))
     }
 }

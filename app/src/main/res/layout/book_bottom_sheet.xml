@@ -13,7 +13,7 @@
             android:padding="16dp">
 
             <Button
-                android:id="@+id/button_sheet_clear_book"
+                android:id="@+id/clear_active_filter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -60,38 +60,29 @@
                 android:layout_marginTop="8dp" />
 
             <include
-                android:id="@+id/book_format_autocomplete"
+                android:id="@+id/format_autocomplete"
                 layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
             <include
-                android:id="@+id/publisher_autocomplete"
+                android:id="@+id/pub_autocomplete_input"
                 layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
 
-
-            <TextView
-                android:id="@+id/text_sheet_genre_book"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:labelFor="@id/dropdown_sheet_genre_book"
-                android:text="@string/genre"
-                android:textAppearance="?attr/textAppearanceCaption" />
-
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
+                android:hint="@string/genre"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp">
 
                 <AutoCompleteTextView
-                    android:id="@+id/dropdown_sheet_genre_book"
+                    android:id="@+id/genre_autocomplete"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none" />
@@ -105,7 +96,7 @@
                 android:layout_marginTop="8dp" />
 
             <Button
-                android:id="@+id/button_sheet_fitler_book"
+                android:id="@+id/apply_filter_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"

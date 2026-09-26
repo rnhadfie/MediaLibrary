@@ -56,7 +56,7 @@
     <string name="publisher">Publisher</string>
     <string name="genre">Genre</string>
     <string name="collecting">Currently Collecting</string>
-    <string name="completed">Has Collected All Items</string>
+    <string name="collected">Has Collected All Items</string>
     <string name="completed_series">Series or Collection is Complete</string>
     <string name="started_collecting">Started Collecting</string>
     <string name="video_tags">Video Category</string>
@@ -129,7 +129,7 @@
     <string name="choose_from_gallery">Choose from Gallery</string>
     <string name="take_photo">Take Photo</string>
     <string name="select_image_source">Select Image Source</string>
-    <string name="collected">Collected</string>
+    <string name="collected_label">Collected</string>
     <string name="x">X</string>
     <string name="add_set_or_season">Add Set or Season</string>
 </resources>

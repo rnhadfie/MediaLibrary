@@ -63,15 +63,15 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         setupEmptyStateMediaItemObserver(
             viewModel.mediaItems,
-            binding.bookStatsContainer,
+            binding.statsContainer,
             binding.emptyStateContainer.root,
         )
 
-        binding.buttonFilter?.setOnClickListener {
+        binding.filterBtn.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter) }
         }
 
-        binding.bookItemList.setOnClickListener {
+        binding.copyListBtn.setOnClickListener {
             val books = viewModel.mediaItems.value
             val sortedBooks = books?.sortedBy { it.Title }
             val bookList = buildString {
@@ -99,7 +99,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         setup?.let { setupCharts(items, it) }
 
         FilterSummaryHelper.bindFilterSummary(
-            binding.root.findViewById(R.id.card_active_filter),
+            binding.root.findViewById(R.id.active_filter_card),
             currentFilter,
             setup
         ) {
@@ -115,7 +115,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
-        sheetBinding.buttonSheetFitlerBook.setOnClickListener {
+        sheetBinding.applyFilterBtn.setOnClickListener {
             filter.Read = sheetBinding.read.triStateButton.tag as Boolean?
             filter.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
             filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
@@ -128,7 +128,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             dialog.dismiss()
         }
 
-        sheetBinding.buttonSheetClearBook.setOnClickListener {
+        sheetBinding.clearActiveFilter.setOnClickListener {
             currentFilter = BookFilter()
             loadData()
             dialog.dismiss()
@@ -151,11 +151,11 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val updateToDate = items.count { it.HasSeriesEnded == false && it.HasCollectedAllItems == false }
         val collecting = items.count { it.Collecting }
 
-        binding.bookTotalSeriesCardText.text = "Total Number of Series: " + items.count().toString()
-        binding.bookTotalCardText.text = "Total Number of Books: $totalBook"
-        binding.bookCompletedCardText.text = "Total Number Series or Standalone books Collected: $completedCount"
-        binding.bookOngoingCardText?.text = "Total Number of Ongoing Series: $updateToDate"
-        binding.bookCollectingCardText?.text = "Total Number of Series or Books Currently Collecting: $collecting"
+        binding.seriesCountText.text = "Total Number of Series: " + items.count().toString()
+        binding.itemsText.text = "Total Number of Books: $totalBook"
+        binding.collectedSeriesText?.text = "Total Number Series or Standalone books Collected: $completedCount"
+        binding.ongoingSeriesText.text = "Total Number of Ongoing Series: $updateToDate"
+        binding.collectingText.text = "Total Number of Series or Books Currently Collecting: $collecting"
 
 
 
@@ -178,7 +178,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
 
         val readPercentPieData = PieData(readPercentPieDataSet)
-        val bookReadProgressChart = binding.bookReadProgress
+        val bookReadProgressChart = binding.readProgressChart
         if (readPercentPieEntries.isEmpty()) {
             bookReadProgressChart.setNoDataText("No data to display")
             bookReadProgressChart.data = null
@@ -226,7 +226,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val barData = BarData(dataSets)
 
-        binding.bookTypeBarChart.let { chart ->
+        binding.bookTypeChart.let { chart ->
             chart.setNoDataText("No data to display")
 
             if (dataSets.isEmpty()) {
@@ -262,24 +262,24 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             }
         }
 
-        val dualColumnViewOne = binding.genreCard?.dualCardColumnOne
-        val dualColumnViewTwo = binding.genreCard?.dualCardColumnTwo
-        val title = binding.genreCard?.cardTitle
-        val emptyState = binding.genreCard?.emptyStateContainer
-        title?.text = getString(R.string.total_number_of_books_per_genre)
+        val dualColumnViewOne = binding.displayGenreCard.dualCardColumnOne
+        val dualColumnViewTwo = binding.displayGenreCard.dualCardColumnTwo
+        val title = binding.displayGenreCard.cardTitle
+        val emptyState = binding.displayGenreCard.emptyStateContainer
+        title.text = getString(R.string.total_number_of_books_per_genre)
 
         if(genreInformationMap.isEmpty())
         {
-            dualColumnViewOne?.visibility = View.GONE
-            dualColumnViewTwo?.visibility = View.GONE
-            emptyState?.root?.visibility = View.VISIBLE
-            emptyState?.root?.text = getString(R.string.no_genre_data_to_display)
+            dualColumnViewOne.visibility = View.GONE
+            dualColumnViewTwo.visibility = View.GONE
+            emptyState.root.visibility = View.VISIBLE
+            emptyState.root.text = getString(R.string.no_genre_data_to_display)
         }
         else {
 
-            dualColumnViewOne?.visibility = View.VISIBLE
-            dualColumnViewTwo?.visibility = View.VISIBLE
-            emptyState?.root?.visibility = View.GONE
+            dualColumnViewOne.visibility = View.VISIBLE
+            dualColumnViewTwo.visibility = View.VISIBLE
+            emptyState.root?.visibility = View.GONE
 
             val genreInformationSortedMap = genreInformationMap.toList()
                 .sortedByDescending { (_, value) -> value } // Sort list by the value
@@ -291,20 +291,20 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
             val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
 
-            dualColumnViewOne?.removeAllViews()
-            dualColumnViewTwo?.removeAllViews()
+            dualColumnViewOne.removeAllViews()
+            dualColumnViewTwo.removeAllViews()
 
             for ((key, value) in firstHalf) {
                 val textView = TextView(context)
                 textView.text = getString(R.string.dual_card_text, key, value)
                 textView.setPadding(8, 8, 8, 8)
-                dualColumnViewOne?.addView(textView)
+                dualColumnViewOne.addView(textView)
             }
             for ((key, value) in secondHalf) {
                 val textView = TextView(context)
                 textView.text = getString(R.string.dual_card_text, key, value)
                 textView.setPadding(8, 8, 8, 8)
-                dualColumnViewTwo?.addView(textView)
+                dualColumnViewTwo.addView(textView)
             }
         }
     }
@@ -324,24 +324,24 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             }
         }
 
-        val dualColumnViewOne = binding.publisherCard?.dualCardColumnOne
-        val dualColumnViewTwo = binding.publisherCard?.dualCardColumnTwo
-        val title = binding.publisherCard?.cardTitle
-        val emptyState = binding.publisherCard?.emptyStateContainer
-        title?.text = getString(R.string.total_number_of_books_per_publisher)
+        val dualColumnViewOne = binding.displayPublisherCard.dualCardColumnOne
+        val dualColumnViewTwo = binding.displayPublisherCard.dualCardColumnTwo
+        val title = binding.displayPublisherCard.cardTitle
+        val emptyState = binding.displayPublisherCard.emptyStateContainer
+        title.text = getString(R.string.total_number_of_books_per_publisher)
 
         if(publisherInformationMap.isEmpty())
         {
-            dualColumnViewOne?.visibility = View.GONE
-            dualColumnViewTwo?.visibility = View.GONE
-            emptyState?.root?.visibility = View.VISIBLE
-            emptyState?.root?.text = getString(R.string.no_publisher_data_to_display)
+            dualColumnViewOne.visibility = View.GONE
+            dualColumnViewTwo.visibility = View.GONE
+            emptyState.root.visibility = View.VISIBLE
+            emptyState.root.text = getString(R.string.no_publisher_data_to_display)
         }
         else {
 
-            dualColumnViewOne?.visibility = View.VISIBLE
-            dualColumnViewTwo?.visibility = View.VISIBLE
-            emptyState?.root?.visibility = View.GONE
+            dualColumnViewOne.visibility = View.VISIBLE
+            dualColumnViewTwo.visibility = View.VISIBLE
+            emptyState.root.visibility = View.GONE
 
             val publisherInformationSortedMap = publisherInformationMap.toList()
                 .sortedByDescending { (_, value) -> value } // Sort list by the value
@@ -353,20 +353,20 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
             val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
 
-            dualColumnViewOne?.removeAllViews()
-            dualColumnViewTwo?.removeAllViews()
+            dualColumnViewOne.removeAllViews()
+            dualColumnViewTwo.removeAllViews()
 
             for ((key, value) in firstHalf) {
                 val textView = TextView(context)
                 textView.text = getString(R.string.dual_card_text, key, value)
                 textView.setPadding(8, 8, 8, 8)
-                dualColumnViewOne?.addView(textView)
+                dualColumnViewOne.addView(textView)
             }
             for ((key, value) in secondHalf) {
                 val textView = TextView(context)
                 textView.text = getString(R.string.dual_card_text, key, value)
                 textView.setPadding(8, 8, 8, 8)
-                dualColumnViewTwo?.addView(textView)
+                dualColumnViewTwo.addView(textView)
             }
         }
     }
@@ -395,7 +395,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         if (hardCoverCount > 0) formatPieEntries.add(PieEntry(hardCoverCount.toFloat(), "Hardcover"))
         if (paperBackCount > 0) formatPieEntries.add(PieEntry(paperBackCount.toFloat(), "Paperback"))
 
-        val bookFormatPieChart = binding.bookFormatPieChart
+        val bookFormatPieChart = binding.formatChart
 
         if (formatPieEntries.isEmpty()) {
             bookFormatPieChart.data = null

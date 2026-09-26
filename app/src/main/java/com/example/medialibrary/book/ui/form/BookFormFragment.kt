@@ -31,11 +31,14 @@ import java.io.File
 import com.example.medialibrary.backend.models.book.BookItem
 import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.book.Enums
+import com.example.medialibrary.backend.models.music.Enums.MusicGenre
+import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
+import com.example.medialibrary.utils.RadioGridUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 
@@ -164,7 +167,7 @@ class BookFormFragment : Fragment() {
             viewModel.loadBook(bookId, controller, setup)
         }
 
-        setupBookTypeRadioGroup(setup.Type)
+        setupBookTypeRadioGroup(setup)
         setupGenreSelection(setup)
         setupPublisherSelection(setup)
         setupTagSelection(setup)
@@ -178,11 +181,11 @@ class BookFormFragment : Fragment() {
             clearImage("book")
         }
 
-        binding.buttonAddItem.setOnClickListener {
+        binding.addItemBtn.setOnClickListener {
             showBookItemSheet()
         }
 
-        binding.buttonSaveBook.setOnClickListener {
+        binding.saveBtn.setOnClickListener {
             val error = viewModel.validate()
             if (error != null) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
@@ -225,20 +228,20 @@ class BookFormFragment : Fragment() {
 
         // Observe ViewModel
         viewModel.book.observe(viewLifecycleOwner) { book ->
-            binding.editBookTitle.setText(book.Title)
-            binding.editBookAuthor.setText(book.Author)
-            binding.editBookArtist.setText(book.Artist)
-            binding.bookCollecting.isChecked = book.Collecting ?: false
-            binding.bookHasEnded.isChecked = book.HasSeriesEnded ?: false
-            binding.bookCompletedCollecting.isChecked = book.HasCollectedAllItems ?: false
+            binding.titleInput.setText(book.Title)
+            binding.authorInput.setText(book.Author)
+            binding.artistInput.setText(book.Artist)
+            binding.collectingCheck.isChecked = book.Collecting ?: false
+            binding.completedCheck.isChecked = book.HasSeriesEnded ?: false
+            binding.completedCheck.isChecked = book.HasCollectedAllItems ?: false
 
             // Update RadioGroup
-            for (i in 0 until binding.radioGroupBookType.childCount) {
-                val rb = binding.radioGroupBookType.getChildAt(i) as RadioButton
-                if (rb.tag == book.Type) {
-                    rb.isChecked = true
-                    break
-                }
+            val musicGenreId = book.Type?.ordinal ?: 0
+            if(musicGenreId != 0) {
+                RadioGridUtils.setSelection(
+                    binding.bookTypeRadio.dynamicTableLayout,
+                    musicGenreId
+                )
             }
 
             if (book.Cover != null && book.Cover.isNotEmpty()) {
@@ -254,10 +257,10 @@ class BookFormFragment : Fragment() {
             // Update Publisher and Tag if setup is available
             setup.let { s ->
                 val pub = s.Publishers.find { it.Id == book.Publisher }
-                pub?.let { binding.publisherAutocomplete.autocomplete.setText(it.Name, false) }
+                pub?.let { binding.pubAutocomplete.autocomplete.setText(it.Name, false) }
 
                 val tag = s.Tag.find { it.Id == book.Tag }
-                tag?.let { binding.publisherAutocomplete.autocomplete.setText(it.Name, false) }
+                tag?.let { binding.pubAutocomplete.autocomplete.setText(it.Name, false) }
             }
         }
 
@@ -270,29 +273,26 @@ class BookFormFragment : Fragment() {
         }
     }
 
-    private fun setupBookTypeRadioGroup(types: Map<Int, String>) {
-        val bookTypes = Enums.BookType.entries.toTypedArray()
-        types.forEach { (key, value) ->
-            if (key >= 0 && key < bookTypes.size) {
-                val type = bookTypes[key]
-                if (type == Enums.BookType.NoneSelected) return@forEach
-                val rb = RadioButton(requireContext()).apply {
-                    id = View.generateViewId()
-                    text = value
-                    tag = type
-                }
-                binding.radioGroupBookType.addView(rb)
-            }
-        }
+    private fun setupBookTypeRadioGroup(setup: BookSetup) {
 
-        binding.radioGroupBookType.setOnCheckedChangeListener { group, checkedId ->
-            if (checkedId != -1) {
-                val rb = group.findViewById<RadioButton>(checkedId)
-                (rb?.tag as? Enums.BookType)?.let {
-                    viewModel.updateBookType(it)
-                }
-            }
+        binding.bookTypeRadio.radioButtonLabel.setText(R.string.music_genre)
+        val tableLayout = binding.bookTypeRadio.dynamicTableLayout
+        val musicGenre = setup.Type.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = tableLayout,
+            optionsMap = musicGenre,
+            columnCount = 2
+        ) { selectedId ->
+            // This block acts as your changeListener.
+            // It triggers immediately when any RadioButton in the grid is selected.
+            handleRadioSelectionChange(selectedId)
         }
+    }
+
+    private fun handleRadioSelectionChange(id: Int) {
+        // You can update a ViewModel, save state, or trigger network calls here
+        val genre = Enums.BookType.entries.find { it.ordinal == id } ?: return
+        viewModel.updateBookType(genre)
     }
 
     private fun setupGenreSelection(setup: BookSetup) {
@@ -348,9 +348,9 @@ class BookFormFragment : Fragment() {
     private fun setupPublisherSelection(setup: BookSetup) {
         val publishers = setup.Publishers
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, publishers)
-        val publisherBinding = binding.publisherAutocomplete.autocomplete
+        val publisherBinding = binding.pubAutocomplete.autocomplete
         publisherBinding.setAdapter(adapter)
-        binding.publisherAutocomplete.autoCompleteLabel.setHint(R.string.publisher)
+        binding.pubAutocomplete.autoCompleteLabel.setHint(R.string.publisher)
         publisherBinding.setOnItemClickListener { _, _, position, _ ->
             val selectedPublisher = adapter.getItem(position)
             selectedPublisher?.let { viewModel.updatePublisher(it) }
@@ -395,28 +395,28 @@ class BookFormFragment : Fragment() {
     }
 
     private fun setupInputListeners() {
-        binding.editBookTitle.addTextChangedListener(object : TextWatcher {
+        binding.titleInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) { viewModel.updateTitle(s.toString()) }
         })
-        binding.editBookAuthor.addTextChangedListener(object : TextWatcher {
+        binding.authorInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) { viewModel.updateAuthor(s.toString()) }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-        binding.editBookArtist.addTextChangedListener(object : TextWatcher {
+        binding.artistInput.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) { viewModel.updateArtist(s.toString()) }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-        binding.bookCollecting.setOnCheckedChangeListener {
+        binding.collectingCheck.setOnCheckedChangeListener {
             _, isChecked -> viewModel.toggleCollecting(isChecked)
         }
-        binding.bookHasEnded.setOnCheckedChangeListener {
+        binding.completedCheck.setOnCheckedChangeListener {
             _, isChecked -> viewModel.toggleCompleted(isChecked)
         }
-        binding.bookCompletedCollecting.setOnCheckedChangeListener {
+        binding.completedCheck.setOnCheckedChangeListener {
             _, isChecked -> viewModel.toggleCollectionComplete(isChecked)
         }
     }
@@ -444,10 +444,10 @@ class BookFormFragment : Fragment() {
 
         // Populate if editing
         item?.let {
-            sheetBinding.editSheetVolumeNumber.setText(it.VolumeNumber)
-            sheetBinding.editSheetVolumeTitle.setText(it.VolumeTitle)
-            sheetBinding.switchSheetOwned.isChecked = it.Owned
-            sheetBinding.switchSheetRead.isChecked = it.Read
+            sheetBinding.numberInput.setText(it.VolumeNumber)
+            sheetBinding.titleInput.setText(it.VolumeTitle)
+            sheetBinding.ownedSwitch.isChecked = it.Owned
+            sheetBinding.readSwitch.isChecked = it.Read
             sheetBinding.formatAutocomplete.autocomplete.setText(it.Format.name, false)
             if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
@@ -473,8 +473,8 @@ class BookFormFragment : Fragment() {
             clearImage("item")
         }
 
-        sheetBinding.buttonSheetSave.setOnClickListener {
-            val volNum = sheetBinding.editSheetVolumeNumber.text.toString()
+        sheetBinding.saveItemBtn.setOnClickListener {
+            val volNum = sheetBinding.numberInput.text.toString()
             if (volNum.isBlank()) {
                 Toast.makeText(requireContext(), "Volume number is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -487,9 +487,9 @@ class BookFormFragment : Fragment() {
 
             val newItem = BookItem().apply {
                 VolumeNumber = volNum
-                VolumeTitle = sheetBinding.editSheetVolumeTitle.text.toString()
-                Owned = sheetBinding.switchSheetOwned.isChecked
-                Read = sheetBinding.switchSheetRead.isChecked
+                VolumeTitle = sheetBinding.titleInput.text.toString()
+                Owned = sheetBinding.ownedSwitch.isChecked
+                Read = sheetBinding.readSwitch.isChecked
                 Format = format
                 ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
             }

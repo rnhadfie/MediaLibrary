@@ -23,32 +23,49 @@
             app:queryHint="Search books..." />
 
         <ImageButton
-            android:id="@+id/button_filter"
+            android:id="@+id/filter_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Filter"
             android:src="@drawable/ic_settings_black_24dp"
             app:tint="?attr/colorPrimary" />
+        <ImageButton
+            android:id="@+id/copy_list_btn"
+            android:contentDescription="@string/get_list_of_items"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_agenda"
+            android:tooltipText="Get list of All visible book titles"
+            app:tint="?attr/colorPrimary"
+            />
     </LinearLayout>
+
+    <include
+        android:id="@+id/active_filter_card"
+        layout="@layout/view_active_filter_summary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/header_container" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview_books"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layoutManager="GridLayoutManager"
-        app:spanCount="4"
+        app:layoutManager="LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_container" />
+        app:layout_constraintTop_toBottomOf="@id/active_filter_card" />
 
     <include
         android:id="@+id/empty_state_container"
         layout="@layout/view_empty_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_container" />
+        tools:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/active_filter_card" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
