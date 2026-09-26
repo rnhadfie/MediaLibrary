@@ -8,12 +8,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -188,6 +186,7 @@ class BookFormFragment : Fragment() {
             val error = viewModel.validate()
             if (error != null) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+
             } else {
                 val saveObj = viewModel.getSaveObject()
                 if(controller != null) {

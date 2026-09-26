@@ -51,6 +51,7 @@
             />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_sheet_volume_number"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

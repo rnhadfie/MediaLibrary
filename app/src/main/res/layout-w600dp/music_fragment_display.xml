@@ -47,6 +47,7 @@
         app:layout_constraintTop_toBottomOf="@id/title_layout">
 
         <LinearLayout
+            android:id="@+id/music_stats_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"

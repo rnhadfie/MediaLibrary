@@ -211,7 +211,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             if (BookType.entries[key] != BookType.NoneSelected) {
                 val bookType = BookType.entries[key]
                 val books = items.filter { it.Type == bookType }
-                var count = 0;
+                var count = 0
                 books.forEach {
                     if (it.Items != null) {
                         count += it.Items.count()
@@ -254,14 +254,10 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     private fun setupGenreBarChart(items: List<Book>, setup: BookSetup) {
         val genreList = setup.Genre
         val genreInformationMap = mutableMapOf<String, Int>()
-
         genreList.forEach {  genre ->
-            val items = items.filter { it.Genre.contains(genre.genreId) }
             var totalBooksPerGenre = 0
             if(!items.isEmpty()) {
-                for (book in items) {
-                    totalBooksPerGenre += book.Items?.count() ?: 0
-                }
+                totalBooksPerGenre += items.count { it.Genre.contains(genre.genreId) }
                 genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
         }
@@ -407,7 +403,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             bookFormatPieChart.setNoDataTextColor(Color.BLACK)
             bookFormatPieChart.setCenterTextSize(20f)
         } else {
-            val formatPieDataSet = PieDataSet(formatPieEntries, "Format")
+            val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
             formatPieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
 
             val formatPieData = PieData(formatPieDataSet)
@@ -419,7 +415,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             bookFormatPieChart.setTransparentCircleColor(Color.TRANSPARENT)
             bookFormatPieChart.setBackgroundColor(Color.TRANSPARENT)
             bookFormatPieChart.setUsePercentValues(true)
-            bookFormatPieChart.centerText = "Format"
+            bookFormatPieChart.centerText = "Format %"
             bookFormatPieChart.legend.isEnabled = false
 
             bookFormatPieChart.animateXY(1000, 1000)

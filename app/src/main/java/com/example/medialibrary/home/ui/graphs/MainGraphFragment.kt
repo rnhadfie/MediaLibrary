@@ -107,10 +107,21 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
     }
 
     private fun setupCharts(items: List<MediaItem>) {
-        val totalBooks = items.count { it.MediaType == Enums.MediaType.Book }
-        val totalVideo = items.count { it.MediaType == Enums.MediaType.Video }
-        val totalMusic = items.count { it.MediaType == Enums.MediaType.Music }
-        val totalOther = items.count { it.MediaType == Enums.MediaType.Other }
+        var totalBooks = 0
+        var totalMusic = 0
+        var totalVideo = 0
+        var totalOther = 0
+
+        items.forEach {
+            when(it.MediaType)
+            {
+                Enums.MediaType.Book -> totalBooks += it.ItemsCount
+                Enums.MediaType.Music -> totalMusic += it.ItemsCount
+                Enums.MediaType.Video -> totalVideo += it.ItemsCount
+                Enums.MediaType.Other -> totalOther += it.ItemsCount
+                else -> {}
+            }
+        }
 
         val dataSets = ArrayList<IBarDataSet>()
         val colors = ColorTemplate.MATERIAL_COLORS.toList()

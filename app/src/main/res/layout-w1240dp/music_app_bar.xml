@@ -18,6 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
+            app:contentInsetStartWithNavigation="0dp"
+            app:titleTextAppearance="@style/Theme.MediaLibrary.ToolbarTitle"
             app:popupTheme="@style/Theme.MediaLibrary.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>

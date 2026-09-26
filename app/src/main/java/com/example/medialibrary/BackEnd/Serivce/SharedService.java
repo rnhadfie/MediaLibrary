@@ -84,11 +84,48 @@ public class SharedService {
     }
 
     public <T extends MediaItem> MediaItem mapToMediaItem(T item) {
-        return item;
+        MediaItem mediaItem = new MediaItem();
+        mediaItem.Id = item.Id;
+        mediaItem.Title = item.Title;
+        mediaItem.Cover = item.Cover;
+        mediaItem.Collecting = Boolean.TRUE.equals(item.Collecting);
+        mediaItem.HasSeriesEnded = Boolean.TRUE.equals(item.HasSeriesEnded);
+        mediaItem.HasCollectedAllItems = Boolean.TRUE.equals(item.HasCollectedAllItems);
+        mediaItem.CurrentOwnAny = Boolean.TRUE.equals(item.CurrentOwnAny);
+        mediaItem.Tag = item.Tag;
+        mediaItem.Genre = item.Genre;
+        mediaItem.ItemsCount = item.ItemsCount;
+
+        if (item instanceof Book) {
+            mediaItem.MediaType = Enums.MediaType.Book;
+            if(((Book)item).Items != null) {
+                mediaItem.ItemsCount = ((Book) item).Items.size();
+            }
+        } else if (item instanceof Video) {
+            mediaItem.MediaType = Enums.MediaType.Video;
+            if(((Video)item).Items != null) {
+                mediaItem.ItemsCount = ((Video) item).Items.size();
+            }
+        } else if (item instanceof Music) {
+            mediaItem.MediaType = Enums.MediaType.Music;
+            mediaItem.ItemsCount = 1;
+        } else if (item instanceof Other) {
+
+            mediaItem.MediaType = Enums.MediaType.Other;
+            if(((Other)item).Items != null) {
+                mediaItem.ItemsCount = ((Other) item).Items.size();
+            }
+        } else {
+            mediaItem.MediaType = Enums.MediaType.None;
+            mediaItem.ItemsCount = 0;
+        }
+        return mediaItem;
     }
 
     public List<Tag> GetTags() {
-        return sharedRepository.getValue().GetTags();
+        var tags = sharedRepository.getValue().GetTags();
+        tags.sort(Comparator.comparing(o -> o.Name));
+        return tags;
     }
 
     public boolean AddTag(Tag tag) {
@@ -244,18 +281,19 @@ public class SharedService {
 
         // Search
         if (filter.Search != null && !filter.Search.isEmpty()) {
+            var searchText = filter.Search.trim();
             if (filter.MediaType == Enums.MediaType.Book) {
                 conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_AUTHOR + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
-                selectionArgs.add("%" + filter.Search + "%");
-                selectionArgs.add("%" + filter.Search + "%");
-                selectionArgs.add("%" + filter.Search + "%");
+                selectionArgs.add("%" + searchText + "%");
+                selectionArgs.add("%" + searchText + "%");
+                selectionArgs.add("%" + searchText + "%");
             } else if (filter.MediaType == Enums.MediaType.Music) {
                 conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
-                selectionArgs.add("%" + filter.Search + "%");
-                selectionArgs.add("%" + filter.Search + "%");
+                selectionArgs.add("%" + searchText + "%");
+                selectionArgs.add("%" + searchText + "%");
             } else {
                 conditions.add(COLUMN_TITLE + " LIKE ?");
-                selectionArgs.add("%" + filter.Search + "%");
+                selectionArgs.add("%" + searchText + "%");
             }
         }
 
@@ -400,4 +438,6 @@ public class SharedService {
 
         return conditions.isEmpty() ? null : String.join(" AND ", conditions);
     }
+
+
 }

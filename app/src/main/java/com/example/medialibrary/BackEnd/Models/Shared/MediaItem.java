@@ -11,6 +11,7 @@ public class MediaItem {
     public Boolean Collecting;
     public Boolean HasSeriesEnded;
     public Boolean HasCollectedAllItems;
+    public int ItemsCount;
     public Boolean CurrentOwnAny;
     public int Tag;
     public byte[] Cover;
