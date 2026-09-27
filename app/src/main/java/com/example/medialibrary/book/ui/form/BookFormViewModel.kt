@@ -98,7 +98,7 @@ class BookFormViewModel : ViewModel() {
     }
 
     fun toggleCompleted(completed: Boolean) {
-        _book.value?.HasSeriesEnded = completed
+        _book.value?.Ongoing = completed
     }
 
     fun toggleCollectionComplete(collected: Boolean) {
@@ -149,11 +149,6 @@ class BookFormViewModel : ViewModel() {
         return saveObj
     }
 
-    fun validate(): String? {
-        val b = _book.value ?: return "Book data missing"
-        if (b.Title.isNullOrBlank()) return "Title is required"
-        return null
-    }
 
     fun validateFields(): Map<String, String> {
         val errors = mutableMapOf<String, String>()

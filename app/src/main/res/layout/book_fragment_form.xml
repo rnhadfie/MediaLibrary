@@ -97,11 +97,11 @@
                 android:textColor="?attr/colorOnBackground" />
 
             <CheckBox
-                android:id="@+id/completed_check"
+                android:id="@+id/ongoing_check"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/completed_series"
+                android:text="@string/Ongoing"
                 android:textColor="?attr/colorOnBackground" />
 
             <CheckBox

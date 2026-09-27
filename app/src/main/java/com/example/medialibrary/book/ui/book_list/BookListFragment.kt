@@ -80,7 +80,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             showFilterSheet(setup, currentFilter)
         }
 
-        binding.copyListBtn?.setOnClickListener {
+        binding.copyListBtn.setOnClickListener {
             val books = viewModel.items.value
             val sortedBooks = books?.sortedBy { it.Title }
             val bookList = buildString {
@@ -134,7 +134,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             f.Read = sheetBinding.read.triStateButton.tag as Boolean?
             f.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
             f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            f.StandaloneOrSeriesIsComplete = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
+            f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
             f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
             currentFilter = f

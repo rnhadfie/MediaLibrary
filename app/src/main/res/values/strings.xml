@@ -56,8 +56,8 @@
     <string name="publisher">Publisher</string>
     <string name="genre">Genre</string>
     <string name="collecting">Currently Collecting</string>
-    <string name="collected">Has Collected All Items</string>
-    <string name="completed_series">Series or Collection is Complete</string>
+    <string name="collected">Collected</string>
+    <string name="Ongoing">Ongoing</string>
     <string name="started_collecting">Started Collecting</string>
     <string name="video_tags">Video Category</string>
     <string name="disc_number">Disc Number</string>
@@ -132,4 +132,5 @@
     <string name="collected_label">Collected</string>
     <string name="x">X</string>
     <string name="add_set_or_season">Add Set or Season</string>
+    <string name="standalone">Standalone</string>
 </resources>

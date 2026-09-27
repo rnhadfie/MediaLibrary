@@ -52,7 +52,7 @@
                         android:id="@+id/text_media_info"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{item.Title}"
+                        android:text="@{item.Status}"
                         android:textAppearance="?attr/textAppearanceSubtitle1"
                         tools:text="Title" />
 
@@ -61,7 +61,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text='@{item.Collecting ? "Collecting: Yes" : "Collecting: No"}'
+                        android:text='@{item.MediaTypeText}'
                         android:textAppearance="?attr/textAppearanceCaption"
                         android:textColor="?android:attr/textColorSecondary"
                         tools:text="Collecting: Yes" />

@@ -11,4 +11,6 @@ public class BookItem {
     public byte[] ItemCover;
 
     public Enums.BookFormat getFormat() { return Format; }
+
+    public String GetVolumeNumber() { return  VolumeNumber; }
 }

@@ -5,7 +5,7 @@ import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import com.example.medialibrary.backend.models.video.Enums.*;
+
 import com.example.medialibrary.backend.models.shared.MediaItem;
 import com.example.medialibrary.backend.repository.BookRepository;
 import com.example.medialibrary.backend.repository.MusicRepository;
@@ -14,7 +14,10 @@ import com.example.medialibrary.backend.repository.VideoRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class BaseRepository {
     protected MediaLibraryDbHelper dbHelper;
@@ -34,7 +37,7 @@ public abstract class BaseRepository {
         item.Id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
         item.Title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE));
         item.Collecting = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COLLECTING)) == 1;
-        item.HasSeriesEnded = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_HAS_ENDED)) == 1;
+        item.Ongoing = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_HAS_ENDED)) == 1;
         item.HasCollectedAllItems = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COMPLETED_COLLECTING)) == 1;
         item.Tag = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_TAG));
         item.Cover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_COVER)));
@@ -80,4 +83,6 @@ public abstract class BaseRepository {
     protected byte[] decompressBitmap(byte[] compressedBytes) {
         return compressedBytes;
     }
+
+
 }

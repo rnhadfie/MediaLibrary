@@ -239,7 +239,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, other.Title);
         values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);
-        values.put(COLUMN_HAS_ENDED, (other.HasSeriesEnded != null && other.HasSeriesEnded) ? 1 : 0);
+        values.put(COLUMN_HAS_ENDED, (other.Ongoing != null && other.Ongoing) ? 1 : 0);
         values.put(COLUMN_COMPLETED_COLLECTING, (other.HasCollectedAllItems != null && other.HasCollectedAllItems) ? 1 : 0);
         values.put(COLUMN_TAG, tagId);
         values.put(COLUMN_COVER, compressBitmap(other.Cover));

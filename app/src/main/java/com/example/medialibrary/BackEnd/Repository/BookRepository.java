@@ -341,7 +341,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             } while (cursor.moveToNext());
             cursor.close();
         }
-        items.sort(Comparator.comparing(o -> o.VolumeNumber));
+        items.sort(new NaturalComparator<>(BookItem::GetVolumeNumber));
         return items;
     }
 
@@ -388,7 +388,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         ContentValues bookValues = new ContentValues();
         bookValues.put(COLUMN_TITLE, book.Title);
         bookValues.put(COLUMN_COLLECTING, (book.Collecting != null && book.Collecting) ? 1 : 0);
-        bookValues.put(COLUMN_HAS_ENDED, (book.HasSeriesEnded != null && book.HasSeriesEnded) ? 1 : 0);
+        bookValues.put(COLUMN_HAS_ENDED, (book.Ongoing != null && book.Ongoing) ? 1 : 0);
         bookValues.put(COLUMN_COMPLETED_COLLECTING, (book.HasCollectedAllItems != null && book.HasCollectedAllItems) ? 1 : 0);
         bookValues.put(COLUMN_TAG, tagId);
         bookValues.put(COLUMN_COVER, compressBitmap(book.Cover));

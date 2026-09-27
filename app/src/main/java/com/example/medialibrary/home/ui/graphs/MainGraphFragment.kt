@@ -12,6 +12,7 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MainController
+import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.models.shared.Enums
 import com.example.medialibrary.backend.models.shared.Filter
 import com.example.medialibrary.backend.models.shared.MediaItem
@@ -50,7 +51,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
 
         loadData()
 
-        setupEmptyStateMediaItemObserver(
+        setupEmptyStateObserver(
             viewModel.mediaItems,
             binding.mainStatsContainer,
             binding.emptyStateContainer.root
@@ -101,12 +102,12 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
     }
 
     private fun loadData() {
-        val items = controller.GetMediaItems(currentFilter)
+        val items = controller.GetAllItems(currentFilter)
         viewModel.setMediaItems(items)
         setupCharts(items)
     }
 
-    private fun setupCharts(items: List<MediaItem>) {
+    private fun setupCharts(items: List<DisplayMediaItem>) {
         var totalBooks = 0
         var totalMusic = 0
         var totalVideo = 0
@@ -115,10 +116,10 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         items.forEach {
             when(it.MediaType)
             {
-                Enums.MediaType.Book -> totalBooks += it.ItemsCount
-                Enums.MediaType.Music -> totalMusic += it.ItemsCount
-                Enums.MediaType.Video -> totalVideo += it.ItemsCount
-                Enums.MediaType.Other -> totalOther += it.ItemsCount
+                Enums.MediaType.Book -> totalBooks += it.ItemCount
+                Enums.MediaType.Music -> totalMusic += it.ItemCount
+                Enums.MediaType.Video -> totalVideo += it.ItemCount
+                Enums.MediaType.Other -> totalOther += it.ItemCount
                 else -> {}
             }
         }

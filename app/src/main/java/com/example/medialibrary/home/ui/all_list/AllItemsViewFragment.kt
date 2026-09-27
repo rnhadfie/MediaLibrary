@@ -173,9 +173,9 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
 
         TriStateCheckBoxHelper.setupTriStateCheckBox(
             sheetBinding.standaloneOrSeriesComplete.root,
-            R.string.completed_series,
-            f.StandaloneOrSeriesIsComplete
-        ) { f.StandaloneOrSeriesIsComplete = it }
+            R.string.Ongoing,
+            f.Ongoing
+        ) { f.Ongoing = it }
 
         TriStateCheckBoxHelper.setupTriStateCheckBox(
             sheetBinding.collected.root,

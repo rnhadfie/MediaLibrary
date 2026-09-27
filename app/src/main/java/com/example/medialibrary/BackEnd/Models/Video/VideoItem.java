@@ -3,7 +3,7 @@ package com.example.medialibrary.backend.models.video;
 public class VideoItem {
     public int Id;
     public int Series;
-    public int DiscNumber;
+    public int Season;
     public String DiscTitle;
     public boolean Watched;
     public boolean Owned;

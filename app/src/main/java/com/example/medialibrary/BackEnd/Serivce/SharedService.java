@@ -33,6 +33,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import kotlin.Lazy;
 import kotlin.LazyKt;
@@ -52,74 +53,78 @@ public class SharedService {
                 .collect(toList());
     }
 
-    public <T extends MediaItem> List<DisplayMediaItem> mapToDisplayItems(List<T> items) {
+    public <T extends MediaItem> List<DisplayMediaItem> mapToDisplayItems(List<T> items, boolean showType) {
         if (items == null) return new ArrayList<>();
-        return items.stream()
-                .map(this::mapToDisplayItem)
-                .collect(toList());
+        return items.stream().map(item -> mapToDisplayItem(item, showType)).collect(toList());
     }
 
-    public <T extends MediaItem> DisplayMediaItem mapToDisplayItem(T item) {
+    public <T extends MediaItem> DisplayMediaItem mapToDisplayItem(T item, boolean showType) {
         DisplayMediaItem displayItem = new DisplayMediaItem();
         displayItem.Id = item.Id;
         displayItem.Title = item.Title;
         displayItem.Cover = item.Cover;
-        displayItem.Collecting = Boolean.TRUE.equals(item.Collecting);
-        displayItem.ToCollect = !Boolean.TRUE.equals(item.CurrentOwnAny);
-        displayItem.CollectedOrOnGoing = Boolean.TRUE.equals(item.HasCollectedAllItems);
 
+        StringBuilder statusString = new StringBuilder();
+        if(item.HasCollectedAllItems != null && item.HasCollectedAllItems)
+        {
+            statusString.append("Collected");
+        }
+        else if(item.CurrentOwnAny != null && !item.CurrentOwnAny)
+        {
+            statusString.append("To Collect");
+        }
+        else if(item.Collecting != null && item.Collecting)
+        {
+            statusString.append("Collecting");
+        }
+        else
+        {
+            statusString.append("Not Collecting");
+        }
+
+        Boolean standalone = null;
         if (item instanceof Book) {
             displayItem.MediaType = Enums.MediaType.Book;
+            displayItem.MediaTypeText = "Type: Book";
+            displayItem.ItemCount = ((Book) item).Items.size();
+            if(displayItem.ItemCount > 0)
+            {
+                standalone = Objects.equals(((Book) item).Items.get(0).VolumeNumber, "-1");
+            }
         } else if (item instanceof Video) {
             displayItem.MediaType = Enums.MediaType.Video;
+            displayItem.MediaTypeText = "Type: Movie/TV Show";
+            displayItem.ItemCount = ((Video) item).Items.size();
+            if(displayItem.ItemCount > 0)
+            {
+                standalone = Objects.equals(((Video) item).Items.get(0).Season, "-1");
+            }
         } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;
+            displayItem.MediaTypeText = "Type: CD";
+            displayItem.ItemCount = 1;
         } else if (item instanceof Other) {
             displayItem.MediaType = Enums.MediaType.Other;
+            displayItem.MediaTypeText = "Type: Other Collection";
+            displayItem.ItemCount = ((Other) item).Items.size();
         } else {
             displayItem.MediaType = Enums.MediaType.None;
         }
+        if(!showType) {
+            displayItem.MediaTypeText = "";
+        }
+
+        if(standalone != null)
+        {
+            statusString.append(" | ").append(standalone ? "Standalone" : "Series");
+        }
+        displayItem.Status = statusString.toString();
 
         return displayItem;
     }
 
     public <T extends MediaItem> MediaItem mapToMediaItem(T item) {
-        MediaItem mediaItem = new MediaItem();
-        mediaItem.Id = item.Id;
-        mediaItem.Title = item.Title;
-        mediaItem.Cover = item.Cover;
-        mediaItem.Collecting = Boolean.TRUE.equals(item.Collecting);
-        mediaItem.HasSeriesEnded = Boolean.TRUE.equals(item.HasSeriesEnded);
-        mediaItem.HasCollectedAllItems = Boolean.TRUE.equals(item.HasCollectedAllItems);
-        mediaItem.CurrentOwnAny = Boolean.TRUE.equals(item.CurrentOwnAny);
-        mediaItem.Tag = item.Tag;
-        mediaItem.Genre = item.Genre;
-        mediaItem.ItemsCount = item.ItemsCount;
-
-        if (item instanceof Book) {
-            mediaItem.MediaType = Enums.MediaType.Book;
-            if(((Book)item).Items != null) {
-                mediaItem.ItemsCount = ((Book) item).Items.size();
-            }
-        } else if (item instanceof Video) {
-            mediaItem.MediaType = Enums.MediaType.Video;
-            if(((Video)item).Items != null) {
-                mediaItem.ItemsCount = ((Video) item).Items.size();
-            }
-        } else if (item instanceof Music) {
-            mediaItem.MediaType = Enums.MediaType.Music;
-            mediaItem.ItemsCount = 1;
-        } else if (item instanceof Other) {
-
-            mediaItem.MediaType = Enums.MediaType.Other;
-            if(((Other)item).Items != null) {
-                mediaItem.ItemsCount = ((Other) item).Items.size();
-            }
-        } else {
-            mediaItem.MediaType = Enums.MediaType.None;
-            mediaItem.ItemsCount = 0;
-        }
-        return mediaItem;
+        return item;
     }
 
     public List<Tag> GetTags() {
@@ -255,9 +260,9 @@ public class SharedService {
             selectionArgs.add(filter.Collected ? "1" : "0");
         }
 
-        if (filter.StandaloneOrSeriesIsComplete != null) {
+        if (filter.Ongoing != null) {
             conditions.add(COLUMN_HAS_ENDED + " = ?");
-            selectionArgs.add(filter.StandaloneOrSeriesIsComplete ? "1" : "0");
+            selectionArgs.add(filter.Ongoing ? "1" : "0");
         }
 
         // Tags

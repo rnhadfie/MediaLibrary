@@ -43,7 +43,7 @@ public class OtherService {
         var otherCollections =repo.GetOtherCollections(whereClause, selectionArgs);
 
 
-        return sharedService.mapToDisplayItems(OtherItemBasedFilters(otherCollections, filter));
+        return sharedService.mapToDisplayItems(OtherItemBasedFilters(otherCollections, filter), false);
     }
 
 

@@ -9,7 +9,7 @@ public class Filter {
     public int Genre;
     public Enums.MediaType MediaType;
     public Boolean Collecting;
-    public Boolean StandaloneOrSeriesIsComplete;
+    public Boolean Ongoing;
     public Boolean AnyOwned;
     public Boolean Collected;
 

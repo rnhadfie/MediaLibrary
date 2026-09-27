@@ -52,7 +52,7 @@ class OtherFormViewModel : ViewModel() {
     }
 
     fun toggleCompleted(completed: Boolean) {
-        _other.value?.HasSeriesEnded = completed
+        _other.value?.Ongoing = completed
     }
 
     fun toggleCollectionComplete(collected: Boolean) {

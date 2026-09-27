@@ -42,7 +42,7 @@ public class MusicService {
         String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
         List<Music> music = repo.GetMusic(whereClause, selectionArgs);
 
-        return sharedService.mapToDisplayItems(music);
+        return sharedService.mapToDisplayItems(music, false);
     }
 
 

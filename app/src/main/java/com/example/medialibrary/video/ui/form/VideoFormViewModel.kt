@@ -82,7 +82,7 @@ class VideoFormViewModel : ViewModel() {
     }
 
     fun toggleCompleted(completed: Boolean) {
-        _video.value?.HasSeriesEnded = completed
+        _video.value?.Ongoing = completed
     }
 
     fun toggleCollectionComplete(collected: Boolean) {

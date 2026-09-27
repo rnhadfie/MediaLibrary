@@ -129,7 +129,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            filter.StandaloneOrSeriesIsComplete = sheetBinding.standaloneOrSeriesComplete?.triStateButton?.tag as Boolean?
+            filter.Ongoing = sheetBinding.standaloneOrSeriesComplete?.triStateButton?.tag as Boolean?
             filter.Collecting = sheetBinding.collecting?.triStateButton?.tag as Boolean?
             filter.AnyOwned = sheetBinding.anyItemsOwned?.triStateButton?.tag as Boolean?
             filter.Collected = sheetBinding.collected?.triStateButton?.tag as Boolean?

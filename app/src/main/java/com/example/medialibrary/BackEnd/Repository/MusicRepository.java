@@ -196,7 +196,7 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         ContentValues values = new ContentValues();
         values.put(COLUMN_TITLE, music.Title);
         values.put(COLUMN_COLLECTING, (music.Collecting != null && music.Collecting) ? 1 : 0);
-        values.put(COLUMN_HAS_ENDED, (music.HasSeriesEnded != null && music.HasSeriesEnded) ? 1 : 0);
+        values.put(COLUMN_HAS_ENDED, (music.Ongoing != null && music.Ongoing) ? 1 : 0);
         values.put(COLUMN_COMPLETED_COLLECTING, (music.HasCollectedAllItems != null && music.HasCollectedAllItems) ? 1 : 0);
         values.put(COLUMN_TAG, tagId);
         values.put(COLUMN_COVER, music.Cover);

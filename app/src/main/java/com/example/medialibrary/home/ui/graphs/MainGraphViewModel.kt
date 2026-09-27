@@ -12,12 +12,12 @@ class MainGraphViewModel : ViewModel() {
     }
     val text: LiveData<String> = _text
 
-    private val _mediaItems = MutableLiveData<List<MediaItem>>().apply {
+    private val _mediaItems = MutableLiveData<List<DisplayMediaItem>>().apply {
         value = null
     }
-    val mediaItems: LiveData<List<MediaItem>> = _mediaItems
+    val mediaItems: LiveData<List<DisplayMediaItem>> = _mediaItems
 
-    fun setMediaItems(items: List<MediaItem>) {
+    fun setMediaItems(items: List<DisplayMediaItem>) {
         _mediaItems.value = items
     }
 }

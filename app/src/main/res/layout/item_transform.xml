@@ -54,7 +54,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text='@{item.Collecting ? "Collecting: Yes" : "Collecting: No"}'
+                    android:text='@{item.Status}'
                     android:textAppearance="?attr/textAppearanceCaption"
                     android:textColor="@color/black"
                     tools:text="Collecting: Yes" />
@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text='@{(item.CollectedOrOnGoing &amp; !item.Collecting) ? "Collected: Yes" : "Collected: No"}'
+                    android:text='@{item.MediaTypeText}'
                     android:textAppearance="?attr/textAppearanceCaption"
                     android:textColor="@color/black"
                     tools:text="Collecting: Yes" />

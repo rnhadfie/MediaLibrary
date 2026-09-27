@@ -42,7 +42,7 @@ public class BookService {
 
         List<Book> books = repo.GetBooks(whereClause, selectionArgs);
 
-        return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter));
+        return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter), false);
     }
 
     public Book GetBook(int id) {
@@ -109,7 +109,7 @@ public class BookService {
                 filteredList = filteredList.stream()
                         .filter(b -> {
                             boolean allRead = b.Items != null && !b.Items.isEmpty() && b.Items.stream().allMatch(i -> i.Read);
-                            boolean isComplete = Boolean.TRUE.equals(b.HasSeriesEnded) || Boolean.TRUE.equals(b.HasCollectedAllItems);
+                            boolean isComplete = Boolean.TRUE.equals(b.Ongoing) || Boolean.TRUE.equals(b.HasCollectedAllItems);
                             boolean isRead = isComplete && allRead;
                             return isRead == filter.Read;
                         })
@@ -121,7 +121,7 @@ public class BookService {
                         .filter(b -> {
                             boolean anyRead = b.Items != null && b.Items.stream().anyMatch(i -> i.Read);
                             boolean allRead = b.Items != null && !b.Items.isEmpty() && b.Items.stream().allMatch(i -> i.Read);
-                            boolean isComplete = Boolean.TRUE.equals(b.HasSeriesEnded) || Boolean.TRUE.equals(b.HasCollectedAllItems);
+                            boolean isComplete = Boolean.TRUE.equals(b.Ongoing) || Boolean.TRUE.equals(b.HasCollectedAllItems);
                             boolean isRead = isComplete && allRead;
                             boolean isReading = anyRead && !isRead;
                             return isReading == filter.Reading;

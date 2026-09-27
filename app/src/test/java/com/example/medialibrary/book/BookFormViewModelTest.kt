@@ -84,7 +84,7 @@ class BookFormViewModelTest {
         assertTrue(viewModel.book.value?.Collecting == true)
 
         viewModel.toggleCompleted(true)
-        assertTrue(viewModel.book.value?.HasSeriesEnded == true)
+        assertTrue(viewModel.book.value?.Ongoing == true)
 
         viewModel.toggleCollectionComplete(true)
         assertTrue(viewModel.book.value?.HasCollectedAllItems == true)

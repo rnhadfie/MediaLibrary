@@ -83,7 +83,7 @@ object XmlExportImport {
             serializer.startTag("", "Items")
             video.Items?.forEach { item ->
                 serializer.startTag("", "VideoItem")
-                serializer.startTag("", "DiscNumber").text(item.DiscNumber.toString()).endTag("", "DiscNumber")
+                serializer.startTag("", "DiscNumber").text(item.Season.toString()).endTag("", "DiscNumber")
                 serializer.startTag("", "DiscTitle").text(item.DiscTitle ?: "").endTag("", "DiscTitle")
                 serializer.startTag("", "Watched").text(item.Watched.toString()).endTag("", "Watched")
                 serializer.startTag("", "Owned").text(item.Owned.toString()).endTag("", "Owned")
@@ -126,7 +126,7 @@ object XmlExportImport {
     private fun writeMediaItemFields(serializer: XmlSerializer, item: MediaItem) {
         serializer.startTag("", "Title").text(item.Title ?: "").endTag("", "Title")
         serializer.startTag("", "collecting").text(item.Collecting.toString()).endTag("", "collecting")
-        serializer.startTag("", "HasEnded").text(item.HasSeriesEnded.toString()).endTag("", "HasEnded")
+        serializer.startTag("", "HasEnded").text(item.Ongoing.toString()).endTag("", "HasEnded")
         serializer.startTag("", "CompletedCollecting").text(item.HasCollectedAllItems.toString()).endTag("", "CompletedCollecting")
         serializer.startTag("", "TagId").text(item.Tag.toString()).endTag("", "TagId")
         item.Genre?.let {
@@ -196,10 +196,10 @@ object XmlExportImport {
                         }
                         "HasEnded" -> {
                             val text = parser.nextText().toBoolean()
-                            currentBook?.HasSeriesEnded = text
-                            currentVideo?.HasSeriesEnded = text
-                            currentMusic?.HasSeriesEnded = text
-                            currentOther?.HasSeriesEnded = text
+                            currentBook?.Ongoing = text
+                            currentVideo?.Ongoing = text
+                            currentMusic?.Ongoing = text
+                            currentOther?.Ongoing = text
                         }
                         "CompletedCollecting" -> {
                             val text = parser.nextText().toBoolean()
@@ -274,7 +274,7 @@ object XmlExportImport {
                             val text = parser.nextText()
                             currentVideo?.VideoTag = Enums.VideoTag.entries.find { it.name == text }
                         }
-                        "DiscNumber" -> currentVideoItem?.DiscNumber = parser.nextText().toIntOrNull() ?: 0
+                        "DiscNumber" -> currentVideoItem?.Season = parser.nextText().toIntOrNull() ?: 0
                         "DiscTitle" -> currentVideoItem?.DiscTitle = parser.nextText()
                         "Watched" -> currentVideoItem?.Watched = parser.nextText().toBoolean()
                         "Year" -> currentMusic?.Year = parser.nextText().toIntOrNull() ?: 0

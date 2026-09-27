@@ -84,9 +84,9 @@ class SharedUtils {
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
                 sheetBinding.standaloneOrSeriesComplete.root,
-                R.string.completed_series,
-                filter.StandaloneOrSeriesIsComplete
-            ) { filter.StandaloneOrSeriesIsComplete = it }
+                R.string.Ongoing,
+                filter.Ongoing
+            ) { filter.Ongoing = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
                 sheetBinding.collected.root,

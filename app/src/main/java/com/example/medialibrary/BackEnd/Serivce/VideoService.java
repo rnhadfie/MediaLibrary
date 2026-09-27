@@ -43,7 +43,7 @@ public class VideoService {
 
         List<Video> videos = repo.GetVideos(whereClause, selectionArgs);
 
-        return sharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter));
+        return sharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter), false);
     }
 
     public Video GetVideo(int id) {
@@ -136,7 +136,7 @@ public class VideoService {
 
                 if (filter.Watched != null) {
                     boolean allWatched = video.Items != null && !video.Items.isEmpty() && video.Items.stream().allMatch(i -> i.Watched);
-                    boolean isComplete = Boolean.TRUE.equals(video.HasSeriesEnded) || Boolean.TRUE.equals(video.HasCollectedAllItems);
+                    boolean isComplete = Boolean.TRUE.equals(video.Ongoing) || Boolean.TRUE.equals(video.HasCollectedAllItems);
                     boolean isWatched = isComplete && allWatched;
                     if (isWatched != filter.Watched) {
                         continue;
@@ -146,7 +146,7 @@ public class VideoService {
                 if (filter.Watching != null) {
                     boolean anyWatched = video.Items != null && video.Items.stream().anyMatch(i -> i.Watched);
                     boolean allWatched = video.Items != null && !video.Items.isEmpty() && video.Items.stream().allMatch(i -> i.Watched);
-                    boolean isComplete = Boolean.TRUE.equals(video.HasSeriesEnded) || Boolean.TRUE.equals(video.HasCollectedAllItems);
+                    boolean isComplete = Boolean.TRUE.equals(video.Ongoing) || Boolean.TRUE.equals(video.HasCollectedAllItems);
                     boolean isWatched = isComplete && allWatched;
                     boolean isWatching = anyWatched && !isWatched;
                     if (isWatching != filter.Watching) {

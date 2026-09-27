@@ -88,6 +88,22 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         }
     }
 
+    fun setupEmptyStateObserver(
+        items: LiveData<out List<DisplayMediaItem>>,
+        recyclerView: View,
+        emptyStateContainerRoot: TextView
+    ) {
+        items.observe(viewLifecycleOwner) { itemList ->
+            if (itemList.isNullOrEmpty()) {
+                recyclerView.visibility = View.GONE
+                emptyStateContainerRoot.visibility = View.VISIBLE
+            } else {
+                recyclerView.visibility = View.VISIBLE
+                emptyStateContainerRoot.visibility = View.GONE
+            }
+        }
+    }
+
     fun setupEmptyStateMediaItemObserver(
         items: LiveData<out List<MediaItem>>,
         recyclerView: View,

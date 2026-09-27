@@ -226,7 +226,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
 
     private void mapVideoItem(Cursor cursor, VideoItem item) {
         item.Id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
-        item.DiscNumber = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DISC_NUMBER));
+        item.Season = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DISC_NUMBER));
         item.DiscTitle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DISC_TITLE));
         item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
         item.Watched = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_WATCHED)) == 1;
@@ -252,7 +252,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         ContentValues videoValues = new ContentValues();
         videoValues.put(COLUMN_TITLE, video.Title);
         videoValues.put(COLUMN_COLLECTING, (video.Collecting != null && video.Collecting) ? 1 : 0);
-        videoValues.put(COLUMN_HAS_ENDED, (video.HasSeriesEnded != null && video.HasSeriesEnded) ? 1 : 0);
+        videoValues.put(COLUMN_HAS_ENDED, (video.Ongoing != null && video.Ongoing) ? 1 : 0);
         videoValues.put(COLUMN_COMPLETED_COLLECTING, (video.HasCollectedAllItems != null && video.HasCollectedAllItems) ? 1 : 0);
         videoValues.put(COLUMN_TAG, tagId);
         videoValues.put(COLUMN_COVER, compressBitmap(video.Cover));
@@ -265,7 +265,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
     private ContentValues mapVideoItemContentValues(long videoId, VideoItem item) {
         ContentValues itemValues = new ContentValues();
         itemValues.put(COLUMN_SERIES, videoId);
-        itemValues.put(COLUMN_DISC_NUMBER, item.DiscNumber);
+        itemValues.put(COLUMN_DISC_NUMBER, item.Season);
         itemValues.put(COLUMN_DISC_TITLE, item.DiscTitle);
         itemValues.put(COLUMN_WATCHED, item.Watched ? 1 : 0);
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);

@@ -47,16 +47,16 @@ public class MainService {
         boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.None;
 
         if(allMedia || filter.MediaType == Enums.MediaType.Book) {
-            allItems.addAll(sharedService.mapToDisplayItems(bookRepository.getValue().GetBooks(whereClause, selectionArgs)));
+            allItems.addAll(sharedService.mapToDisplayItems(bookRepository.getValue().GetBooks(whereClause, selectionArgs), true));
         }
         if(allMedia || filter.MediaType == Enums.MediaType.Video) {
-            allItems.addAll(sharedService.mapToDisplayItems(videoRepository.getValue().GetVideos(whereClause, selectionArgs)));
+            allItems.addAll(sharedService.mapToDisplayItems(videoRepository.getValue().GetVideos(whereClause, selectionArgs), true));
         }
         if(allMedia || filter.MediaType == Enums.MediaType.Music){
-            allItems.addAll(sharedService.mapToDisplayItems(musicRepository.getValue().GetMusic(whereClause, selectionArgs)));
+            allItems.addAll(sharedService.mapToDisplayItems(musicRepository.getValue().GetMusic(whereClause, selectionArgs), true));
         }
         if(allMedia || filter.MediaType == Enums.MediaType.Other) {
-            allItems.addAll(sharedService.mapToDisplayItems(otherRepository.getValue().GetOtherCollections(whereClause, selectionArgs)));
+            allItems.addAll(sharedService.mapToDisplayItems(otherRepository.getValue().GetOtherCollections(whereClause, selectionArgs), true));
         }
 
 

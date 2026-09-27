@@ -119,7 +119,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             filter.Read = sheetBinding.read.triStateButton.tag as Boolean?
             filter.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
             filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            filter.StandaloneOrSeriesIsComplete = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
+            filter.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
             filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
@@ -147,8 +147,8 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             totalBook += book.Items?.count() ?: 0
         }
 
-        val completedCount = items.count { it.HasCollectedAllItems == true && it.HasSeriesEnded == true }
-        val updateToDate = items.count { it.HasSeriesEnded == false && it.HasCollectedAllItems == false }
+        val completedCount = items.count { it.HasCollectedAllItems == true }
+        val updateToDate = items.count { it.Ongoing }
         val collecting = items.count { it.Collecting }
 
         binding.seriesCountText.text = "Total Number of Series: " + items.count().toString()

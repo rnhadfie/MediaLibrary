@@ -231,7 +231,7 @@ class VideoFormFragment : Fragment() {
         viewModel.book.observe(viewLifecycleOwner) { book ->
             binding.editVideoTitle.setText(book.Title)
             binding.bookCollecting.isChecked = book.Collecting ?: false
-            binding.bookHasEnded.isChecked = book.HasSeriesEnded ?: false
+            binding.bookHasEnded.isChecked = book.Ongoing ?: false
             binding.bookCompletedCollecting.isChecked = book.HasCollectedAllItems ?: false
 
             // Update RadioGroup
@@ -421,7 +421,7 @@ class VideoFormFragment : Fragment() {
 
         // Populate if editing
         item?.let {
-            sheetBinding.editSheetVolumeNumber.setText(it.DiscNumber.toString())
+            sheetBinding.editSheetVolumeNumber.setText(it.Season.toString())
             sheetBinding.editSheetVolumeTitle.setText(it.DiscTitle)
             sheetBinding.switchSheetOwned.isChecked = it.Owned
             sheetBinding.switchSheetWatched.isChecked = it.Watched
@@ -464,7 +464,7 @@ class VideoFormFragment : Fragment() {
                 format = VideoFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
             }
             val newItem = VideoItem().apply {
-                DiscNumber = volNum.toIntOrNull() ?: 0
+                Season = volNum.toIntOrNull() ?: 0
                 DiscTitle = (sheetBinding.editSheetVolumeTitle.text ?: "").toString()
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 Watched = sheetBinding.switchSheetWatched.isChecked
@@ -545,14 +545,14 @@ class VideoFormFragment : Fragment() {
 
             if(item.DiscTitle == null || item.DiscTitle.isEmpty())
             {
-                holder.binding.textVolumeInfo.text = item.DiscNumber.toString()
+                holder.binding.textVolumeInfo.text = item.Season.toString()
             }
             else
             {
 
                 holder.binding.textVolumeInfo.text = getString(
                     R.string.video_item_display_text,
-                    item.DiscNumber,
+                    item.Season,
                     item.DiscTitle
                 )
             }

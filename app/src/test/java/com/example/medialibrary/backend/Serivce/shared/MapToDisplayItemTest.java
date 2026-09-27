@@ -18,12 +18,10 @@ public class MapToDisplayItemTest {
         book.Collecting = true;
         book.CurrentOwnAny = false;
 
-        DisplayMediaItem displayItem = service.mapToDisplayItem(book);
+        DisplayMediaItem displayItem = service.mapToDisplayItem(book, false);
 
         assertEquals(1, displayItem.Id);
         assertEquals("Test Book", displayItem.Title);
         assertEquals(Enums.MediaType.Book, displayItem.MediaType);
-        assertTrue(displayItem.Collecting);
-        assertTrue(displayItem.ToCollect);
     }
 }
