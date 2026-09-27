@@ -12,7 +12,7 @@ import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.medialibrary.R
-import com.example.medialibrary.video.ui.List.VideoListFragment
+import com.example.medialibrary.video.ui.list.VideoListFragment
 import junit.framework.TestCase
 import org.junit.Test
 import org.junit.runner.RunWith

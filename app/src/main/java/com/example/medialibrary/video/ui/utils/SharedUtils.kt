@@ -1,4 +1,4 @@
-package com.example.medialibrary.video.ui.Utils
+package com.example.medialibrary.video.ui.utils
 
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterOption
@@ -19,17 +19,19 @@ class SharedUtils {
             val tags = setup.Tag
 
             val videoTagOptions = setup.VideoTags.filter { it.key != 0 }.map { FilterOption(Enums.VideoTag.entries[it.key], it.value) }
+            sheetBinding.videoCategory.autoCompleteLabel.setHint(R.string.video_tags)
             MultiSelectFilterHelper.setupTriStateDropdown(
-                sheetBinding.dropdownSheetVideoTag,
-                "Video Tags",
+                sheetBinding.videoCategory.autocomplete,
+                "Video Categories",
                 videoTagOptions,
                 f.IncludedVideoTags,
                 f.ExcludedVideoTags
             )
 
             val typeOptions = setup.Types.filter { it.key != 0 }.map { FilterOption(Enums.VideoType.entries[it.key], it.value) }
+            sheetBinding.videoType.autoCompleteLabel.setHint(R.string.video_type)
             MultiSelectFilterHelper.setupTriStateDropdown(
-                sheetBinding.dropdownSheetTypeVideo,
+                sheetBinding.videoType.autocomplete,
                 "Video Types",
                 typeOptions,
                 f.IncludedTypes,
@@ -37,17 +39,21 @@ class SharedUtils {
             )
 
             val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-            MultiSelectFilterHelper.setupTriStateDropdown(
-                sheetBinding.dropdownSheetTagVideo,
-                "Tags",
-                tagOptions,
-                f.IncludedTags,
-                f.ExcludedTags
-            )
+            sheetBinding.tagFilterAutocomplete?.autoCompleteLabel?.setHint(R.string.tag)
+            sheetBinding.tagFilterAutocomplete?.autocomplete?.let {
+                MultiSelectFilterHelper.setupTriStateDropdown(
+                    it,
+                    "Tags",
+                    tagOptions,
+                    f.IncludedTags,
+                    f.ExcludedTags
+                )
+            }
 
             val genreOptions = setup.Genre.filter { it.genreId != 0 }.map { FilterOption(it.genreId, it.genreName) }
+            sheetBinding.genreSelect.autoCompleteLabel.setHint(R.string.genre)
             MultiSelectFilterHelper.setupTriStateDropdown(
-                sheetBinding.dropdownSheetGenreVideo,
+                sheetBinding.genreSelect.autocomplete,
                 "Genres",
                 genreOptions,
                 f.IncludedGenres,
@@ -55,37 +61,37 @@ class SharedUtils {
             )
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.watched?.root,
+                sheetBinding.watched.root,
                 R.string.watched,
                 f.Watched
             ) { f.Watched = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.watching?.root,
+                sheetBinding.watching.root,
                 R.string.watching_label,
                 f.Watching
             ) { f.Watching = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.standaloneOrSeriesComplete?.root,
+                sheetBinding.ongoing.root,
                 R.string.Ongoing,
                 f.Ongoing
             ) { f.Ongoing = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.collected?.root,
+                sheetBinding.collected.root,
                 R.string.completely_collected,
                 f.Collected
             ) { f.Collected = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.collecting?.root,
+                sheetBinding.collecting.root,
                 R.string.collecting,
                 f.Collecting
             ) { f.Collecting = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
-                sheetBinding.anyItemsOwned?.root,
+                sheetBinding.anyItemsOwned.root,
                 R.string.started_collecting,
                 f.AnyOwned
             ) { f.AnyOwned = it }

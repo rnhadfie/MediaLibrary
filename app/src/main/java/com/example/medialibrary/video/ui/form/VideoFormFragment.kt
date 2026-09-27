@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.viewModels
@@ -26,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
+import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.video.*
 import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.models.video.Enums.*
@@ -35,12 +37,14 @@ import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.utils.ImageUtils
+import com.example.medialibrary.utils.RadioGridUtils
 import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.ByteArrayOutputStream
 import java.io.File
+import kotlin.sequences.forEach
 
 class VideoFormFragment : Fragment() {
 
@@ -167,8 +171,6 @@ class VideoFormFragment : Fragment() {
             viewModel.loadVideo(videoId, controller, setup)
         }
 
-
-
         setupVideoTypeRadioGroup(setup.Types)
         setupVideoTagRadioGroup(setup.VideoTags)
         setupGenreSelection(setup)
@@ -183,72 +185,44 @@ class VideoFormFragment : Fragment() {
             clearImage("video")
         }
 
-        binding.buttonAddItem.setOnClickListener {
+        binding.addItemBtn.setOnClickListener {
             showVideoItemSheet()
         }
 
-        binding.buttonSaveBook.setOnClickListener {
-            val error = viewModel.validate()
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
-            } else {
-                val saveObj = viewModel.getSaveObject()
-                if(controller != null) {
-
-                    val result = if (isEdit) {
-                        controller!!.UpdateVideo(saveObj)
-                    } else {
-                        controller!!.AddVideo(saveObj)
-                    }
-
-                    if(result) {
-                        // Log or process the save object
-                        println("Saving book: ${saveObj.video?.Title} with ${saveObj.video.Items?.size} items")
-
-                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-
-                        Toast.makeText(
-                            requireContext(),
-                            if (isEdit) "Moive/TV Show Updated" else "Moive/TV Show Saved",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        activity?.finish()
-                    }
-                    else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Book Failed to Save",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
+        binding.saveBtn.setOnClickListener {
+            val result = saveVideo(isEdit)
+            if (result)
+            {
+                activity?.finish()
             }
         }
 
         // Observe ViewModel
-        viewModel.book.observe(viewLifecycleOwner) { book ->
-            binding.editVideoTitle.setText(book.Title)
-            binding.bookCollecting.isChecked = book.Collecting ?: false
-            binding.bookHasEnded.isChecked = book.Ongoing ?: false
-            binding.bookCompletedCollecting.isChecked = book.HasCollectedAllItems ?: false
+        viewModel.video.observe(viewLifecycleOwner) { book ->
+            binding.titleInput.setText(book.Title)
+            binding.collectingCheck.isChecked = book.Collecting ?: false
+            binding.ongoingCheck.isChecked = book.Ongoing ?: false
+            binding.collectedCheck.isChecked = book.HasCollectedAllItems ?: false
 
-            // Update RadioGroup
-            for (i in 0 until binding.radioGroupVideoType.childCount) {
-                val rb = binding.radioGroupVideoType.getChildAt(i) as RadioButton
-                if (VideoType.entries[rb.tag as Int] == book.Type) {
-                    rb.isChecked = true
-                    break
-                }
+            val videoCategory = book.VideoTag?.ordinal ?: 0
+            if(videoCategory != 0) {
+                RadioGridUtils.setSelection(
+                    binding.videoCategoryRadio.dynamicTableLayout,
+                    videoCategory
+                )
             }
 
-            for (i in 0 until binding.radioGroupVideoType.childCount) {
-                val rb = binding.radioGroupVideoTag.getChildAt(i) as RadioButton
-                if (VideoTag.entries[rb.tag as Int] == book.VideoTag) {
-                    rb.isChecked = true
-                    break
-                }
+            val videoType = book.Type?.ordinal ?: 0
+            if(videoCategory != 0) {
+                RadioGridUtils.setSelection(
+                    binding.videoTypeRadio.dynamicTableLayout,
+                    videoType
+                )
+            }
+
+            setup.let { s ->
+                val tag = s.Tag.find { it.Id == book.Tag }
+                tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
             }
 
             if (book.Cover != null && book.Cover.isNotEmpty()) {
@@ -273,41 +247,124 @@ class VideoFormFragment : Fragment() {
         }
     }
 
-    private fun setupVideoTypeRadioGroup(types: Map<Int, String>) {
-        types.forEach { (key, value) ->
-            if (VideoType.entries[key] == VideoType.NoneSelected) return@forEach
-            val rb = RadioButton(requireContext()).apply {
-                id = View.generateViewId()
-                text = value
-                tag = key
+    private fun saveVideo(isEdit: Boolean): Boolean
+    {
+        disableFields(false)
+        val error = viewModel.validate()
+        if (error.isNotEmpty()) {
+            error.forEach { (string, string1) ->
+                when (string) {
+                    "title" -> {
+                        binding.titleLabel.error = string1
+                        binding.titleInput.requestFocus()
+                        Toast.makeText(requireContext(), string1, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Toast.makeText(requireContext(), string1, Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
-            binding.radioGroupVideoType.addView(rb)
-            if (VideoType.entries[key] == VideoType.NoneSelected) rb.isChecked = true
-        }
+            disableFields(true)
+        } else {
+            val saveObj = viewModel.getSaveObject()
+            if (controller != null) {
 
-        binding.radioGroupVideoType.setOnCheckedChangeListener { group, checkedId ->
-            val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateVideoType(VideoType.entries[rb.tag as Int])
+                val result = if (isEdit) {
+                    controller!!.UpdateVideo(saveObj)
+                } else {
+                    controller!!.AddVideo(saveObj)
+                }
+                if (result) {
+                    ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
+                    Toast.makeText(
+                        requireContext(),
+                        if (isEdit) "Movie/TV Show Updated" else "Movie/TV Show Saved",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return true
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Movie/TV Show Failed to Save",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+        disableFields(true)
+        return false;
+    }
+
+    private fun disableFields(enabled: Boolean)
+    {
+        binding.titleInput.isEnabled = enabled
+        binding.videoTypeRadio.dynamicTableLayout.children.forEach { it ->
+            if(it is ViewGroup)
+            {
+                it.children.forEach {
+                    if(it is RadioButton)
+                    {
+                        it.isEnabled = enabled
+                    }
+                }
+            }
+        }
+        binding.videoCategoryRadio.dynamicTableLayout.children.forEach { it ->
+            if(it is ViewGroup)
+            {
+                it.children.forEach {
+                    if(it is RadioButton)
+                    {
+                        it.isEnabled = enabled
+                    }
+                }
+            }
+        }
+        binding.genreMultiselect.buttonSelectGenres.isEnabled = enabled
+        binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
+        binding.addItemBtn.isEnabled = enabled
+        binding.collectingCheck.isEnabled = enabled
+        binding.ongoingCheck.isEnabled = enabled
+        binding.collectedCheck.isEnabled = enabled
+        binding.saveBtn.isEnabled = enabled
+    }
+
+    private fun handleRadioSelectionChange(id: Int) {
+        // You can update a ViewModel, save state, or trigger network calls here
+        val genre = VideoTag.entries.find { it.ordinal == id } ?: return
+        viewModel.updateVideoTag(genre)
+    }
+
+    private fun setupVideoTypeRadioGroup(types: Map<Int, String>) {
+
+        binding.videoTypeRadio.radioButtonLabel.setText(R.string.music_genre)
+        val tableLayout = binding.videoTypeRadio.dynamicTableLayout
+        val musicGenre = types.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = tableLayout,
+            optionsMap = musicGenre,
+            columnCount = 2
+        ) { selectedId ->
+            handleVideoTypeSelectionChange(selectedId)
         }
     }
 
     private fun setupVideoTagRadioGroup(videoTags: Map<Int, String>) {
-
-        videoTags.forEach { (key, value) ->
-            if (VideoTag.entries[key] == VideoTag.None) return@forEach
-            val rb = RadioButton(requireContext()).apply {
-                id = View.generateViewId()
-                text = value
-                tag = key
-            }
-            binding.radioGroupVideoTag.addView(rb)
-            if (VideoTag.entries[key] == VideoTag.None) rb.isChecked = true
+        binding.videoCategoryRadio.radioButtonLabel.setText(R.string.music_genre)
+        val tableLayout = binding.videoCategoryRadio.dynamicTableLayout
+        val musicGenre = videoTags.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = tableLayout,
+            optionsMap = musicGenre,
+            columnCount = 2
+        ) { selectedId ->
+            handleRadioSelectionChange(selectedId)
         }
+    }
 
-        binding.radioGroupVideoTag.setOnCheckedChangeListener { group, checkedId ->
-            val rb = group.findViewById<RadioButton>(checkedId)
-            viewModel.updateVideoTag(VideoTag.entries[rb.tag as Int])
-        }
+    private fun handleVideoTypeSelectionChange(id: Int) {
+        val genre = VideoType.entries.find { it.ordinal == id } ?: return
+        viewModel.updateVideoType(genre)
     }
 
     private fun setupGenreSelection(setup: VideoSetup) {
@@ -382,33 +439,36 @@ class VideoFormFragment : Fragment() {
     }
 
     private fun setupInputListeners() {
-        binding.editVideoTitle.addTextChangedListener(object : TextWatcher {
+        binding.titleInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { viewModel.updateTitle(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.updateTitle(s.toString())
+                binding.titleLabel.error = "";
+            }
         })
 
-        binding.bookCollecting.setOnCheckedChangeListener {
+        binding.collectingCheck.setOnCheckedChangeListener {
                 _, isChecked -> viewModel.toggleCollecting(isChecked)
         }
-        binding.bookHasEnded.setOnCheckedChangeListener {
+        binding.ongoingCheck.setOnCheckedChangeListener {
                 _, isChecked -> viewModel.toggleCompleted(isChecked)
         }
-        binding.bookCompletedCollecting.setOnCheckedChangeListener {
+        binding.collectedCheck.setOnCheckedChangeListener {
                 _, isChecked -> viewModel.toggleCollectionComplete(isChecked)
         }
     }
 
     private fun showVideoItemSheet(item: VideoItem? = null, position: Int = -1) {
         val dialog = BottomSheetDialog(requireContext())
-        val sheetBinding = VideoItemBottomSheetBinding.inflate(layoutInflater)
+        val sb = VideoItemBottomSheetBinding.inflate(layoutInflater)
         dialog.setCancelable(false)
-        currentSheetBinding = sheetBinding
+        currentSheetBinding = sb
         pendingItemPosition = position
-        dialog.setContentView(sheetBinding.root)
+        dialog.setContentView(sb.root)
 
-        sheetBinding.labelText.text = if (item == null) "Add Set or Season" else "Edit Set or Season"
-        sheetBinding.cancelButton.setOnClickListener { dialog.dismiss() }
+        sb.labelText.text = if (item == null) "Add Set or Season" else "Edit Set or Season"
+        sb.cancelButton.setOnClickListener { dialog.dismiss() }
 
         // Setup Format dropdown
         val formats = VideoFormat.entries.filter { it != VideoFormat.NoneSelected }
@@ -416,67 +476,101 @@ class VideoFormFragment : Fragment() {
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
             formats.map { it.name })
-        sheetBinding.formatAutocomplete.autocomplete.setAdapter(adapter)
-        sheetBinding.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
+        sb.formatAutocomplete.autocomplete.setAdapter(adapter)
+        sb.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
 
         // Populate if editing
         item?.let {
-            sheetBinding.editSheetVolumeNumber.setText(it.Season.toString())
-            sheetBinding.editSheetVolumeTitle.setText(it.DiscTitle)
-            sheetBinding.switchSheetOwned.isChecked = it.Owned
-            sheetBinding.switchSheetWatched.isChecked = it.Watched
-            sheetBinding.formatAutocomplete.autocomplete.setText(it.Format.name, false)
+
+            sb.seasonInput.setText(it.Season.toString())
+            sb.titleInput.setText(it.DiscTitle)
+            sb.ownedSwitch.isChecked = it.Owned
+            sb.watchedSwitch.isChecked = it.Watched
+            sb.formatAutocomplete.autocomplete.setText(it.Format.name, false)
+            if(it.Season == -1)
+            {
+                sb.standaloneSwitch.isChecked = true;
+                sb.seasonInput.visibility = View.GONE
+                sb.titleInput.visibility = View.GONE
+            }
 
             if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
-                sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
-                sheetBinding.imageItemCover.imageBookCover.imageTintList = null
-                sheetBinding.imageItemCover.imageBookCover.tag = it.ItemCover
-                sheetBinding.imageItemCover.buttonClearCover.visibility = View.VISIBLE
+                sb.imageItemCover.imageBookCover.setImageBitmap(bitmap)
+                sb.imageItemCover.imageBookCover.imageTintList = null
+                sb.imageItemCover.imageBookCover.tag = it.ItemCover
+                sb.imageItemCover.buttonClearCover.visibility = View.VISIBLE
             } else {
                 ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
-                sheetBinding.imageItemCover.imageBookCover.tag = null
-                sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
+                sb.imageItemCover.imageBookCover.tag = null
+                sb.imageItemCover.buttonClearCover.visibility = View.GONE
             }
         } ?: run {
             ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
-            sheetBinding.imageItemCover.imageBookCover.tag = null
-            sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
+            sb.imageItemCover.imageBookCover.tag = null
+            sb.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
-        sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
+        sb.imageItemCover.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("item")
         }
-        sheetBinding.imageItemCover.buttonClearCover.setOnClickListener {
+        sb.imageItemCover.buttonClearCover.setOnClickListener {
             clearImage("item")
         }
 
-        sheetBinding.buttonSheetSave.setOnClickListener {
-            val volNum = sheetBinding.editSheetVolumeNumber.text.toString()
-            if (volNum.isBlank()) {
+        sb.saveItemBtn.setOnClickListener {
+            var volNum = sb.seasonInput.text.toString()
+
+            if (volNum.isBlank() && !sb.standaloneSwitch.isChecked) {
+                sb.seasonLabel.error = "Volume number is required";
                 Toast.makeText(requireContext(), "Volume number is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            var format = VideoFormat.NoneSelected
-            if(sheetBinding.formatAutocomplete.autocomplete.text != null && !sheetBinding.formatAutocomplete.autocomplete.text.isEmpty())
+            if(sb.standaloneSwitch.isChecked)
             {
-                format = VideoFormat.valueOf(sheetBinding.formatAutocomplete.autocomplete.text.toString())
+                volNum = "-1"
+                sb.titleInput.setText("")
             }
-            val newItem = VideoItem().apply {
-                Season = volNum.toIntOrNull() ?: 0
-                DiscTitle = (sheetBinding.editSheetVolumeTitle.text ?: "").toString()
-                Owned = sheetBinding.switchSheetOwned.isChecked
-                Watched = sheetBinding.switchSheetWatched.isChecked
-                Format = format
-                ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
-            }
+            saveVideoItem(sb,volNum, position);
 
-            viewModel.addOrUpdateItem(newItem, position)
             dialog.dismiss()
         }
 
+        sb.standaloneSwitch.setOnCheckedChangeListener{
+                _, isChecked ->
+            if(isChecked)
+            {
+                sb.seasonInput.visibility = View.GONE
+                sb.titleInput.visibility = View.GONE
+                sb.seasonInput.setText("")
+            }
+            else {
+                sb.seasonInput.visibility = View.VISIBLE
+                sb.titleInput.visibility = View.VISIBLE
+                sb.titleInput.setText("");
+            }
+        }
+
         dialog.show()
+    }
+
+    private fun saveVideoItem(sb:VideoItemBottomSheetBinding, volNum: String, position: Int)
+    {
+        var format = VideoFormat.NoneSelected
+        if(sb.formatAutocomplete.autocomplete.text != null && !sb.formatAutocomplete.autocomplete.text.isEmpty())
+        {
+            format = VideoFormat.valueOf(sb.formatAutocomplete.autocomplete.text.toString())
+        }
+        val newItem = VideoItem().apply {
+            Season = volNum.toIntOrNull() ?: 0
+            DiscTitle = (sb.titleInput.text ?: "").toString()
+            Owned = sb.ownedSwitch.isChecked
+            Watched = sb.watchedSwitch.isChecked
+            Format = format
+            ItemCover = sb.imageItemCover.imageBookCover.tag as? ByteArray
+        }
+
+        viewModel.addOrUpdateItem(newItem, position)
     }
 
     override fun onDestroyView() {
@@ -550,11 +644,17 @@ class VideoFormFragment : Fragment() {
             else
             {
 
-                holder.binding.textVolumeInfo.text = getString(
-                    R.string.video_item_display_text,
-                    item.Season,
-                    item.DiscTitle
-                )
+                if(item.Season == -1)
+                {
+                    holder.binding.textVolumeInfo.text = getString(R.string.standalone)
+                }
+                else {
+                    holder.binding.textVolumeInfo.text = getString(
+                        R.string.video_item_display_text,
+                        item.Season,
+                        item.DiscTitle
+                    )
+                }
             }
             holder.binding.textStatusInfo.text = context.getString(
                 R.string.movie_status_format,

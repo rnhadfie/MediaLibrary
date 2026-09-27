@@ -21,7 +21,7 @@ class VideoFormViewModel : ViewModel() {
         Type = VideoType.NoneSelected
         Genre = mutableListOf()
     })
-    val book: LiveData<Video> = _video
+    val video: LiveData<Video> = _video
 
     private val _items = MutableLiveData<MutableList<VideoItem>>(mutableListOf())
     val items: LiveData<MutableList<VideoItem>> = _items
@@ -89,7 +89,6 @@ class VideoFormViewModel : ViewModel() {
         _video.value?.HasCollectedAllItems = collected
     }
 
-
     fun addOrUpdateItem(item: VideoItem, position: Int = -1) {
         val currentList = _items.value ?: mutableListOf()
         if (position >= 0 && position < currentList.size) {
@@ -127,10 +126,17 @@ class VideoFormViewModel : ViewModel() {
         return saveObj
     }
 
-    fun validate(): String? {
-        val b = _video.value ?: return "Video data missing"
-        if (b.Title.isNullOrBlank()) return "Title is required"
-        return null
+    fun validate(): Map<String, String>  {
+        val errors = mutableMapOf<String, String>()
+        val b = _video.value
+        if (b == null) {
+            errors["general"] = "Book data missing"
+            return errors
+        }
+        if (b.Title.isNullOrBlank()) {
+            errors["title"] = "Title is required"
+        }
+        return errors
     }
 
 }

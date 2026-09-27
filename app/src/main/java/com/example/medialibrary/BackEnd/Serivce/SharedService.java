@@ -97,7 +97,7 @@ public class SharedService {
             displayItem.ItemCount = ((Video) item).Items.size();
             if(displayItem.ItemCount > 0)
             {
-                standalone = Objects.equals(((Video) item).Items.get(0).Season, "-1");
+                standalone = Objects.equals(((Video) item).Items.get(0).Season, -1);
             }
         } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;

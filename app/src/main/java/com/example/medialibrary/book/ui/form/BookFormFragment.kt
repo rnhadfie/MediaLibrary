@@ -27,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.backend.controllers.BookController
+import com.example.medialibrary.backend.models.book.Book
 import java.io.ByteArrayOutputStream
 import java.io.File
 import com.example.medialibrary.backend.models.book.BookItem
@@ -196,40 +197,7 @@ class BookFormFragment : Fragment() {
 
         // Observe ViewModel
         viewModel.book.observe(viewLifecycleOwner) { book ->
-            binding.titleInput.setText(book.Title)
-            binding.authorInput.setText(book.Author)
-            binding.artistInput.setText(book.Artist)
-            binding.collectingCheck.isChecked = book.Collecting ?: false
-            binding.ongoingCheck.isChecked = book.Ongoing ?: false
-            binding.collectedCheck.isChecked = book.HasCollectedAllItems ?: false
-
-            // Update RadioGroup
-            val musicGenreId = book.Type?.ordinal ?: 0
-            if(musicGenreId != 0) {
-                RadioGridUtils.setSelection(
-                    binding.bookTypeRadio.dynamicTableLayout,
-                    musicGenreId
-                )
-            }
-
-            if (book.Cover != null && book.Cover.isNotEmpty()) {
-                val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
-                binding.changeImage.imageBookCover.setImageBitmap(bitmap)
-                binding.changeImage.imageBookCover.imageTintList = null
-                binding.changeImage.buttonClearCover.visibility = View.VISIBLE
-            } else {
-                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
-                binding.changeImage.buttonClearCover.visibility = View.GONE
-            }
-
-            // Update Publisher and Tag if setup is available
-            setup.let { s ->
-                val pub = s.Publishers.find { it.Id == book.Publisher }
-                pub?.let { binding.pubAutocomplete.autocomplete.setText(it.Name, false) }
-
-                val tag = s.Tag.find { it.Id == book.Tag }
-                tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
-            }
+            observeViewmodel(book, setup)
         }
 
         viewModel.items.observe(viewLifecycleOwner) { items ->
@@ -238,6 +206,44 @@ class BookFormFragment : Fragment() {
 
         viewModel.selectedGenres.observe(viewLifecycleOwner) { genres ->
             updateGenreChips(genres)
+        }
+    }
+
+    private fun observeViewmodel(book: Book, setup: BookSetup)
+    {
+        binding.titleInput.setText(book.Title)
+        binding.authorInput.setText(book.Author)
+        binding.artistInput.setText(book.Artist)
+        binding.collectingCheck.isChecked = book.Collecting ?: false
+        binding.ongoingCheck.isChecked = book.Ongoing ?: false
+        binding.collectedCheck.isChecked = book.HasCollectedAllItems ?: false
+
+        // Update RadioGroup
+        val musicGenreId = book.Type?.ordinal ?: 0
+        if(musicGenreId != 0) {
+            RadioGridUtils.setSelection(
+                binding.bookTypeRadio.dynamicTableLayout,
+                musicGenreId
+            )
+        }
+
+        if (book.Cover != null && book.Cover.isNotEmpty()) {
+            val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
+            binding.changeImage.imageBookCover.setImageBitmap(bitmap)
+            binding.changeImage.imageBookCover.imageTintList = null
+            binding.changeImage.buttonClearCover.visibility = View.VISIBLE
+        } else {
+            ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+            binding.changeImage.buttonClearCover.visibility = View.GONE
+        }
+
+        // Update Publisher and Tag if setup is available
+        setup.let { s ->
+            val pub = s.Publishers.find { it.Id == book.Publisher }
+            pub?.let { binding.pubAutocomplete.autocomplete.setText(it.Name, false) }
+
+            val tag = s.Tag.find { it.Id == book.Tag }
+            tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
         }
     }
 
@@ -262,8 +268,7 @@ class BookFormFragment : Fragment() {
                         requireContext(),
                         if (isEdit) "Book Updated" else "Book Saved",
                         Toast.LENGTH_SHORT
-                    )
-                        .show()
+                    ).show()
                     return true
 
                 } else {
@@ -499,17 +504,18 @@ class BookFormFragment : Fragment() {
         sb.numberInput.keyListener = DigitsKeyListener.getInstance("0123456789,.- ")
 
         sb.standaloneSwitch.setOnCheckedChangeListener{
-                _, isChecked ->
-                    if(isChecked)
-                    {
-                        sb.numberInput.visibility = View.GONE
-                        sb.titleInput.visibility = View.GONE
-                        sb.numberInput.setText("")
-                    }
-                    else {
-                        sb.numberInput.visibility = View.VISIBLE
-                        sb.titleInput.visibility = View.VISIBLE
-                    }
+            _, isChecked ->
+                if(isChecked)
+                {
+                    sb.numberInput.visibility = View.GONE
+                    sb.titleInput.visibility = View.GONE
+                    sb.numberInput.setText("")
+                    sb.titleInput.setText("");
+                }
+                else {
+                    sb.numberInput.visibility = View.VISIBLE
+                    sb.titleInput.visibility = View.VISIBLE
+                }
         }
 
         // Populate if editing

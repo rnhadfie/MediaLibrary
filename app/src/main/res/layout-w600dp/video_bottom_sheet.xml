@@ -1,130 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:fillViewport="true">
 
-        <Button
-            android:id="@+id/button_sheet_clear_video"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/clear_filters" />
+            android:orientation="vertical"
+            android:padding="16dp">
 
-
-        <TextView
-            android:id="@+id/text_sheet_video_tag_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/video_tags"
-            android:labelFor="@id/dropdown_sheet_video_tag"
-            android:textAppearance="?attr/textAppearanceCaption" />
-
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_video_tag"
+            <Button
+                android:id="@+id/clear_active_filter"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp"
+                android:text="@string/clear_filters" />
 
-        <TextView
-            android:id="@+id/text_sheet_type_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/type"
-            android:textAppearance="?attr/textAppearanceCaption" />
 
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
 
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_type_video"
+            <include android:id="@+id/watched"
+                layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_completed_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/collected_label" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_collected_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/collecting" />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_started_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/started_collecting" />
-
-
-        <TextView
-            android:id="@+id/text_sheet_tag_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/tag"
-            android:labelFor="@id/dropdown_sheet_tag_video"
-            android:textAppearance="?attr/textAppearanceCaption" />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_tag_video"
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/watching"
+                layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <TextView
-            android:id="@+id/text_sheet_genre_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/genre"
-            android:textAppearance="?attr/textAppearanceCaption" />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp">
-
-            <AutoCompleteTextView
-                android:id="@+id/dropdown_sheet_genre_video"
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/collected"
+                layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/collecting"
+                layout="@layout/view_filter_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/anyItemsOwned"
+                layout="@layout/view_filter_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+            <include android:id="@+id/ongoing"
+                layout="@layout/view_filter_checkbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
 
-        <Button
-            android:id="@+id/button_sheet_fitler_video"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/apply_filter" />
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/video_category"/>
 
-    </LinearLayout>
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/video_type"/>
+
+
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/genre_select"
+                />
+
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"
+                />
+
+            <Button
+                android:id="@+id/filter_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:minHeight="48dp"
+                android:text="@string/apply_filter" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </layout>

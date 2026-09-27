@@ -1,4 +1,4 @@
-package com.example.medialibrary.video.ui.List
+package com.example.medialibrary.video.ui.list
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -21,7 +21,7 @@ import com.example.medialibrary.backend.models.video.VideoSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentListBinding
-import com.example.medialibrary.video.ui.Utils.SharedUtils
+import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>(
@@ -128,18 +128,18 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
-        sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            filter.Ongoing = sheetBinding.standaloneOrSeriesComplete?.triStateButton?.tag as Boolean?
-            filter.Collecting = sheetBinding.collecting?.triStateButton?.tag as Boolean?
-            filter.AnyOwned = sheetBinding.anyItemsOwned?.triStateButton?.tag as Boolean?
-            filter.Collected = sheetBinding.collected?.triStateButton?.tag as Boolean?
-            filter.Watched = sheetBinding.watched?.triStateButton?.tag as Boolean?
-            filter.Watching = sheetBinding.watching?.triStateButton?.tag as Boolean?
+        sheetBinding.filterBtn.setOnClickListener {
+            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
+            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+            filter.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
+            filter.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
             loadData()
             dialog.dismiss()
         }
 
-        sheetBinding.buttonSheetClearVideo.setOnClickListener {
+        sheetBinding.clearActiveFilter.setOnClickListener {
             currentFilter = VideoFilter()
             loadData()
             dialog.dismiss()

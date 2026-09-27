@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:label="@string/moive_and_tv_collections_list"
-    tools:context=".video.ui.List.VideoListFragment">
+    tools:context=".video.ui.list.VideoListFragment">
 
     <LinearLayout
         android:id="@+id/header_container"

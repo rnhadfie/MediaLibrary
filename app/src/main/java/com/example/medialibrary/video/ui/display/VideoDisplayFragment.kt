@@ -24,7 +24,7 @@ import com.example.medialibrary.backend.models.video.VideoSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
-import com.example.medialibrary.video.ui.Utils.SharedUtils
+import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -65,11 +65,11 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             binding.emptyStateContainer.root
         )
 
-        binding.buttonFilter.setOnClickListener {
+        binding.filterBtn.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter) }
         }
 
-        binding.videoItemList.setOnClickListener {
+        binding.copyListBtn.setOnClickListener {
             val videos = viewModel.MediaItems.value
             val sortedVideos = videos?.sortedBy { it.Title }
             val videoList = buildString {
@@ -114,17 +114,17 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
-        sheetBinding.buttonSheetFitlerVideo.setOnClickListener {
-            filter.Ongoing = sheetBinding.standaloneOrSeriesComplete?.triStateButton?.tag as Boolean?
-            filter.Collecting = sheetBinding.collecting?.triStateButton?.tag as Boolean?
-            filter.AnyOwned = sheetBinding.anyItemsOwned?.triStateButton?.tag as Boolean?
-            filter.Collected = sheetBinding.collected?.triStateButton?.tag as Boolean?
+        sheetBinding.filterBtn.setOnClickListener {
+            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
+            filter.Collected = sheetBinding.collected.triStateButton?.tag as Boolean?
 
             loadData()
             dialog.dismiss()
         }
 
-        sheetBinding.buttonSheetClearVideo.setOnClickListener {
+        sheetBinding.clearActiveFilter.setOnClickListener {
             currentFilter = VideoFilter()
             loadData()
             dialog.dismiss()
@@ -144,8 +144,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             totalDvds += book.Items?.count() ?: 0
         }
 
-        binding.videoTotalSeriesCardText.text = getString(R.string.total_number_of_series, items.count())
-        binding.videoTotalCardText.text = getString(R.string.total_number_of_dvds, totalDvds)
+        binding.totalSeriesText.text = getString(R.string.total_number_of_series, items.count())
+        binding.totalVideoText.text = getString(R.string.total_number_of_dvds, totalDvds)
 
         setupWatchedPieChart(watchedCount, totalDvds)
         setupFormatPieChart(items)
@@ -165,7 +165,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
         val readPercentPieData = PieData(readPercentPieDataSet)
 
-        val watchedPieChart = binding.videoWatchedProgress
+        val watchedPieChart = binding.watchedProgressChart
 
         if (readPercentPieEntries.isEmpty()) {
             watchedPieChart.setNoDataTextColor(Color.BLACK)
@@ -196,9 +196,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         var digitalCount = 0
         var bluRayCount = 0
         if (items.isEmpty()) {
-            binding.videoFormatPieChart.visibility = View.GONE
+            binding.formatChart.visibility = View.GONE
         } else {
-            binding.videoFormatPieChart.visibility = View.VISIBLE
+            binding.formatChart.visibility = View.VISIBLE
             for (video in items) {
                 if (video.Items != null) {
                     for (videoItem in video.Items) {
@@ -218,7 +218,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             if (digitalCount > 0) formatPieEntries.add(PieEntry(digitalCount.toFloat(), "Digital"))
             if (bluRayCount > 0) formatPieEntries.add(PieEntry(bluRayCount.toFloat(), "Blu-Ray"))
 
-            val formatPieChart = binding.videoFormatPieChart
+            val formatPieChart = binding.formatChart
 
             if (formatPieEntries.isEmpty()) {
                 formatPieChart.data = null
@@ -322,7 +322,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             }
         }
 
-        binding.videoTagCagBarChart.let { chart ->
+        binding.videoCategoryChart.let { chart ->
             chart.setNoDataText("No media types data to display")
             if (tagDataSets.isEmpty()) {
                 chart.data = null
@@ -362,7 +362,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
 
         val barData = BarData(dataSets)
-        binding.videoTypeBarChart.let { chart ->
+        binding.videoTypeChart.let { chart ->
             chart.setNoDataText("No Video type data to display")
             if (dataSets.isEmpty()) {
                 chart.data = null

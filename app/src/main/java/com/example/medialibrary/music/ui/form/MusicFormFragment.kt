@@ -77,8 +77,6 @@ class MusicFormFragment : Fragment() {
         tempPhotoUri = null
     }
 
-
-
     private fun handleImageBitmap(bitmap: Bitmap) {
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
@@ -93,8 +91,6 @@ class MusicFormFragment : Fragment() {
         viewModel.updateCover(null)
         ImageUtils.clearImage("music", binding, null, requireContext(), resources)
     }
-
-
 
     private fun showImageOptionsDialog() {
         val options = arrayOf(

@@ -47,10 +47,18 @@
         <include layout="@layout/view_change_image"
             android:id="@+id/image_item_cover"/>
 
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/standalone_switch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/standalone" />
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/season_label"
             android:layout_marginTop="12dp"
             android:hint="@string/disc_number"
             app:boxBackgroundColor="@color/card"
@@ -60,7 +68,7 @@
             app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_sheet_volume_number"
+                android:id="@+id/season_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
@@ -72,6 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:id="@+id/title_label"
             android:hint="@string/disc_title"
             app:boxBackgroundColor="@color/card"
             app:boxCornerRadiusBottomEnd="12dp"
@@ -80,7 +89,7 @@
             app:boxCornerRadiusTopStart="12dp">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edit_sheet_volume_title"
+                android:id="@+id/title_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="?attr/colorOnBackground" />
@@ -90,14 +99,14 @@
             android:id="@+id/format_autocomplete"/>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_owned"
+            android:id="@+id/owned_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="@string/owned_label" />
 
         <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/switch_sheet_watched"
+            android:id="@+id/watched_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/watched" />
@@ -105,7 +114,7 @@
 
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/button_sheet_save"
+            android:id="@+id/save_item_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"

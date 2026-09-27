@@ -1,4 +1,4 @@
-package com.example.medialibrary.video.ui.List
+package com.example.medialibrary.video.ui.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
