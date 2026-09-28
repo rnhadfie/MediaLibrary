@@ -11,6 +11,7 @@ import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TAG
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TITLE;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TYPE;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_VIDEO_TAG;
+import static com.example.medialibrary.backend.utils.DyanmicSort.buildDynamicComparator;
 import static java.util.stream.Collectors.toList;
 
 import com.example.medialibrary.backend.models.book.Book;
@@ -28,12 +29,15 @@ import com.example.medialibrary.backend.models.video.Video;
 import com.example.medialibrary.backend.models.video.VideoFilter;
 import com.example.medialibrary.backend.repository.SharedRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+import com.example.medialibrary.backend.utils.DyanmicSort;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import kotlin.Lazy;
 import kotlin.LazyKt;
@@ -444,5 +448,25 @@ public class SharedService {
         return conditions.isEmpty() ? null : String.join(" AND ", conditions);
     }
 
+    public <T extends Filter, U extends MediaItem> List<U> Sort(T filter, List<U> items) {
+        List<U> sortedItems = new ArrayList<>(items);
 
+        List<DyanmicSort.SortKey<U, ?>> sortRules = new ArrayList<>();
+        if(filter.SortAlphabetical != null)
+        {
+            sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title, filter.SortAlphabetical));
+        }
+        if(filter.SortPriority !=  null)
+        {
+            sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority, !filter.SortPriority));
+        }
+
+        if(filter.MediaType !=  null)
+        {
+            sortRules.add(new DyanmicSort.SortKey<>(MediaItem::getMediaType, filter.SortItemMediaType));
+        }
+
+        sortedItems.sort(buildDynamicComparator(sortRules));
+        return sortedItems;
+    }
 }

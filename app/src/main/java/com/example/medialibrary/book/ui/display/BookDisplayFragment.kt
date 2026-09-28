@@ -26,6 +26,7 @@ import com.example.medialibrary.backend.models.book.Enums.BookType
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.databinding.BookBottomSheetBinding
+import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -38,6 +39,11 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
+import androidx.lifecycle.lifecycleScope
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
 class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplayViewModel>(
     BookFragmentDisplayBinding::inflate
 ) {
@@ -46,12 +52,15 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     private var bookController: BookController? = null
     private var setup: BookSetup? = null
 
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[BookDisplayViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Display)
 
         val root: View = super.onCreateView(inflater, container, savedInstanceState)
@@ -59,7 +68,10 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val dbHelper = MediaLibraryDbHelper(requireContext())
         bookController = BookController(dbHelper)
 
-        loadData()
+
+        setDialogSort(DialogSortContentBinding.inflate(layoutInflater))
+
+        observeSortFilterViewModel()
 
         setupEmptyStateMediaItemObserver(
             viewModel.mediaItems,
@@ -69,6 +81,14 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         binding.filterBtn.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
+
+        binding.sortBtn?.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateBookFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
+            }
         }
 
         binding.copyListBtn.setOnClickListener {
@@ -88,6 +108,15 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         return root
     }
 
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentBookFilter.collectLatest { filter ->
+                currentFilter = filter ?: BookFilter()
+                loadData()
+            }
+        }
+    }
+
     override fun onRefreshData() {
         loadData()
     }
@@ -104,7 +133,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             setup
         ) {
             currentFilter = BookFilter()
-            loadData()
+            sortFilterViewModel.updateBookFilter(BookFilter())
         }
     }
 
@@ -123,14 +152,12 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
-            currentFilter = filter
-            loadData()
+            sortFilterViewModel.updateBookFilter(filter)
             dialog.dismiss()
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
-            currentFilter = BookFilter()
-            loadData()
+            sortFilterViewModel.updateBookFilter(BookFilter())
             dialog.dismiss()
         }
 
@@ -279,7 +306,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
             dualColumnViewOne.visibility = View.VISIBLE
             dualColumnViewTwo.visibility = View.VISIBLE
-            emptyState.root?.visibility = View.GONE
+            emptyState.root.visibility = View.GONE
 
             val genreInformationSortedMap = genreInformationMap.toList()
                 .sortedByDescending { (_, value) -> value } // Sort list by the value

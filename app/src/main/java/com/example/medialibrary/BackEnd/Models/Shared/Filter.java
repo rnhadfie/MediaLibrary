@@ -21,4 +21,8 @@ public class Filter {
 
     public List<Enums.MediaType> IncludedMediaTypes = new ArrayList<>();
     public List<Enums.MediaType> ExcludedMediaTypes = new ArrayList<>();
+
+    public Boolean SortAlphabetical = true;
+    public Boolean SortPriority = null;
+    public Boolean SortItemMediaType = null;
 }

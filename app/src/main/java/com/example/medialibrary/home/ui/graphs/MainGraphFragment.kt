@@ -29,12 +29,18 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 
+import androidx.lifecycle.lifecycleScope
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
 class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphViewModel>(
     MainFragmentDisplayBinding::inflate
 ) {
 
     private var currentFilter = Filter()
     private lateinit var controller: MainController
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +48,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MainGraphViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Display)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
@@ -49,7 +56,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         val dbHelper = MediaLibraryDbHelper(requireContext())
         controller = MainController(dbHelper)
 
-        loadData()
+        observeSortFilterViewModel()
 
         setupEmptyStateObserver(
             viewModel.mediaItems,
@@ -95,6 +102,15 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         }
 
         return root
+    }
+
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentMainFilter.collectLatest { filter ->
+                currentFilter = filter ?: Filter()
+                loadData()
+            }
+        }
     }
 
     override fun onRefreshData() {

@@ -1,6 +1,6 @@
 package com.example.medialibrary.backend.models.shared;
 
-public class Sort {
+public class SortModel {
     public Boolean Alphabetical;
 
     public Boolean Priority;

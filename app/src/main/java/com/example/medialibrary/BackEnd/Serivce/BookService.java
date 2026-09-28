@@ -24,11 +24,14 @@ public class BookService {
 
     public List<Book> GetBooks(BookFilter filter) {
         var repo = this.bookRepository.getValue();
+        var sharedService = this.sharedService.getValue();
+
 
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.getValue().BuildWhereClause(filter, selectionArgs);
+        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
 
         List<Book> books = repo.GetBooks(whereClause, selectionArgs);
+        books = sharedService.Sort(filter, books);
         return BookItemBasedFilters(books, filter);
     }
 
@@ -41,6 +44,7 @@ public class BookService {
         String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
 
         List<Book> books = repo.GetBooks(whereClause, selectionArgs);
+        books = sharedService.Sort(filter, books);
 
         return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter), false);
     }

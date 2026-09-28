@@ -24,6 +24,13 @@ import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
+import androidx.lifecycle.lifecycleScope
+import com.example.medialibrary.book.ui.utils.SharedUtils
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.databinding.DialogSortContentBinding
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+
 class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel>(
     BookFragmentListBinding::inflate
 ) {
@@ -31,6 +38,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
     private var currentFilter: BookFilter? = null
     private var bookController: BookController = BookController()
     private var setup: BookSetup = BookSetup()
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,6 +46,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[BookListViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.List)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
@@ -46,10 +55,12 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         val adapter = BaseTransformAdapter()
         recyclerView.adapter = adapter
 
+        setDialogSort(DialogSortContentBinding.inflate(layoutInflater))
+
         val dbHelper = MediaLibraryDbHelper(requireContext())
         bookController = BookController(dbHelper)
 
-        loadData()
+        observeSortFilterViewModel()
 
         setupEmptyStateObserver(
             viewModel.items,
@@ -60,17 +71,17 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (currentFilter == null) currentFilter = BookFilter()
-                currentFilter?.Search = query
-                loadData()
+                val filter = sortFilterViewModel.getOrCreateBookFilter()
+                filter.Search = query
+                sortFilterViewModel.updateBookFilter(filter)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (currentFilter == null) currentFilter = BookFilter()
-                currentFilter?.Search = newText
+                val filter = sortFilterViewModel.getOrCreateBookFilter()
+                filter.Search = newText
                 if (newText.isNullOrEmpty()) {
-                    loadData()
+                    sortFilterViewModel.updateBookFilter(filter)
                 }
                 return true
             }
@@ -78,6 +89,14 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
 
         binding.filterBtn.setOnClickListener {
             showFilterSheet(setup, currentFilter)
+        }
+
+        binding.sortBtn?.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateBookFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
+            }
         }
 
         binding.copyListBtn.setOnClickListener {
@@ -97,13 +116,22 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         return root
     }
 
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentBookFilter.collectLatest { filter ->
+                currentFilter = filter ?: BookFilter()
+                loadData()
+            }
+        }
+    }
+
     override fun onRefreshData() {
         loadData()
     }
 
     private fun loadData() {
         if (currentFilter == null) {
-            currentFilter = BookFilter()
+            currentFilter = sortFilterViewModel.getOrCreateBookFilter()
         }
         val items = bookController.GetListOfBooks(currentFilter)
         setup = bookController.GetBookSetup()
@@ -115,8 +143,8 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             setup
         ) {
             currentFilter = BookFilter()
+            sortFilterViewModel.updateBookFilter(BookFilter())
             binding.searchView.setQuery("", false)
-            loadData()
         }
     }
 
@@ -125,8 +153,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         var sheetBinding = BookBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-
-        val f = filter ?: BookFilter()
+        val f = filter ?: sortFilterViewModel.getOrCreateBookFilter()
 
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
@@ -137,14 +164,12 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
             f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
-            currentFilter = f
-            loadData()
+            sortFilterViewModel.updateBookFilter(f)
             dialog.dismiss()
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
-            currentFilter = BookFilter()
-            loadData()
+            sortFilterViewModel.updateBookFilter(BookFilter())
             dialog.dismiss()
         }
 

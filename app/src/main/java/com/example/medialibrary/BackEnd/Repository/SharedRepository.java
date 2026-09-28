@@ -35,23 +35,28 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
         List<Tag> tags = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(
-                TABLE_TAGS,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-        );
+        try {
+            Cursor cursor = db.query(
+                    TABLE_TAGS,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
 
-        if (cursor.moveToFirst()) {
-            do {
-                String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
-                tags.add(new Tag(id, name));
-            } while (cursor.moveToNext());
-            cursor.close();
+            if (cursor.moveToFirst()) {
+                do {
+                    String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
+                    tags.add(new Tag(id, name));
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        }
+        catch (Exception e) {
+            Logger.getLogger(SharedRepository.class.getName()).severe(e.getMessage());
         }
         return tags;
     }

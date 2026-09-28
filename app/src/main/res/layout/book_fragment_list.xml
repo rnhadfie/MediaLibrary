@@ -24,12 +24,22 @@
             app:queryHint="Search books..." />
 
         <ImageButton
+            android:id="@+id/sort_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sort"
+            android:src="@android:drawable/ic_menu_sort_alphabetically"
+            app:tint="?attr/colorPrimary" />
+
+        <ImageButton
             android:id="@+id/filter_btn"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_settings_black_24dp"
             app:tint="?attr/colorPrimary" />
+
         <ImageButton
             android:id="@+id/copy_list_btn"
             android:contentDescription="@string/get_list_of_items"

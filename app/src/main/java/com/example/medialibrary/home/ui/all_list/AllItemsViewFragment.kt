@@ -7,23 +7,29 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
+import com.example.medialibrary.backend.controllers.MainController
+import com.example.medialibrary.backend.models.shared.*
+import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.book.ui.utils.SharedUtils
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.databinding.MainBottomSheetBinding
+import com.example.medialibrary.databinding.MainFragmentListBinding
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.MultiSelectFilterHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
-import com.example.medialibrary.backend.controllers.MainController
-import com.example.medialibrary.backend.models.shared.*
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.MainBottomSheetBinding
-import com.example.medialibrary.databinding.MainFragmentListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewModelViewModel>(
     MainFragmentListBinding::inflate
@@ -32,6 +38,7 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
     private var currentFilter = Filter()
     private var controller: MainController = MainController()
     private var setup: MainSetup = MainSetup()
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,6 +46,7 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[AllItemsViewModelViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.List)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
@@ -50,7 +58,7 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         val dbHelper = MediaLibraryDbHelper(requireContext())
         controller = MainController(dbHelper)
 
-        loadData()
+        observeSortFilterViewModel()
 
         setupEmptyStateObserver(
             viewModel.items,
@@ -61,15 +69,17 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                currentFilter.Search = query
-                loadData()
+                val filter = sortFilterViewModel.getOrCreateMainFilter()
+                filter.Search = query
+                sortFilterViewModel.updateMainFilter(filter)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                currentFilter.Search = newText
+                val filter = sortFilterViewModel.getOrCreateMainFilter()
+                filter.Search = newText
                 if (newText.isNullOrEmpty()) {
-                    loadData()
+                    sortFilterViewModel.updateMainFilter(filter)
                 }
                 return true
             }
@@ -77,6 +87,14 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
 
         binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
+        }
+
+        binding.buttonSort?.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateMainFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            SharedUtils.showSortDialog(requireContext(), filter, isMain = true, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateMainFilter(updatedFilter)
+            }
         }
 
         binding.allItemList?.setOnClickListener {
@@ -116,6 +134,15 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         return root
     }
 
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentMainFilter.collectLatest { filter ->
+                currentFilter = filter ?: Filter()
+                loadData()
+            }
+        }
+    }
+
     override fun onRefreshData() {
         loadData()
     }
@@ -131,8 +158,8 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             setup
         ) {
             currentFilter = Filter()
+            sortFilterViewModel.updateMainFilter(Filter())
             binding.searchView.setQuery("", false)
-            loadData()
         }
     }
 
@@ -141,7 +168,7 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         val sheetBinding = MainBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter ?: Filter()
+        val f = filter ?: sortFilterViewModel.getOrCreateMainFilter()
         val tags = setup.Tag
 
         val typeOptions = setup.MediaType.filter { it.key != 0 }.map { FilterOption(Enums.MediaType.entries[it.key], it.value) }
@@ -171,6 +198,38 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             f.ExcludedGenres
         )
 
+        // Setup sort options in bottom sheet
+        val sortModel = sortFilterViewModel.getOrCreateSortModel()
+        val sortOptions = listOf("Alphabetical", "Priority", "Item Media Type")
+        val sortAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, sortOptions)
+        sheetBinding.dropdownSheetSortBook.setAdapter(sortAdapter)
+        val currentSortText = when {
+            sortModel.Priority == true -> "Priority"
+            sortModel.ItemMediaType == true -> "Item Media Type"
+            else -> "Alphabetical"
+        }
+        sheetBinding.dropdownSheetSortBook.setText(currentSortText, false)
+        sheetBinding.dropdownSheetSortBook.setOnItemClickListener { _, _, position, _ ->
+            when (position) {
+                0 -> {
+                    sortModel.Alphabetical = true
+                    sortModel.Priority = false
+                    sortModel.ItemMediaType = false
+                }
+                1 -> {
+                    sortModel.Alphabetical = false
+                    sortModel.Priority = true
+                    sortModel.ItemMediaType = false
+                }
+                2 -> {
+                    sortModel.Alphabetical = false
+                    sortModel.Priority = false
+                    sortModel.ItemMediaType = true
+                }
+            }
+            sortFilterViewModel.updateSortModel(sortModel)
+        }
+
         TriStateCheckBoxHelper.setupTriStateCheckBox(
             sheetBinding.standaloneOrSeriesComplete.root,
             R.string.Ongoing,
@@ -196,14 +255,12 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         ) { f.AnyOwned = it }
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            currentFilter = f
-            loadData()
+            sortFilterViewModel.updateMainFilter(f)
             dialog.dismiss()
         }
 
         sheetBinding.buttonSheetClearBook.setOnClickListener {
-            currentFilter = Filter()
-            loadData()
+            sortFilterViewModel.updateMainFilter(Filter())
             dialog.dismiss()
         }
 

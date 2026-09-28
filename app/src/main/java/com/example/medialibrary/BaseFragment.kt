@@ -16,6 +16,7 @@ import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.models.shared.MediaItem
+import com.example.medialibrary.databinding.DialogSortContentBinding
 
 abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     private val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> VB
@@ -33,6 +34,14 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
 
     fun setFragmentType(type: FragmentType) {
         _fragmentType = type
+    }
+
+    private var _dialogView: DialogSortContentBinding? = null
+    protected val dialogView: DialogSortContentBinding?
+        get() = _dialogView
+
+    fun setDialogSort(dialog: DialogSortContentBinding) {
+        _dialogView = dialog
     }
 
     override fun onCreateView(

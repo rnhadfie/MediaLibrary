@@ -47,17 +47,9 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
         DataContainer container = new DataContainer();
         container.Tags = sharedRepository.GetTags();
         container.Publishers = bookRepository.GetPublishers();
-        
-        container.Books = new ArrayList<>();
-        for (Book b : bookRepository.GetBooks()) {
-            container.Books.add(bookRepository.GetBook(b.Id));
-        }
-        
-        container.Videos = new ArrayList<>();
-        for (Video v : videoRepository.GetVideos()) {
-            container.Videos.add(videoRepository.GetVideo(v.Id));
-        }
-        
+
+        container.Books = bookRepository.GetBooks();
+        container.Videos = videoRepository.GetVideos();
         container.Music = musicRepository.GetMusic();
         container.Others = otherRepository.GetOtherCollections();
         
@@ -136,7 +128,6 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
         List<Tag> tags = importObj.Tags;
         int addedCounter = 0;
         int updateCounter = 0;
-        try {
 
             for (Tag tag : tags) {
                 String tagId = tag.Id;
@@ -152,14 +143,14 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 ContentValues values = new ContentValues();
                 values.put(COLUMN_ID, tagId);
                 values.put(COLUMN_NAME, tag.Name);
-                long id = db.insertWithOnConflict(TABLE_PUBLISHERS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                long id = db.insertWithOnConflict(TABLE_TAGS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
                     addedCounter++;
                 } else {
                     values = new ContentValues();
                     values.put(COLUMN_NAME, tag.Name);
 
-                    int updatedRows = db.update(TABLE_PUBLISHERS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(tag.Id)});
+                    int updatedRows = db.update(TABLE_TAGS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(tag.Id)});
                     if(updatedRows > 0) {
                         updateCounter++;
                     }
@@ -168,10 +159,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
             }
 
             return Map.of("Added", addedCounter, "Updated", updateCounter);
-        } catch (Exception e) {
-            Logger.getLogger(SharedRepository.class.getName()).severe(e.getMessage());
-            return Map.of("Added", 0, "Updated", 0);
-        }
+
     }
 
     public Map<String, Integer> ImportPublishers( SQLiteDatabase db, DataContainer importObj)
@@ -192,7 +180,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 ContentValues values = new ContentValues();
                 values.put(COLUMN_ID, pubId);
                 values.put(COLUMN_NAME, publisher.Name);
-                long id = db.insertWithOnConflict(TABLE_PUBLISHERS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                long id = db.insertWithOnConflict(TABLE_PUBLISHERS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
                     addedCounter++;
                 } else {
@@ -227,7 +215,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 importBook.Id = newBookId;
 
                 ContentValues values = DatabaseMappings.MapBookContentValues(importBook.Publisher, importBook.Tag, importBook);
-                long id = db.insertWithOnConflict(TABLE_BOOKS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                long id = db.insertWithOnConflict(TABLE_BOOKS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
 
                     addedCounter++;
@@ -271,7 +259,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 importVideo.Id = newVideoId;
 
                 ContentValues values = DatabaseMappings.MapVideoContentValues(importVideo.Tag, importVideo);
-                long id = db.insertWithOnConflict(TABLE_VIDEOS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                long id = db.insertWithOnConflict(TABLE_VIDEOS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
 
                     addedCounter++;
@@ -315,12 +303,13 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 importMusic.Id = newCDId;
 
                 ContentValues values = DatabaseMappings.MapMusicContentValues(importMusic.Tag, importMusic);
-                long id = db.insertWithOnConflict(TABLE_MUSIC, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                long id = db.insertWithOnConflict(TABLE_MUSIC, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
                     addedCounter++;
                 }
                 else {
                     db.update(TABLE_MUSIC, values, COLUMN_ID + " = ?", new String[]{importMusic.Id});
+                    updateCounter++;
                 }
 
             }
@@ -342,7 +331,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 importOther.Id = newOtherId;
 
                 ContentValues values = DatabaseMappings.MapOtherContentValues(importOther.Tag, importOther);
-                long id = db.insertWithOnConflict(TABLE_OTHERS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+                long id = db.insertWithOnConflict(TABLE_OTHERS, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
 
                     addedCounter++;

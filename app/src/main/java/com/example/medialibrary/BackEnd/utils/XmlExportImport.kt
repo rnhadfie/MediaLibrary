@@ -125,6 +125,7 @@ object XmlExportImport {
     }
 
     private fun writeMediaItemFields(serializer: XmlSerializer, item: MediaItem) {
+        serializer.startTag("", "Id").text(item.Id ?: "").endTag("", "Id")
         serializer.startTag("", "Title").text(item.Title ?: "").endTag("", "Title")
         serializer.startTag("", "collecting").text(item.Collecting.toString()).endTag("", "collecting")
         serializer.startTag("", "Ongoing").text(item.Ongoing.toString()).endTag("", "Ongoing")
@@ -182,6 +183,13 @@ object XmlExportImport {
                         "VideoItem" -> currentVideoItem = VideoItem()
                         
                         // Fields
+                        "Id" -> {
+                            val text = parser.nextText()
+                            currentBook?.Id = text
+                            currentVideo?.Id = text
+                            currentMusic?.Id = text
+                            currentOther?.Id = text
+                        }
                         "Title" -> {
                             val text = parser.nextText()
                             currentBook?.Title = text
