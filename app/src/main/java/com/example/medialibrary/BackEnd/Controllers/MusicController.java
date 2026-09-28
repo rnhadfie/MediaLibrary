@@ -27,7 +27,7 @@ public class MusicController  extends BaseController{
         return this.musicSerivce.getValue().GetMusics(filter);
     }
 
-    public List<DisplayMediaItem> GetListOfBooks(MusicFilter filter) {
+    public List<DisplayMediaItem> GetListOfCds(MusicFilter filter) {
         //Get All Books
         return this.musicSerivce.getValue().GetMusicDisplayLists(filter);
     }

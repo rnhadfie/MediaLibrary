@@ -19,6 +19,7 @@ import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentListBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
@@ -32,12 +33,15 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
     private var musicController: MusicController = MusicController()
     private var setup: MusicSetup = MusicSetup()
 
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MusicListViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.List)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
@@ -80,6 +84,15 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
             showFilterSheet(setup, currentFilter)
         }
 
+        binding.buttonSort.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateMusicFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateMusicFilter(updatedFilter as MusicFilter)
+                loadData()
+            }
+        }
+
         binding.musicItemList.setOnClickListener {
             val cds = viewModel.items.value
             val sortedCds = cds?.sortedBy { it.Title }
@@ -103,9 +116,9 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
 
     private fun loadData() {
         if (currentFilter == null) {
-            currentFilter = MusicFilter()
+            currentFilter = sortFilterViewModel.getOrCreateMusicFilter()
         }
-        val items = musicController.GetListOfBooks(currentFilter)
+        val items = musicController.GetListOfCds(currentFilter)
         setup = musicController.GetMusicSetup()
         viewModel.setItems(items ?: emptyList())
 

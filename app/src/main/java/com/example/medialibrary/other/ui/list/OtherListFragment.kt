@@ -21,6 +21,7 @@ import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentListBinding
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.example.medialibrary.other.ui.utils.*
 
 class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewModel>(
     OtherFragmentListBinding::inflate
@@ -30,12 +31,15 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
     private var controller: OtherController = OtherController()
     private var setup: MainSetup = MainSetup()
 
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[OtherListViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.List)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
@@ -76,6 +80,15 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
             showFilterSheet(setup, currentFilter)
         }
 
+        binding.sortBtn.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateItemFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateItemFilter(updatedFilter as OtherFilter)
+                loadData()
+            }
+        }
+
         return root
     }
 
@@ -87,6 +100,7 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         val items = controller.GetListOfOtherCollections(currentFilter)
         setup = controller.GetSetup()
         viewModel.setItems(items ?: emptyList())
+        currentFilter = sortFilterViewModel.getOrCreateItemFilter()
 
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
@@ -105,41 +119,8 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: OtherFilter()
-        val tags = setup.Tag
 
-        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        sheetBinding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.tagAutocomplete.autocomplete,
-            "Tags",
-            tagOptions,
-            f.IncludedTags,
-            f.ExcludedTags
-        )
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.standaloneOrSeriesComplete.root,
-            R.string.Ongoing,
-            f.Ongoing
-        ) { f.Ongoing = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.collected.root,
-            R.string.completely_collected,
-            f.Collected
-        ) { f.Collected = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.collecting.root,
-            R.string.collecting,
-            f.Collecting
-        ) { f.Collecting = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.anyItemsOwned.root,
-            R.string.started_collecting,
-            f.AnyOwned
-        ) { f.AnyOwned = it }
+        SharedUtils.filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
             currentFilter = f

@@ -20,50 +20,51 @@ public class VideoService {
     public Lazy<VideoRepository> videoRepository;
     public Lazy<SharedService> sharedService;
 
+    private final VideoRepository _VideoRepo;
+    private final SharedService _SharedService;
+
     public VideoService(MediaLibraryDbHelper dbHelper) {
         this.videoRepository = LazyKt.lazy(() -> new VideoRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
+
+        _VideoRepo = videoRepository.getValue();
+        _SharedService = sharedService.getValue();
     }
 
     public List<Video> GetVideos(VideoFilter filter) {
-        var repo = this.videoRepository.getValue();
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);
 
-        List<Video> videos = repo.GetVideos(whereClause, selectionArgs);
+        List<Video> videos = _VideoRepo.GetVideos(whereClause, selectionArgs);
+        videos = _SharedService.Sort(filter, videos);
+
         return VideoItemBasedFilters(videos, filter);
     }
 
     public List<DisplayMediaItem> GetVideoDisplayLists(VideoFilter filter) {
-        var repo = this.videoRepository.getValue();
-        var sharedService = this.sharedService.getValue();
-
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
 
-        List<Video> videos = repo.GetVideos(whereClause, selectionArgs);
+        List<Video> videos = _VideoRepo.GetVideos(whereClause, selectionArgs);
+        videos = _SharedService.Sort(filter, videos);
 
-        return sharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter), false);
+        return _SharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter), false);
     }
 
     public Video GetVideo(String id) {
-        var repo = this.videoRepository.getValue();
-        return repo.GetVideo(id);
+        return _VideoRepo.GetVideo(id);
     }
 
     public boolean AddVideo(VideoSaveObject video) {
-        var repo = this.videoRepository.getValue();
-        return repo.AddVideo(video);
+        return _VideoRepo.AddVideo(video);
     }
 
     public boolean EditVideo(VideoSaveObject video) {
-        var repo = this.videoRepository.getValue();
-        return repo.UpdateVideo(video);
+        return _VideoRepo.UpdateVideo(video);
     }
 
     public boolean DeleteVideo(String id) {
-        var repo = this.videoRepository.getValue();
-        return repo.DeleteVideo(id);
+        return _VideoRepo.DeleteVideo(id);
     }
 
     public VideoSetup GetVideoSetup() {

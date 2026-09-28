@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProvider
@@ -16,17 +15,16 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
 import com.example.medialibrary.backend.controllers.MainController
+import com.example.medialibrary.backend.models.book.BookFilter
 import com.example.medialibrary.backend.models.shared.*
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
-import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.filterSheetSetup
+import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentListBinding
-import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -90,10 +88,11 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
         }
 
         binding.buttonSort?.setOnClickListener {
-            val filter = sortFilterViewModel.getOrCreateMainFilter()
+            val filter = sortFilterViewModel.getOrCreateItemFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
-            SharedUtils.showSortDialog(requireContext(), filter, isMain = true, sortModel = sortModel) { updatedFilter ->
-                sortFilterViewModel.updateMainFilter(updatedFilter)
+            SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateMainFilter(updatedFilter as BookFilter)
+                loadData()
             }
         }
 
@@ -168,97 +167,19 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
 
     private fun showFilterSheet(setup: MainSetup, filter: Filter?) {
         val dialog = BottomSheetDialog(requireContext())
-        val sheetBinding = MainBottomSheetBinding.inflate(layoutInflater)
+        var sheetBinding = MainBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: sortFilterViewModel.getOrCreateMainFilter()
-        val tags = setup.Tag
-
-        val typeOptions = setup.MediaType.filter { it.key != 0 }.map { FilterOption(Enums.MediaType.entries[it.key], it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTypeBook,
-            "Media Types",
-            typeOptions,
-            f.IncludedMediaTypes,
-            f.ExcludedMediaTypes
-        )
-
-        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTagBook,
-            "Tags",
-            tagOptions,
-            f.IncludedTags,
-            f.ExcludedTags
-        )
-
-        val genreOptions = setup.Genre.filter { it.genreId != 0 }.map { FilterOption(it.genreId, it.genreName) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetGenreBook,
-            "Genres",
-            genreOptions,
-            f.IncludedGenres,
-            f.ExcludedGenres
-        )
-
-        // Setup sort options in bottom sheet
-        val sortModel = sortFilterViewModel.getOrCreateSortModel()
-        val sortOptions = listOf("Alphabetical", "Priority", "Item Media Type")
-        val sortAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, sortOptions)
-        sheetBinding.dropdownSheetSortBook.setAdapter(sortAdapter)
-        val currentSortText = when {
-            sortModel.Priority == true -> "Priority"
-            sortModel.ItemMediaType == true -> "Item Media Type"
-            else -> "Alphabetical"
-        }
-        sheetBinding.dropdownSheetSortBook.setText(currentSortText, false)
-        sheetBinding.dropdownSheetSortBook.setOnItemClickListener { _, _, position, _ ->
-            when (position) {
-                0 -> {
-                    sortModel.Alphabetical = true
-                    sortModel.Priority = false
-                    sortModel.ItemMediaType = false
-                }
-                1 -> {
-                    sortModel.Alphabetical = false
-                    sortModel.Priority = true
-                    sortModel.ItemMediaType = false
-                }
-                2 -> {
-                    sortModel.Alphabetical = false
-                    sortModel.Priority = false
-                    sortModel.ItemMediaType = true
-                }
-            }
-            sortFilterViewModel.updateSortModel(sortModel)
-        }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.standaloneOrSeriesComplete.root,
-            R.string.Ongoing,
-            f.Ongoing
-        ) { f.Ongoing = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.collected.root,
-            R.string.completely_collected,
-            f.Collected
-        ) { f.Collected = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.collecting.root,
-            R.string.collecting,
-            f.Collecting
-        ) { f.Collecting = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.anyItemsOwned.root,
-            R.string.started_collecting,
-            f.AnyOwned
-        ) { f.AnyOwned = it }
+        sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
+            f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
+            f.Collecting = true
+            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
             sortFilterViewModel.updateMainFilter(f)
+            loadData()
             dialog.dismiss()
         }
 

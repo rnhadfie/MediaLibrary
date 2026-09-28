@@ -13,21 +13,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import com.example.medialibrary.R
 import com.example.medialibrary.backend.controllers.MainController
-import com.example.medialibrary.backend.models.shared.Enums
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.MainSetup
+import com.example.medialibrary.backend.models.shared.*
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.book.ui.utils.SharedUtils
-import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.home.ui.utils.*
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentCollectingBinding
-import com.example.medialibrary.utils.FilterOption
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import com.example.medialibrary.utils.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -93,8 +85,9 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
         binding.buttonSort.setOnClickListener {
             val filter = sortFilterViewModel.getOrCreateMainFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
-            SharedUtils.showSortDialog(requireContext(), filter, isMain = true, sortModel = sortModel) { updatedFilter ->
+            SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
                 sortFilterViewModel.updateMainFilter(updatedFilter)
+                loadData()
             }
         }
 
@@ -188,65 +181,18 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
 
     private fun showFilterSheet(setup: MainSetup, filter: Filter?) {
         val dialog = BottomSheetDialog(requireContext())
-        val sheetBinding = MainBottomSheetBinding.inflate(layoutInflater)
+        var sheetBinding = MainBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: sortFilterViewModel.getOrCreateMainFilter()
-        val tags = setup.Tag
+        f.Collecting = true
 
-        val typeOptions = setup.MediaType.filter { it.key != 0 }.map { FilterOption(Enums.MediaType.entries[it.key], it.value) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTypeBook,
-            "Media Types",
-            typeOptions,
-            f.IncludedMediaTypes,
-            f.ExcludedMediaTypes
-        )
-
-        val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetTagBook,
-            "Tags",
-            tagOptions,
-            f.IncludedTags,
-            f.ExcludedTags
-        )
-
-        val genreOptions = setup.Genre.filter { it.genreId != 0 }.map { FilterOption(it.genreId, it.genreName) }
-        MultiSelectFilterHelper.setupTriStateDropdown(
-            sheetBinding.dropdownSheetGenreBook,
-            "Genres",
-            genreOptions,
-            f.IncludedGenres,
-            f.ExcludedGenres
-        )
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.standaloneOrSeriesComplete.root,
-            R.string.Ongoing,
-            f.Ongoing
-        ) { f.Ongoing = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.collected.root,
-            R.string.completely_collected,
-            f.Collected
-        ) { f.Collected = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.collecting.root,
-            R.string.collecting,
-            f.Collecting
-        ) { f.Collecting = it }
-
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.anyItemsOwned.root,
-            R.string.started_collecting,
-            f.AnyOwned
-        ) { f.AnyOwned = it }
+        sheetBinding = SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+        sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
             sortFilterViewModel.updateMainFilter(f)
+            loadData()
             dialog.dismiss()
         }
 

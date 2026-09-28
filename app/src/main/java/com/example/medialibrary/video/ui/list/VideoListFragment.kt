@@ -21,6 +21,7 @@ import com.example.medialibrary.backend.models.video.VideoSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentListBinding
+import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
@@ -32,6 +33,8 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
     private var videoController: VideoController = VideoController()
     private var setup: VideoSetup? = null
 
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,6 +44,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         setFragmentType(FragmentType.List)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
 
         val recyclerView = binding.recyclerviewTransform
         val adapter = BaseTransformAdapter()
@@ -98,6 +102,15 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
 
+        binding.sortBtn.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateVideoFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateVideoFilter(updatedFilter as VideoFilter)
+                loadData()
+            }
+        }
+
         return root
     }
 
@@ -106,6 +119,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
     }
 
     private fun loadData() {
+        currentFilter = sortFilterViewModel.getOrCreateVideoFilter()
         val items = videoController.GetListOfVideos(currentFilter) ?: emptyList()
         setup = videoController.GetVideoSetup()
         viewModel.setItems(items)

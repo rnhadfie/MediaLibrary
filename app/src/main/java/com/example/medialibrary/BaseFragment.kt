@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
@@ -79,16 +80,16 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
 
     fun setupEmptyStateObserver(
         items: LiveData<out List<DisplayMediaItem>>,
-        recyclerView: View,
+        recyclerView: RecyclerView?,
         emptyStateContainerRoot: TextView,
         adapter: ListAdapter<DisplayMediaItem, *>
     ) {
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
-                recyclerView.visibility = View.GONE
+                recyclerView?.visibility = View.GONE
                 emptyStateContainerRoot.visibility = View.VISIBLE
             } else {
-                recyclerView.visibility = View.VISIBLE
+                recyclerView?.visibility = View.VISIBLE
                 emptyStateContainerRoot.visibility = View.GONE
                 adapter.submitList(itemList)
             }

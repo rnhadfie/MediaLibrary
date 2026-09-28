@@ -17,6 +17,7 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.backend.controllers.VideoController
+import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.video.Enums
 import com.example.medialibrary.backend.models.video.Video
 import com.example.medialibrary.backend.models.video.VideoFilter
@@ -24,6 +25,7 @@ import com.example.medialibrary.backend.models.video.VideoSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
+import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -44,6 +46,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     private var videoController: VideoController? = null
     private var setup: VideoSetup? = null
 
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -53,6 +57,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         setFragmentType(FragmentType.Display)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
         videoController = VideoController(dbHelper)
@@ -67,6 +72,15 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         binding.filterBtn.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
+
+        binding.sortBtn.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateMusicFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateMusicFilter(updatedFilter as MusicFilter)
+                loadData()
+            }
         }
 
         binding.copyListBtn.setOnClickListener {

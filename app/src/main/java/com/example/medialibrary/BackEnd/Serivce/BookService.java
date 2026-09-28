@@ -17,56 +17,51 @@ public class BookService {
     public Lazy<BookRepository> bookRepository;
     public Lazy<SharedService> sharedService;
 
+    private final BookRepository _BookRepo;
+    private final SharedService _SharedService;
+
+
     public BookService(MediaLibraryDbHelper dbHelper) {
         this.bookRepository = LazyKt.lazy(() -> new BookRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
+
+        _BookRepo = bookRepository.getValue();
+        _SharedService = sharedService.getValue();
     }
 
     public List<Book> GetBooks(BookFilter filter) {
-        var repo = this.bookRepository.getValue();
-        var sharedService = this.sharedService.getValue();
-
-
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
 
-        List<Book> books = repo.GetBooks(whereClause, selectionArgs);
-        books = sharedService.Sort(filter, books);
+        List<Book> books = _BookRepo.GetBooks(whereClause, selectionArgs);
+        books = _SharedService.Sort(filter, books);
         return BookItemBasedFilters(books, filter);
     }
 
     public List<DisplayMediaItem> GetBookDisplayLists(BookFilter filter) {
-        var repo = this.bookRepository.getValue();
-
-        var sharedService = this.sharedService.getValue();
-
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
 
-        List<Book> books = repo.GetBooks(whereClause, selectionArgs);
-        books = sharedService.Sort(filter, books);
+        List<Book> books = _BookRepo.GetBooks(whereClause, selectionArgs);
+        books = _SharedService.Sort(filter, books);
 
-        return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter), false);
+        return _SharedService.mapToDisplayItems(BookItemBasedFilters(books, filter), false);
     }
 
     public Book GetBook(String id) {
-        var repo = this.bookRepository.getValue();
-        return repo.GetBook(id);
+        return _BookRepo.GetBook(id);
     }
 
     public boolean AddBook(BookSaveObject book) {
-        var repo = this.bookRepository.getValue();
-        return repo.AddBook(book);
+        return _BookRepo.AddBook(book);
     }
 
     public boolean EditBook(BookSaveObject book) {
-        var repo = this.bookRepository.getValue();
-        return repo.UpdateBook(book);
+        return _BookRepo.UpdateBook(book);
     }
 
     public boolean DeleteBook(String id) {
-        var repo = this.bookRepository.getValue();
-        return repo.DeleteBook(id);
+        return _BookRepo.DeleteBook(id);
     }
 
     public BookSetup GetBookSetup() {
@@ -174,25 +169,21 @@ public class BookService {
     }
 
     public List<Publisher> GetPublishers() {
-        var repo = this.bookRepository.getValue();
-        var publishers = repo.GetPublishers();
+        var publishers = _BookRepo.GetPublishers();
         publishers.sort(Comparator.comparing(o -> o.Name));
         return publishers;
     }
 
     public boolean AddPublisher(Publisher publisher) {
-        var repo = this.bookRepository.getValue();
-        return repo.AddPublisher(publisher);
+        return _BookRepo.AddPublisher(publisher);
     }
 
     public boolean UpdatePublisher(Publisher publisher) {
-        var repo = this.bookRepository.getValue();
-        return repo.UpdatePublisher(publisher);
+        return _BookRepo.UpdatePublisher(publisher);
     }
 
     public boolean DeletePublisher(String id) {
-        var repo = this.bookRepository.getValue();
-        return repo.DeletePublisher(id);
+        return _BookRepo.DeletePublisher(id);
     }
 
     public Enums.BookFormat GetCommonBookFormat(List<BookItem> items) {

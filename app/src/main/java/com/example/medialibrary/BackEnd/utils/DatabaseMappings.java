@@ -248,12 +248,42 @@ public class DatabaseMappings {
         if (byteArray == null || byteArray.length == 0){
             return byteArray;
         }
-        Bitmap sourceBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            Bitmap sourceBitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+            if (sourceBitmap == null) {
+                return byteArray;
+            }
 
-        sourceBitmap.compress(Bitmap.CompressFormat.JPEG, 10, outputStream);
+            int maxDimension = 800;
+            int width = sourceBitmap.getWidth();
+            int height = sourceBitmap.getHeight();
 
-        return outputStream.toByteArray();
+            Bitmap scaledBitmap = sourceBitmap;
+            if (width > maxDimension || height > maxDimension) {
+                float ratio = (float) width / (float) height;
+                int targetWidth, targetHeight;
+                if (width >= height) {
+                    targetWidth = maxDimension;
+                    targetHeight = Math.max(1, (int) (maxDimension / ratio));
+                } else {
+                    targetHeight = maxDimension;
+                    targetWidth = Math.max(1, (int) (maxDimension * ratio));
+                }
+                scaledBitmap = Bitmap.createScaledBitmap(sourceBitmap, targetWidth, targetHeight, true);
+            }
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 75, outputStream);
+
+            if (scaledBitmap != sourceBitmap) {
+                scaledBitmap.recycle();
+            }
+            sourceBitmap.recycle();
+
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            return byteArray;
+        }
     }
 
     private static byte[] decompressBitmap(byte[] compressedBytes) {

@@ -18,56 +18,54 @@ public class OtherService {
     public Lazy<OtherRepository> otherRepository;
     public Lazy<SharedService> sharedService;
 
+    private final OtherRepository _OtherRepo;
+    private final SharedService _SharedService;
+
     public OtherService(MediaLibraryDbHelper dbHelper) {
         this.otherRepository = LazyKt.lazy(() -> new OtherRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
+
+        _OtherRepo = otherRepository.getValue();
+        _SharedService = sharedService.getValue();
     }
 
     public List<Other> GetOtherCollections(Filter filter) {
-        var repo = this.otherRepository.getValue();
-        var sharedService = this.sharedService.getValue();
-
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
 
-        var otherCollections =repo.GetOtherCollections(whereClause, selectionArgs);
+        var otherCollections = _OtherRepo.GetOtherCollections(whereClause, selectionArgs);
+        otherCollections = _SharedService.Sort(filter, otherCollections);
+
         return OtherItemBasedFilters(otherCollections, filter);
     }
 
     public List<DisplayMediaItem> GetOtherDisplayLists(Filter filter) {
-        var repo = this.otherRepository.getValue();
-        var sharedService = this.sharedService.getValue();
+
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
 
-        var otherCollections =repo.GetOtherCollections(whereClause, selectionArgs);
+        var otherCollections = _OtherRepo.GetOtherCollections(whereClause, selectionArgs);
+        otherCollections = _SharedService.Sort(filter, otherCollections);
 
-
-        return sharedService.mapToDisplayItems(OtherItemBasedFilters(otherCollections, filter), false);
+        return _SharedService.mapToDisplayItems(OtherItemBasedFilters(otherCollections, filter), false);
     }
 
 
     public Other GetOtherCollection(String id) {
-        var repo = this.otherRepository.getValue();
-        return repo.GetOtherCollection(id);
-
+        return _OtherRepo.GetOtherCollection(id);
     }
 
     public boolean AddOtherCollection(OtherSaveObj other) {
-        var repo = this.otherRepository.getValue();
-        return repo.AddOtherCollection(other);
+        return _OtherRepo.AddOtherCollection(other);
     }
 
     public boolean EditOtherCollection(OtherSaveObj other) {
-        var repo = this.otherRepository.getValue();
-        return repo.UpdateOtherCollection(other);
+        return _OtherRepo.UpdateOtherCollection(other);
     }
 
     public boolean DeleteOtherCollection(String id) {
-        var repo = this.otherRepository.getValue();
-        return repo.DeleteOtherCollection(id);
+        return _OtherRepo.DeleteOtherCollection(id);
     }
-
 
     public List<Other> OtherItemBasedFilters(List<Other> listOfOtherCollections, Filter filter)
     {

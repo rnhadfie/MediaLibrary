@@ -470,4 +470,25 @@ public class SharedService {
         }
         return sortedItems;
     }
+
+    public  List<DisplayMediaItem> SortDisplayItem(Filter filter, List<DisplayMediaItem> items) {
+        if (filter == null || items == null || items.isEmpty()) {
+            return items != null ? items : new ArrayList<>();
+        }
+
+        List<DisplayMediaItem> sortedItems = new ArrayList<>(items);
+        List<DyanmicSort.SortKey<DisplayMediaItem, ?>> sortRules = new ArrayList<>();
+
+        if (filter.SortAlphabetical != null) {
+            sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+        }
+        if (filter.SortItemMediaType != null) {
+            sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
+        }
+
+        if (!sortRules.isEmpty()) {
+            sortedItems.sort(buildDynamicComparator(sortRules));
+        }
+        return sortedItems;
+    }
 }

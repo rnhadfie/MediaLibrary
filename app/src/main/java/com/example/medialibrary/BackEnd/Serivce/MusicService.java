@@ -22,60 +22,58 @@ public class MusicService {
     public Lazy<MusicRepository> musicRepository;
     public Lazy<SharedService> sharedService;
 
+    private final MusicRepository _MusicRepo;
+    private final SharedService _SharedService;
+
     public MusicService(MediaLibraryDbHelper dbHelper) {
         this.musicRepository = LazyKt.lazy(() -> new MusicRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
+
+        _MusicRepo = musicRepository.getValue();
+        _SharedService = sharedService.getValue();
     }
 
     public List<Music> GetMusics(MusicFilter filter) {
-        var repo = this.musicRepository.getValue();
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);
-        return repo.GetMusic(whereClause, selectionArgs);
+        var music = _MusicRepo.GetMusic(whereClause, selectionArgs);
+        music = _SharedService.Sort(filter, music);
+        return music;
     }
 
     public List<DisplayMediaItem> GetMusicDisplayLists(MusicFilter filter) {
-        var repo = this.musicRepository.getValue();
-        var sharedService = this.sharedService.getValue();
+
 
         List<String> selectionArgs = new ArrayList<>();
-        String whereClause = sharedService.BuildWhereClause(filter, selectionArgs);
-        List<Music> music = repo.GetMusic(whereClause, selectionArgs);
-
-        return sharedService.mapToDisplayItems(music, false);
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
+        List<Music> music = _MusicRepo.GetMusic(whereClause, selectionArgs);
+        music = _SharedService.Sort(filter, music);
+        return _SharedService.mapToDisplayItems(music, false);
     }
 
 
     public Music GetCd(String id) {
-        var repo = this.musicRepository.getValue();
-        return repo.GetMusic(id);
-
+        return _MusicRepo.GetMusic(id);
     }
 
     public boolean AddMusic(MusicObj musicObj) {
-        var repo = this.musicRepository.getValue();
-        return repo.AddMusic(musicObj);
+        return _MusicRepo.AddMusic(musicObj);
     }
 
     public boolean EditMusic(MusicObj musicObj) {
-        var repo = this.musicRepository.getValue();
-        return repo.UpdateMusic(musicObj);
+        return _MusicRepo.UpdateMusic(musicObj);
     }
 
     public boolean DeleteMusic(String id) {
-        var repo = this.musicRepository.getValue();
-        return repo.DeleteMusic(id);
+        return _MusicRepo.DeleteMusic(id);
     }
 
     public MusicSetup GetSetup () {
         var musicSetup = new MusicSetup();
         musicSetup.MusicGenre = this.GetMusicGenres();
         musicSetup.Tags = this.sharedService.getValue().GetTags();
-        //get tags
         return musicSetup;
     }
-
-
 
     public Map<Integer,String> GetMusicGenres() {
         var sharedService = this.sharedService.getValue();

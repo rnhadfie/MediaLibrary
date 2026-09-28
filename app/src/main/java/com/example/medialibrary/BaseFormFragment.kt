@@ -80,10 +80,11 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
     }
 
     protected open fun onImageBitmapLoaded(bitmap: Bitmap) {
+        val scaledBitmap = ImageUtils.scaleBitmap(bitmap, ImageUtils.MAX_IMAGE_DIMENSION)
         val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, ImageUtils.COMPRESS_QUALITY, outputStream)
         val byteArray = outputStream.toByteArray()
-        ImageUtils.handleImageBitmap(bitmap, pendingImageTarget, binding, currentSheetBinding)
+        ImageUtils.handleImageBitmap(scaledBitmap, pendingImageTarget, binding, currentSheetBinding)
         onCoverImageUpdated(byteArray, pendingImageTarget)
     }
 

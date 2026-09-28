@@ -4,26 +4,37 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
+import com.example.medialibrary.backend.models.music.MusicFilter
+import com.example.medialibrary.backend.models.other.OtherFilter
 import com.example.medialibrary.backend.models.shared.Filter
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
+import com.example.medialibrary.other.ui.utils.*
+import com.example.medialibrary.utils.FilterOption
+import com.example.medialibrary.utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, OtherCollectingViewModel>(
     OtherFragmentCollectingBinding::inflate
 ) {
 
     private var otherController: OtherController = OtherController()
-    private var currentFilter: Filter? = null
+    private var currentFilter: OtherFilter? = null
     private var setup: MainSetup = MainSetup()
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -35,9 +46,9 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
 
         val root: View = super.onCreateView(inflater, container, savedInstanceState)
 
-        val recyclerView = binding.recyclerviewBooks
+        val recyclerView = binding.recyclerviewOther
         val adapter = BaseTransformAdapter()
-        recyclerView.adapter = adapter
+        recyclerView?.adapter = adapter
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
         otherController = OtherController(dbHelper)
@@ -50,6 +61,35 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
             binding.emptyStateContainer.root,
             adapter
         )
+
+        binding.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                currentFilter?.Search = query
+                loadData()
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                currentFilter?.Search = newText
+                if (newText.isNullOrEmpty()) {
+                    loadData()
+                }
+                return true
+            }
+        })
+
+        binding.buttonFilter?.setOnClickListener {
+            showFilterSheet(setup, currentFilter)
+        }
+
+        binding.sortBtn?.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateItemFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateItemFilter(updatedFilter as OtherFilter)
+                loadData()
+            }
+        }
 
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
@@ -73,11 +113,39 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
 
     private fun loadData() {
         if (currentFilter == null) {
-            currentFilter = Filter()
+            currentFilter = sortFilterViewModel.getOrCreateItemFilter()
         }
         currentFilter?.Collecting = true
         val items = otherController.GetListOfOtherCollections(currentFilter)
         setup = otherController.GetSetup()
         viewModel.setItems(items ?: emptyList())
+    }
+
+    private fun showFilterSheet(setup: MainSetup, filter: OtherFilter?) {
+        val dialog = BottomSheetDialog(requireContext())
+        val sheetBinding = OtherBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(sheetBinding.root)
+
+        val f = filter ?: OtherFilter()
+        f.Collecting = true
+
+        sheetBinding.collecting.root.visibility = View.GONE
+
+
+        SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+
+        sheetBinding.buttonSheetFitlerOther.setOnClickListener {
+            currentFilter = f
+            loadData()
+            dialog.dismiss()
+        }
+
+        sheetBinding.buttonSheetClearOther.setOnClickListener {
+            currentFilter = OtherFilter()
+            loadData()
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 }

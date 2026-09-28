@@ -18,13 +18,12 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.backend.controllers.MusicController
-import com.example.medialibrary.backend.models.book.Book
-import com.example.medialibrary.backend.models.book.BookSetup
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.Music
 import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.music.MusicSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
@@ -42,12 +41,15 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     private var bookController: MusicController? = null
     private var setup: MusicSetup? = null
 
+    private lateinit var sortFilterViewModel: SortFilterViewmodel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[MusicDisplayViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Display)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
@@ -65,6 +67,15 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
         binding.buttonFilter?.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
+
+        binding.sortBtn.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateMusicFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateMusicFilter(updatedFilter as MusicFilter)
+                loadData()
+            }
         }
 
         binding.musicItemList.setOnClickListener {
@@ -89,6 +100,8 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     }
 
     private fun loadData() {
+
+
         val items = bookController?.GetMusics(currentFilter) ?: emptyList()
         setup = bookController?.GetMusicSetup()
         viewModel.setMediaItems(items)

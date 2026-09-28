@@ -59,7 +59,7 @@ public class MainService {
             allItems.addAll(sharedService.mapToDisplayItems(otherRepository.getValue().GetOtherCollections(whereClause, selectionArgs), true));
         }
 
-
+        allItems = sharedService.SortDisplayItem(filter, allItems);
         return allItems;
     }
 
