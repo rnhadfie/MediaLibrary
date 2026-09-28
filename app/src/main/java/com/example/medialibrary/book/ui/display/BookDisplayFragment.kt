@@ -88,6 +88,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
                 sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
+                loadData()
             }
         }
 
@@ -123,7 +124,9 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
     private fun loadData() {
         val items = bookController?.GetBooks(currentFilter) ?: emptyList()
-        setup = bookController?.GetBookSetup()
+        if (setup == null || (setup!!.Publishers.isEmpty() && setup!!.Tag.isEmpty())) {
+            setup = bookController?.GetBookSetup()
+        }
         viewModel.setMediaItems(items)
         setup?.let { setupCharts(items, it) }
 
@@ -132,8 +135,9 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             currentFilter,
             setup
         ) {
-            currentFilter = BookFilter()
-            sortFilterViewModel.updateBookFilter(BookFilter())
+            val emptyFilter = BookFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateBookFilter(emptyFilter)
         }
     }
 
@@ -153,6 +157,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
             sortFilterViewModel.updateBookFilter(filter)
+            loadData()
             dialog.dismiss()
         }
 
@@ -163,6 +168,8 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         dialog.show()
     }
+
+    //region Chart Setup
 
     @SuppressLint("SetTextI18n")
     private fun setupCharts(items: List<Book>, setup: BookSetup) {
@@ -454,4 +461,6 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         }
         bookFormatPieChart.invalidate()
     }
+
+    //endregion
 }

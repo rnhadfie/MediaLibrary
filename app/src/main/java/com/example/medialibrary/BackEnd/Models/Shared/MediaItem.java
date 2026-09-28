@@ -16,17 +16,10 @@ public class MediaItem {
     public byte[] Cover;
     public Enums.CollectingPriority CollectingPriority;
 
-    public String getTitle() {
-        return Title;
+    public String getTitle() {return Title != null ? Title : "";
     }
 
     public String getMediaType() {
-        return MediaType.toString();
+        return MediaType != null ? MediaType.name() : "";
     }
-
-    public Enums.CollectingPriority getCollectingPriority() {
-        return CollectingPriority;
-    }
-
-
 }

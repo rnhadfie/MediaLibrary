@@ -16,8 +16,6 @@ import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 import com.example.medialibrary.backend.utils.DatabaseMappings;
 import com.example.medialibrary.backend.utils.UUIDValidator;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;

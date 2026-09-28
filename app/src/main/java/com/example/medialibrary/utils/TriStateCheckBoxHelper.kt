@@ -39,13 +39,13 @@ object TriStateCheckBoxHelper {
     {
         when (button.tag) {
             null -> {
-                button.text = "ASC"
+                button.setText(R.string.asc)
                 button.setTextColor(Color.BLACK)
                 button.tag = true
                 onStateChanged(currentState)
             }
             true -> {
-                button.text = "DESC"
+                button.setText(R.string.desc)
                 button.setTextColor(Color.BLACK)
 
                 button.tag = false
@@ -73,7 +73,7 @@ object TriStateCheckBoxHelper {
         val labelTextView = containerView.findViewById<TextView>(R.id.label_text)
         labelTextView.setText(labelResId)
         val button = containerView.findViewById<Button>(R.id.triStateButton)
-        button.tag = initialValue;
+        button.tag = initialValue
         when (initialValue) {
             null -> {
                 button.text = "☐"
@@ -112,7 +112,7 @@ object TriStateCheckBoxHelper {
         val labelTextView = containerView.findViewById<TextView>(R.id.label_text)
         labelTextView.setText(labelResId)
         val button = containerView.findViewById<Button>(R.id.triStateButton)
-        button.tag = initialValue;
+        button.tag = initialValue
         button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
         when (initialValue) {
             null -> {
@@ -120,11 +120,11 @@ object TriStateCheckBoxHelper {
                 button.setTextColor(Color.BLACK)
             }
             true -> {
-                button.text = "ASC"
+                button.setText(R.string.asc)
                 button.setTextColor(Color.BLACK)
             }
             false -> {
-                button.text = "DESC"
+                button.setText(R.string.desc)
                 button.setTextColor(Color.BLACK)
             }
         }

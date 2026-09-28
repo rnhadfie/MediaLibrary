@@ -149,7 +149,9 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
 
     private fun loadData() {
         val items = controller.GetAllItems(currentFilter)
-        setup = controller.GetSetup()
+        if (setup.Tag.isEmpty() && setup.Genre.isEmpty()) {
+            setup = controller.GetSetup()
+        }
         viewModel.setItems(items ?: emptyList())
 
         FilterSummaryHelper.bindFilterSummary(
@@ -157,8 +159,9 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             currentFilter,
             setup
         ) {
-            currentFilter = Filter()
-            sortFilterViewModel.updateMainFilter(Filter())
+            val emptyFilter = Filter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateMainFilter(emptyFilter)
             binding.searchView.setQuery("", false)
         }
     }

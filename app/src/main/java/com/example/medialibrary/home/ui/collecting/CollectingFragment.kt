@@ -68,7 +68,7 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
             adapter
         )
 
-        binding.searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 val filter = sortFilterViewModel.getOrCreateMainFilter()
                 filter.Search = query
@@ -86,11 +86,11 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
             }
         })
 
-        binding.buttonFilter?.setOnClickListener {
+        binding.buttonFilter.setOnClickListener {
             showFilterSheet(setup, currentFilter)
         }
 
-        binding.buttonSort?.setOnClickListener {
+        binding.buttonSort.setOnClickListener {
             val filter = sortFilterViewModel.getOrCreateMainFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = true, sortModel = sortModel) { updatedFilter ->
@@ -98,7 +98,7 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
             }
         }
 
-        binding.allItemList?.setOnClickListener {
+        binding.allItemList.setOnClickListener {
             val mediaItems = viewModel.items.value
             val sortedBooks = mediaItems?.filter { it.MediaType == Enums.MediaType.Book }?.sortedBy { it.Title }
             val sortedVideos = mediaItems?.filter { it.MediaType == Enums.MediaType.Video }?.sortedBy { it.Title }

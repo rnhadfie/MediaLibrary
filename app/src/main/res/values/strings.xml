@@ -138,4 +138,6 @@
     <string name="sort">Sort</string>
     <string name="priority">Priority</string>
     <string name="itemMediaType">Media Type</string>
+    <string name="asc">ASC</string>
+    <string name="desc">DESC</string>
 </resources>

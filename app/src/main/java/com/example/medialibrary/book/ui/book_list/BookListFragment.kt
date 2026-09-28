@@ -96,6 +96,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
                 sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
+                loadData()
             }
         }
 
@@ -134,7 +135,9 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             currentFilter = sortFilterViewModel.getOrCreateBookFilter()
         }
         val items = bookController.GetListOfBooks(currentFilter)
-        setup = bookController.GetBookSetup()
+        if (setup.Publishers.isEmpty() && setup.Tag.isEmpty()) {
+            setup = bookController.GetBookSetup()
+        }
         viewModel.setItems(items ?: emptyList())
 
         FilterSummaryHelper.bindFilterSummary(
@@ -142,8 +145,9 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             currentFilter,
             setup
         ) {
-            currentFilter = BookFilter()
-            sortFilterViewModel.updateBookFilter(BookFilter())
+            val emptyFilter = BookFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateBookFilter(emptyFilter)
             binding.searchView.setQuery("", false)
         }
     }
@@ -165,6 +169,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
             sortFilterViewModel.updateBookFilter(f)
+            loadData()
             dialog.dismiss()
         }
 

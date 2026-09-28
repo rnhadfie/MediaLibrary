@@ -15,7 +15,6 @@ import com.example.medialibrary.backend.controllers.MainController
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem
 import com.example.medialibrary.backend.models.shared.Enums
 import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.MediaItem
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.BookActivity
 import com.example.medialibrary.databinding.MainFragmentDisplayBinding

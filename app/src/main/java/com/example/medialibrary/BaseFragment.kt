@@ -37,8 +37,6 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     }
 
     private var _dialogView: DialogSortContentBinding? = null
-    protected val dialogView: DialogSortContentBinding?
-        get() = _dialogView
 
     fun setDialogSort(dialog: DialogSortContentBinding) {
         _dialogView = dialog

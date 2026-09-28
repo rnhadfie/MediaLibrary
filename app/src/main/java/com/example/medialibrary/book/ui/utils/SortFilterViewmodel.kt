@@ -24,7 +24,6 @@ class SortFilterViewmodel : ViewModel() {
     }
 
     private val _sort = MutableStateFlow<SortModel?>(null)
-    val currentSortModel: StateFlow<SortModel?> = _sort.asStateFlow()
 
     fun updateSortModel(sort: SortModel) {
         _sort.value = sort

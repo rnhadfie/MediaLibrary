@@ -95,6 +95,7 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
                 sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
+                loadData()
             }
         }
 
@@ -158,7 +159,9 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         }
 
         val items = bookController.GetListOfBooks(effectiveFilter)
-        setup = bookController.GetBookSetup()
+        if (setup.Publishers.isEmpty() && setup.Tag.isEmpty()) {
+            setup = bookController.GetBookSetup()
+        }
         viewModel.setItems(items ?: emptyList())
 
         FilterSummaryHelper.bindFilterSummary(
@@ -166,8 +169,9 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
             effectiveFilter,
             setup
         ) {
-            currentFilter = BookFilter()
-            sortFilterViewModel.updateBookFilter(BookFilter())
+            val emptyFilter = BookFilter().apply { Collecting = true }
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateBookFilter(emptyFilter)
             binding.searchView.setQuery("", false)
         }
     }
@@ -178,22 +182,25 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: sortFilterViewModel.getOrCreateBookFilter()
+        f.Collecting = true
 
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
+        sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.applyFilterBtn.setOnClickListener {
             f.Read = sheetBinding.read.triStateButton.tag as Boolean?
             f.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
             f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
             f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
-            f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
+            f.Collecting = true
             f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
             sortFilterViewModel.updateBookFilter(f)
+            loadData()
             dialog.dismiss()
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
-            sortFilterViewModel.updateBookFilter(BookFilter())
+            sortFilterViewModel.updateBookFilter(BookFilter().apply { Collecting = true })
             dialog.dismiss()
         }
 

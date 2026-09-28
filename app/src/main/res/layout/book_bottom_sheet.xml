@@ -94,13 +94,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
-<!--
-            <include
-                android:id="@+id/sort_autocomplete"
-                layout="@layout/view_filter_autocomplete_dropdown"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" /> -->
 
             <Button
                 android:id="@+id/apply_filter_btn"

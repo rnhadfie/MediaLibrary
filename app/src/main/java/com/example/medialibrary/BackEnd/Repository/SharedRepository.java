@@ -2,26 +2,17 @@ package com.example.medialibrary.backend.repository;
 
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_ID;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_NAME;
-import static com.example.medialibrary.backend.utils.DatabaseKeyNames.TABLE_PUBLISHERS;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.TABLE_TAGS;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
-import com.example.medialibrary.backend.models.book.Publisher;
-import com.example.medialibrary.backend.models.shared.DataContainer;
-import com.example.medialibrary.backend.models.shared.ImportObject;
 import com.example.medialibrary.backend.models.shared.Tag;
 import com.example.medialibrary.backend.repository.Interface.Interface.ISharedRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
-import com.example.medialibrary.backend.utils.UUIDValidator;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.logging.Logger;
 

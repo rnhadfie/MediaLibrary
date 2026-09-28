@@ -52,8 +52,7 @@ object FilterSummaryHelper {
         }
 
 
-        if (filter.Collecting != null) parts.add("Collecting: "+ if (filter.Collecting) "Yes" else "No")
-        if (filter.Collected  != null) parts.add("Collected: "+ if (filter.Collected) "Yes" else "No")
+        if (filter.Collected != null) parts.add("Collected: "+ if (filter.Collected) "Yes" else "No")
         if (filter.Ongoing  != null) parts.add("Completed: "+ if (filter.Ongoing) "Yes" else "No")
         if (filter.AnyOwned  != null) parts.add("Started: "+ if (filter.AnyOwned) "Yes" else "No")
 
