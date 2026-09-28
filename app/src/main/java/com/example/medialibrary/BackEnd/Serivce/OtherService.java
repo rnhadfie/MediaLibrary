@@ -47,7 +47,7 @@ public class OtherService {
     }
 
 
-    public Other GetOtherCollection(int id) {
+    public Other GetOtherCollection(String id) {
         var repo = this.otherRepository.getValue();
         return repo.GetOtherCollection(id);
 
@@ -63,7 +63,7 @@ public class OtherService {
         return repo.UpdateOtherCollection(other);
     }
 
-    public boolean DeleteOtherCollection(int id) {
+    public boolean DeleteOtherCollection(String id) {
         var repo = this.otherRepository.getValue();
         return repo.DeleteOtherCollection(id);
     }

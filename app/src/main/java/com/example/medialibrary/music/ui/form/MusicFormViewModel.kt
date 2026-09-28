@@ -26,7 +26,7 @@ class MusicFormViewModel : ViewModel() {
 
     fun updateTag(tag: Tag) {
         _music.value?.Tag = tag.Id
-        if (tag.Id <= 0) {
+        if (tag.Id <= "0") {
             _newTag.value = tag.Name
         } else {
             _newTag.value = ""
@@ -35,7 +35,7 @@ class MusicFormViewModel : ViewModel() {
 
     fun updateTagName(name: String) {
         _newTag.value = name
-        _music.value?.Tag = 0
+        _music.value?.Tag = "0"
     }
 
 
@@ -60,7 +60,7 @@ class MusicFormViewModel : ViewModel() {
 
 
 
-    fun loadCd(id: Int, controller: MusicController?) {
+    fun loadCd(id: String, controller: MusicController?) {
         val loadedCd = controller?.GetMusic(id)
         loadedCd?.let {
             _music.value = it
@@ -73,6 +73,10 @@ class MusicFormViewModel : ViewModel() {
         saveObj.Music = _music.value
         saveObj.NewTag = _newTag.value
         return saveObj
+    }
+
+    fun updateCollectingPriority(priority: SharedEnums.CollectingPriority) {
+        _music.value?.CollectingPriority = priority
     }
 
     fun validate(): String? {

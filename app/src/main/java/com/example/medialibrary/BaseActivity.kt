@@ -164,8 +164,8 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
             if (xmlString != null) {
                 val data = XmlExportImport.importFromXml(xmlString)
                 val xmlRepository = XmlRepository(dbHelper)
-                xmlRepository.SaveAllData(data)
-                Snackbar.make(binding.root, "Data imported successfully", Snackbar.LENGTH_LONG).show()
+                val message = xmlRepository.SaveAllData(data)
+                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
             }
         } catch (e: Exception) {
             Snackbar.make(binding.root, "Import failed: ${e.message}", Snackbar.LENGTH_LONG).show()

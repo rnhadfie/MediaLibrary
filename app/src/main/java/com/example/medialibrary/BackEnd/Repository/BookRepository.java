@@ -1,20 +1,22 @@
 package com.example.medialibrary.backend.repository;
 
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
+import static com.example.medialibrary.backend.utils.DatabaseMappings.*;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.example.medialibrary.backend.models.book.*;
-import com.example.medialibrary.backend.models.book.Enums;
 import com.example.medialibrary.backend.repository.Interface.Interface.IBookRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+import com.example.medialibrary.backend.utils.NaturalComparator;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
+
 import android.util.LruCache;
 
 public class BookRepository extends BaseRepository implements IBookRepository {
@@ -69,7 +71,8 @@ public class BookRepository extends BaseRepository implements IBookRepository {
             if (bookCursor.moveToFirst()) {
                 do {
                     Book book = new Book();
-                    mapBook(bookCursor, book);
+                    MapBook(bookCursor, book);
+                    book.Items = GetBookItems(book.Id);
                     books.add(book);
                 } while (bookCursor.moveToNext());
                 bookCursor.close();
@@ -82,7 +85,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
     }
 
     @Override
-    public Book GetBook(int id) {
+    public Book GetBook(String id) {
         Book book = new Book();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         try {
@@ -103,7 +106,9 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
             if (bookCursor.moveToFirst()) {
                 do {
-                    mapBook(bookCursor, book);
+                    MapBook(bookCursor, book);
+                    book.Items = GetBookItems(book.Id);
+
                 } while (bookCursor.moveToNext());
                 bookCursor.close();
             }
@@ -119,27 +124,29 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            long publisherId = bookObj.book.Publisher;
+            String publisherId = bookObj.book.Publisher;
             if (bookObj.NewPublisher != null && !bookObj.NewPublisher.isEmpty()) {
+
+                String primKey = UUID.randomUUID().toString();
                 ContentValues pubValues = new ContentValues();
+                pubValues.put(COLUMN_ID, primKey);
                 pubValues.put(COLUMN_NAME, bookObj.NewPublisher);
-                publisherId = db.insert(TABLE_PUBLISHERS, null, pubValues);
+                db.insert(TABLE_PUBLISHERS, null, pubValues);
+                publisherId = primKey;
             }
 
-            long tagId = bookObj.book.Tag;
-            if (bookObj.NewTag != null && !bookObj.NewTag.isEmpty()) {
-                ContentValues tagValues = new ContentValues();
-                tagValues.put(COLUMN_NAME, bookObj.NewTag);
-                tagId = db.insert(TABLE_TAGS, null, tagValues);
-            }
+            String tagId = AddNewTag(bookObj.book.Tag, bookObj.NewTag, db);
 
-            ContentValues bookValues = mapBookContentValues(publisherId, tagId, bookObj.book);
+            String bookId = UUID.randomUUID().toString();
+            bookObj.book.Id = bookId;
 
-            long bookId = db.insert(TABLE_BOOKS, null, bookValues);
+            ContentValues bookValues = MapBookContentValues(publisherId, tagId, bookObj.book);
+
+            db.insert(TABLE_BOOKS, null, bookValues);
 
             if (bookObj.book.Items != null) {
                 for (BookItem item : bookObj.book.Items) {
-                    ContentValues itemValues = mapBookItemContentValues(bookId, item);
+                    ContentValues itemValues = MapBookItemContentValues(bookId, item);
                     db.insert(TABLE_BOOK_ITEMS, null, itemValues);
                 }
             }
@@ -160,21 +167,26 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            long publisherId = bookObj.book.Publisher;
+            String publisherId = bookObj.book.Publisher;
+
             if (bookObj.NewPublisher != null && !bookObj.NewPublisher.isEmpty()) {
+                publisherId = UUID.randomUUID().toString();
                 ContentValues pubValues = new ContentValues();
+                pubValues.put(COLUMN_ID, publisherId);
                 pubValues.put(COLUMN_NAME, bookObj.NewPublisher);
-                publisherId = db.insert(TABLE_PUBLISHERS, null, pubValues);
+                db.insert(TABLE_PUBLISHERS, null, pubValues);
             }
 
-            long tagId = bookObj.book.Tag;
+            String tagId = bookObj.book.Tag;
             if (bookObj.NewTag != null && !bookObj.NewTag.isEmpty()) {
+                tagId = UUID.randomUUID().toString();
                 ContentValues tagValues = new ContentValues();
+                tagValues.put(COLUMN_ID, tagId);
                 tagValues.put(COLUMN_NAME, bookObj.NewTag);
-                tagId = db.insert(TABLE_TAGS, null, tagValues);
+                db.insert(TABLE_TAGS, null, tagValues);
             }
 
-            ContentValues bookValues = mapBookContentValues(publisherId, tagId, bookObj.book);
+            ContentValues bookValues = MapBookContentValues(publisherId, tagId, bookObj.book);
 
             db.update(TABLE_BOOKS, bookValues, COLUMN_ID + " = ?", new String[]{String.valueOf(bookObj.book.Id)});
 
@@ -182,7 +194,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
             if (bookObj.book.Items != null) {
                 for (BookItem item : bookObj.book.Items) {
-                    ContentValues itemValues = mapBookItemContentValues(bookObj.book.Id, item);
+                    ContentValues itemValues = MapBookItemContentValues(bookObj.book.Id, item);
                     db.insert(TABLE_BOOK_ITEMS, null, itemValues);
                 }
             }
@@ -199,7 +211,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
     }
 
     @Override
-    public boolean DeleteBook(int id) {
+    public boolean DeleteBook(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -243,7 +255,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
             if (cursor.moveToFirst()) {
                 do {
-                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                    String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
                     String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
                     publishers.add(new Publisher(id, name));
                 } while (cursor.moveToNext());
@@ -263,6 +275,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         try {
             if (publisher.Name != null && !publisher.Name.isEmpty()) {
                 ContentValues pubValues = new ContentValues();
+                pubValues.put(COLUMN_ID, UUID.randomUUID().toString());
                 pubValues.put(COLUMN_NAME, publisher.Name);
                 long id = db.insert(TABLE_PUBLISHERS, null, pubValues);
                 if (id == -1) return false;
@@ -300,11 +313,11 @@ public class BookRepository extends BaseRepository implements IBookRepository {
     }
 
     @Override
-    public boolean DeletePublisher(int id) {
+    public boolean DeletePublisher(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            int deletedRows = db.delete(TABLE_PUBLISHERS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+            int deletedRows = db.delete(TABLE_PUBLISHERS, COLUMN_ID + " = ?", new String[]{id});
             db.setTransactionSuccessful();
             return deletedRows > 0;
         } catch (Exception e) {
@@ -318,7 +331,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
 
     //endregion
 
-    private List<BookItem> GetBookItems(int bookId) {
+    private List<BookItem> GetBookItems(String bookId) {
         List<BookItem> items = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> selectionArgs = new ArrayList<>();
@@ -336,7 +349,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         if (cursor.moveToFirst()) {
             do {
                 BookItem item = new BookItem();
-                mapBookItem(cursor, item);
+                MapBookItem(cursor, item);
                 items.add(item);
             } while (cursor.moveToNext());
             cursor.close();
@@ -345,58 +358,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         return items;
     }
 
-    private void mapBookItem(Cursor cursor, BookItem item) {
-        item.Id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
-        item.VolumeNumber = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VOLUME_NUMBER));
-        item.VolumeTitle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VOLUME_TITLE));
-        item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
-        item.Read = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_READ)) == 1;
-        item.Format = Enums.BookFormat.values()[cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FORMAT))];
-        item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
-        var itemCover = cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER));
-        item.ItemCover = decompressBitmap(itemCover);
-    }
 
-    private void mapBook(Cursor bookCursor, Book book) {
-        mapMediaItem(bookCursor, book);
-        book.MediaType = com.example.medialibrary.backend.models.shared.Enums.MediaType.Book;
-        book.Author = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_AUTHOR));
-        book.Artist = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_ARTIST));
-        book.Publisher = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_PUBLISHER));
 
-        book.Items = GetBookItems(book.Id);
 
-        int typeValue = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_TYPE));
-        if (typeValue >= 0 && typeValue < Enums.BookType.values().length) {
-            book.Type = Enums.BookType.values()[typeValue];
-        }
-    }
-
-    private ContentValues mapBookItemContentValues(long bookId, BookItem item) {
-        ContentValues itemValues = new ContentValues();
-        itemValues.put(COLUMN_SERIES, bookId);
-        itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber);
-        itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle);
-        itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
-        itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
-        itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
-        itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
-        return itemValues;
-    }
-
-    private ContentValues mapBookContentValues(long publisherId, long tagId, Book book) {
-        ContentValues bookValues = new ContentValues();
-        bookValues.put(COLUMN_TITLE, book.Title);
-        bookValues.put(COLUMN_COLLECTING, (book.Collecting != null && book.Collecting) ? 1 : 0);
-        bookValues.put(COLUMN_HAS_ENDED, (book.Ongoing != null && book.Ongoing) ? 1 : 0);
-        bookValues.put(COLUMN_COMPLETED_COLLECTING, (book.HasCollectedAllItems != null && book.HasCollectedAllItems) ? 1 : 0);
-        bookValues.put(COLUMN_TAG, tagId);
-        bookValues.put(COLUMN_COVER, compressBitmap(book.Cover));
-        bookValues.put(COLUMN_GENRE, serializeGenre(book.Genre));
-        bookValues.put(COLUMN_AUTHOR, book.Author);
-        bookValues.put(COLUMN_ARTIST, book.Artist);
-        bookValues.put(COLUMN_TYPE, book.Type != null ? book.Type.ordinal() : 0);
-        bookValues.put(COLUMN_PUBLISHER, publisherId);
-        return bookValues;
-    }
 }

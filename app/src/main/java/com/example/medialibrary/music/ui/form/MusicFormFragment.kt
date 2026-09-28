@@ -21,145 +21,60 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.MusicController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.music.MusicSetup
+import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.utils.SharedRefreshViewModel
 
-import java.io.ByteArrayOutputStream
-import java.io.File
-
-class MusicFormFragment : Fragment() {
+class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormViewModel>(
+    MusicFragmentFormBinding::inflate
+) {
 
     companion object {
-        private const val ARG_ID = "arg_id"
-        private const val ARG_IS_EDIT = "arg_is_edit"
-
-        fun newInstance(id: Int = -1, isEdit: Boolean = false) = MusicFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false) = MusicFormFragment().apply {
             arguments = Bundle().apply {
-                putInt(ARG_ID, id)
+                putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
             }
         }
     }
 
-    private val viewModel: MusicFormViewModel by viewModels()
-    private var _binding: MusicFragmentFormBinding? = null
-    private val binding get() = _binding!!
-    
     private var controller: MusicController? = null
-
-    private var tempPhotoFile: File? = null
-    private var tempPhotoUri: Uri? = null
-
-    //region Image Handling
-
-    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            uri?.let {
-                ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
-            }
-        }
-    }
-
-    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && tempPhotoUri != null) {
-            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
-        }
-        tempPhotoFile?.delete()
-        tempPhotoFile = null
-        tempPhotoUri = null
-    }
-
-    private fun handleImageBitmap(bitmap: Bitmap) {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-        val byteArray = outputStream.toByteArray()
-
-        viewModel.updateCover(byteArray)
-        ImageUtils.handleImageBitmap(bitmap, "music", binding, null)
-
-    }
-
-    private fun clearImage() {
-        viewModel.updateCover(null)
-        ImageUtils.clearImage("music", binding, null, requireContext(), resources)
-    }
-
-    private fun showImageOptionsDialog() {
-        val options = arrayOf(
-            getString(R.string.choose_from_gallery),
-            getString(R.string.take_photo),
-            getString(R.string.clear_image)
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.select_image_source)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-                        pickGalleryLauncher.launch(intent)
-                    }
-                    1 -> {
-                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
-                        tempPhotoFile = file
-                        tempPhotoUri = uri
-                        takePhotoLauncher.launch(uri)
-                    }
-                    2 -> {
-                        clearImage()
-                    }
-                }
-            }
-            .show()
-    }
-
-    //endregion
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        // Initialize controller
-        val dbHelper = MediaLibraryDbHelper(requireContext())
-        controller = MusicController(dbHelper)
-
-        _binding = MusicFragmentFormBinding.inflate(inflater, container, false)
-
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[MusicFormViewModel::class.java]
 
-        val id = arguments?.getInt(ARG_ID) ?: -1
-        val isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
+        val dbHelper = MediaLibraryDbHelper(requireContext())
+        controller = MusicController(dbHelper)
 
-        if (isEdit && id != -1) {
-            viewModel.loadCd(id, controller)
+        if (isEdit && itemId != "-1") {
+            viewModel.loadCd(itemId, controller)
         }
 
         var setup = controller?.GetMusicSetup()
-
-        if(setup == null)
+        if (setup == null)
             setup = MusicSetup()
 
         setupMusicGenreRadioGroup(setup)
         setupTagSelection(setup)
+        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+            viewModel.updateCollectingPriority(priority)
+        }
         setupInputListeners()
 
         binding.changeImage.buttonChangeCover.setOnClickListener {
-            showImageOptionsDialog()
+            showImageOptionsDialog("music")
         }
         binding.changeImage.buttonClearCover.setOnClickListener {
-            clearImage()
+            clearImage("music")
         }
 
         binding.buttonSaveMusic.setOnClickListener {
@@ -204,6 +119,9 @@ class MusicFormFragment : Fragment() {
             binding.editMusicArtist.setText(music.Artist)
             binding.musicCollecting.isChecked = music.Collecting ?: false
 
+            val currentPriority = music.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+            binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
+
             // Update RadioGroup
             val musicGenreId = music.MusicGenre?.ordinal ?: 0
             if(musicGenreId != 0) {
@@ -246,6 +164,10 @@ class MusicFormFragment : Fragment() {
         // You can update a ViewModel, save state, or trigger network calls here
         val genre = MusicGenre.entries.find { it.ordinal == id } ?: return
         viewModel.updateMusicGenre(genre)
+    }
+
+    override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
+        viewModel.updateCover(byteArray)
     }
 
     private fun setupTagSelection(setup: MusicSetup) {
@@ -296,7 +218,6 @@ class MusicFormFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
     }
 
 

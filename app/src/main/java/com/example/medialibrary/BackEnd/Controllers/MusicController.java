@@ -32,7 +32,7 @@ public class MusicController  extends BaseController{
         return this.musicSerivce.getValue().GetMusicDisplayLists(filter);
     }
 
-    public Music GetMusic(int id) {
+    public Music GetMusic(String id) {
         return this.musicSerivce.getValue().GetCd(id);
     }
 
@@ -43,7 +43,7 @@ public class MusicController  extends BaseController{
     public boolean UpdateMusic(MusicObj music) {
         return this.musicSerivce.getValue().EditMusic(music);
     }
-    public boolean DeleteMusic(int id) {
+    public boolean DeleteMusic(String id) {
         return this.musicSerivce.getValue().DeleteMusic(id);
     }
 

@@ -37,7 +37,7 @@ class VideoFormViewModel : ViewModel() {
 
     fun updateTag(tag: Tag) {
         _video.value?.Tag = tag.Id
-        if (tag.Id <= 0) {
+        if (tag.Id <= "0") {
             _newTag.value = tag.Name
         } else {
             _newTag.value = ""
@@ -46,7 +46,7 @@ class VideoFormViewModel : ViewModel() {
 
     fun updateTagName(name: String) {
         _newTag.value = name
-        _video.value?.Tag = 0
+        _video.value?.Tag = "0"
     }
 
 
@@ -107,7 +107,7 @@ class VideoFormViewModel : ViewModel() {
         }
     }
 
-    fun loadVideo(id: Int, controller: VideoController?, setup: VideoSetup) {
+    fun loadVideo(id: String, controller: VideoController?, setup: VideoSetup) {
         val loadedVideo = controller?.GetVideo(id)
         loadedVideo?.let {
             _video.value = it
@@ -124,6 +124,10 @@ class VideoFormViewModel : ViewModel() {
         saveObj.video.Items = _items.value
         saveObj.NewTag = _newTag.value
         return saveObj
+    }
+
+    fun updateCollectingPriority(priority: Enums.CollectingPriority) {
+        _video.value?.CollectingPriority = priority
     }
 
     fun validate(): Map<String, String>  {

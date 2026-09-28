@@ -4,11 +4,11 @@ import androidx.annotation.NonNull;
 
 public class Publisher {
     public Publisher() {}
-    public Publisher(int id, String name) {
+    public Publisher(String id, String name) {
         this.Id = id;
         this.Name = name;
     }
-    public int Id;
+    public String Id;
     public String Name;
 
     @NonNull

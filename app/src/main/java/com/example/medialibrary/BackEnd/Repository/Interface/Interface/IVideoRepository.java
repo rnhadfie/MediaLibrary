@@ -8,8 +8,8 @@ import java.util.List;
 public interface IVideoRepository {
     List<Video> GetVideos();
     List<Video> GetVideos(String whereClause, List<String> selectionArgs);
-    Video GetVideo(int id);
+    Video GetVideo(String id);
     boolean AddVideo(VideoSaveObject bookObj);
     boolean UpdateVideo(VideoSaveObject bookObj);
-    boolean DeleteVideo(int id);
+    boolean DeleteVideo(String id);
 }

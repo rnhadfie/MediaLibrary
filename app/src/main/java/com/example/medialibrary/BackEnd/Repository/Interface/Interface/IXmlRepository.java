@@ -4,5 +4,5 @@ import com.example.medialibrary.backend.models.shared.DataContainer;
 
 public interface IXmlRepository {
     DataContainer GetAllData();
-    void SaveAllData(DataContainer container);
+    String SaveAllData(DataContainer container);
 }

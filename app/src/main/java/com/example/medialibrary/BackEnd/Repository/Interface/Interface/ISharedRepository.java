@@ -7,9 +7,9 @@ import java.util.List;
 public interface ISharedRepository {
 
     List<Tag> GetTags();
-    Tag GetTag(int id);
+    Tag GetTag(String id);
 
     boolean AddTag(Tag publisher);
     boolean UpdateTag(Tag publisher);
-    boolean DeleteTag(int id);
+    boolean DeleteTag(String id);
 }

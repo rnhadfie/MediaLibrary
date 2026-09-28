@@ -8,6 +8,7 @@ import com.example.medialibrary.backend.models.music.Music
 import com.example.medialibrary.backend.models.other.Other
 import com.example.medialibrary.backend.models.shared.*
 import com.example.medialibrary.backend.models.video.Enums
+import com.example.medialibrary.backend.models.shared.Enums as SharedEmum
 import com.example.medialibrary.backend.models.video.Video
 import com.example.medialibrary.backend.models.video.VideoItem
 import org.xmlpull.v1.XmlPullParser
@@ -126,9 +127,10 @@ object XmlExportImport {
     private fun writeMediaItemFields(serializer: XmlSerializer, item: MediaItem) {
         serializer.startTag("", "Title").text(item.Title ?: "").endTag("", "Title")
         serializer.startTag("", "collecting").text(item.Collecting.toString()).endTag("", "collecting")
-        serializer.startTag("", "HasEnded").text(item.Ongoing.toString()).endTag("", "HasEnded")
-        serializer.startTag("", "CompletedCollecting").text(item.HasCollectedAllItems.toString()).endTag("", "CompletedCollecting")
+        serializer.startTag("", "Ongoing").text(item.Ongoing.toString()).endTag("", "Ongoing")
+        serializer.startTag("", "Collected").text(item.HasCollectedAllItems.toString()).endTag("", "Collected")
         serializer.startTag("", "TagId").text(item.Tag.toString()).endTag("", "TagId")
+        serializer.startTag("", "CollectingPriority").text(item.CollectingPriority.name).endTag("", "CollectingPriority")
         item.Genre?.let {
             serializer.startTag("", "Genres").text(it.joinToString(",")).endTag("", "Genres")
         }
@@ -163,12 +165,12 @@ object XmlExportImport {
                 XmlPullParser.START_TAG -> {
                     when (tagName) {
                         "Tag" -> {
-                            val id = parser.getAttributeValue("", "id")?.toIntOrNull() ?: 0
+                            val id = parser.getAttributeValue("", "id") ?: ""
                             val name = parser.getAttributeValue("", "name") ?: ""
                             container.Tags.add(Tag(id, name))
                         }
                         "Publisher" -> {
-                            val id = parser.getAttributeValue("", "id")?.toIntOrNull() ?: 0
+                            val id = parser.getAttributeValue("", "id") ?: ""
                             val name = parser.getAttributeValue("", "name") ?: ""
                             container.Publishers.add(Publisher(id, name))
                         }
@@ -194,14 +196,16 @@ object XmlExportImport {
                             currentMusic?.Collecting = text
                             currentOther?.Collecting = text
                         }
-                        "HasEnded" -> {
+                        "HasEnded",
+                        "Ongoing" -> {
                             val text = parser.nextText().toBoolean()
                             currentBook?.Ongoing = text
                             currentVideo?.Ongoing = text
                             currentMusic?.Ongoing = text
                             currentOther?.Ongoing = text
                         }
-                        "CompletedCollecting" -> {
+                        "CompletedCollecting",
+                        "Collected" -> {
                             val text = parser.nextText().toBoolean()
                             currentBook?.HasCollectedAllItems = text
                             currentVideo?.HasCollectedAllItems = text
@@ -209,7 +213,7 @@ object XmlExportImport {
                             currentOther?.HasCollectedAllItems = text
                         }
                         "TagId" -> {
-                            val text = parser.nextText().toIntOrNull() ?: 0
+                            val text = parser.nextText() ?: ""
                             currentBook?.Tag = text
                             currentVideo?.Tag = text
                             currentMusic?.Tag = text
@@ -246,7 +250,22 @@ object XmlExportImport {
                                 v.Type = Enums.VideoType.entries.find { it.name == text }
                             }
                         }
-                        "PublisherId" -> currentBook?.Publisher = parser.nextText().toIntOrNull() ?: 0
+                        "CollectingPriority" -> {
+                            val text = parser.nextText()
+                            currentBook?.let { b ->
+                                b.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                            }
+                            currentVideo?.let { v ->
+                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                            }
+                            currentOther?.let { v ->
+                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                            }
+                            currentMusic?.let { v ->
+                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                            }
+                        }
+                        "PublisherId" -> currentBook?.Publisher = parser.nextText() ?: ""
                         "VolumeNumber" -> currentBookItem?.VolumeNumber = parser.nextText()
                         "VolumeTitle" -> currentBookItem?.VolumeTitle = parser.nextText()
                         "Read" -> currentBookItem?.Read = parser.nextText().toBoolean()

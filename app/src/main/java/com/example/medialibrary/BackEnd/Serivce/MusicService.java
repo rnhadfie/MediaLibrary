@@ -46,7 +46,7 @@ public class MusicService {
     }
 
 
-    public Music GetCd(int id) {
+    public Music GetCd(String id) {
         var repo = this.musicRepository.getValue();
         return repo.GetMusic(id);
 
@@ -62,7 +62,7 @@ public class MusicService {
         return repo.UpdateMusic(musicObj);
     }
 
-    public boolean DeleteMusic(int id) {
+    public boolean DeleteMusic(String id) {
         var repo = this.musicRepository.getValue();
         return repo.DeleteMusic(id);
     }

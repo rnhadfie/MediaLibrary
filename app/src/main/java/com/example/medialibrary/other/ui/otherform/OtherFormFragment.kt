@@ -8,162 +8,68 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
 import com.example.medialibrary.backend.models.other.OtherItem
+import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.models.shared.Tag
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
-import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
+import com.example.medialibrary.databinding.OtherFragmentFormBinding
+import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import java.io.ByteArrayOutputStream
-import java.io.File
 
-class OtherFormFragment : Fragment() {
+class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormViewModel>(
+    OtherFragmentFormBinding::inflate
+) {
 
     companion object {
-        private const val ARG_ID = "arg_id"
-        private const val ARG_IS_EDIT = "arg_is_edit"
-
-        fun newInstance(id: Int = -1, isEdit: Boolean = false) = OtherFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false) = OtherFormFragment().apply {
             arguments = Bundle().apply {
-                putInt(ARG_ID, id)
+                putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
             }
         }
     }
 
-    private val viewModel: OtherFormViewModel by viewModels()
-    private var _binding: OtherFragmentFormBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var itemAdapter: OtherItemAdapter
-
-    private var pendingImageTarget: String? = null // "other" or "item"
-    private var pendingItemPosition: Int = -1
-    private var currentSheetBinding: OtherItemBottomSheetBinding? = null
-
     private var controller: OtherController? = null
-
-    private var tempPhotoFile: File? = null
-    private var tempPhotoUri: Uri? = null
-
-    // region Image Handling
-    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            uri?.let { ImageUtils.handleImageUri(it, requireContext(), ::handleImageBitmap) }
-        }
-    }
-
-    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && tempPhotoUri != null) {
-            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
-        }
-        tempPhotoFile?.delete()
-        tempPhotoFile = null
-        tempPhotoUri = null
-    }
-
-    private fun handleImageBitmap(bitmap: Bitmap) {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-        val byteArray = outputStream.toByteArray()
-        ImageUtils.handleImageBitmap(bitmap, pendingImageTarget, binding, currentSheetBinding )
-
-        if (pendingImageTarget == "other") {
-            viewModel.updateCover(byteArray)
-        }
-
-    }
-
-    private fun clearImage(target: String) {
-
-        ImageUtils.clearImage(target, binding, currentSheetBinding,requireContext(),resources)
-        if (target == "other") {
-            viewModel.updateCover(null)
-        }
-    }
-
-    private fun showImageOptionsDialog(target: String) {
-        pendingImageTarget = target
-        val options = arrayOf(
-            getString(R.string.choose_from_gallery),
-            getString(R.string.take_photo),
-            getString(R.string.clear_image)
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.select_image_source)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-                        pickGalleryLauncher.launch(intent)
-                    }
-                    1 -> {
-                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
-                        tempPhotoFile = file
-                        tempPhotoUri = uri
-                        takePhotoLauncher.launch(uri)
-                    }
-                    2 -> {
-                        clearImage(target)
-                    }
-                }
-            }
-            .show()
-    }
-
-    //endregion
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        // Initialize controller
-        val dbHelper = MediaLibraryDbHelper(requireContext())
-        controller = OtherController(dbHelper)
-
-        _binding = OtherFragmentFormBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[OtherFormViewModel::class.java]
 
-        val bookId = arguments?.getInt(ARG_ID) ?: -1
-        val isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
+        val dbHelper = MediaLibraryDbHelper(requireContext())
+        controller = OtherController(dbHelper)
 
-        if (isEdit && bookId != -1) {
-            viewModel.loadOtherCollection(bookId, controller)
+        if (isEdit && itemId != "-1") {
+            viewModel.loadOtherCollection(itemId, controller)
         }
 
         var setup = controller?.GetSetup()
-
-        if(setup == null)
+        if (setup == null)
             setup = MainSetup()
 
         setupTagSelection(setup)
+        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+            viewModel.updateCollectingPriority(priority)
+        }
         setupRecyclerView()
         setupInputListeners()
 
@@ -220,6 +126,9 @@ class OtherFormFragment : Fragment() {
             binding.otherCollecting.isChecked = other.Collecting ?: false
             binding.otherCompletedCollecting.isChecked = other.HasCollectedAllItems ?: false
 
+            val currentPriority = other.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+            binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
+
             if (other.Cover != null && other.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(other.Cover, 0, other.Cover.size)
                 binding.changeImage.imageBookCover.setImageBitmap(bitmap)
@@ -235,6 +144,12 @@ class OtherFormFragment : Fragment() {
             itemAdapter.submitList(items.toList())
         }
 
+    }
+
+    override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
+        if (target == "other" || target == "main") {
+            viewModel.updateCover(byteArray)
+        }
     }
 
     private fun setupTagSelection(setup: MainSetup) {
@@ -350,7 +265,6 @@ class OtherFormFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         currentSheetBinding = null
     }
 

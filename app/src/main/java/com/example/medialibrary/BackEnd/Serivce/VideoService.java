@@ -46,7 +46,7 @@ public class VideoService {
         return sharedService.mapToDisplayItems(VideoItemBasedFilters(videos, filter), false);
     }
 
-    public Video GetVideo(int id) {
+    public Video GetVideo(String id) {
         var repo = this.videoRepository.getValue();
         return repo.GetVideo(id);
     }
@@ -61,7 +61,7 @@ public class VideoService {
         return repo.UpdateVideo(video);
     }
 
-    public boolean DeleteVideo(int id) {
+    public boolean DeleteVideo(String id) {
         var repo = this.videoRepository.getValue();
         return repo.DeleteVideo(id);
     }

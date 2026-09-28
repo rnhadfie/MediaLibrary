@@ -78,7 +78,7 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
                 val name = editText.text.toString()
                 if (name.isNotBlank()) {
                     if (tag == null) {
-                        controller.AddTag(Tag(0, name))
+                        controller.AddTag(Tag("", name))
                     } else {
                         controller.UpdateTag(Tag(tag.Id, name))
                     }

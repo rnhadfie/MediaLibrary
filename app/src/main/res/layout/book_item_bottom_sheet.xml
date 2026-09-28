@@ -99,7 +99,7 @@
                 android:textColor="?attr/colorOnBackground" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include layout="@layout/view_autocomplete_dropdown"
+        <include layout="@layout/view_dropdown"
             android:id="@+id/format_autocomplete"/>
 
         <com.google.android.material.switchmaterial.SwitchMaterial

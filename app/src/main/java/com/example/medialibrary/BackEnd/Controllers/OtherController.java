@@ -35,7 +35,7 @@ public class OtherController extends BaseController{
         return this.otherSerivce.getValue().GetOtherDisplayLists(filter);
     }
 
-    public Other GetOtherItem(int id) {
+    public Other GetOtherItem(String id) {
         return this.otherSerivce.getValue().GetOtherCollection(id);
     }
 
@@ -46,7 +46,7 @@ public class OtherController extends BaseController{
     public boolean UpdateOther(OtherSaveObj otherObj) {
         return this.otherSerivce.getValue().EditOtherCollection(otherObj);
     }
-    public boolean DeleteOther(int id) {
+    public boolean DeleteOther(String id) {
         return this.otherSerivce.getValue().DeleteOtherCollection(id);
     }
 

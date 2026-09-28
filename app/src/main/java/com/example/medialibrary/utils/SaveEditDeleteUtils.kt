@@ -64,7 +64,7 @@ class SaveEditDeleteUtils(private val item: DisplayMediaItem, private val holder
             .show()
     }
 
-    fun addEditItem(isEdit: Boolean, id: Int?) {
+    fun addEditItem(isEdit: Boolean, id: String?) {
         val context = holder.itemView.context
         val intent = when (item.MediaType) {
             Enums.MediaType.Book -> Intent(context, BookFormActivity::class.java)

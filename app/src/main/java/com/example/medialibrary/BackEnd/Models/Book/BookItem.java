@@ -1,8 +1,8 @@
 package com.example.medialibrary.backend.models.book;
 
 public class BookItem {
-    public int Id;
-    public int Series;
+    public String Id;
+    public String Series;
     public String VolumeNumber;
     public String VolumeTitle;
     public boolean Read;

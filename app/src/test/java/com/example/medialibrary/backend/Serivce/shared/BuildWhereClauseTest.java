@@ -41,9 +41,9 @@ public class BuildWhereClauseTest {
     public void testBuildWhereClause_MultipleIncludedAndExcludedTags() {
         SharedService service = new SharedService(null);
         Filter filter = new Filter();
-        filter.IncludedTags.add(1);
-        filter.IncludedTags.add(3);
-        filter.ExcludedTags.add(2);
+        filter.IncludedTags.add("1");
+        filter.IncludedTags.add("3");
+        filter.ExcludedTags.add("2");
         List<String> selectionArgs = new ArrayList<>();
         
         String result = service.BuildWhereClause(filter, selectionArgs);

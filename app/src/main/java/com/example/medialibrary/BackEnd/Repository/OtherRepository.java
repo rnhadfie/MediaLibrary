@@ -10,6 +10,8 @@ import com.example.medialibrary.backend.models.shared.Enums;
 import com.example.medialibrary.backend.repository.Interface.Interface.IOtherRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+import com.example.medialibrary.backend.utils.DatabaseMappings;
+
 import android.content.ContentValues;
 import android.util.LruCache;
 
@@ -17,6 +19,7 @@ import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class OtherRepository extends BaseRepository implements IOtherRepository {
 
@@ -66,7 +69,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
             if (cursor.moveToFirst()) {
                 do {
                     Other other = new Other();
-                    mapMediaItem(cursor, other);
+                    DatabaseMappings.MapMediaItem(cursor, other);
                     other.Items = GetOtherItems(other.Id);
                     other.MediaType = Enums.MediaType.Other;
                     others.add(other);
@@ -81,7 +84,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
     }
 
     @Override
-    public Other GetOtherCollection(int id) {
+    public Other GetOtherCollection(String id) {
         Other other = new Other();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> selectionArgs = new ArrayList<>();
@@ -101,7 +104,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
 
             if (cursor.moveToFirst()) {
                 do {
-                    mapMediaItem(cursor, other);
+                    DatabaseMappings.MapMediaItem(cursor, other);
                     other.MediaType = Enums.MediaType.Other;
                     other.Items = GetOtherItems(id);
                 } while (cursor.moveToNext());
@@ -119,17 +122,21 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         db.beginTransaction();
         var other = otherObj.Other;
         try {
-            ContentValues values = mapOtherContentValues(other.Tag, other);
+            String id = UUID.randomUUID().toString();
+            other.Id = id;
+            ContentValues values = DatabaseMappings.MapOtherContentValues(other.Tag, other);
 
-            long id = db.insert(TABLE_OTHERS, null, values);
+
+
+            var result = db.insert(TABLE_OTHERS, null, values);
             if (other.Items != null) {
                 for (OtherItem item : other.Items) {
-                    ContentValues itemValues = mapOtherItemContentValues(id, item);
+                    ContentValues itemValues = DatabaseMappings.MapOtherItemContentValues(id, item);
                     db.insert(TABLE_OTHER_ITEMS, null, itemValues);
                 }
             }
             db.setTransactionSuccessful();
-            return id != -1;
+            return result != -1;
         } catch (Exception e) {
             return false;
         } finally {
@@ -144,14 +151,10 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         db.beginTransaction();
         var other = otherObj.Other;
         try {
-            long tagId = otherObj.Other.Tag;
-            if (otherObj.NewTag != null && !otherObj.NewTag.isEmpty()) {
-                ContentValues tagValues = new ContentValues();
-                tagValues.put(COLUMN_NAME, otherObj.NewTag);
-                tagId = db.insert(TABLE_TAGS, null, tagValues);
-            }
 
-            ContentValues values = mapOtherContentValues(tagId, other);
+            String tagId = AddNewTag(otherObj.Other.Tag, otherObj.NewTag, db);
+
+            ContentValues values = DatabaseMappings.MapOtherContentValues(tagId, other);
 
             var result = db.update(TABLE_OTHERS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(other.Id)});
 
@@ -159,7 +162,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
 
             if (other.Items != null) {
                 for (OtherItem item : other.Items) {
-                    ContentValues itemValues = mapOtherItemContentValues(other.Id, item);
+                    ContentValues itemValues = DatabaseMappings.MapOtherItemContentValues(other.Id, item);
                     db.insert(TABLE_OTHER_ITEMS, null, itemValues);
                 }
             }
@@ -175,7 +178,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
     }
 
     @Override
-    public boolean DeleteOtherCollection(int id) {
+    public boolean DeleteOtherCollection(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
 
@@ -192,11 +195,11 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         }
     }
 
-    private List<OtherItem> GetOtherItems(int bookId) {
+    private List<OtherItem> GetOtherItems(String id) {
         List<OtherItem> items = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> selectionArgs = new ArrayList<>();
-        selectionArgs.add(String.valueOf(bookId));
+        selectionArgs.add(String.valueOf(id));
         String whereClause = COLUMN_SERIES + " = ?";
         Cursor cursor = db.query(
                 TABLE_OTHER_ITEMS,
@@ -210,40 +213,11 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         if (cursor.moveToFirst()) {
             do {
                 OtherItem item = new OtherItem();
-                mapOtherItem(cursor, item);
+                DatabaseMappings.MapOtherItem(cursor, item);
                 items.add(item);
             } while (cursor.moveToNext());
             cursor.close();
         }
         return items;
-    }
-
-    private void mapOtherItem(Cursor cursor, OtherItem item) {
-        item.Id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
-        item.Title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VOLUME_TITLE));
-        item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
-        item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
-        item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
-    }
-
-    private ContentValues mapOtherItemContentValues(long seriesId, OtherItem item) {
-        ContentValues itemValues = new ContentValues();
-        itemValues.put(COLUMN_SERIES, seriesId);
-        itemValues.put(COLUMN_VOLUME_TITLE, item.Title);
-        itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
-        itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
-        return itemValues;
-    }
-
-    private ContentValues mapOtherContentValues(long tagId, Other other) {
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_TITLE, other.Title);
-        values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);
-        values.put(COLUMN_HAS_ENDED, (other.Ongoing != null && other.Ongoing) ? 1 : 0);
-        values.put(COLUMN_COMPLETED_COLLECTING, (other.HasCollectedAllItems != null && other.HasCollectedAllItems) ? 1 : 0);
-        values.put(COLUMN_TAG, tagId);
-        values.put(COLUMN_COVER, compressBitmap(other.Cover));
-        values.put(COLUMN_GENRE, serializeGenre(other.Genre));
-        return values;
     }
 }

@@ -19,8 +19,8 @@ public class DatabaseKeyNames {
     public static final String COLUMN_ID = "Id";
     public static final String COLUMN_TITLE = "Title";
     public static final String COLUMN_COLLECTING = "Collecting";
-    public static final String COLUMN_HAS_ENDED = "HasEnded";
-    public static final String COLUMN_COMPLETED_COLLECTING = "CompletedCollecting";
+    public static final String COLUMN_ONGOING = "Ongoing";
+    public static final String COLUMN_COLLECTED = "Collected";
     public static final String COLUMN_TAG = "Tag";
     public static final String COLUMN_COVER = "Cover";
     public static final String COLUMN_PUBLISHER = "Publisher";
@@ -36,6 +36,8 @@ public class DatabaseKeyNames {
     public static final String COLUMN_FORMAT = "Format";
 
     public static final String COLUMN_NAME = "Name";
+
+    public static final String COLUMN_COLLECTING_PRIORITY = "CollectingPriority";
 
     //endregion
 

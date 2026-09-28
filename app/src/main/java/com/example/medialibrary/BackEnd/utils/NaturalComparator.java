@@ -1,4 +1,4 @@
-package com.example.medialibrary.backend.repository;
+package com.example.medialibrary.backend.utils;
 
 import java.util.Comparator;
 import java.util.function.Function;

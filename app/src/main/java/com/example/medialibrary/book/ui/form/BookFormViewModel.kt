@@ -43,7 +43,7 @@ class BookFormViewModel : ViewModel() {
 
     fun updatePublisher(publisher: Publisher) {
         _book.value?.Publisher = publisher.Id
-        if (publisher.Id <= 0) {
+        if (publisher.Id == "") {
             _newPublisher.value = publisher.Name
         } else {
             _newPublisher.value = ""
@@ -52,12 +52,12 @@ class BookFormViewModel : ViewModel() {
 
     fun updatePublisherName(name: String) {
         _newPublisher.value = name
-        _book.value?.Publisher = 0
+        _book.value?.Publisher = ""
     }
 
     fun updateTag(tag: Tag) {
         _book.value?.Tag = tag.Id
-        if (tag.Id <= 0) {
+        if (tag.Id == "") {
             _newTag.value = tag.Name
         } else {
             _newTag.value = ""
@@ -66,7 +66,7 @@ class BookFormViewModel : ViewModel() {
 
     fun updateTagName(name: String) {
         _newTag.value = name
-        _book.value?.Tag = 0
+        _book.value?.Tag = ""
     }
 
 
@@ -124,7 +124,7 @@ class BookFormViewModel : ViewModel() {
         }
     }
 
-    fun loadBook(id: Int, controller: BookController?, setup: BookSetup) {
+    fun loadBook(id: String, controller: BookController?, setup: BookSetup) {
         val loadedBook = controller?.GetBook(id)
         loadedBook?.let { it ->
             _book.value = it
@@ -149,6 +149,10 @@ class BookFormViewModel : ViewModel() {
         return saveObj
     }
 
+
+    fun updateCollectingPriority(priority: SharedEnums.CollectingPriority) {
+        _book.value?.CollectingPriority = priority
+    }
 
     fun validateFields(): Map<String, String> {
         val errors = mutableMapOf<String, String>()

@@ -10,4 +10,8 @@ public class Enums {
     public enum MediaType {
         None,Book, Video, Music, Other
     }
+
+    public enum CollectingPriority {
+        NoPriority, Low, Medium, High
+    }
 }

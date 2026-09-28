@@ -8,8 +8,8 @@ import java.util.List;
 public interface IOtherRepository {
     List<Other> GetOtherCollections();
     List<Other> GetOtherCollections(String whereClause, List<String> selectionArgs);
-    Other GetOtherCollection(int id);
+    Other GetOtherCollection(String id);
     boolean AddOtherCollection(OtherSaveObj otherObj);
     boolean UpdateOtherCollection(OtherSaveObj otherObj);
-    boolean DeleteOtherCollection(int id);
+    boolean DeleteOtherCollection(String id);
 }

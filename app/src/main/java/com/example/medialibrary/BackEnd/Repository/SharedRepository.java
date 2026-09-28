@@ -2,19 +2,27 @@ package com.example.medialibrary.backend.repository;
 
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_ID;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_NAME;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.TABLE_PUBLISHERS;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.TABLE_TAGS;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.example.medialibrary.backend.models.book.Publisher;
+import com.example.medialibrary.backend.models.shared.DataContainer;
+import com.example.medialibrary.backend.models.shared.ImportObject;
 import com.example.medialibrary.backend.models.shared.Tag;
 import com.example.medialibrary.backend.repository.Interface.Interface.ISharedRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+import com.example.medialibrary.backend.utils.UUIDValidator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class SharedRepository extends BaseRepository implements ISharedRepository {
@@ -39,7 +47,7 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
 
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                String id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAME));
                 tags.add(new Tag(id, name));
             } while (cursor.moveToNext());
@@ -49,7 +57,7 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
     }
 
     @Override
-    public Tag GetTag(int id) {
+    public Tag GetTag(String id) {
         Tag tag = new Tag();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         List<String> selectionArgs = new ArrayList<>();
@@ -69,7 +77,7 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
 
         if (bookCursor.moveToFirst()) {
             do {
-                tag.Id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_ID));
+                tag.Id = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_ID));
                 tag.Name = bookCursor.getString(bookCursor.getColumnIndexOrThrow(COLUMN_NAME));
             } while (bookCursor.moveToNext());
             bookCursor.close();
@@ -84,9 +92,10 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
         db.beginTransaction();
         try {
             if (tag.Name != null && !tag.Name.isEmpty()) {
-                ContentValues pubValues = new ContentValues();
-                pubValues.put(COLUMN_NAME, tag.Name);
-                long id = db.insert(TABLE_TAGS, null, pubValues);
+                ContentValues values = new ContentValues();
+                values.put(COLUMN_ID, UUID.randomUUID().toString());
+                values.put(COLUMN_NAME, tag.Name);
+                long id = db.insert(TABLE_TAGS, null, values);
                 if (id == -1) return false;
             }
 
@@ -122,11 +131,11 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
     }
 
     @Override
-    public boolean DeleteTag(int id) {
+    public boolean DeleteTag(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            int deletedRows = db.delete(TABLE_TAGS, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+            int deletedRows = db.delete(TABLE_TAGS, COLUMN_ID + " = ?", new String[]{id});
             db.setTransactionSuccessful();
             return deletedRows > 0;
         } catch (Exception e) {
@@ -137,4 +146,6 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
             db.endTransaction();
         }
     }
+
+
 }

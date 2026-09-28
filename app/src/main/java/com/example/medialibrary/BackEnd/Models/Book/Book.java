@@ -8,6 +8,6 @@ public class Book extends MediaItem {
     public String Author;
     public String Artist;
     public Enums.BookType Type;
-    public int Publisher;
+    public String Publisher;
     public List<BookItem> Items;
 }

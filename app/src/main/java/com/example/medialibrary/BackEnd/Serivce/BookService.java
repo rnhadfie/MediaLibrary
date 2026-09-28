@@ -45,7 +45,7 @@ public class BookService {
         return sharedService.mapToDisplayItems(BookItemBasedFilters(books, filter), false);
     }
 
-    public Book GetBook(int id) {
+    public Book GetBook(String id) {
         var repo = this.bookRepository.getValue();
         return repo.GetBook(id);
     }
@@ -60,7 +60,7 @@ public class BookService {
         return repo.UpdateBook(book);
     }
 
-    public boolean DeleteBook(int id) {
+    public boolean DeleteBook(String id) {
         var repo = this.bookRepository.getValue();
         return repo.DeleteBook(id);
     }
@@ -186,7 +186,7 @@ public class BookService {
         return repo.UpdatePublisher(publisher);
     }
 
-    public boolean DeletePublisher(int id) {
+    public boolean DeletePublisher(String id) {
         var repo = this.bookRepository.getValue();
         return repo.DeletePublisher(id);
     }

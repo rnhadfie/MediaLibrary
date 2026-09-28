@@ -24,157 +24,76 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
+import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.VideoController
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
-import com.example.medialibrary.backend.models.video.*
+import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
 import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.video.Enums.*
 import com.example.medialibrary.backend.models.shared.Tag
+import com.example.medialibrary.backend.models.video.*
+import com.example.medialibrary.backend.models.video.Enums.*
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
-import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
+import com.example.medialibrary.databinding.VideoFragmentFormBinding
+import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.ByteArrayOutputStream
 import java.io.File
-import kotlin.sequences.forEach
 
-class VideoFormFragment : Fragment() {
+class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormViewModel>(
+    VideoFragmentFormBinding::inflate
+) {
 
     companion object {
-        private const val ARG_ID = "arg_id"
-        private const val ARG_IS_EDIT = "arg_is_edit"
-
-        fun newInstance(id: Int = -1, isEdit: Boolean = false) = VideoFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false) = VideoFormFragment().apply {
             arguments = Bundle().apply {
-                putInt(ARG_ID, id)
+                putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
             }
         }
     }
 
-    private val viewModel: VideoFormViewModel by viewModels()
-    private var _binding: VideoFragmentFormBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var itemAdapter: VideoItemAdapter
-
-    private var pendingImageTarget: String? = null
-    private var pendingItemPosition: Int = -1
-    private var currentSheetBinding: VideoItemBottomSheetBinding? = null
-
     private var controller: VideoController? = null
-
-    private var tempPhotoFile: File? = null
-    private var tempPhotoUri: Uri? = null
-
-    // region Image Handling
-    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            uri?.let { ImageUtils.handleImageUri(it, requireContext(), ::handleImageBitmap) }
-        }
-    }
-
-    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && tempPhotoUri != null) {
-            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
-        }
-        tempPhotoFile?.delete()
-        tempPhotoFile = null
-        tempPhotoUri = null
-    }
-
-    private fun handleImageBitmap(bitmap: Bitmap) {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-        val byteArray = outputStream.toByteArray()
-        ImageUtils.handleImageBitmap(bitmap, pendingImageTarget, binding, currentSheetBinding )
-
-        if (pendingImageTarget == "book") {
-            viewModel.updateCover(byteArray)
-        }
-
-    }
-
-    private fun clearImage(target: String) {
-
-        ImageUtils.clearImage(target, binding, currentSheetBinding,requireContext(),resources)
-        if (target == "book") {
-            viewModel.updateCover(null)
-        }
-    }
-
-    private fun showImageOptionsDialog(target: String) {
-        pendingImageTarget = target
-        val options = arrayOf(
-            getString(R.string.choose_from_gallery),
-            getString(R.string.take_photo),
-            getString(R.string.clear_image)
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.select_image_source)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-                        pickGalleryLauncher.launch(intent)
-                    }
-                    1 -> {
-                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
-                        tempPhotoFile = file
-                        tempPhotoUri = uri
-                        takePhotoLauncher.launch(uri)
-                    }
-                    2 -> {
-                        clearImage(target)
-                    }
-                }
-            }
-            .show()
-    }
-
-    //endregion
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        // Initialize controller
-        val dbHelper = MediaLibraryDbHelper(requireContext())
-        controller = VideoController(dbHelper)
-
-        _binding = VideoFragmentFormBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[VideoFormViewModel::class.java]
 
-        val videoId = arguments?.getInt(ARG_ID) ?: -1
-        val isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
+        val dbHelper = MediaLibraryDbHelper(requireContext())
+        controller = VideoController(dbHelper)
 
         var setup = controller?.GetVideoSetup()
-
-        if(setup == null)
+        if (setup == null)
             setup = VideoSetup()
 
-        if (isEdit && videoId != -1) {
-            viewModel.loadVideo(videoId, controller, setup)
+        if (isEdit && itemId != "-1") {
+            viewModel.loadVideo(itemId, controller, setup)
         }
 
         setupVideoTypeRadioGroup(setup.Types)
         setupVideoTagRadioGroup(setup.VideoTags)
         setupGenreSelection(setup)
         setupTagSelection(setup)
+        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+            viewModel.updateCollectingPriority(priority)
+        }
+        setupRecyclerView()
+        setupInputListeners()
+
+        binding.changeImage.buttonChangeCover.setOnClickListener {
+            showImageOptionsDialog("video")
+        }
+        binding.changeImage.buttonClearCover.setOnClickListener {
+            clearImage("video")
+        }
         setupRecyclerView()
         setupInputListeners()
 
@@ -224,6 +143,9 @@ class VideoFormFragment : Fragment() {
                 val tag = s.Tag.find { it.Id == book.Tag }
                 tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
             }
+
+            val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+            binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
             if (book.Cover != null && book.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
@@ -322,11 +244,19 @@ class VideoFormFragment : Fragment() {
         }
         binding.genreMultiselect.buttonSelectGenres.isEnabled = enabled
         binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
+        binding.collectingPriorityAutocomplete.autoCompleteLabel.isEnabled = enabled
+        binding.collectingPriorityAutocomplete.autocomplete.isEnabled = enabled
         binding.addItemBtn.isEnabled = enabled
         binding.collectingCheck.isEnabled = enabled
         binding.ongoingCheck.isEnabled = enabled
         binding.collectedCheck.isEnabled = enabled
         binding.saveBtn.isEnabled = enabled
+    }
+
+    override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
+        if (target == "video" || target == "book" || target == "main") {
+            viewModel.updateCover(byteArray)
+        }
     }
 
     private fun handleRadioSelectionChange(id: Int) {
@@ -575,7 +505,6 @@ class VideoFormFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         currentSheetBinding = null
     }
 

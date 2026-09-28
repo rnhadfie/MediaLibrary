@@ -3,6 +3,7 @@ package com.example.medialibrary.backend.repository.database;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -34,6 +35,20 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                     TABLE_BOOK_ITEMS + "', '" + TABLE_MUSIC + "', '" + TABLE_VIDEOS + "', '" +
                     TABLE_VIDEO_ITEMS + "', '" + TABLE_OTHERS + "', '" + TABLE_OTHER_ITEMS + "')");
 
+            // Drops all tables
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_TAGS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_PUBLISHERS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOKS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOK_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MUSIC);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_VIDEOS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_VIDEO_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_OTHERS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_OTHER_ITEMS);
+
+            //Recreates them
+            onCreate(db);
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -44,21 +59,26 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         // Tag table
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_TAGS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_NAME + " TEXT NOT NULL)");
+                COLUMN_ID + " TEXT PRIMARY KEY , " +
+                COLUMN_NAME + " TEXT NOT NULL," +
+                "UNIQUE (" + COLUMN_ID + ", " + COLUMN_NAME + "))"
+        );
 
         // Publisher table
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_PUBLISHERS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_NAME + " TEXT NOT NULL)");
+                COLUMN_ID + " TEXT PRIMARY KEY , " +
+                COLUMN_NAME + " TEXT NOT NULL," +
+                "UNIQUE (" + COLUMN_ID + ", " + COLUMN_NAME + "))"
+        );
 
         // region Book table
+
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BOOKS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_TITLE + " TEXT NOT NULL, " +
                 COLUMN_COLLECTING + " INTEGER, " +
-                COLUMN_HAS_ENDED + " INTEGER, " +
-                COLUMN_COMPLETED_COLLECTING + " INTEGER, " +
+                COLUMN_ONGOING + " INTEGER, " +
+                COLUMN_COLLECTED + " INTEGER, " +
                 COLUMN_TAG + " INTEGER, " +
                 COLUMN_COVER + " BLOB, " +
                 COLUMN_GENRE + " TEXT, " +
@@ -66,12 +86,13 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_ARTIST + " TEXT, " +
                 COLUMN_TYPE + " INTEGER, " +
                 COLUMN_PUBLISHER + " INTEGER, " +
+                COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
+                "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_AUTHOR + ", " + COLUMN_TYPE + ")," +
                 "FOREIGN KEY(" + COLUMN_TAG + ") REFERENCES " + TABLE_TAGS + "(" + COLUMN_ID + "), " +
                 "FOREIGN KEY(" + COLUMN_PUBLISHER + ") REFERENCES " + TABLE_PUBLISHERS + "(" + COLUMN_ID + "))");
 
-        // BookItem table
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_BOOK_ITEMS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_SERIES + " INTEGER, " +
                 COLUMN_VOLUME_NUMBER + " TEXT, " +
                 COLUMN_VOLUME_TITLE + " TEXT, " +
@@ -83,40 +104,46 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
 
         //endregion
 
-        // Music table
+        //region Music table
+
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_MUSIC + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_TITLE + " TEXT NOT NULL, " +
                 COLUMN_COLLECTING + " INTEGER, " +
-                COLUMN_HAS_ENDED + " INTEGER, " +
-                COLUMN_COMPLETED_COLLECTING + " INTEGER, " +
+                COLUMN_ONGOING + " INTEGER, " +
+                COLUMN_COLLECTED + " INTEGER, " +
                 COLUMN_TAG + " INTEGER, " +
                 COLUMN_COVER + " BLOB, " +
                 COLUMN_GENRE + " TEXT, " +
                 COLUMN_ARTIST + " TEXT, " +
+                COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
                 "Year INTEGER, " +
                 COLUMN_PUBLISHER + " INTEGER, " +
+                "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_ARTIST + ")," +
                 "FOREIGN KEY(" + COLUMN_TAG + ") REFERENCES " + TABLE_TAGS + "(" + COLUMN_ID + "))");
+
+        //endregion
 
         // region Video table
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_VIDEOS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY , " +
                 COLUMN_TITLE + " TEXT NOT NULL, " +
                 COLUMN_COLLECTING + " INTEGER, " +
-                COLUMN_HAS_ENDED + " INTEGER, " +
-                COLUMN_COMPLETED_COLLECTING + " INTEGER, " +
+                COLUMN_ONGOING + " INTEGER, " +
+                COLUMN_COLLECTED + " INTEGER, " +
                 COLUMN_TAG + " INTEGER, " +
                 COLUMN_COVER + " BLOB, " +
                 COLUMN_GENRE + " TEXT, " +
                 COLUMN_TYPE + " INTEGER, " +
                 COLUMN_VIDEO_TAG + " INTEGER, " +
-                COLUMN_PUBLISHER + " INTEGER, " +
+                COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
+                "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_VIDEO_TAG + ", " + COLUMN_TYPE + ")," +
                 "FOREIGN KEY(" + COLUMN_TAG + ") REFERENCES " + TABLE_TAGS + "(" + COLUMN_ID + "))");
 
         // VideoItem table
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_VIDEO_ITEMS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY , " +
                 COLUMN_SERIES + " INTEGER, " +
                 COLUMN_DISC_NUMBER + " INTEGER, " +
                 COLUMN_DISC_TITLE + " TEXT, " +
@@ -131,20 +158,22 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
         //region Other table
 
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_OTHERS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY , " +
                 COLUMN_TITLE + " TEXT NOT NULL, " +
                 COLUMN_COLLECTING + " INTEGER, " +
-                COLUMN_HAS_ENDED + " INTEGER, " +
-                COLUMN_COMPLETED_COLLECTING + " INTEGER, " +
+                COLUMN_ONGOING + " INTEGER, " +
+                COLUMN_COLLECTED + " INTEGER, " +
                 COLUMN_TAG + " INTEGER, " +
                 COLUMN_COVER + " BLOB, " +
                 COLUMN_GENRE + " TEXT, " +
                 COLUMN_PUBLISHER + " INTEGER, " +
+                COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
+                "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE + ")," +
                 "FOREIGN KEY(" + COLUMN_TAG + ") REFERENCES " + TABLE_TAGS + "(" + COLUMN_ID + "))");
 
         // OtherItem table
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_OTHER_ITEMS + " (" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_SERIES + " INTEGER, " +
                 COLUMN_ITEM_COVER + " BLOB, " +
                 "FOREIGN KEY(" + COLUMN_SERIES + ") REFERENCES " + TABLE_OTHERS + "(" + COLUMN_ID + "))");
@@ -165,4 +194,30 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);
         onCreate(db);
     }
+
+    public boolean IsTableEmpty(SQLiteDatabase db, String table)
+    {
+        boolean isEmpty = true;
+
+        String query = "SELECT EXISTS (SELECT 1 FROM " + table + ")";
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+
+            isEmpty = cursor.getInt(0) == 0;
+        }
+        cursor.close();
+
+        return isEmpty;
+    }
+
+    public boolean CheckIfIdExists(SQLiteDatabase db, String table, int id) {
+        String query = "SELECT 1 FROM" + table + " WHERE id = ? LIMIT 1";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(id)});
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
+
 }

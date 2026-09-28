@@ -20,7 +20,7 @@ class VideoFormActivity : AppCompatActivity() {
             insets
         }
         if (savedInstanceState == null) {
-            val videoId = intent.getIntExtra("EXTRA_ID", -1)
+            val videoId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
             supportActionBar?.title =  if(isEdit)  "Edit Movie or TV Show" else "Add Movie or TV Show"

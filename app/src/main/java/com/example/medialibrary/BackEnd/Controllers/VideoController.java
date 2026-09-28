@@ -32,7 +32,7 @@ public class VideoController extends BaseController {
         return this.videoSerivce.getValue().GetVideoDisplayLists(filter);
     }
 
-    public Video GetVideo(int id) {
+    public Video GetVideo(String id) {
         return this.videoSerivce.getValue().GetVideo(id);
     }
 
@@ -43,7 +43,7 @@ public class VideoController extends BaseController {
     public boolean UpdateVideo(VideoSaveObject video) {
         return this.videoSerivce.getValue().EditVideo(video);
     }
-    public boolean DeleteVideo(int id) {
+    public boolean DeleteVideo(String id) {
         return this.videoSerivce.getValue().DeleteVideo(id);
     }
 

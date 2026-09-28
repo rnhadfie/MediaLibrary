@@ -3,9 +3,9 @@ package com.example.medialibrary.backend.Serivce;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_ARTIST;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_AUTHOR;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COLLECTING;
-import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COMPLETED_COLLECTING;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_COLLECTED;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_GENRE;
-import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_HAS_ENDED;
+import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_ONGOING;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_PUBLISHER;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TAG;
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.COLUMN_TITLE;
@@ -141,7 +141,7 @@ public class SharedService {
         return sharedRepository.getValue().UpdateTag(tag);
     }
 
-    public boolean DeleteTag(int id) {
+    public boolean DeleteTag(String id) {
         return sharedRepository.getValue().DeleteTag(id);
     }
 
@@ -256,19 +256,19 @@ public class SharedService {
         }
 
         if (filter.Collected != null) {
-            conditions.add(COLUMN_COMPLETED_COLLECTING + " = ?");
+            conditions.add(COLUMN_COLLECTED + " = ?");
             selectionArgs.add(filter.Collected ? "1" : "0");
         }
 
         if (filter.Ongoing != null) {
-            conditions.add(COLUMN_HAS_ENDED + " = ?");
+            conditions.add(COLUMN_ONGOING + " = ?");
             selectionArgs.add(filter.Ongoing ? "1" : "0");
         }
 
         // Tags
         List<String> incTags = new ArrayList<>();
         if (filter.IncludedTags != null && !filter.IncludedTags.isEmpty()) {
-            for (Integer tagId : filter.IncludedTags) {
+            for (String tagId : filter.IncludedTags) {
                 incTags.add(String.valueOf(tagId));
             }
         } else if (filter.Tag > 0) {
@@ -278,7 +278,7 @@ public class SharedService {
 
         List<String> excTags = new ArrayList<>();
         if (filter.ExcludedTags != null && !filter.ExcludedTags.isEmpty()) {
-            for (Integer tagId : filter.ExcludedTags) {
+            for (String tagId : filter.ExcludedTags) {
                 excTags.add(String.valueOf(tagId));
             }
         }
@@ -305,7 +305,7 @@ public class SharedService {
         // Genres
         List<String> incGenres = new ArrayList<>();
         if (filter.IncludedGenres != null && !filter.IncludedGenres.isEmpty()) {
-            for (Integer gId : filter.IncludedGenres) {
+            for (int gId : filter.IncludedGenres) {
                 incGenres.add(String.valueOf(gId));
             }
         } else if (filter.Genre > 0) {
@@ -314,7 +314,7 @@ public class SharedService {
 
         List<String> excGenres = new ArrayList<>();
         if (filter.ExcludedGenres != null && !filter.ExcludedGenres.isEmpty()) {
-            for (Integer gId : filter.ExcludedGenres) {
+            for (int gId : filter.ExcludedGenres) {
                 excGenres.add(String.valueOf(gId));
             }
         }
@@ -371,7 +371,7 @@ public class SharedService {
             //Publishers
             List<String> incPubs = new ArrayList<>();
             if (bFilter.IncludedPublishers != null && !bFilter.IncludedPublishers.isEmpty()) {
-                for (Integer pId : bFilter.IncludedPublishers) {
+                for (String pId : bFilter.IncludedPublishers) {
                     incPubs.add(String.valueOf(pId));
                 }
             } else if (bFilter.Publisher > 0) {
@@ -381,7 +381,7 @@ public class SharedService {
 
             List<String> excPubs = new ArrayList<>();
             if (bFilter.ExcludedPublishers != null && !bFilter.ExcludedPublishers.isEmpty()) {
-                for (Integer pId : bFilter.ExcludedPublishers) {
+                for (String pId : bFilter.ExcludedPublishers) {
                     excPubs.add(String.valueOf(pId));
                 }
             }

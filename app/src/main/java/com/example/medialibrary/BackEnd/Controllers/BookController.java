@@ -36,7 +36,7 @@ public class BookController extends BaseController {
         return this.bookSerivce.getValue().GetBookDisplayLists(filter);
     }
 
-    public Book GetBook(int id) {
+    public Book GetBook(String id) {
 
        return this.bookSerivce.getValue().GetBook(id);
 
@@ -49,7 +49,7 @@ public class BookController extends BaseController {
     public boolean UpdateBook(BookSaveObject book) {
         return this.bookSerivce.getValue().EditBook(book);
     }
-    public boolean DeleteBook(int id) {
+    public boolean DeleteBook(String id) {
         return this.bookSerivce.getValue().DeleteBook(id);
     }
 
@@ -69,7 +69,7 @@ public class BookController extends BaseController {
         return this.bookSerivce.getValue().UpdatePublisher(publisher);
     }
 
-    public boolean DeletePublisher(int id) {
+    public boolean DeletePublisher(String id) {
         return this.bookSerivce.getValue().DeletePublisher(id);
     }
 }

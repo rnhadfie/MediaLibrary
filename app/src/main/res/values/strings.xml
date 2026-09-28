@@ -133,4 +133,5 @@
     <string name="x">X</string>
     <string name="add_set_or_season">Add Set or Season</string>
     <string name="standalone">Standalone</string>
+    <string name="collecting_priority">Collecting Priority</string>
 </resources>

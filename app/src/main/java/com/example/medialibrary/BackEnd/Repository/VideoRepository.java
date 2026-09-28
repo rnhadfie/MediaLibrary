@@ -10,11 +10,13 @@ import com.example.medialibrary.backend.models.video.*;
 import com.example.medialibrary.backend.repository.Interface.Interface.IVideoRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+import com.example.medialibrary.backend.utils.DatabaseMappings;
 
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class VideoRepository extends BaseRepository implements IVideoRepository {
@@ -65,7 +67,8 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
             if (cursor.moveToFirst()) {
                 do {
                     Video video = new Video();
-                    mapVideo(cursor, video);
+                    var id = DatabaseMappings.MapVideo(cursor, video);
+                    video.Items = GetVideoItems(id);
                     videos.add(video);
                 } while (cursor.moveToNext());
                 cursor.close();
@@ -79,7 +82,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
     }
 
     @Override
-    public Video GetVideo(int id) {
+    public Video GetVideo(String id) {
         Video video = new Video();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -101,7 +104,8 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
 
             if (videoCursor.moveToFirst()) {
                 do {
-                    mapVideo(videoCursor, video);
+                    DatabaseMappings.MapVideo(videoCursor, video);
+                    video.Items = GetVideoItems(video.Id);
                 } while (videoCursor.moveToNext());
                 videoCursor.close();
             }
@@ -117,20 +121,18 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            long tagId = videoObj.video.Tag;
-            if (videoObj.NewTag != null && !videoObj.NewTag.isEmpty()) {
-                ContentValues tagValues = new ContentValues();
-                tagValues.put(COLUMN_NAME, videoObj.NewTag);
-                tagId = db.insert(TABLE_TAGS, null, tagValues);
-            }
+            String tagId = AddNewTag(videoObj.video.Tag, videoObj.NewTag, db);
 
-            ContentValues videoValues = mapVideoContentValues(tagId, videoObj.video);
+            String videoId = UUID.randomUUID().toString();
+            videoObj.video.Id = videoId;
 
-            long videoId = db.insert(TABLE_VIDEOS, null, videoValues);
+            ContentValues videoValues = DatabaseMappings.MapVideoContentValues(tagId, videoObj.video);
+
+            db.insert(TABLE_VIDEOS, null, videoValues);
 
             if (videoObj.video.Items != null) {
                 for (VideoItem item : videoObj.video.Items) {
-                    ContentValues itemValues = mapVideoItemContentValues(videoId, item);
+                    ContentValues itemValues = DatabaseMappings.MapVideoItemContentValues(videoId, item);
                     db.insert(TABLE_VIDEO_ITEMS, null, itemValues);
                 }
             }
@@ -151,22 +153,17 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
-            long tagId = videoObj.video.Tag;
-            if (videoObj.NewTag != null && !videoObj.NewTag.isEmpty()) {
-                ContentValues tagValues = new ContentValues();
-                tagValues.put(COLUMN_NAME, videoObj.NewTag);
-                tagId = db.insert(TABLE_TAGS, null, tagValues);
-            }
+            String tagId = AddNewTag(videoObj.video.Tag, videoObj.NewTag, db);
 
-            ContentValues videoValues = mapVideoContentValues(tagId, videoObj.video);
+            ContentValues videoValues = DatabaseMappings.MapVideoContentValues(tagId, videoObj.video);
 
-            db.update(TABLE_VIDEOS, videoValues, COLUMN_ID + " = ?", new String[]{String.valueOf(videoObj.video.Id)});
+            db.update(TABLE_VIDEOS, videoValues, COLUMN_ID + " = ?", new String[]{videoObj.video.Id});
 
-            db.delete(TABLE_VIDEO_ITEMS, COLUMN_SERIES + " = ?", new String[]{String.valueOf(videoObj.video.Id)});
+            db.delete(TABLE_VIDEO_ITEMS, COLUMN_SERIES + " = ?", new String[]{videoObj.video.Id});
 
             if (videoObj.video.Items != null) {
                 for (VideoItem item : videoObj.video.Items) {
-                    ContentValues itemValues = mapVideoItemContentValues(videoObj.video.Id, item);
+                    ContentValues itemValues = DatabaseMappings.MapVideoItemContentValues(videoObj.video.Id, item);
                     db.insert(TABLE_VIDEO_ITEMS, null, itemValues);
                 }
             }
@@ -183,7 +180,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
     }
 
     @Override
-    public boolean DeleteVideo(int id) {
+    public boolean DeleteVideo(String id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
@@ -200,7 +197,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         }
     }
 
-    private List<VideoItem> GetVideoItems(Integer id) {
+    private List<VideoItem> GetVideoItems(String id) {
         List<VideoItem> items = new ArrayList<>();
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -208,7 +205,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
                 TABLE_VIDEO_ITEMS,
                 null,
                 COLUMN_SERIES + " = ?",
-                new String[]{String.valueOf(id)},
+                new String[]{id},
                 null,
                 null,
                 null
@@ -216,7 +213,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         if (cursor.moveToFirst()) {
             do {
                 VideoItem item = new VideoItem();
-                mapVideoItem(cursor, item);
+                DatabaseMappings.MapVideoItem(cursor, item);
                 items.add(item);
             } while (cursor.moveToNext());
             cursor.close();
@@ -224,53 +221,5 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
         return items;
     }
 
-    private void mapVideoItem(Cursor cursor, VideoItem item) {
-        item.Id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
-        item.Season = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_DISC_NUMBER));
-        item.DiscTitle = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DISC_TITLE));
-        item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
-        item.Watched = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_WATCHED)) == 1;
-        item.Format = Enums.VideoFormat.values()[cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FORMAT))];
-        item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
-        item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
-    }
 
-    private void mapVideo(Cursor videoCursor, Video video) {
-        mapMediaItem(videoCursor, video);
-        video.MediaType = MediaType.Video;
-        video.Items = GetVideoItems(video.Id);
-        video.Tag = videoCursor.getInt(videoCursor.getColumnIndexOrThrow(COLUMN_TAG));
-        video.VideoTag = Enums.VideoTag.values()[videoCursor.getInt(videoCursor.getColumnIndexOrThrow(COLUMN_VIDEO_TAG))];
-
-        int typeValue = videoCursor.getInt(videoCursor.getColumnIndexOrThrow(COLUMN_TYPE));
-        if (typeValue >= 0 && typeValue < Enums.VideoType.values().length) {
-            video.Type = Enums.VideoType.values()[typeValue];
-        }
-    }
-
-    private ContentValues mapVideoContentValues(long tagId, Video video) {
-        ContentValues videoValues = new ContentValues();
-        videoValues.put(COLUMN_TITLE, video.Title);
-        videoValues.put(COLUMN_COLLECTING, (video.Collecting != null && video.Collecting) ? 1 : 0);
-        videoValues.put(COLUMN_HAS_ENDED, (video.Ongoing != null && video.Ongoing) ? 1 : 0);
-        videoValues.put(COLUMN_COMPLETED_COLLECTING, (video.HasCollectedAllItems != null && video.HasCollectedAllItems) ? 1 : 0);
-        videoValues.put(COLUMN_TAG, tagId);
-        videoValues.put(COLUMN_COVER, compressBitmap(video.Cover));
-        videoValues.put(COLUMN_GENRE, serializeGenre(video.Genre));
-        videoValues.put(COLUMN_TYPE, video.Type != null ? video.Type.ordinal() : 0);
-        videoValues.put(COLUMN_VIDEO_TAG, video.VideoTag != null ? video.VideoTag.ordinal() : 0);
-        return videoValues;
-    }
-
-    private ContentValues mapVideoItemContentValues(long videoId, VideoItem item) {
-        ContentValues itemValues = new ContentValues();
-        itemValues.put(COLUMN_SERIES, videoId);
-        itemValues.put(COLUMN_DISC_NUMBER, item.Season);
-        itemValues.put(COLUMN_DISC_TITLE, item.DiscTitle);
-        itemValues.put(COLUMN_WATCHED, item.Watched ? 1 : 0);
-        itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
-        itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
-        itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
-        return itemValues;
-    }
 }

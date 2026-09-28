@@ -28,7 +28,7 @@ class OtherFormViewModel : ViewModel() {
 
     fun updateTag(tag: Tag) {
         _other.value?.Tag = tag.Id
-        if (tag.Id <= 0) {
+        if (tag.Id <= "0") {
             _newTag.value = tag.Name
         } else {
             _newTag.value = ""
@@ -37,7 +37,7 @@ class OtherFormViewModel : ViewModel() {
 
     fun updateTagName(name: String) {
         _newTag.value = name
-        _other.value?.Tag = 0
+        _other.value?.Tag = "0"
     }
 
     fun updateCover(cover: ByteArray?) {
@@ -78,7 +78,7 @@ class OtherFormViewModel : ViewModel() {
         }
     }
 
-    fun loadOtherCollection(id: Int, controller: OtherController?) {
+    fun loadOtherCollection(id: String, controller: OtherController?) {
         val loadedOtherCollection = controller?.GetOtherItem(id)
         loadedOtherCollection?.let {
             _other.value = it
@@ -93,6 +93,10 @@ class OtherFormViewModel : ViewModel() {
         saveObj.Other.Items = _items.value
         saveObj.NewTag = _newTag.value
         return saveObj
+    }
+
+    fun updateCollectingPriority(priority: SharedEnums.CollectingPriority) {
+        _other.value?.CollectingPriority = priority
     }
 
     fun validate(): String? {

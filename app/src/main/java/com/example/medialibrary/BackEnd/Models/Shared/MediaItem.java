@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MediaItem {
-    public int Id;
+    public String Id;
     public Enums.MediaType MediaType;
     public String Title;
     public List<Integer> Genre = new ArrayList<>();
@@ -12,7 +12,8 @@ public class MediaItem {
     public Boolean Ongoing;
     public Boolean HasCollectedAllItems;
     public Boolean CurrentOwnAny;
-    public int Tag;
+    public String Tag;
     public byte[] Cover;
+    public Enums.CollectingPriority CollectingPriority;
 
 }

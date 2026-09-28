@@ -3,7 +3,7 @@ package com.example.medialibrary.backend.models.shared;
 import androidx.annotation.NonNull;
 
 public class Tag {
-    public int Id;
+    public String Id;
     public String Name;
 
     @NonNull
@@ -13,7 +13,7 @@ public class Tag {
     }
 
     public Tag() {};
-    public Tag(int id, String name) {
+    public Tag(String id, String name) {
         Id = id;
         Name = name;
     }

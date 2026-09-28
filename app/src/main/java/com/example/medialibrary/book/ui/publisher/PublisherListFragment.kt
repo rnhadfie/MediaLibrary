@@ -78,7 +78,7 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
                 val name = editText.text.toString()
                 if (name.isNotBlank()) {
                     if (publisher == null) {
-                        controller.AddPublisher(Publisher(0, name))
+                        controller.AddPublisher(Publisher("", name))
                     } else {
                         controller.UpdatePublisher(Publisher(publisher.Id, name))
                     }

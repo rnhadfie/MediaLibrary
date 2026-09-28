@@ -21,13 +21,13 @@ class OtherFormActivity : AppCompatActivity() {
             insets
         }
         if (savedInstanceState == null) {
-            val videoId = intent.getIntExtra("EXTRA_ID", -1)
+            val otherId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
             supportActionBar?.title =  if(isEdit)  "Edit Collection" else "Add Collection"
 
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, OtherFormFragment.newInstance(videoId, isEdit))
+                .replace(R.id.main, OtherFormFragment.newInstance(otherId, isEdit))
                 .commitNow()
         }
     }

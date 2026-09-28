@@ -109,7 +109,7 @@ public class MainService {
         return this.sharedService.getValue().UpdateTag(tag);
     }
 
-    public boolean DeleteTag(int id) {
+    public boolean DeleteTag(String id) {
         return this.sharedService.getValue().DeleteTag(id);
     }
 

@@ -30,149 +30,58 @@ import com.example.medialibrary.backend.controllers.BookController
 import com.example.medialibrary.backend.models.book.Book
 import java.io.ByteArrayOutputStream
 import java.io.File
-import com.example.medialibrary.backend.models.book.BookItem
-import com.example.medialibrary.backend.models.book.BookSetup
+import com.example.medialibrary.backend.models.book.*
 import com.example.medialibrary.backend.models.book.Enums
+import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
 import com.example.medialibrary.backend.models.music.Enums.MusicGenre
 import com.example.medialibrary.backend.models.shared.GenreObject
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemBottomSheetBinding
+import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.databinding.BookFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
-import com.example.medialibrary.utils.RadioGridUtils
-import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 
-class BookFormFragment : Fragment() {
+class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewModel>(
+    BookFragmentFormBinding::inflate
+) {
 
     companion object {
-        private const val ARG_ID = "arg_id"
-        private const val ARG_IS_EDIT = "arg_is_edit"
-
-        fun newInstance(id: Int = -1, isEdit: Boolean = false) = BookFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false) = BookFormFragment().apply {
             arguments = Bundle().apply {
-                putInt(ARG_ID, id)
+                putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
             }
         }
     }
 
-    private val viewModel: BookFormViewModel by viewModels()
-    private var _binding: BookFragmentFormBinding? = null
-    private val binding get() = _binding!!
-
     private lateinit var itemAdapter: BookItemAdapter
-
-    private var pendingImageTarget: String? = null // "book" or "item"
-    private var pendingItemPosition: Int = -1
-    private var currentSheetBinding: BookItemBottomSheetBinding? = null
-
     private var controller: BookController? = null
-
-    private var tempPhotoFile: File? = null
-    private var tempPhotoUri: Uri? = null
-
-
-    // region Image Handling
-    private val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val uri = result.data?.data
-            uri?.let { ImageUtils.handleImageUri(it, requireContext(), ::handleImageBitmap) }
-        }
-    }
-
-    private val takePhotoLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success && tempPhotoUri != null) {
-            ImageUtils.handleImageUri(tempPhotoUri!!, requireContext(), ::handleImageBitmap)
-        }
-        tempPhotoFile?.delete()
-        tempPhotoFile = null
-        tempPhotoUri = null
-    }
-
-    private fun handleImageBitmap(bitmap: Bitmap) {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-        val byteArray = outputStream.toByteArray()
-        ImageUtils.handleImageBitmap(bitmap, pendingImageTarget, binding, currentSheetBinding )
-
-        if (pendingImageTarget == "book") {
-            viewModel.updateCover(byteArray)
-        }
-
-    }
-
-    private fun clearImage(target: String) {
-
-        ImageUtils.clearImage(target, binding, currentSheetBinding,requireContext(),resources)
-        if (target == "book") {
-            viewModel.updateCover(null)
-        }
-    }
-
-    private fun showImageOptionsDialog(target: String) {
-        pendingImageTarget = target
-        val options = arrayOf(
-            getString(R.string.choose_from_gallery),
-            getString(R.string.take_photo),
-            getString(R.string.clear_image)
-        )
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.select_image_source)
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> {
-                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
-                        pickGalleryLauncher.launch(intent)
-                    }
-                    1 -> {
-                        val (file, uri) = ImageUtils.createTempPhotoUri(requireContext())
-                        tempPhotoFile = file
-                        tempPhotoUri = uri
-                        takePhotoLauncher.launch(uri)
-                    }
-                    2 -> {
-                        clearImage(target)
-                    }
-                }
-            }
-            .show()
-    }
-
-    //endregion
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-
-        // Initialize controller
-        val dbHelper = MediaLibraryDbHelper(requireContext())
-        controller = BookController(dbHelper)
-
-        _binding = BookFragmentFormBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this)[BookFormViewModel::class.java]
 
-        val bookId = arguments?.getInt(ARG_ID) ?: -1
-        val isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
+        val dbHelper = MediaLibraryDbHelper(requireContext())
+        controller = BookController(dbHelper)
 
         var setup = controller?.GetBookSetup()
-        if(setup == null)
+        if (setup == null)
             setup = BookSetup()
 
-        if (isEdit && bookId != -1) {
-            viewModel.loadBook(bookId, controller, setup)
+        if (isEdit && itemId != "-1") {
+            viewModel.loadBook(itemId, controller, setup)
         }
 
         setupBookTypeRadioGroup(setup)
         setupGenreSelection(setup)
         setupPublisherSelection(setup)
         setupTagSelection(setup)
+        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+            viewModel.updateCollectingPriority(priority)
+        }
         setupRecyclerView()
         setupInputListeners()
 
@@ -189,8 +98,7 @@ class BookFormFragment : Fragment() {
 
         binding.saveBtn.setOnClickListener {
             val success = saveAction(isEdit)
-            if(success)
-            {
+            if (success) {
                 activity?.finish()
             }
         }
@@ -209,6 +117,12 @@ class BookFormFragment : Fragment() {
         }
     }
 
+    override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
+        if (target == "book" || target == "main") {
+            viewModel.updateCover(byteArray)
+        }
+    }
+
     private fun observeViewmodel(book: Book, setup: BookSetup)
     {
         binding.titleInput.setText(book.Title)
@@ -217,6 +131,9 @@ class BookFormFragment : Fragment() {
         binding.collectingCheck.isChecked = book.Collecting ?: false
         binding.ongoingCheck.isChecked = book.Ongoing ?: false
         binding.collectedCheck.isChecked = book.HasCollectedAllItems ?: false
+
+        val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+        binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
         // Update RadioGroup
         val musicGenreId = book.Type?.ordinal ?: 0
@@ -320,8 +237,10 @@ class BookFormFragment : Fragment() {
         binding.pubAutocomplete.autoCompleteLabel.isEnabled = enabled
         binding.pubAutocomplete.autocomplete.isEnabled = enabled
         binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
-        binding.addItemBtn.isEnabled = enabled
         binding.tagAutocomplete.autocomplete.isEnabled = enabled
+        binding.collectingPriorityAutocomplete.autoCompleteLabel.isEnabled = enabled
+        binding.collectingPriorityAutocomplete.autocomplete.isEnabled = enabled
+        binding.addItemBtn.isEnabled = enabled
         binding.collectingCheck.isEnabled = enabled
         binding.ongoingCheck.isEnabled = enabled
         binding.collectedCheck.isEnabled = enabled
@@ -603,7 +522,6 @@ class BookFormFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
         currentSheetBinding = null
     }
 

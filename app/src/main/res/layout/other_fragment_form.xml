@@ -106,6 +106,10 @@
                 android:id="@+id/tag_autocomplete"
                 />
 
+            <include layout="@layout/view_dropdown"
+                android:id="@+id/collecting_priority_autocomplete"
+                />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_save_other"
                 android:layout_width="match_parent"

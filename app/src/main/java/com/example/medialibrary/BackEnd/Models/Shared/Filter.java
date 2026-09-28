@@ -13,8 +13,8 @@ public class Filter {
     public Boolean AnyOwned;
     public Boolean Collected;
 
-    public List<Integer> IncludedTags = new ArrayList<>();
-    public List<Integer> ExcludedTags = new ArrayList<>();
+    public List<String> IncludedTags = new ArrayList<>();
+    public List<String> ExcludedTags = new ArrayList<>();
 
     public List<Integer> IncludedGenres = new ArrayList<>();
     public List<Integer> ExcludedGenres = new ArrayList<>();

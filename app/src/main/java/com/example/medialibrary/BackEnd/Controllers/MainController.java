@@ -46,7 +46,7 @@ public class MainController extends BaseController {
         return this.mainSerivce.getValue().UpdateTag(tag);
     }
 
-    public boolean DeleteTag(int id) {
+    public boolean DeleteTag(String id) {
         return this.mainSerivce.getValue().DeleteTag(id);
     }
 }

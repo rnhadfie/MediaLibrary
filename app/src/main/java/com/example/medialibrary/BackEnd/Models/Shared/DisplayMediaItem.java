@@ -1,7 +1,7 @@
 package com.example.medialibrary.backend.models.shared;
 
 public class DisplayMediaItem {
-    public int Id;
+    public String Id;
     public String Title;
     public String Status;
     public String MediaTypeText;

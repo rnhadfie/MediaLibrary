@@ -21,7 +21,7 @@ class BookFormActivity : AppCompatActivity() {
         }
 
         if (savedInstanceState == null) {
-            val bookId = intent.getIntExtra("EXTRA_ID", -1)
+            val bookId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
 
             supportActionBar?.title =  if(isEdit)  "Edit Book" else "Add Book"
