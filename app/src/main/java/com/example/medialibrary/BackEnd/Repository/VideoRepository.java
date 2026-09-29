@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.LruCache;
+
+import com.example.medialibrary.backend.models.book.BookItem;
 import com.example.medialibrary.backend.models.video.Enums;
 import com.example.medialibrary.backend.models.shared.Enums.MediaType;
 import com.example.medialibrary.backend.models.video.*;
@@ -11,6 +13,7 @@ import com.example.medialibrary.backend.repository.Interface.Interface.IVideoRep
 import com.example.medialibrary.backend.repository.database.BaseRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 import com.example.medialibrary.backend.utils.DatabaseMappings;
+import com.example.medialibrary.backend.utils.NaturalComparator;
 
 import static com.example.medialibrary.backend.utils.DatabaseKeyNames.*;
 
@@ -218,6 +221,7 @@ public class VideoRepository extends BaseRepository implements IVideoRepository 
             } while (cursor.moveToNext());
             cursor.close();
         }
+        items.sort(new NaturalComparator<>(VideoItem::GetSeason));
         return items;
     }
 

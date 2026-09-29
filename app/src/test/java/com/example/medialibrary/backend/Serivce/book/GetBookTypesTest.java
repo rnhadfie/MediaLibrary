@@ -13,7 +13,7 @@ import kotlin.LazyKt;
 
 public class GetBookTypesTest {
     @Test
-    public void testGetBookTypes() {
+    public void GetBookTypes_returnsMap() {
         SharedService sharedService = mock(SharedService.class);
         when(sharedService.GetSeperatedString(anyString())).thenAnswer(i -> i.getArguments()[0]);
         

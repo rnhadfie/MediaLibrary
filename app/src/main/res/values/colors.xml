@@ -23,4 +23,23 @@
     <color name="dark_background">#0F172A</color> <!-- Slate 900 -->
     <color name="dark_surface">#1E293B</color> <!-- Slate 800 -->
     <color name="dark_card">#334155</color> <!-- Slate 700 -->
+
+
+    <!-- Section Colors -->
+    <color name="section_book">#6366F1</color> <!-- Indigo -->
+    <color name="section_video">#0891B2</color> <!-- Cyan -->
+    <color name="section_music">#059669</color> <!-- Emerald -->
+    <color name="section_other">#D97706</color> <!-- Amber -->
+
+    <!-- Light Variants -->
+    <color name="section_book_light">#E0E7FF</color>
+    <color name="section_video_light">#CEF8FD</color>
+    <color name="section_music_light">#D1FAE5</color>
+    <color name="section_other_light">#FEF3C7</color>
+
+    <!-- Dark Variants -->
+    <color name="section_book_dark">#4338CA</color>
+    <color name="section_video_dark">#155E75</color>
+    <color name="section_music_dark">#065F46</color>
+    <color name="section_other_dark">#92400E</color>
 </resources>

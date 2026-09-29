@@ -21,6 +21,6 @@ class VideoDisplayFragmentTest {
         )
         scenario.moveToState(Lifecycle.State.RESUMED)
 
-        onView(withId(R.id.scroll_view_video_display)).check(matches(isDisplayed()))
+        onView(withId(R.id.scroll_view)).check(matches(isDisplayed()))
     }
 }

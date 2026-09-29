@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".book.ui.book_list.BookListFragment"
-    android:label="@string/book_collection_list">
+    tools:context=".other.ui.list.OtherListFragment">
 
     <LinearLayout
         android:id="@+id/header_container"
@@ -21,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:iconifiedByDefault="false"
-            app:queryHint="Search books..." />
+            app:queryHint="Search media..." />
 
         <ImageButton
             android:id="@+id/sort_btn"
@@ -33,51 +32,38 @@
             app:tint="?attr/colorPrimary" />
 
         <ImageButton
-            android:id="@+id/filter_btn"
+            android:id="@+id/button_filter"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/action_settings"
+            android:contentDescription="@string/image_view_item_transform_content_description"
             android:src="@drawable/ic_settings_black_24dp"
-            app:tint="?attr/colorPrimary" />
-
-        <ImageButton
-            android:id="@+id/copy_list_btn"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/get_list_of_items"
-            android:src="@android:drawable/ic_menu_agenda"
-            android:tooltipText="Get list of All visible book titles"
             app:tint="?attr/colorPrimary" />
     </LinearLayout>
 
     <include
-        android:id="@+id/active_filter_card"
+        android:id="@+id/card_active_filter"
         layout="@layout/view_active_filter_summary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/header_container" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerview_books"
+        android:id="@+id/recyclerview_other"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layoutManager="GridLayoutManager"
         app:spanCount="2"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/active_filter_card" />
+        app:layout_constraintTop_toBottomOf="@id/card_active_filter" />
 
     <include
         android:id="@+id/empty_state_container"
         layout="@layout/view_empty_state"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible"
-        app:layout_constraintTop_toBottomOf="@id/active_filter_card" />
-
+        app:layout_constraintTop_toBottomOf="@id/card_active_filter" />
 </androidx.constraintlayout.widget.ConstraintLayout>

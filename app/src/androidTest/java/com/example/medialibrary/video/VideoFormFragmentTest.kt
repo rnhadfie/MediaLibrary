@@ -21,7 +21,7 @@ class VideoFormFragmentTest {
         )
         scenario.moveToState(Lifecycle.State.RESUMED)
 
-        onView(withId(R.id.edit_video_title)).check(matches(isDisplayed()))
-        onView(withId(R.id.button_save_book)).check(matches(isDisplayed()))
+        onView(withId(R.id.title_input)).check(matches(isDisplayed()))
+        onView(withId(R.id.save_btn)).check(matches(isDisplayed()))
     }
 }

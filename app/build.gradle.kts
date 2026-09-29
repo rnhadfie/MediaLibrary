@@ -48,6 +48,11 @@ android {
     }
 }
 
+// 🟩 CRUCIAL STEP FOR JUNIT 5: Instruct Gradle's unit test runner to use JUnit Platform
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
 configurations.all {
     resolutionStrategy {
         force("androidx.test:core:1.6.1")
@@ -73,17 +78,34 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
+
     implementation(project(":MPChartLib"))
 
-    testImplementation(libs.junit)
+
+    // ADD THIS LINE to allow JUnit 5 platform to run JUnit 4 tests
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.11.0")
+
+    // Mockito and Testing ecosystem
     testImplementation(libs.mockito.core)
-    testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
+
+    // Note: mockito-inline is deprecated/built-in starting from Mockito 5.x.
+    // If you run into issues mock-stubbing final classes, change this to mockito-subclass or remove it.
     testImplementation("org.mockito:mockito-inline:5.2.0")
+
     testImplementation("org.robolectric:robolectric:4.12.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
+    // Vintage Engine (Allows you to run your legacy JUnit 4 tests side-by-side with JUnit 5)
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.11.0")
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

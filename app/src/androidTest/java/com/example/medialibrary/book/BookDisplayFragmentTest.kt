@@ -22,6 +22,6 @@ class BookDisplayFragmentTest {
         )
         scenario.moveToState(Lifecycle.State.RESUMED)
 
-        onView(withId(R.id.display_scroll_view)).check(matches(isDisplayed()))
+        onView(withId(R.id.scroll_view)).check(matches(isDisplayed()))
     }
 }

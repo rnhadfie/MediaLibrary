@@ -83,7 +83,7 @@ class MusicListFragmentTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Click the view intended to trigger the clipboard copy action
-        Espresso.onView(ViewMatchers.withId(R.id.book_item_list)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.copy_list_btn)).perform(ViewActions.click())
 
         // Verify data was successfully copied to the system ClipboardManager
         val context = ApplicationProvider.getApplicationContext<Context>()

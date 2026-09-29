@@ -13,7 +13,7 @@ import kotlin.LazyKt;
 
 public class GetBookItemFormatsTest {
     @Test
-    public void testGetBookItemFormats() {
+    public void GetBookItemFormats_returnsMap() {
         SharedService sharedService = mock(SharedService.class);
         when(sharedService.GetSeperatedString(anyString())).thenAnswer(i -> i.getArguments()[0]);
         

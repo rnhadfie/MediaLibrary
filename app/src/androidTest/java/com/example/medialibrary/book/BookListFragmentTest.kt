@@ -37,7 +37,7 @@ class BookListFragmentTest {
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
         Espresso.onView(ViewMatchers.withId(R.id.search_view))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        Espresso.onView(ViewMatchers.withId(R.id.display_filter_btn))
+        Espresso.onView(ViewMatchers.withId(R.id.filter_btn))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
@@ -55,7 +55,7 @@ class BookListFragmentTest {
             )
 
         // Verify the active filter layout summary appears or changes state
-        Espresso.onView(ViewMatchers.withId(R.id.display_active_filter_card))
+        Espresso.onView(ViewMatchers.withId(R.id.active_filter_card))
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
@@ -65,7 +65,7 @@ class BookListFragmentTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Click the main filter button to open the BottomSheetDialog
-        Espresso.onView(ViewMatchers.withId(R.id.display_filter_btn)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.filter_btn)).perform(ViewActions.click())
 
         // Verify that the bottom sheet view elements are now visible on the screen
         Espresso.onView(ViewMatchers.withId(R.id.button_sheet_fitler_book))
@@ -88,7 +88,7 @@ class BookListFragmentTest {
         scenario.moveToState(Lifecycle.State.RESUMED)
 
         // Click the view intended to trigger the clipboard copy action
-        Espresso.onView(ViewMatchers.withId(R.id.display_copy_list_btn)).perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.copy_list_btn)).perform(ViewActions.click())
 
         // Verify data was successfully copied to the system ClipboardManager
         val context = ApplicationProvider.getApplicationContext<Context>()

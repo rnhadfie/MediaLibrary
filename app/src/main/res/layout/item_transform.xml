@@ -13,80 +13,95 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        app:cardBackgroundColor="@color/card"
         app:cardCornerRadius="16dp"
         app:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="12dp">
+            android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/mediaItemImageCover"
-                android:layout_width="60dp"
-                android:layout_height="80dp"
-                android:contentDescription="@null"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_gallery_black_24dp"
-                app:tint="?attr/colorPrimary" />
+            <View
+                android:id="@+id/mediaItemCategoryStrip"
+                android:layout_width="6dp"
+                android:layout_height="match_parent"
+                android:background="@color/primary" />
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
 
-                <TextView
-                    android:id="@+id/text_media_info"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@{item.Title}"
-                    android:textAppearance="?attr/textAppearanceSubtitle1"
-                    android:textColor="@color/black"
-                    tools:text="Title" />
+                <ImageView
+                    android:id="@+id/mediaItemImageCover"
+                    android:layout_width="60dp"
+                    android:layout_height="80dp"
+                    android:contentDescription="@null"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_gallery_black_24dp"
+                    app:tint="?attr/colorPrimary" />
 
-                <TextView
-                    android:id="@+id/text_media_status_info"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text='@{item.Status}'
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    android:textColor="@color/black"
-                    tools:text="Collecting: Yes" />
-                <TextView
-                    android:id="@+id/text_media_status_info2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text='@{item.MediaTypeText}'
-                    android:textAppearance="?attr/textAppearanceCaption"
-                    android:textColor="@color/black"
-                    tools:text="Collecting: Yes" />
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_media_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@{item.Title}"
+                        android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold"
+                        tools:text="Title" />
+
+                    <TextView
+                        android:id="@+id/text_media_status_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text='@{item.Status}'
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        tools:text="Collecting: Yes" />
+
+                    <TextView
+                        android:id="@+id/text_media_status_info2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_media_type_badge"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:text='@{item.MediaTypeText}'
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        tools:text="Type: Book" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/mediaItemEditItem"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@android:drawable/ic_menu_edit"
+                    app:tint="?attr/colorPrimary" />
+
+                <ImageButton
+                    android:id="@+id/mediaItemDeleteItem"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@android:drawable/ic_menu_delete"
+                    app:tint="@color/filter_excluded" />
+
             </LinearLayout>
-
-            <ImageButton
-                android:id="@+id/mediaItemEditItem"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@null"
-                android:src="@android:drawable/ic_menu_edit"
-                app:tint="?attr/colorPrimary" />
-
-            <ImageButton
-                android:id="@+id/mediaItemDeleteItem"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@null"
-                android:src="@android:drawable/ic_menu_delete"
-                app:tint="@color/filter_excluded" />
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 </layout>

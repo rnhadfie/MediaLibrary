@@ -42,6 +42,7 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
         savedInstanceState: Bundle?
     ): View {
         viewModel = ViewModelProvider(this)[OtherCollectingViewModel::class.java]
+        sortFilterViewModel = ViewModelProvider(this)[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Collecting)
 
         val root: View = super.onCreateView(inflater, container, savedInstanceState)

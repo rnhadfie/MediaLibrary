@@ -3,6 +3,7 @@ package com.example.medialibrary.backend.Serivce;
 import com.example.medialibrary.backend.models.book.*;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.repository.BookRepository;
+import com.example.medialibrary.backend.repository.Interface.Interface.IBookRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import java.util.*;
@@ -16,17 +17,26 @@ public class BookService {
 
     public Lazy<BookRepository> bookRepository;
     public Lazy<SharedService> sharedService;
+    public Lazy<MediaLibraryDbHelper> dbHelper;
 
-    private final BookRepository _BookRepo;
-    private final SharedService _SharedService;
+    private BookRepository _BookRepo;
+    private SharedService _SharedService;
+
 
 
     public BookService(MediaLibraryDbHelper dbHelper) {
         this.bookRepository = LazyKt.lazy(() -> new BookRepository(dbHelper));
         this.sharedService = LazyKt.lazy(() -> new SharedService(dbHelper));
 
-        _BookRepo = bookRepository.getValue();
-        _SharedService = sharedService.getValue();
+        this._BookRepo = this.bookRepository.getValue();
+        this._SharedService = this.sharedService.getValue();
+    }
+
+    public BookService(BookRepository bookRepository, SharedService sharedService) {
+        this.bookRepository = LazyKt.lazy(() -> bookRepository);
+        this.sharedService = LazyKt.lazy(() -> sharedService);
+        this._BookRepo = bookRepository;
+        this._SharedService = sharedService;
     }
 
     public List<Book> GetBooks(BookFilter filter) {
@@ -194,6 +204,6 @@ public class BookService {
                 .entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey);
-        return mostCommonCity.orElse(null);
+        return mostCommonCity.orElse(items.stream().count() > 0 ? items.get(0).getFormat() : null);
     }
 }

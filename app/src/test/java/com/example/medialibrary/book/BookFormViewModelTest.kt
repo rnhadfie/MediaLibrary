@@ -49,31 +49,31 @@ class BookFormViewModelTest {
         val viewModel = BookFormViewModel()
 
         val existingPublisher = Publisher().apply {
-            Id = 5
+            Id = "5"
             Name = "Chilton Books"
         }
         viewModel.updatePublisher(existingPublisher)
-        assertEquals(5, viewModel.book.value?.Publisher)
+        assertEquals("5", viewModel.book.value?.Publisher)
 
         val newPublisher = Publisher().apply {
-            Id = -1
+            Id = "-1"
             Name = "New Self Publisher"
         }
         viewModel.updatePublisher(newPublisher)
-        assertEquals(-1, viewModel.book.value?.Publisher)
+        assertEquals("-1", viewModel.book.value?.Publisher)
 
         viewModel.updatePublisherName("Custom Publisher")
-        assertEquals(0, viewModel.book.value?.Publisher)
+        assertEquals("", viewModel.book.value?.Publisher)
 
         val existingTag = Tag().apply {
-            Id = 12
+            Id = "12"
             Name = "Sci-Fi"
         }
         viewModel.updateTag(existingTag)
-        assertEquals(12, viewModel.book.value?.Tag)
+        assertEquals("12", viewModel.book.value?.Tag)
 
         viewModel.updateTagName("New SciFi Tag")
-        assertEquals(0, viewModel.book.value?.Tag)
+        assertEquals("", viewModel.book.value?.Tag)
     }
 
     @Test
@@ -138,10 +138,10 @@ class BookFormViewModelTest {
     fun testValidation() {
         val viewModel = BookFormViewModel()
 
-        assertNotNull(viewModel.validate()) // Title is required
+        assertNotNull(viewModel.validateFields()) // Title is required
 
         viewModel.updateTitle("The Hobbit")
-        assertNull(viewModel.validate())
+        assertEquals(0, viewModel.validateFields().size)
     }
 
     @Test

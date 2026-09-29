@@ -30,44 +30,48 @@
             android:label="@string/title_activity_book"
             android:parentActivityName=".home.MainActivity"
             android:resizeableActivity="true"
-            android:theme="@style/Theme.MediaLibrary.NoActionBar"
+            android:theme="@style/Theme.MediaLibrary.Book.NoActionBar"
             tools:targetApi="24" />
         <activity
             android:name=".book.BookFormActivity"
             android:exported="false"
+            android:theme="@style/Theme.MediaLibrary.Book"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".video.VideoActivity"
             android:exported="false"
             android:label="@string/title_activity_video"
             android:resizeableActivity="true"
-            android:theme="@style/Theme.MediaLibrary.NoActionBar"
+            android:theme="@style/Theme.MediaLibrary.Video.NoActionBar"
             tools:targetApi="24" />
         <activity
             android:name=".video.VideoFormActivity"
             android:exported="false"
+            android:theme="@style/Theme.MediaLibrary.Video"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".music.MusicActivity"
             android:exported="false"
             android:label="@string/title_activity_music"
             android:resizeableActivity="true"
-            android:theme="@style/Theme.MediaLibrary.NoActionBar"
+            android:theme="@style/Theme.MediaLibrary.Music.NoActionBar"
             tools:targetApi="24" />
         <activity
             android:name=".music.MusicFormActivity"
             android:exported="false"
+            android:theme="@style/Theme.MediaLibrary.Music"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".other.OtherActivity"
             android:exported="false"
             android:label="@string/title_activity_other"
             android:resizeableActivity="true"
-            android:theme="@style/Theme.MediaLibrary.NoActionBar"
+            android:theme="@style/Theme.MediaLibrary.Other.NoActionBar"
             tools:targetApi="24" />
         <activity
             android:name=".other.OtherFormActivity"
             android:exported="false"
+            android:theme="@style/Theme.MediaLibrary.Other"
             android:windowSoftInputMode="adjustResize" />
 
         <provider

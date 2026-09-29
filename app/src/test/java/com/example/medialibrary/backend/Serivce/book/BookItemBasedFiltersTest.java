@@ -15,14 +15,14 @@ import java.util.List;
 public class BookItemBasedFiltersTest {
 
     @Test
-    public void testBookItemBasedFilters_emptyList() {
+    public void BookItemBasedFilters_emptyList_returnsEmptyList() {
         BookService bookService = new BookService(null);
         List<Book> result = bookService.BookItemBasedFilters(new ArrayList<>(), null);
         assertTrue(result.isEmpty());
     }
 
     @Test
-    public void testBookItemBasedFilters_anyOwnedTrue() {
+    public void BookItemBasedFilters_anyOwnedTrue_returnsFilteredList() {
         BookService bookService = new BookService(null);
         List<Book> books = new ArrayList<>();
 
@@ -50,7 +50,7 @@ public class BookItemBasedFiltersTest {
     }
 
     @Test
-    public void testBookItemBasedFilters_anyOwnedFalse() {
+    public void BookItemBasedFilters_anyOwnedFalse_returnsFilteredList() {
         BookService bookService = new BookService(null);
         List<Book> books = new ArrayList<>();
 

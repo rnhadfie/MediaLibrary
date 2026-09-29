@@ -4,33 +4,35 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="item"
             type="com.example.medialibrary.backend.models.shared.DisplayMediaItem" />
     </data>
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/mediaItemCategoryStrip"
+                android:layout_width="6dp"
+                android:layout_height="match_parent"
+                android:background="@color/primary" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_margin="8px"
-                android:background="@color/card"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:padding="12dp">
 
                 <ImageView
                     android:id="@+id/mediaItemImageCover"
@@ -39,7 +41,7 @@
                     android:contentDescription="@null"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_gallery_black_24dp"
-                    app:tint="?android:attr/textColorSecondary" />
+                    app:tint="?attr/colorPrimary" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -52,8 +54,9 @@
                         android:id="@+id/text_media_info"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@{item.Status}"
+                        android:text="@{item.Title}"
                         android:textAppearance="?attr/textAppearanceSubtitle1"
+                        android:textStyle="bold"
                         tools:text="Title" />
 
                     <TextView
@@ -61,10 +64,23 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
+                        android:text='@{item.Status}'
+                        android:textAppearance="?attr/textAppearanceCaption"
+                        tools:text="Collecting: Yes" />
+
+                    <TextView
+                        android:id="@+id/text_media_status_info2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:background="@drawable/bg_media_type_badge"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
                         android:text='@{item.MediaTypeText}'
                         android:textAppearance="?attr/textAppearanceCaption"
-                        android:textColor="?android:attr/textColorSecondary"
-                        tools:text="Collecting: Yes" />
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        tools:text="Type: Book" />
                 </LinearLayout>
 
                 <ImageButton
@@ -73,7 +89,7 @@
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_settings_black_24dp"
+                    android:src="@android:drawable/ic_menu_edit"
                     app:tint="?attr/colorPrimary" />
 
                 <ImageButton
@@ -83,10 +99,9 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@null"
                     android:src="@android:drawable/ic_menu_delete"
-                    app:tint="@android:color/holo_red_dark" />
+                    app:tint="@color/filter_excluded" />
 
             </LinearLayout>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
 </layout>

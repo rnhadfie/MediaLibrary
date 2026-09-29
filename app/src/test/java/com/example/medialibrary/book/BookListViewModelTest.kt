@@ -17,11 +17,11 @@ class BookListViewModelTest {
     fun testSetItems_updatesLiveData() {
         val viewModel = BookListViewModel()
         val item1 = DisplayMediaItem().apply {
-            Id = 1
+            Id = "1"
             Title = "Book One"
         }
         val item2 = DisplayMediaItem().apply {
-            Id = 2
+            Id = "2"
             Title = "Book Two"
         }
         val itemList = listOf(item1, item2)

@@ -87,29 +87,33 @@ public class SharedService {
 
         Boolean standalone = null;
         if (item instanceof Book) {
+            var tempBook = (Book) item;
             displayItem.MediaType = Enums.MediaType.Book;
             displayItem.MediaTypeText = "Type: Book";
-            displayItem.ItemCount = ((Book) item).Items.size();
+
+            displayItem.ItemCount = tempBook.Items != null ? tempBook.Items.size() : 0;
             if(displayItem.ItemCount > 0)
             {
-                standalone = Objects.equals(((Book) item).Items.get(0).VolumeNumber, "-1");
+                standalone = Objects.equals(tempBook.Items.get(0).VolumeNumber, "-1");
             }
         } else if (item instanceof Video) {
+            var tempVideo = (Video) item;
             displayItem.MediaType = Enums.MediaType.Video;
             displayItem.MediaTypeText = "Type: Movie/TV Show";
-            displayItem.ItemCount = ((Video) item).Items.size();
+            displayItem.ItemCount = tempVideo.Items != null ? tempVideo.Items.size() : 0;
             if(displayItem.ItemCount > 0)
             {
-                standalone = Objects.equals(((Video) item).Items.get(0).Season, -1);
+                standalone = Objects.equals(tempVideo.Items.get(0).Season, -1);
             }
         } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
             displayItem.ItemCount = 1;
         } else if (item instanceof Other) {
+            var tempOther = (Other) item;
             displayItem.MediaType = Enums.MediaType.Other;
             displayItem.MediaTypeText = "Type: Other Collection";
-            displayItem.ItemCount = ((Other) item).Items.size();
+            displayItem.ItemCount = tempOther.Items != null ? tempOther.Items.size() : 0;
         } else {
             displayItem.MediaType = Enums.MediaType.None;
         }
@@ -185,7 +189,9 @@ public class SharedService {
         Enums.Genre[] genres = Enums.Genre.values();
         List<GenreObject> genreMap = new ArrayList<>();
         for (Enums.Genre genre : genres) {
-            genreMap.add(new GenreObject(genre.ordinal(), GetSeperatedString(genre.toString())));
+            if(genre != Enums.Genre.NoneSelected) {
+                genreMap.add(new GenreObject(genre.ordinal(), GetSeperatedString(genre.toString())));
+            }
         }
         return genreMap.stream().sorted(Comparator.comparing(g -> g.genreName)).collect(Collectors.toList());
     }

@@ -25,11 +25,11 @@ class BookDisplayViewModelTest {
     fun testSetMediaItems_updatesLiveData() {
         val viewModel = BookDisplayViewModel()
         val book1 = Book().apply {
-            Id = 101
+            Id = "101"
             Title = "Sample Book 1"
         }
         val book2 = Book().apply {
-            Id = 102
+            Id = "102"
             Title = "Sample Book 2"
         }
         val books = listOf(book1, book2)

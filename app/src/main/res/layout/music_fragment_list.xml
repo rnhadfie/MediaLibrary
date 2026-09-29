@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:iconifiedByDefault="false"
-            app:queryHint="Search books..." />
+            app:queryHint="Search music..." />
 
         <ImageButton
             android:id="@+id/button_sort"
@@ -39,6 +39,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_settings_black_24dp"
             app:tint="?attr/colorPrimary" />
+
         <ImageButton
             android:id="@+id/music_item_list"
             android:contentDescription="@string/get_list_of_items"
@@ -46,9 +47,8 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@android:drawable/ic_menu_agenda"
-            android:tooltipText="Get list of All visible book titles"
-            app:tint="?attr/colorPrimary"
-            />
+            android:tooltipText="Get list of All visible music titles"
+            app:tint="?attr/colorPrimary" />
     </LinearLayout>
 
     <include

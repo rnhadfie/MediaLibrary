@@ -29,7 +29,7 @@
 
     <!-- Modern Rounded Button Style -->
     <style name="Widget.MediaLibrary.Button" parent="Widget.MaterialComponents.Button">
-        <item name="backgroundTint">@color/primary</item>
+        <item name="backgroundTint">?attr/colorPrimary</item>
         <item name="android:textColor">@color/white</item>
         <item name="iconTint">@color/white</item>
         <item name="cornerRadius">16dp</item>
@@ -77,4 +77,50 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:ellipsize">end</item>
     </style>
+
+    <!-- Books Theme (Indigo) -->
+    <style name="Theme.MediaLibrary.Book" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/section_book</item>
+        <item name="colorPrimaryVariant">@color/section_book_dark</item>
+        <item name="colorSecondary">@color/section_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Book.NoActionBar" parent="Theme.MediaLibrary.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Video Theme (Cyan) -->
+    <style name="Theme.MediaLibrary.Video" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/section_video</item>
+        <item name="colorPrimaryVariant">@color/section_video_dark</item>
+        <item name="colorSecondary">@color/section_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Video.NoActionBar" parent="Theme.MediaLibrary.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Music Theme (Emerald) -->
+    <style name="Theme.MediaLibrary.Music" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/section_music</item>
+        <item name="colorPrimaryVariant">@color/section_music_dark</item>
+        <item name="colorSecondary">@color/section_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Music.NoActionBar" parent="Theme.MediaLibrary.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Other Theme (Amber) -->
+    <style name="Theme.MediaLibrary.Other" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/section_other</item>
+        <item name="colorPrimaryVariant">@color/section_other_dark</item>
+        <item name="colorSecondary">@color/section_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Other.NoActionBar" parent="Theme.MediaLibrary.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
 </resources>

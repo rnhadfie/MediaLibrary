@@ -17,11 +17,11 @@ class PublisherViewModelTest {
     fun testSetPublishers_updatesLiveData() {
         val viewModel = PublisherViewModel()
         val pub1 = Publisher().apply {
-            Id = 1
+            Id = "1"
             Name = "Penguin"
         }
         val pub2 = Publisher().apply {
-            Id = 2
+            Id = "2"
             Name = "HarperCollins"
         }
 

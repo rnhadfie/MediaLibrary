@@ -17,9 +17,8 @@ class CollectingBookViewModelTest {
     fun testSetItems_updatesLiveData() {
         val viewModel = CollectingBookViewModel()
         val item = DisplayMediaItem().apply {
-            Id = 10
+            Id = "10"
             Title = "Collecting Series"
-            Collecting = true
         }
 
         viewModel.setItems(listOf(item))
