@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +30,7 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 
 import androidx.lifecycle.lifecycleScope
+import com.example.medialibrary.R
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -64,22 +66,25 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         )
 
         //region binding
-
+        binding.buttonBook.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_book))
         binding.buttonBook.setOnClickListener {
             val intent = Intent(requireContext(), BookActivity::class.java)
             startActivity(intent)
         }
 
+        binding.buttonVideo.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_video))
         binding.buttonVideo.setOnClickListener {
             val intent = Intent(requireContext(), VideoActivity::class.java)
             startActivity(intent)
         }
 
+        binding.buttonMusic.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_music))
         binding.buttonMusic.setOnClickListener {
             val intent = Intent(requireContext(), MusicActivity::class.java)
             startActivity(intent)
         }
 
+        binding.buttonOther.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_other))
         binding.buttonOther.setOnClickListener {
             val intent = Intent(requireContext(), OtherActivity::class.java)
             startActivity(intent)
@@ -140,7 +145,13 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         }
 
         val dataSets = ArrayList<IBarDataSet>()
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
+        val colors = listOf(
+            ContextCompat.getColor(requireContext(), R.color.section_book),
+            ContextCompat.getColor(requireContext(), R.color.section_video),
+            ContextCompat.getColor(requireContext(), R.color.section_music),
+            ContextCompat.getColor(requireContext(), R.color.section_other)
+        )
+
 
         val categories = listOf(
             Triple(0f, totalBooks.toFloat(), "Books"),
@@ -151,7 +162,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
 
         categories.forEachIndexed { index, (x, y, label) ->
             val set = BarDataSet(listOf(BarEntry(x, y)), label)
-            set.color = colors[index % colors.size]
+            set.color = colors[index]
             dataSets.add(set)
         }
 

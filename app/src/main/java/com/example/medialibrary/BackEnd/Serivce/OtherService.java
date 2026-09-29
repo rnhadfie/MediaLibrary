@@ -29,6 +29,14 @@ public class OtherService {
         _SharedService = sharedService.getValue();
     }
 
+    public OtherService(OtherRepository otherRepository, SharedService sharedService) {
+        this.otherRepository = LazyKt.lazy(() -> otherRepository);
+        this.sharedService = LazyKt.lazy(() -> sharedService);
+
+        _OtherRepo = otherRepository;
+        _SharedService = sharedService;
+    }
+
     public List<Other> GetOtherCollections(Filter filter) {
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);

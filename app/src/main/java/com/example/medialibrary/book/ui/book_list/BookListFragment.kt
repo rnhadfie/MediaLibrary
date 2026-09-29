@@ -91,7 +91,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             showFilterSheet(setup, currentFilter)
         }
 
-        binding.sortBtn?.setOnClickListener {
+        binding.sortBtn.setOnClickListener {
             val filter = sortFilterViewModel.getOrCreateBookFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->

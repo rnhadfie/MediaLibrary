@@ -3,13 +3,14 @@ package com.example.medialibrary.backend.Serivce.shared;
 import static org.junit.Assert.*;
 
 import com.example.medialibrary.backend.Serivce.SharedService;
+import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import org.junit.Test;
 
 public class GetSeperatedStringTest {
     @Test
     public void testGetSeperatedString_CamelCase() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         String input = "MyCoolMediaItem";
         String expected = "My Cool Media Item";
         String result = service.GetSeperatedString(input);
@@ -18,7 +19,7 @@ public class GetSeperatedStringTest {
 
     @Test
     public void testGetSeperatedString_AlreadySeperated() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         String input = "Already Seperated";
         String expected = "Already Seperated";
         String result = service.GetSeperatedString(input);

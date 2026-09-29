@@ -4,6 +4,8 @@ import static org.junit.Assert.*;
 
 import com.example.medialibrary.backend.Serivce.SharedService;
 import com.example.medialibrary.backend.models.shared.Filter;
+import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -11,7 +13,7 @@ import org.junit.Test;
 public class BuildWhereClauseTest {
     @Test
     public void testBuildWhereClause_CollectingTrue() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         Filter filter = new Filter();
         filter.Collecting = true;
         List<String> selectionArgs = new ArrayList<>();
@@ -25,7 +27,7 @@ public class BuildWhereClauseTest {
 
     @Test
     public void testBuildWhereClause_Search() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         Filter filter = new Filter();
         filter.Search = "Harry Potter";
         List<String> selectionArgs = new ArrayList<>();
@@ -39,7 +41,7 @@ public class BuildWhereClauseTest {
 
     @Test
     public void testBuildWhereClause_MultipleIncludedAndExcludedTags() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         Filter filter = new Filter();
         filter.IncludedTags.add("1");
         filter.IncludedTags.add("3");
@@ -58,7 +60,7 @@ public class BuildWhereClauseTest {
 
     @Test
     public void testBuildWhereClause_MultipleIncludedAndExcludedGenres() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         Filter filter = new Filter();
         filter.IncludedGenres.add(10);
         filter.IncludedGenres.add(20);

@@ -6,12 +6,14 @@ import com.example.medialibrary.backend.Serivce.SharedService;
 import com.example.medialibrary.backend.models.book.Book;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.models.shared.Enums;
+import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+
 import org.junit.Test;
 
 public class MapToDisplayItemTest {
     @Test
     public void testMapToDisplayItem_Book() {
-        SharedService service = new SharedService(null);
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
         Book book = new Book();
         book.Id = "1";
         book.Title = "Test Book";

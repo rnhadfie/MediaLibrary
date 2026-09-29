@@ -12,6 +12,8 @@ import com.example.medialibrary.backend.repository.BookRepository;
 import com.example.medialibrary.backend.repository.MusicRepository;
 import com.example.medialibrary.backend.repository.OtherRepository;
 import com.example.medialibrary.backend.repository.VideoRepository;
+import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,14 +21,14 @@ import org.junit.Test;
 
 import kotlin.LazyKt;
 
-public class MainGetAllItemsTest {
+public class GetAllItemsTest {
     @Test
     public void testGetAllItems_Aggregation() {
         BookRepository bookRepo = mock(BookRepository.class);
         VideoRepository videoRepo = mock(VideoRepository.class);
         MusicRepository musicRepo = mock(MusicRepository.class);
         OtherRepository otherRepo = mock(OtherRepository.class);
-        SharedService sharedService = new SharedService(null);
+        SharedService sharedService = new SharedService((MediaLibraryDbHelper) null);
         
         Book book = new Book(); book.Title = "B1";
         when(bookRepo.GetBooks(any(), any())).thenReturn(Collections.singletonList(book));

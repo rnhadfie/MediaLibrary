@@ -49,6 +49,10 @@ public class SharedService {
         this.sharedRepository = LazyKt.lazy(() -> new SharedRepository(dbHelper));
     }
 
+    public SharedService(SharedRepository sharedRepository) {
+        this.sharedRepository = LazyKt.lazy(() -> sharedRepository);
+    }
+
     public <T extends MediaItem> List<MediaItem> mapToMediaItems(List<T> items) {
         if (items == null) return new ArrayList<>();
         return items.stream()

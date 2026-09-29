@@ -31,6 +31,14 @@ public class VideoService {
         _SharedService = sharedService.getValue();
     }
 
+    public VideoService(VideoRepository videoRepository, SharedService sharedService) {
+        this.videoRepository = LazyKt.lazy(() -> videoRepository);
+        this.sharedService = LazyKt.lazy(() -> sharedService);
+
+        _VideoRepo = videoRepository;
+        _SharedService = sharedService;
+    }
+
     public List<Video> GetVideos(VideoFilter filter) {
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);

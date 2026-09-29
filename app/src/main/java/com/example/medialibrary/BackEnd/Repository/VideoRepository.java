@@ -5,9 +5,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.LruCache;
 
-import com.example.medialibrary.backend.models.book.BookItem;
-import com.example.medialibrary.backend.models.video.Enums;
-import com.example.medialibrary.backend.models.shared.Enums.MediaType;
 import com.example.medialibrary.backend.models.video.*;
 import com.example.medialibrary.backend.repository.Interface.Interface.IVideoRepository;
 import com.example.medialibrary.backend.repository.database.BaseRepository;

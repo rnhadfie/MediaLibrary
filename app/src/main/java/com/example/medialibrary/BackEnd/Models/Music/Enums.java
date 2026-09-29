@@ -13,6 +13,9 @@ public class Enums {
         Jazz,
         Country,
         Folk,
-        Compilation
+        Compilation,
+        Alternative,
+        Punk,
+        Soundtrack
     }
 }

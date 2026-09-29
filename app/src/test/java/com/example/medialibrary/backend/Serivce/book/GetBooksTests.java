@@ -3,6 +3,7 @@ package com.example.medialibrary.backend.Serivce.book;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.example.medialibrary.backend.Serivce.BookService;
@@ -24,8 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-public class GetBookDisplayListsTest {
-
+public class GetBooksTests {
     @Mock
     private BookRepository mockBookRepository;
 
@@ -46,7 +46,7 @@ public class GetBookDisplayListsTest {
 
         when(mockBookRepository.GetBooks(any(), any())).thenReturn(books);
 
-        List<DisplayMediaItem> result = bookService.GetBookDisplayLists(filter);
+        List<Book> result = bookService.GetBooks(filter);
         assertTrue(result.isEmpty());
     }
 
@@ -63,16 +63,15 @@ public class GetBookDisplayListsTest {
         item1.Owned = true;
         book1.Items = List.of(item1);
 
-        Book book2 = new Book();
-        book2.Id = "2";
-        book2.Title = "Filtered Book";
-        book2.Items = new ArrayList<>();
+
         books.add(book1);
-        books.add(book2);
 
-        when(mockBookRepository.GetBooks(any(), any())).thenReturn(books);
+        String whereClause = sharedService.BuildWhereClause(filter, new ArrayList<>());
 
-        List<DisplayMediaItem> result = bookService.GetBookDisplayLists(filter);
+
+        when(mockBookRepository.GetBooks(eq(whereClause), any())).thenReturn(books);
+
+        List<Book> result = bookService.GetBooks(filter);
 
         assertEquals(1, result.size());
         assertEquals("1", result.get(0).Id);
@@ -98,7 +97,7 @@ public class GetBookDisplayListsTest {
 
         when(mockBookRepository.GetBooks(any(), any())).thenReturn(books);
 
-        List<DisplayMediaItem> result = bookService.GetBookDisplayLists(filter);
+        List<Book> result = bookService.GetBooks(filter);
 
         assertEquals(2, result.size());
         assertEquals("2", result.get(0).Id);

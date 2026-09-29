@@ -33,6 +33,14 @@ public class MusicService {
         _SharedService = sharedService.getValue();
     }
 
+    public MusicService(MusicRepository musicRepository, SharedService sharedService) {
+        this.musicRepository = LazyKt.lazy(() -> musicRepository);
+        this.sharedService = LazyKt.lazy(() -> sharedService);
+
+        _MusicRepo = musicRepository;
+        _SharedService = sharedService;
+    }
+
     public List<Music> GetMusics(MusicFilter filter) {
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);

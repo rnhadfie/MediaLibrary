@@ -154,7 +154,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val dualColumnViewTwo = binding.artistCard?.dualCardColumnTwo
         val title = binding.artistCard?.cardTitle
         val emptyState = binding.artistCard?.emptyStateContainer
-        title?.text = getString(R.string.total_number_of_books_per_publisher)
+        title?.text = getString(R.string.number_of_cds_by_artist)
 
         if(artistInformationMap.isEmpty())
         {

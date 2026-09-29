@@ -10,21 +10,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import com.example.medialibrary.R
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.backend.controllers.OtherController
-import com.example.medialibrary.backend.models.music.MusicFilter
 import com.example.medialibrary.backend.models.other.OtherFilter
-import com.example.medialibrary.backend.models.shared.Filter
 import com.example.medialibrary.backend.models.shared.MainSetup
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
 import com.example.medialibrary.other.ui.utils.*
-import com.example.medialibrary.utils.FilterOption
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, OtherCollectingViewModel>(

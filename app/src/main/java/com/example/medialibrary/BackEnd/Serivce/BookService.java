@@ -3,7 +3,6 @@ package com.example.medialibrary.backend.Serivce;
 import com.example.medialibrary.backend.models.book.*;
 import com.example.medialibrary.backend.models.shared.DisplayMediaItem;
 import com.example.medialibrary.backend.repository.BookRepository;
-import com.example.medialibrary.backend.repository.Interface.Interface.IBookRepository;
 import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper;
 
 import java.util.*;
@@ -76,12 +75,11 @@ public class BookService {
 
     public BookSetup GetBookSetup() {
         var bookSetup = new BookSetup();
-        var sharedService = this.sharedService.getValue();
         bookSetup.Format = this.GetBookItemFormats();
-        bookSetup.Genre = sharedService.GetGenres();
+        bookSetup.Genre = _SharedService.GetGenres();
         bookSetup.Type = this.GetBookTypes();
         bookSetup.Publishers = this.GetPublishers();
-        bookSetup.Tag = this.sharedService.getValue().GetTags();
+        bookSetup.Tag = _SharedService.GetTags();
         return bookSetup;
     }
 

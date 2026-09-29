@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:iconifiedByDefault="false"
-            app:queryHint="Search books..." />
+            app:queryHint="Search media..." />
 
         <ImageButton
             android:id="@+id/sort_btn"

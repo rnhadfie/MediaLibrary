@@ -84,6 +84,9 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.junit.jupiter)
+    testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
+    testImplementation("io.mockk:mockk:1.14.11")
+
 
     implementation(project(":MPChartLib"))
 
@@ -96,6 +99,7 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.0")
+
 
     // Note: mockito-inline is deprecated/built-in starting from Mockito 5.x.
     // If you run into issues mock-stubbing final classes, change this to mockito-subclass or remove it.
@@ -113,4 +117,5 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")
     debugImplementation("androidx.fragment:fragment-testing:1.6.2")
+    implementation(kotlin("test"))
 }
