@@ -79,8 +79,14 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
         binding.buttonSaveMusic.setOnClickListener {
             val error = viewModel.validate()
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            if (error.isNotEmpty()) {
+                if (error.containsKey("general")) {
+                    Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
+                }
+                if (error.containsKey("title")) {
+                    binding.editMusicTitleLabel.error = error["title"]
+                    Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
+                }
             } else {
                 val saveObj = viewModel.getSaveObject()
                 if(controller != null) {
@@ -154,8 +160,6 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             optionsMap = musicGenre,
             columnCount = 2
         ) { selectedId ->
-            // This block acts as your changeListener.
-            // It triggers immediately when any RadioButton in the grid is selected.
             handleRadioSelectionChange(selectedId)
         }
     }
@@ -199,7 +203,10 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         binding.editMusicTitle.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { viewModel.updateTitle(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.updateTitle(s.toString())
+                binding.editMusicTitleLabel.error = null
+            }
         })
 
         binding.editMusicArtist.addTextChangedListener(object : TextWatcher {

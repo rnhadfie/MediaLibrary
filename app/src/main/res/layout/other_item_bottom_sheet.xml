@@ -57,6 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:id="@+id/edit_sheet_volume_title_label"
             android:hint="@string/title"
             app:boxBackgroundColor="@color/card"
             app:boxCornerRadiusBottomEnd="12dp"

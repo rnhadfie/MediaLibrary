@@ -85,9 +85,15 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
 
         binding.buttonSaveOther.setOnClickListener {
-            val error = viewModel.validate()
-            if (error != null) {
-                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            val error = viewModel.validateFields()
+            if (error.isNotEmpty()) {
+                if (error.containsKey("general")) {
+                    Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
+                }
+                if (error.containsKey("title")) {
+                    binding.editOtherTitleLabel.error = error["title"]
+                    Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
+                }
             } else {
                 val saveObj = viewModel.getSaveObject()
                 if(controller != null) {
@@ -192,7 +198,10 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         binding.editOtherTitle.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { viewModel.updateTitle(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                viewModel.updateTitle(s.toString())
+                binding.editOtherTitleLabel.error = null
+            }
         })
 
         binding.otherCollecting.setOnCheckedChangeListener {
@@ -243,10 +252,12 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             clearImage("item")
         }
 
+
         sheetBinding.buttonSheetSave.setOnClickListener {
             val volNum = sheetBinding.editSheetVolumeTitle.text.toString()
             if (volNum.isBlank()) {
-                Toast.makeText(requireContext(), "Volume number is required", Toast.LENGTH_SHORT).show()
+                sheetBinding.editSheetVolumeTitleLabel.error = "Title is required"
+                Toast.makeText(requireContext(), "Title is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 

@@ -99,9 +99,16 @@ class OtherFormViewModel : ViewModel() {
         _other.value?.CollectingPriority = priority
     }
 
-    fun validate(): String? {
-        val b = _other.value ?: return "Book data missing"
-        if (b.Title.isNullOrBlank()) return "Title is required"
-        return null
+    fun validateFields(): Map<String, String> {
+        val errors = mutableMapOf<String, String>()
+        val b = _other.value
+        if (b == null) {
+            errors["general"] = "Book data missing"
+            return errors
+        }
+        if (b.Title.isNullOrBlank()) {
+            errors["title"] = "Title is required"
+        }
+        return errors
     }
 }

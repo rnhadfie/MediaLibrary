@@ -25,6 +25,7 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:id="@+id/edit_other_title_label"
                 android:layout_marginTop="12dp"
                 android:hint="@string/title_hint"
                 app:boxBackgroundColor="@color/card"

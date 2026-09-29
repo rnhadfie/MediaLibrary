@@ -79,9 +79,17 @@ class MusicFormViewModel : ViewModel() {
         _music.value?.CollectingPriority = priority
     }
 
-    fun validate(): String? {
-        val b = _music.value ?: return "Book data missing"
-        if (b.Title.isNullOrBlank()) return "Title is required"
-        return null
+
+    fun validate(): Map<String, String> {
+        val errors = mutableMapOf<String, String>()
+        val b = _music.value
+        if (b == null) {
+            errors["general"] = "Book data missing"
+            return errors
+        }
+        if (b.Title.isNullOrBlank()) {
+            errors["title"] = "Title is required"
+        }
+        return errors
     }
 }
