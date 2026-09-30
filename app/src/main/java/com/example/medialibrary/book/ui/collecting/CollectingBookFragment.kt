@@ -14,10 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import controllers.BookController
-import models.book.BookFilter
-import models.book.BookSetup
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.book.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
@@ -27,8 +23,12 @@ import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import models.book.BookFilter
+import models.book.BookSetup
+import repository.database.MediaLibraryDbHelper
 
 class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, CollectingBookViewModel>(
     BookFragmentCollectingBinding::inflate

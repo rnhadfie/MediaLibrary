@@ -3,9 +3,9 @@ package com.example.medialibrary.utils
 import android.view.View
 import android.widget.TextView
 import com.example.medialibrary.R
+import com.google.android.material.button.MaterialButton
 import models.book.BookFilter
 import models.book.BookSetup
-import models.book.Enums as BookEnums
 import models.music.MusicFilter
 import models.music.MusicSetup
 import models.other.OtherFilter
@@ -13,8 +13,8 @@ import models.shared.Filter
 import models.shared.MainSetup
 import models.video.VideoFilter
 import models.video.VideoSetup
+import models.book.Enums as BookEnums
 import models.video.Enums as VideoEnums
-import com.google.android.material.button.MaterialButton
 
 object FilterSummaryHelper {
 

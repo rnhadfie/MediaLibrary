@@ -12,22 +12,17 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
+import com.example.medialibrary.book.ui.utils.SharedUtils
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.databinding.BookBottomSheetBinding
+import com.example.medialibrary.databinding.BookFragmentDisplayBinding
+import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
-import controllers.BookController
-import models.book.Book
-import models.book.*
-import models.book.Enums.BookFormat
-import models.book.Enums.BookType
-import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.book.ui.utils.SharedUtils
-import com.example.medialibrary.databinding.BookBottomSheetBinding
-import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.databinding.BookFragmentDisplayBinding
-
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -38,11 +33,15 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
-
-import androidx.lifecycle.lifecycleScope
-import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import models.book.Book
+import models.book.BookFilter
+import models.book.BookSetup
+import models.book.Enums.BookFormat
+import models.book.Enums.BookType
+import repository.database.MediaLibraryDbHelper
 
 class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplayViewModel>(
     BookFragmentDisplayBinding::inflate

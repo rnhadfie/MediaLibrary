@@ -9,30 +9,29 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
-import controllers.MainController
-import models.shared.DisplayMediaItem
-import models.shared.Enums
-import models.shared.Filter
-import repository.database.MediaLibraryDbHelper
+import com.example.medialibrary.R
 import com.example.medialibrary.book.BookActivity
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MainFragmentDisplayBinding
 import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.video.VideoActivity
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-
-import androidx.lifecycle.lifecycleScope
-import com.example.medialibrary.R
-import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import controllers.MainController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import models.shared.DisplayMediaItem
+import models.shared.Enums
+import models.shared.Filter
+import repository.database.MediaLibraryDbHelper
 
 class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphViewModel>(
     MainFragmentDisplayBinding::inflate

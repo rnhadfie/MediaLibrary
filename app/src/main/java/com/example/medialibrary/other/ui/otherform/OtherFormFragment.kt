@@ -11,23 +11,23 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import controllers.OtherController
-import models.other.OtherItem
-import models.shared.Enums as SharedEnums
-import models.shared.MainSetup
-import models.shared.Tag
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import controllers.OtherController
+import models.other.OtherItem
+import models.shared.MainSetup
+import models.shared.Tag
+import repository.database.MediaLibraryDbHelper
+import models.shared.Enums as SharedEnums
 
 class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormViewModel>(
     OtherFragmentFormBinding::inflate

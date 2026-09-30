@@ -1,13 +1,15 @@
 package com.example.medialibrary.video
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.medialibrary.video.ui.form.VideoFormViewModel
 import models.shared.GenreObject
 import models.shared.Tag
 import models.video.Enums
 import models.video.VideoItem
-
-import com.example.medialibrary.video.ui.form.VideoFormViewModel
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 

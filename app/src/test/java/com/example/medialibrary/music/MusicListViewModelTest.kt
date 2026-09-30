@@ -1,8 +1,8 @@
 package com.example.medialibrary.music
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import models.shared.DisplayMediaItem
 import com.example.medialibrary.book.ui.book_list.BookListViewModel
+import models.shared.DisplayMediaItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule

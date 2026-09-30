@@ -1,12 +1,12 @@
 package com.example.medialibrary.video.ui.utils
 
 import androidx.lifecycle.ViewModel
-import models.shared.Filter
-import models.shared.SortModel
-import models.video.VideoFilter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import models.shared.Filter
+import models.shared.SortModel
+import models.video.VideoFilter
 
 class SortFilterViewmodel: ViewModel() {
     private val _filter = MutableStateFlow<VideoFilter?>(null)

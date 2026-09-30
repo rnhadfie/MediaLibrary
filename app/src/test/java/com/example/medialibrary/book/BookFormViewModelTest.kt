@@ -1,15 +1,18 @@
 package com.example.medialibrary.book
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.medialibrary.book.ui.form.BookFormViewModel
 import models.book.BookItem
-import models.book.Enums as BookEnums
 import models.book.Publisher
 import models.shared.GenreObject
 import models.shared.Tag
-import com.example.medialibrary.book.ui.form.BookFormViewModel
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import models.book.Enums as BookEnums
 
 class BookFormViewModelTest {
 

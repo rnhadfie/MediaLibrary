@@ -14,20 +14,22 @@ import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import controllers.MainController
-import models.book.BookFilter
-import models.shared.*
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
-import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.filterSheetSetup
-import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentListBinding
+import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.filterSheetSetup
+import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import controllers.MainController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import models.book.BookFilter
+import models.shared.Enums
+import models.shared.Filter
+import models.shared.MainSetup
+import repository.database.MediaLibraryDbHelper
 
 class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewModelViewModel>(
     MainFragmentListBinding::inflate

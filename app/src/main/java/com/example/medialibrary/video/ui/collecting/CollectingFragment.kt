@@ -14,16 +14,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.databinding.VideoBottomSheetBinding
+import com.example.medialibrary.databinding.VideoFragmentCollectingBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.video.ui.utils.SharedUtils
+import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.VideoController
 import models.video.VideoFilter
 import models.video.VideoSetup
 import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.VideoBottomSheetBinding
-import com.example.medialibrary.databinding.VideoFragmentCollectingBinding
-import com.example.medialibrary.video.ui.utils.*
-import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, CollectingViewModel>(
     VideoFragmentCollectingBinding::inflate

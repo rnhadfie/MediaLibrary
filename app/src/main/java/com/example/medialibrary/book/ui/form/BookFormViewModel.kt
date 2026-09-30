@@ -4,11 +4,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import controllers.BookController
-import models.book.*
+import models.book.Book
+import models.book.BookItem
+import models.book.BookSaveObject
+import models.book.BookSetup
 import models.book.Enums
+import models.book.Publisher
 import models.shared.GenreObject
-import models.shared.Enums as SharedEnums
 import models.shared.Tag
+import models.shared.Enums as SharedEnums
 
 class BookFormViewModel : ViewModel() {
 

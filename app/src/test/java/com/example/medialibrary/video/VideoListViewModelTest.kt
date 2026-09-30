@@ -1,8 +1,8 @@
 package com.example.medialibrary.video
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import models.shared.DisplayMediaItem
 import com.example.medialibrary.video.ui.list.VideoListModel
+import models.shared.DisplayMediaItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule

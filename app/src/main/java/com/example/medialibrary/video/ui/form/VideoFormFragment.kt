@@ -20,16 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import controllers.VideoController
-import models.music.Enums.MusicGenre
-import models.shared.GenreObject
-import models.shared.Tag
-import models.video.Enums.VideoFormat
-import models.video.Enums.VideoTag
-import models.video.Enums.VideoType
-import models.video.VideoItem
-import models.video.VideoSetup
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
@@ -40,6 +30,16 @@ import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import controllers.VideoController
+import models.music.Enums.MusicGenre
+import models.shared.GenreObject
+import models.shared.Tag
+import models.video.Enums.VideoFormat
+import models.video.Enums.VideoTag
+import models.video.Enums.VideoType
+import models.video.VideoItem
+import models.video.VideoSetup
+import repository.database.MediaLibraryDbHelper
 import models.shared.Enums as SharedEnums
 
 class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormViewModel>(

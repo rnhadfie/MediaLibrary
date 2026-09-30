@@ -13,19 +13,12 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SafePieChartRenderer
-import controllers.VideoController
-import models.music.MusicFilter
-import models.video.Enums
-import models.video.Video
-import models.video.VideoFilter
-import models.video.VideoSetup
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -37,6 +30,13 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import controllers.VideoController
+import models.music.MusicFilter
+import models.video.Enums
+import models.video.Video
+import models.video.VideoFilter
+import models.video.VideoSetup
+import repository.database.MediaLibraryDbHelper
 
 class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisplayViewModel>(
     VideoFragmentDisplayBinding::inflate

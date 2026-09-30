@@ -1,15 +1,19 @@
 package com.example.medialibrary.backend.serivce.music;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import serivce.MusicService;
-import serivce.SharedService;
-import models.music.Enums.MusicGenre;
-import java.util.Map;
 import org.junit.Test;
 
+import java.util.Map;
+
 import kotlin.LazyKt;
+import models.music.Enums.MusicGenre;
+import serivce.MusicService;
+import serivce.SharedService;
 
 
 public class GetMusicGenresTest {

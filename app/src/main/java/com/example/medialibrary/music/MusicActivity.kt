@@ -8,10 +8,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.medialibrary.R
-
 import com.example.medialibrary.BaseActivity
-
+import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicActivityBinding
 
 class MusicActivity : BaseActivity<MusicActivityBinding>() {

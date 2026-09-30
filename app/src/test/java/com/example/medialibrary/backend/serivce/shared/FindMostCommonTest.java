@@ -1,13 +1,15 @@
 package com.example.medialibrary.backend.serivce.shared;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import serivce.SharedService;
-import repository.database.MediaLibraryDbHelper;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+
+import repository.database.MediaLibraryDbHelper;
+import serivce.SharedService;
 
 public class FindMostCommonTest {
     @Test

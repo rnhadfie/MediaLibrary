@@ -1,10 +1,12 @@
 package com.example.medialibrary.music
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.medialibrary.music.ui.form.MusicFormViewModel
 import models.music.Enums
 import models.shared.Tag
-import com.example.medialibrary.music.ui.form.MusicFormViewModel
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 

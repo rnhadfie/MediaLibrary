@@ -3,16 +3,6 @@ package com.example.medialibrary.backend.serivce.video;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
 
-import android.provider.MediaStore;
-
-import serivce.SharedService;
-import serivce.VideoService;
-import models.book.BookFilter;
-import models.shared.Tag;
-import models.video.Enums;
-import models.video.VideoSetup;
-import repository.VideoRepository;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +12,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import models.book.BookFilter;
+import models.shared.Tag;
+import models.video.Enums;
+import models.video.VideoSetup;
+import repository.VideoRepository;
+import serivce.SharedService;
+import serivce.VideoService;
 
 @ExtendWith(MockitoExtension.class)
 public class GetVideoSetupTest {

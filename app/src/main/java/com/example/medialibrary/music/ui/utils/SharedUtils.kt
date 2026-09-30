@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.example.medialibrary.R
+import com.example.medialibrary.databinding.DialogSortContentBinding
+import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.MultiSelectFilterHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
@@ -12,8 +14,6 @@ import models.music.MusicFilter
 import models.music.MusicSetup
 import models.shared.Filter
 import models.shared.SortModel
-import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.databinding.MusicBottomSheetBinding
 
 class SharedUtils {
     companion object {

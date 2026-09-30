@@ -13,11 +13,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import models.shared.DisplayMediaItem
 import models.shared.MediaItem
-import com.example.medialibrary.databinding.DialogSortContentBinding
 
 abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     private val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> VB

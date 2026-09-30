@@ -4,9 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import controllers.OtherController
-import models.other.*
-import models.shared.Enums as SharedEnums
+import models.other.Other
+import models.other.OtherItem
+import models.other.OtherSaveObj
 import models.shared.Tag
+import models.shared.Enums as SharedEnums
 
 class OtherFormViewModel : ViewModel() {
     private val _other = MutableLiveData<Other>(Other().apply {

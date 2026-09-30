@@ -78,7 +78,7 @@ dependencies {
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.exifinterface)
+    //implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.material)

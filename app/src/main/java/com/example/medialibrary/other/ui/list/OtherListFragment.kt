@@ -9,16 +9,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
+import com.example.medialibrary.databinding.OtherBottomSheetBinding
+import com.example.medialibrary.databinding.OtherFragmentListBinding
+import com.example.medialibrary.other.ui.utils.SharedUtils
+import com.example.medialibrary.other.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
 import models.other.OtherFilter
 import models.shared.MainSetup
 import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.OtherBottomSheetBinding
-import com.example.medialibrary.databinding.OtherFragmentListBinding
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.example.medialibrary.other.ui.utils.*
 
 class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewModel>(
     OtherFragmentListBinding::inflate

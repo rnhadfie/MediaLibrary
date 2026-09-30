@@ -1,10 +1,12 @@
 package com.example.medialibrary.other
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.example.medialibrary.other.ui.otherform.OtherFormViewModel
 import models.other.OtherItem
 import models.shared.Tag
-import com.example.medialibrary.other.ui.otherform.OtherFormViewModel
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 

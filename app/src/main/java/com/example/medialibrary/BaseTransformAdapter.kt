@@ -9,10 +9,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import models.shared.DisplayMediaItem
-import models.shared.Enums
 import com.example.medialibrary.databinding.ItemTransformBinding
 import com.example.medialibrary.utils.SaveEditDeleteUtils
+import models.shared.DisplayMediaItem
+import models.shared.Enums
 
 open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAdapter.TransformViewHolder>(DIFF_CALLBACK) {
 

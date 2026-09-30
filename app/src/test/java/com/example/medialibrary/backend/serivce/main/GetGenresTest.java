@@ -1,15 +1,20 @@
 package com.example.medialibrary.backend.serivce.main;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import serivce.MainService;
-import serivce.SharedService;
-import models.shared.GenreObject;
+import org.junit.Test;
+
 import java.util.List;
 import java.util.Objects;
-import org.junit.Test;
+
 import kotlin.LazyKt;
+import models.shared.GenreObject;
+import serivce.MainService;
+import serivce.SharedService;
 
 public class GetGenresTest {
     @Test

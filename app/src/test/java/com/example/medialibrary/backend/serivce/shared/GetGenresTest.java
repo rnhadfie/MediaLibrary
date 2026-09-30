@@ -1,14 +1,17 @@
 package com.example.medialibrary.backend.serivce.shared;
 
-import static org.junit.Assert.*;
-import serivce.SharedService;
-import models.shared.GenreObject;
-import repository.database.MediaLibraryDbHelper;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Test;
+import models.shared.GenreObject;
+import repository.database.MediaLibraryDbHelper;
+import serivce.SharedService;
 
 public class GetGenresTest {
     @Test

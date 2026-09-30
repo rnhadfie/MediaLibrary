@@ -5,15 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import serivce.BookService;
-import serivce.SharedService;
-import models.book.Book;
-import models.book.BookFilter;
-import models.book.BookItem;
-import models.shared.DisplayMediaItem;
-import repository.BookRepository;
-import repository.database.MediaLibraryDbHelper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +13,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import models.book.Book;
+import models.book.BookFilter;
+import models.book.BookItem;
+import models.shared.DisplayMediaItem;
+import repository.BookRepository;
+import repository.database.MediaLibraryDbHelper;
+import serivce.BookService;
+import serivce.SharedService;
 
 @ExtendWith(MockitoExtension.class)
 public class GetBookDisplayListsTest {

@@ -15,12 +15,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
-import models.shared.Enums as SharedEnums
 import com.example.medialibrary.databinding.ViewDropdownBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import java.io.ByteArrayOutputStream
 import java.io.File
+import models.shared.Enums as SharedEnums
 
 abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
     private val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> VB

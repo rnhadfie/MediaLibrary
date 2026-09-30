@@ -1,6 +1,5 @@
 package com.example.medialibrary.book
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,11 +9,9 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-
+import com.example.medialibrary.BaseActivity
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookActivityBinding
-
-import com.example.medialibrary.BaseActivity
 
 class BookActivity : BaseActivity<BookActivityBinding>() {
 

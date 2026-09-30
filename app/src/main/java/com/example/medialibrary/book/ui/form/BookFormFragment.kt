@@ -19,14 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import controllers.BookController
-import models.book.Book
-import models.book.BookItem
-import models.book.BookSetup
-import models.book.Enums
-import models.music.Enums.MusicGenre
-import models.shared.GenreObject
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemBottomSheetBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
@@ -35,6 +27,14 @@ import com.example.medialibrary.utils.RadioGridUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
+import controllers.BookController
+import models.book.Book
+import models.book.BookItem
+import models.book.BookSetup
+import models.book.Enums
+import models.music.Enums.MusicGenre
+import models.shared.GenreObject
+import repository.database.MediaLibraryDbHelper
 import models.shared.Enums as SharedEnums
 
 class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewModel>(

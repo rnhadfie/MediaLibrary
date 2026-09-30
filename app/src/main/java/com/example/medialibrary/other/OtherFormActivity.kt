@@ -1,13 +1,12 @@
 package com.example.medialibrary.other
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.other.ui.otherform.OtherFormFragment
-import com.example.medialibrary.video.ui.form.VideoFormFragment
 
 class OtherFormActivity : AppCompatActivity() {
 

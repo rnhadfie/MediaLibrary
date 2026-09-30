@@ -3,21 +3,24 @@ package com.example.medialibrary.backend.serivce.music;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.when;
-import serivce.MusicService;
-import serivce.SharedService;
-import models.book.BookFilter;
-import models.music.Enums;
-import models.music.MusicSetup;
-import models.shared.Tag;
-import repository.MusicRepository;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import models.book.BookFilter;
+import models.music.Enums;
+import models.music.MusicSetup;
+import models.shared.Tag;
+import repository.MusicRepository;
+import serivce.MusicService;
+import serivce.SharedService;
 
 
 @ExtendWith(MockitoExtension.class)

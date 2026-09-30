@@ -1,8 +1,8 @@
 package com.example.medialibrary.book
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import models.book.Publisher
 import com.example.medialibrary.book.ui.publisher.PublisherViewModel
+import models.book.Publisher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule

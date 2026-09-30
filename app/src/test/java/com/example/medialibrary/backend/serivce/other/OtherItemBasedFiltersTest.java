@@ -1,14 +1,17 @@
 package com.example.medialibrary.backend.serivce.other;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import serivce.OtherService;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import models.other.Other;
 import models.other.OtherItem;
 import models.shared.Filter;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Test;
+import serivce.OtherService;
 
 public class OtherItemBasedFiltersTest {
     @Test

@@ -1,14 +1,17 @@
 package com.example.medialibrary.backend.serivce.video;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import serivce.VideoService;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import models.video.Video;
 import models.video.VideoFilter;
 import models.video.VideoItem;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.Test;
+import serivce.VideoService;
 
 public class VideoItemBasedFiltersTest {
     @Test

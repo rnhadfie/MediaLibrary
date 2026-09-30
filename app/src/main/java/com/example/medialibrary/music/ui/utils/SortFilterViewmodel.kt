@@ -1,12 +1,12 @@
 package com.example.medialibrary.music.ui.utils
 
 import androidx.lifecycle.ViewModel
-import models.music.MusicFilter
-import models.shared.Filter
-import models.shared.SortModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import models.music.MusicFilter
+import models.shared.Filter
+import models.shared.SortModel
 
 class SortFilterViewmodel: ViewModel() {
     private val _filter = MutableStateFlow<MusicFilter?>(null)

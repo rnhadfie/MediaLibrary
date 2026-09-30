@@ -12,13 +12,13 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
+import com.example.medialibrary.databinding.TagFragmentListBinding
+import com.example.medialibrary.databinding.TagItemBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import controllers.MainController
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.TagFragmentListBinding
-import com.example.medialibrary.databinding.TagItemBinding
 
 class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
     TagFragmentListBinding::inflate

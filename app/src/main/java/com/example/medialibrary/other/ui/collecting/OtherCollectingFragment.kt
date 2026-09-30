@@ -10,16 +10,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.databinding.OtherBottomSheetBinding
+import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
+import com.example.medialibrary.other.ui.utils.SharedUtils
+import com.example.medialibrary.other.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
 import models.other.OtherFilter
 import models.shared.MainSetup
 import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.OtherBottomSheetBinding
-import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
-import com.example.medialibrary.other.ui.utils.*
-import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, OtherCollectingViewModel>(
     OtherFragmentCollectingBinding::inflate

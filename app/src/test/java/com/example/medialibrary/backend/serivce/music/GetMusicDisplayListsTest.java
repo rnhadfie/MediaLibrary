@@ -5,14 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import serivce.MusicService;
-import serivce.SharedService;
-import models.book.BookItem;
-import models.music.Music;
-import models.music.MusicFilter;
-import models.shared.DisplayMediaItem;
-import repository.MusicRepository;
-import repository.database.MediaLibraryDbHelper;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +14,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import models.book.BookItem;
+import models.music.Music;
+import models.music.MusicFilter;
+import models.shared.DisplayMediaItem;
+import repository.MusicRepository;
+import repository.database.MediaLibraryDbHelper;
+import serivce.MusicService;
+import serivce.SharedService;
 
 @ExtendWith(MockitoExtension.class)
 public class GetMusicDisplayListsTest {

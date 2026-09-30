@@ -1,11 +1,11 @@
 package com.example.medialibrary.video
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.medialibrary.R
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.medialibrary.R
 import com.example.medialibrary.video.ui.form.VideoFormFragment
 
 class VideoFormActivity : AppCompatActivity() {

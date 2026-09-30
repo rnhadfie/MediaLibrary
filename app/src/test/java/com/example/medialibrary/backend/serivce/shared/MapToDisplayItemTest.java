@@ -1,14 +1,14 @@
 package com.example.medialibrary.backend.serivce.shared;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import serivce.SharedService;
+import org.junit.Test;
+
 import models.book.Book;
 import models.shared.DisplayMediaItem;
 import models.shared.Enums;
 import repository.database.MediaLibraryDbHelper;
-
-import org.junit.Test;
+import serivce.SharedService;
 
 public class MapToDisplayItemTest {
     @Test

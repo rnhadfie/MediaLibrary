@@ -5,17 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.example.medialibrary.R
+import com.example.medialibrary.databinding.BookBottomSheetBinding
+import com.example.medialibrary.databinding.DialogSortContentBinding
+import com.example.medialibrary.utils.FilterOption
+import com.example.medialibrary.utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import models.book.BookFilter
 import models.book.BookSetup
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import models.shared.Filter
 import models.shared.SortModel
-import com.example.medialibrary.databinding.BookBottomSheetBinding
-import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.utils.FilterOption
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
 
 class SharedUtils {
 

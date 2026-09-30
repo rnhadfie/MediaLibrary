@@ -4,6 +4,11 @@ import android.content.Intent
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.example.medialibrary.book.BookFormActivity
+import com.example.medialibrary.music.MusicFormActivity
+import com.example.medialibrary.other.OtherFormActivity
+import com.example.medialibrary.video.VideoFormActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import controllers.BookController
 import controllers.MusicController
 import controllers.OtherController
@@ -11,11 +16,6 @@ import controllers.VideoController
 import models.shared.DisplayMediaItem
 import models.shared.Enums
 import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.book.BookFormActivity
-import com.example.medialibrary.music.MusicFormActivity
-import com.example.medialibrary.other.OtherFormActivity
-import com.example.medialibrary.video.VideoFormActivity
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class SaveEditDeleteUtils(private val item: DisplayMediaItem, private val holder: RecyclerView.ViewHolder) {
 

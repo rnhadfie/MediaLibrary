@@ -6,13 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import serivce.SharedService;
-import serivce.VideoService;
-import models.video.Video;
-import models.video.VideoFilter;
-import repository.VideoRepository;
-import repository.database.MediaLibraryDbHelper;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import models.video.Video;
+import models.video.VideoFilter;
+import repository.VideoRepository;
+import repository.database.MediaLibraryDbHelper;
+import serivce.SharedService;
+import serivce.VideoService;
 
 @ExtendWith(MockitoExtension.class)
 public class GetVideosTest {

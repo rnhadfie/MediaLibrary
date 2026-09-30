@@ -13,16 +13,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import controllers.MainController
-import models.shared.*
-import repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.home.ui.utils.*
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentCollectingBinding
-import com.example.medialibrary.utils.*
+import com.example.medialibrary.home.ui.utils.SharedUtils
+import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import controllers.MainController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import models.shared.Enums
+import models.shared.Filter
+import models.shared.MainSetup
+import repository.database.MediaLibraryDbHelper
 
 class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, CollectingViewModel>(
     MainFragmentCollectingBinding::inflate

@@ -5,14 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.example.medialibrary.R
-import models.shared.Filter
-import models.shared.MainSetup
-import models.shared.SortModel
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.MultiSelectFilterHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import models.shared.Filter
+import models.shared.MainSetup
+import models.shared.SortModel
 
 object SharedUtils {
     fun filterSheetSetup(

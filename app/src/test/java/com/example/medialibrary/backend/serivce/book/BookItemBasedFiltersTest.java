@@ -1,16 +1,18 @@
 package com.example.medialibrary.backend.serivce.book;
 
-import static org.junit.Assert.*;
-
-import serivce.BookService;
-import models.book.Book;
-import models.book.BookFilter;
-import models.book.BookItem;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import models.book.Book;
+import models.book.BookFilter;
+import models.book.BookItem;
+import serivce.BookService;
 
 public class BookItemBasedFiltersTest {
 

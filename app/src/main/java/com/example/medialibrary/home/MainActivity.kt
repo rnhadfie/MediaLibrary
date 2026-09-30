@@ -9,8 +9,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.medialibrary.BaseActivity
 import com.example.medialibrary.R
-import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MainActivityBinding
+import repository.database.MediaLibraryDbHelper
 
 class MainActivity : BaseActivity<MainActivityBinding>() {
 

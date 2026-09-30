@@ -1,13 +1,17 @@
 package com.example.medialibrary.backend.serivce.book;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import serivce.BookService;
-import models.book.BookItem;
-import models.book.Enums;
+import org.junit.Test;
+
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+
+import models.book.BookItem;
+import models.book.Enums;
+import serivce.BookService;
 
 public class GetCommonBookFormatTest {
     @Test
