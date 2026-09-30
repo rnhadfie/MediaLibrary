@@ -12,10 +12,10 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.backend.controllers.OtherController
-import com.example.medialibrary.backend.models.other.OtherFilter
-import com.example.medialibrary.backend.models.shared.MainSetup
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.OtherController
+import models.other.OtherFilter
+import models.shared.MainSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
 import com.example.medialibrary.other.ui.utils.*

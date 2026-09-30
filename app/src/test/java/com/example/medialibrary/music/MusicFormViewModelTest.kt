@@ -1,9 +1,8 @@
 package com.example.medialibrary.music
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.medialibrary.backend.models.music.Enums
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.shared.Tag
+import models.music.Enums
+import models.shared.Tag
 import com.example.medialibrary.music.ui.form.MusicFormViewModel
 import org.junit.Assert.*
 import org.junit.Rule

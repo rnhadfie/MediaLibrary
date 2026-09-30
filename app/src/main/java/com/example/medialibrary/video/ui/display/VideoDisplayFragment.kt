@@ -16,13 +16,13 @@ import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.backend.controllers.VideoController
-import com.example.medialibrary.backend.models.music.MusicFilter
-import com.example.medialibrary.backend.models.video.Enums
-import com.example.medialibrary.backend.models.video.Video
-import com.example.medialibrary.backend.models.video.VideoFilter
-import com.example.medialibrary.backend.models.video.VideoSetup
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.VideoController
+import models.music.MusicFilter
+import models.video.Enums
+import models.video.Video
+import models.video.VideoFilter
+import models.video.VideoSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
@@ -132,7 +132,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
             filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            filter.Collected = sheetBinding.collected.triStateButton?.tag as Boolean?
+            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
             loadData()
             dialog.dismiss()
@@ -171,7 +171,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     private fun setupWatchedPieChart(watchedCount: Int, totalDvds: Int) {
         val watchPercent = ((watchedCount.toDouble() / totalDvds.toDouble()) * 100).toInt()
 
-        val readPercentPieEntries = ArrayList<PieEntry>()
+        val readPercentPieEntries = ArrayList<PieEntry<*>>()
         readPercentPieEntries.add(PieEntry(watchPercent.toFloat()))
         readPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
@@ -182,16 +182,16 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         val watchedPieChart = binding.watchedProgressChart
 
         if (readPercentPieEntries.isEmpty()) {
-            watchedPieChart.setNoDataTextColor(Color.BLACK)
-            watchedPieChart.setNoDataText("No data to display")
+            watchedPieChart.noDataTextColor = Color.BLACK
+            watchedPieChart.noDataText = "No data to display"
             watchedPieChart.data = null
         } else {
-            watchedPieChart.description?.isEnabled = false
+            watchedPieChart.description.isEnabled = false
             watchedPieChart.data = readPercentPieData
             watchedPieChart.centerText = "Watched Percent: $watchPercent%"
-            watchedPieChart.legend?.isEnabled = false
-            watchedPieChart.setHoleColor(Color.TRANSPARENT)
-            watchedPieChart.setTransparentCircleColor(Color.TRANSPARENT)
+            watchedPieChart.legend.isEnabled = false
+            watchedPieChart.holeColor = Color.TRANSPARENT
+            watchedPieChart.transparentCircleColor = Color.TRANSPARENT
             watchedPieChart.setBackgroundColor(Color.TRANSPARENT)
             watchedPieChart.renderer = SafePieChartRenderer(
                 watchedPieChart,
@@ -204,7 +204,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupFormatPieChart(items: List<Video>) {
-        val formatPieEntries = ArrayList<PieEntry>()
+        val formatPieEntries = ArrayList<PieEntry<*>>()
 
         var dvdCount = 0
         var digitalCount = 0
@@ -236,18 +236,18 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
             if (formatPieEntries.isEmpty()) {
                 formatPieChart.data = null
-                formatPieChart.setNoDataTextColor(Color.BLACK)
-                formatPieChart.setNoDataText("No format data to display")
+                formatPieChart.noDataTextColor = Color.BLACK
+                formatPieChart.noDataText = "No format data to display"
             } else {
                 foramtPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
                 val formatPieData = PieData(foramtPieDataSet)
                 formatPieChart.data = formatPieData
-                formatPieChart.setHoleColor(Color.TRANSPARENT)
-                formatPieChart.setTransparentCircleColor(Color.TRANSPARENT)
+                formatPieChart.holeColor = Color.TRANSPARENT
+                formatPieChart.transparentCircleColor = Color.TRANSPARENT
                 formatPieChart.setBackgroundColor(Color.TRANSPARENT)
                 formatPieChart.centerText = "Format"
                 formatPieChart.legend.isEnabled = false
-                formatPieChart.setUsePercentValues(true)
+                formatPieChart.isUsePercentValuesEnabled = true
                 formatPieChart.description.isEnabled = false
                 formatPieChart.animateXY(1000, 1000)
                 formatPieChart.renderer = SafePieChartRenderer(
@@ -325,7 +325,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     private fun setupVideoTagBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
         val videoTags = setup.VideoTags
-        val tagDataSets = ArrayList<IBarDataSet>()
+        val tagDataSets = ArrayList<IBarDataSet<*>>()
 
         videoTags.forEach { (index, tag) ->
             if (Enums.VideoTag.entries[index] != Enums.VideoTag.None) {
@@ -337,7 +337,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
 
         binding.videoCategoryChart.let { chart ->
-            chart.setNoDataText("No media types data to display")
+            chart.noDataText = "No media types data to display"
             if (tagDataSets.isEmpty()) {
                 chart.data = null
             } else {
@@ -350,7 +350,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL
-                legend.setDrawInside(false)
+                legend.isDrawInsideEnabled = false
 
                 chart.animateY(1000)
             }
@@ -359,7 +359,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupVideoTypeBarChart(items: List<Video>, colors: List<Int>) {
-        val dataSets = ArrayList<IBarDataSet>()
+        val dataSets = ArrayList<IBarDataSet<*>>()
 
         val typeCounts = listOf(
             Enums.VideoType.Movie to "Movies",
@@ -377,7 +377,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         val barData = BarData(dataSets)
         binding.videoTypeChart.let { chart ->
-            chart.setNoDataText("No Video type data to display")
+            chart.noDataText = "No Video type data to display"
             if (dataSets.isEmpty()) {
                 chart.data = null
             } else {
@@ -390,7 +390,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL
-                legend.setDrawInside(false)
+                legend.isDrawInsideEnabled = false
                 legend.form = Legend.LegendForm.SQUARE
 
                 chart.animateY(1000)

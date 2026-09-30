@@ -17,17 +17,17 @@ import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.backend.controllers.BookController
-import com.example.medialibrary.backend.models.book.Book
-import com.example.medialibrary.backend.models.book.BookFilter
-import com.example.medialibrary.backend.models.book.BookSetup
-import com.example.medialibrary.backend.models.book.Enums.BookFormat
-import com.example.medialibrary.backend.models.book.Enums.BookType
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.BookController
+import models.book.Book
+import models.book.*
+import models.book.Enums.BookFormat
+import models.book.Enums.BookType
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
+
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -204,7 +204,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
     private fun setReadPercentChart(readCount: Int, totalBook: Int) {
         val readPercent = ((readCount.toDouble() / totalBook.toDouble()) * 100).toInt()
-        val readPercentPieEntries = ArrayList<PieEntry>()
+        val readPercentPieEntries = ArrayList<PieEntry<*>>()
         readPercentPieEntries.add(PieEntry(readPercent.toFloat()))
         readPercentPieEntries.add(PieEntry(100 - readPercent.toFloat()))
 
@@ -214,17 +214,17 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val readPercentPieData = PieData(readPercentPieDataSet)
         val bookReadProgressChart = binding.readProgressChart
         if (readPercentPieEntries.isEmpty()) {
-            bookReadProgressChart.setNoDataText("No data to display")
+            bookReadProgressChart.noDataText = "No data to display"
             bookReadProgressChart.data = null
-            bookReadProgressChart.setNoDataTextColor(Color.BLACK)
-            bookReadProgressChart.setCenterTextSize(20f)
+            bookReadProgressChart.noDataTextColor = Color.BLACK
+            bookReadProgressChart.centerTextSize = 20f
         }
-        bookReadProgressChart.description?.isEnabled = false
+        bookReadProgressChart.description.isEnabled = false
         bookReadProgressChart.data = readPercentPieData
         bookReadProgressChart.centerText = "Read Percent: $readPercent%"
-        bookReadProgressChart.legend?.isEnabled = false
-        bookReadProgressChart.setHoleColor(Color.TRANSPARENT)
-        bookReadProgressChart.setTransparentCircleColor(Color.TRANSPARENT)
+        bookReadProgressChart.legend.isEnabled = false
+        bookReadProgressChart.holeColor = Color.TRANSPARENT
+        bookReadProgressChart.transparentCircleColor = Color.TRANSPARENT
         bookReadProgressChart.setBackgroundColor(Color.TRANSPARENT)
         bookReadProgressChart.renderer = SafePieChartRenderer(
             bookReadProgressChart,
@@ -237,7 +237,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setBookTypeBarChart(items: List<Book>, setup: BookSetup, colors: List<Int>) {
-        val dataSets = ArrayList<IBarDataSet>()
+        val dataSets = ArrayList<IBarDataSet<*>>()
         val typeCounts = setup.Type
 
         var index = 1
@@ -261,11 +261,11 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val barData = BarData(dataSets)
 
         binding.bookTypeChart.let { chart ->
-            chart.setNoDataText("No data to display")
+            chart.noDataText = "No data to display"
 
             if (dataSets.isEmpty()) {
                 chart.data = null
-                chart.setNoDataTextColor(Color.BLACK)
+                chart.noDataTextColor = Color.BLACK
             } else {
                 chart.data = barData
                 chart.description.isEnabled = false
@@ -276,7 +276,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL
-                legend.setDrawInside(false)
+                legend.isDrawInsideEnabled = false
                 legend.form = Legend.LegendForm.SQUARE
 
                 chart.animateY(1000)
@@ -406,7 +406,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {
-        val formatPieEntries = ArrayList<PieEntry>()
+        val formatPieEntries = ArrayList<PieEntry<*>>()
 
         var ebookCount = 0
         var hardCoverCount = 0
@@ -433,9 +433,9 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         if (formatPieEntries.isEmpty()) {
             bookFormatPieChart.data = null
-            bookFormatPieChart.setNoDataText("No Format data to display")
-            bookFormatPieChart.setNoDataTextColor(Color.BLACK)
-            bookFormatPieChart.setCenterTextSize(20f)
+            bookFormatPieChart.noDataText = "No Format data to display"
+            bookFormatPieChart.noDataTextColor = Color.BLACK
+            bookFormatPieChart.centerTextSize = 20f
         } else {
             val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
             formatPieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
@@ -445,10 +445,10 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
             bookFormatPieChart.description.isEnabled = false
             bookFormatPieChart.description.text = ""
-            bookFormatPieChart.setHoleColor(Color.TRANSPARENT)
-            bookFormatPieChart.setTransparentCircleColor(Color.TRANSPARENT)
+            bookFormatPieChart.holeColor = Color.TRANSPARENT
+            bookFormatPieChart.transparentCircleColor = Color.TRANSPARENT
             bookFormatPieChart.setBackgroundColor(Color.TRANSPARENT)
-            bookFormatPieChart.setUsePercentValues(true)
+            bookFormatPieChart.isUsePercentValuesEnabled = true
             bookFormatPieChart.centerText = "Format %"
             bookFormatPieChart.legend.isEnabled = false
 

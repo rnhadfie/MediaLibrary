@@ -11,8 +11,8 @@ class SafePieChartRenderer(
 ) : PieChartRenderer(chart, animator, viewPortHandler) {
 
     override fun drawExtras(c: Canvas) {
-        // MPAndroidChart bug: mDrawBitmap can be null if the chart layout is 0x0
-        if (mDrawBitmap == null) return
+        // MPAndroidChart bug: drawBitmap can be null if the chart layout is 0x0
+        if (drawBitmap?.get() == null) return
 
         super.drawExtras(c)
     }

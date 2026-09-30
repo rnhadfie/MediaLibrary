@@ -14,10 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.controllers.BookController
-import com.example.medialibrary.backend.models.book.BookFilter
-import com.example.medialibrary.backend.models.book.BookSetup
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.BookController
+import models.book.BookFilter
+import models.book.BookSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.book.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel

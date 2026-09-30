@@ -3,12 +3,12 @@ package com.example.medialibrary.book.ui.form
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.controllers.BookController
-import com.example.medialibrary.backend.models.book.*
-import com.example.medialibrary.backend.models.book.Enums
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.shared.Tag
+import controllers.BookController
+import models.book.*
+import models.book.Enums
+import models.shared.GenreObject
+import models.shared.Enums as SharedEnums
+import models.shared.Tag
 
 class BookFormViewModel : ViewModel() {
 

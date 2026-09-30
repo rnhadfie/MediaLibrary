@@ -1,6 +1,7 @@
 package com.example.medialibrary.utils
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,8 +11,8 @@ import android.net.Uri
 import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.content.res.ResourcesCompat
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookFragmentFormBinding
@@ -147,11 +148,15 @@ object ImageUtils {
 
     fun setPlaceholderCover(imageView: ImageView, requireContext: Context, resources: Resources) {
         imageView.setImageResource(R.drawable.ic_gallery_black_24dp)
+        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
         val typedValue = TypedValue()
         requireContext.theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
-        imageView.imageTintList = ResourcesCompat.getColorStateList(
-            resources, typedValue.resourceId, requireContext.theme
-        )
+        val color = if (typedValue.resourceId != 0) {
+            ContextCompat.getColor(requireContext, typedValue.resourceId)
+        } else {
+            typedValue.data
+        }
+        imageView.imageTintList = ColorStateList.valueOf(color)
     }
 
     fun handleImageBitmap(
@@ -168,21 +173,25 @@ object ImageUtils {
         if (isFormTargeted(pendingImageTarget)) {
             when (binding) {
                 is BookFragmentFormBinding -> {
+                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
                     binding.changeImage.imageBookCover.imageTintList = null
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
                 }
                 is VideoFragmentFormBinding -> {
+                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
                     binding.changeImage.imageBookCover.imageTintList = null
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
                 }
                 is OtherFragmentFormBinding -> {
+                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
                     binding.changeImage.imageBookCover.imageTintList = null
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
                 }
                 is MusicFragmentFormBinding -> {
+                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
                     binding.changeImage.imageBookCover.imageTintList = null
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
@@ -192,18 +201,21 @@ object ImageUtils {
             currentSheetBinding?.let { sheet ->
                 when (sheet) {
                     is BookItemBottomSheetBinding -> {
+                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                         sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
                         sheet.imageItemCover.imageBookCover.imageTintList = null
                         sheet.imageItemCover.imageBookCover.tag = byteArray
                         sheet.imageItemCover.buttonClearCover.visibility = View.VISIBLE
                     }
                     is VideoItemBottomSheetBinding -> {
+                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                         sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
                         sheet.imageItemCover.imageBookCover.imageTintList = null
                         sheet.imageItemCover.imageBookCover.tag = byteArray
                         sheet.imageItemCover.buttonClearCover.visibility = View.VISIBLE
                     }
                     is OtherItemBottomSheetBinding -> {
+                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                         sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
                         sheet.imageItemCover.imageBookCover.imageTintList = null
                         sheet.imageItemCover.imageBookCover.tag = byteArray

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="item"
-            type="com.example.medialibrary.backend.models.shared.DisplayMediaItem" />
+            type="models.shared.DisplayMediaItem" />
     </data>
 
     <androidx.cardview.widget.CardView

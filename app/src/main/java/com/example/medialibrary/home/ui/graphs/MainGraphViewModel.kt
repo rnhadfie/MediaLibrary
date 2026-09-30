@@ -3,7 +3,7 @@ package com.example.medialibrary.home.ui.graphs
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.shared.*
+import models.shared.*
 
 class MainGraphViewModel : ViewModel() {
 

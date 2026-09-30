@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.backend.controllers.BookController
-import com.example.medialibrary.backend.models.book.Publisher
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.BookController
+import models.book.Publisher
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.PublisherFragmentListBinding
 import com.example.medialibrary.databinding.PublisherItemBinding
 

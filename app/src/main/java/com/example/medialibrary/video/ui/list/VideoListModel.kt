@@ -3,7 +3,7 @@ package com.example.medialibrary.video.ui.list
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.shared.DisplayMediaItem
+import models.shared.DisplayMediaItem
 
 class VideoListModel : ViewModel() {
 

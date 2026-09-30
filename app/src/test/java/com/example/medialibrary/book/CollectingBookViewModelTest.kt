@@ -1,7 +1,7 @@
 package com.example.medialibrary.book
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.medialibrary.backend.models.shared.DisplayMediaItem
+import models.shared.DisplayMediaItem
 import com.example.medialibrary.book.ui.collecting.CollectingBookViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

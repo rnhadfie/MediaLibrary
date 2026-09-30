@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
+import models.shared.Enums as SharedEnums
 import com.example.medialibrary.databinding.ViewDropdownBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel

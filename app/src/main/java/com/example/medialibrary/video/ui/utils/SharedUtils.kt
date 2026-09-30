@@ -5,14 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.SortModel
+import models.shared.Filter
+import models.shared.SortModel
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.MultiSelectFilterHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
-import com.example.medialibrary.backend.models.video.Enums
-import com.example.medialibrary.backend.models.video.VideoFilter
-import com.example.medialibrary.backend.models.video.VideoSetup
+import models.video.Enums
+import models.video.VideoFilter
+import models.video.VideoSetup
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 

@@ -3,7 +3,7 @@ package com.example.medialibrary.home.ui.tag
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.shared.Tag
+import models.shared.Tag
 
 class TagViewModel: ViewModel() {
     private val _tags = MutableLiveData<List<Tag>>()

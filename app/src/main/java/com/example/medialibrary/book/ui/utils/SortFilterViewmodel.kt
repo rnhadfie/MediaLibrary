@@ -1,9 +1,9 @@
 package com.example.medialibrary.book.ui.utils
 
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.book.BookFilter
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.SortModel
+import models.book.BookFilter
+import models.shared.Filter
+import models.shared.SortModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

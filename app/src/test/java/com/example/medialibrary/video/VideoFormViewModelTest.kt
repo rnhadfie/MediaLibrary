@@ -1,10 +1,10 @@
 package com.example.medialibrary.video
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.shared.Tag
-import com.example.medialibrary.backend.models.video.Enums
-import com.example.medialibrary.backend.models.video.VideoItem
+import models.shared.GenreObject
+import models.shared.Tag
+import models.video.Enums
+import models.video.VideoItem
 
 import com.example.medialibrary.video.ui.form.VideoFormViewModel
 import org.junit.Assert.*

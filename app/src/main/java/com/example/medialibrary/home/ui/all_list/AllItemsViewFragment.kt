@@ -14,10 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.controllers.MainController
-import com.example.medialibrary.backend.models.book.BookFilter
-import com.example.medialibrary.backend.models.shared.*
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.MainController
+import models.book.BookFilter
+import models.shared.*
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
@@ -87,7 +87,7 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             showFilterSheet(setup, currentFilter)
         }
 
-        binding.buttonSort?.setOnClickListener {
+        binding.buttonSort.setOnClickListener {
             val filter = sortFilterViewModel.getOrCreateItemFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
@@ -96,7 +96,7 @@ class AllItemsViewFragment : BaseFragment<MainFragmentListBinding, AllItemsViewM
             }
         }
 
-        binding.allItemList?.setOnClickListener {
+        binding.allItemList.setOnClickListener {
             val mediaItems = viewModel.items.value
             val sortedBooks = mediaItems?.filter { it.MediaType == Enums.MediaType.Book }?.sortedBy { it.Title }
             val sortedVideos = mediaItems?.filter { it.MediaType == Enums.MediaType.Video }?.sortedBy { it.Title }

@@ -1,9 +1,9 @@
 package com.example.medialibrary.video.ui.utils
 
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.SortModel
-import com.example.medialibrary.backend.models.video.VideoFilter
+import models.shared.Filter
+import models.shared.SortModel
+import models.video.VideoFilter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

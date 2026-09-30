@@ -15,10 +15,10 @@ import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.backend.controllers.VideoController
-import com.example.medialibrary.backend.models.video.VideoFilter
-import com.example.medialibrary.backend.models.video.VideoSetup
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.VideoController
+import models.video.VideoFilter
+import models.video.VideoSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentListBinding
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel

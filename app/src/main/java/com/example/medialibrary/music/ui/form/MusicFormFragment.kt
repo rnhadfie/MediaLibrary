@@ -1,37 +1,25 @@
 package com.example.medialibrary.music.ui.form
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.RadioButton
-import android.widget.TableLayout
-import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.controllers.MusicController
-import com.example.medialibrary.backend.models.music.Enums.MusicGenre
-import com.example.medialibrary.backend.models.music.MusicSetup
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.MusicController
+import models.music.Enums.MusicGenre
+import models.music.MusicSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import models.shared.Enums as SharedEnums
 
 class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormViewModel>(
     MusicFragmentFormBinding::inflate
@@ -139,6 +127,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
             if (music.Cover != null && music.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(music.Cover, 0, music.Cover.size)
+                binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 binding.changeImage.imageBookCover.setImageBitmap(bitmap)
                 binding.changeImage.imageBookCover.imageTintList = null
                 binding.changeImage.buttonClearCover.visibility = View.VISIBLE
@@ -154,7 +143,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
         binding.musicGenreRadio.radioButtonLabel.setText(R.string.music_genre)
         val tableLayout = binding.musicGenreRadio.dynamicTableLayout
-        val musicGenre = setup.MusicGenre.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        val musicGenre = setup.MusicGenre.filter { it.key != MusicGenre.NoneSelected.ordinal }
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = tableLayout,
             optionsMap = musicGenre,

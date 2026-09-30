@@ -12,11 +12,11 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.backend.controllers.MainController
-import com.example.medialibrary.backend.models.shared.DisplayMediaItem
-import com.example.medialibrary.backend.models.shared.Enums
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.MainController
+import models.shared.DisplayMediaItem
+import models.shared.Enums
+import models.shared.Filter
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.book.BookActivity
 import com.example.medialibrary.databinding.MainFragmentDisplayBinding
 import com.example.medialibrary.music.MusicActivity
@@ -27,7 +27,6 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.R
@@ -144,7 +143,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
             }
         }
 
-        val dataSets = ArrayList<IBarDataSet>()
+        val dataSets = ArrayList<IBarDataSet<*>>()
         val colors = listOf(
             ContextCompat.getColor(requireContext(), R.color.section_book),
             ContextCompat.getColor(requireContext(), R.color.section_video),
@@ -167,7 +166,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         }
 
         val barData = BarData(dataSets)
-        binding.barChart.setNoDataText("No data to display")
+        binding.barChart.noDataText = "No data to display"
         if (dataSets.isEmpty()) {
             binding.barChart.data = null
         } else {
@@ -180,7 +179,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
             legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
             legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
             legend.orientation = Legend.LegendOrientation.HORIZONTAL
-            legend.setDrawInside(false)
+            legend.isDrawInsideEnabled = false
 
             binding.barChart.animateY(1000)
         }

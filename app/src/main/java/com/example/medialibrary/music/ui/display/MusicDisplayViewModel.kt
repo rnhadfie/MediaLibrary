@@ -3,7 +3,7 @@ package com.example.medialibrary.music.ui.display
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.shared.MediaItem
+import models.shared.MediaItem
 
 class MusicDisplayViewModel : ViewModel() {
 

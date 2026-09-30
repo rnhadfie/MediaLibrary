@@ -13,9 +13,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
-import com.example.medialibrary.backend.controllers.MainController
-import com.example.medialibrary.backend.models.shared.*
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.MainController
+import models.shared.*
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.home.ui.utils.*
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentCollectingBinding

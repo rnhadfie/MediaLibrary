@@ -3,10 +3,10 @@ package com.example.medialibrary.other.ui.otherform
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.controllers.OtherController
-import com.example.medialibrary.backend.models.other.*
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.shared.Tag
+import controllers.OtherController
+import models.other.*
+import models.shared.Enums as SharedEnums
+import models.shared.Tag
 
 class OtherFormViewModel : ViewModel() {
     private val _other = MutableLiveData<Other>(Other().apply {

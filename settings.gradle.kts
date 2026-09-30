@@ -8,6 +8,7 @@ pluginManagement {
             }
         }
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
         gradlePluginPortal()
     }
 }
@@ -19,10 +20,9 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url = uri("https://jitpack.io") }
     }
 }
 
 rootProject.name = "MediaLibrary"
 include(":app")
-include(":MPChartLib")
-project(":MPChartLib").projectDir = File(rootDir, "PhilJay-MPAndroidChart-0c2ac2d/MPChartLib/")

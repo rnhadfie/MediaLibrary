@@ -15,8 +15,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.backend.models.shared.DisplayMediaItem
-import com.example.medialibrary.backend.models.shared.MediaItem
+import models.shared.DisplayMediaItem
+import models.shared.MediaItem
 import com.example.medialibrary.databinding.DialogSortContentBinding
 
 abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(

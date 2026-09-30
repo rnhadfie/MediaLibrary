@@ -1,7 +1,7 @@
 package com.example.medialibrary.video
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.medialibrary.backend.models.book.Book
+import models.book.Book
 import com.example.medialibrary.video.ui.display.VideoDisplayViewModel
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

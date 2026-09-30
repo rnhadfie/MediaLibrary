@@ -1,10 +1,7 @@
 package com.example.medialibrary.other.ui.otherform
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.Bitmap
+
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,22 +9,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.controllers.OtherController
-import com.example.medialibrary.backend.models.other.OtherItem
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.shared.MainSetup
-import com.example.medialibrary.backend.models.shared.Tag
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.OtherController
+import models.other.OtherItem
+import models.shared.Enums as SharedEnums
+import models.shared.MainSetup
+import models.shared.Tag
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
@@ -137,6 +131,7 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 
             if (other.Cover != null && other.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(other.Cover, 0, other.Cover.size)
+                binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 binding.changeImage.imageBookCover.setImageBitmap(bitmap)
                 binding.changeImage.imageBookCover.imageTintList = null
                 binding.changeImage.buttonClearCover.visibility = View.VISIBLE
@@ -230,17 +225,18 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             sheetBinding.switchSheetOwned.isChecked = it.Owned
             if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
+                sheetBinding.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
                 sheetBinding.imageItemCover.imageBookCover.imageTintList = null
                 sheetBinding.imageItemCover.imageBookCover.tag = it.ItemCover
                 sheetBinding.imageItemCover.buttonClearCover.visibility = View.VISIBLE
             } else {
-                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources)
                 sheetBinding.imageItemCover.imageBookCover.tag = null
                 sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
             }
         } ?: run {
-            ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources)
             sheetBinding.imageItemCover.imageBookCover.tag = null
             sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
@@ -309,10 +305,11 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 
             if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
+                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 holder.binding.imageItemCover.setImageBitmap(bitmap)
                 holder.binding.imageItemCover.imageTintList = null
             } else {
-                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, context, resources)
             }
 
             holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }

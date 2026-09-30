@@ -3,16 +3,16 @@ package com.example.medialibrary.video.ui.form
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.controllers.VideoController
-import com.example.medialibrary.backend.models.shared.Enums
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.shared.Tag
-import com.example.medialibrary.backend.models.video.Enums.VideoTag
-import com.example.medialibrary.backend.models.video.Enums.VideoType
-import com.example.medialibrary.backend.models.video.Video
-import com.example.medialibrary.backend.models.video.VideoItem
-import com.example.medialibrary.backend.models.video.VideoSaveObject
-import com.example.medialibrary.backend.models.video.VideoSetup
+import controllers.VideoController
+import models.shared.Enums
+import models.shared.GenreObject
+import models.shared.Tag
+import models.video.Enums.VideoTag
+import models.video.Enums.VideoType
+import models.video.Video
+import models.video.VideoItem
+import models.video.VideoSaveObject
+import models.video.VideoSetup
 
 class VideoFormViewModel : ViewModel() {
 

@@ -3,10 +3,10 @@ package com.example.medialibrary.music.ui.form
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.music.*
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.shared.Tag
-import com.example.medialibrary.backend.controllers.MusicController
+import models.music.*
+import models.shared.Enums as SharedEnums
+import models.shared.Tag
+import controllers.MusicController
 
 class MusicFormViewModel : ViewModel() {
     private val _music = MutableLiveData<Music>(Music().apply {

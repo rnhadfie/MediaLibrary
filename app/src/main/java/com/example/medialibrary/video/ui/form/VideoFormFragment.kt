@@ -1,10 +1,7 @@
 package com.example.medialibrary.video.ui.form
 
-import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -12,28 +9,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.controllers.VideoController
-import com.example.medialibrary.backend.models.music.Enums.MusicGenre
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.shared.Tag
-import com.example.medialibrary.backend.models.video.*
-import com.example.medialibrary.backend.models.video.Enums.*
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.VideoController
+import models.music.Enums.MusicGenre
+import models.shared.GenreObject
+import models.shared.Tag
+import models.video.Enums.VideoFormat
+import models.video.Enums.VideoTag
+import models.video.Enums.VideoType
+import models.video.VideoItem
+import models.video.VideoSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
@@ -44,8 +40,7 @@ import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.io.ByteArrayOutputStream
-import java.io.File
+import models.shared.Enums as SharedEnums
 
 class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormViewModel>(
     VideoFragmentFormBinding::inflate
@@ -149,6 +144,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
             if (book.Cover != null && book.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
+                binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 binding.changeImage.imageBookCover.setImageBitmap(bitmap)
                 binding.changeImage.imageBookCover.imageTintList = null
                 binding.changeImage.buttonClearCover.visibility = View.VISIBLE
@@ -214,7 +210,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             }
         }
         disableFields(true)
-        return false;
+        return false
     }
 
     private fun disableFields(enabled: Boolean)
@@ -269,7 +265,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
         binding.videoTypeRadio.radioButtonLabel.setText(R.string.music_genre)
         val tableLayout = binding.videoTypeRadio.dynamicTableLayout
-        val musicGenre = types.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        val musicGenre = types.filter { it.key != MusicGenre.NoneSelected.ordinal }
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = tableLayout,
             optionsMap = musicGenre,
@@ -282,7 +278,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     private fun setupVideoTagRadioGroup(videoTags: Map<Int, String>) {
         binding.videoCategoryRadio.radioButtonLabel.setText(R.string.music_genre)
         val tableLayout = binding.videoCategoryRadio.dynamicTableLayout
-        val musicGenre = videoTags.filter { it.key != MusicGenre.NoneSelected.ordinal };
+        val musicGenre = videoTags.filter { it.key != MusicGenre.NoneSelected.ordinal }
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = tableLayout,
             optionsMap = musicGenre,
@@ -374,7 +370,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 viewModel.updateTitle(s.toString())
-                binding.titleLabel.error = "";
+                binding.titleLabel.error = ""
             }
         })
 
@@ -419,24 +415,25 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             sb.formatAutocomplete.autocomplete.setText(it.Format.name, false)
             if(it.Season == -1)
             {
-                sb.standaloneSwitch.isChecked = true;
+                sb.standaloneSwitch.isChecked = true
                 sb.seasonInput.visibility = View.GONE
                 sb.titleInput.visibility = View.GONE
             }
 
             if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
+                sb.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 sb.imageItemCover.imageBookCover.setImageBitmap(bitmap)
                 sb.imageItemCover.imageBookCover.imageTintList = null
                 sb.imageItemCover.imageBookCover.tag = it.ItemCover
                 sb.imageItemCover.buttonClearCover.visibility = View.VISIBLE
             } else {
-                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources)
                 sb.imageItemCover.imageBookCover.tag = null
                 sb.imageItemCover.buttonClearCover.visibility = View.GONE
             }
         } ?: run {
-            ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources)
             sb.imageItemCover.imageBookCover.tag = null
             sb.imageItemCover.buttonClearCover.visibility = View.GONE
         }
@@ -452,7 +449,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             var volNum = sb.seasonInput.text.toString()
 
             if (volNum.isBlank() && !sb.standaloneSwitch.isChecked) {
-                sb.seasonLabel.error = "Volume number is required";
+                sb.seasonLabel.error = "Volume number is required"
                 Toast.makeText(requireContext(), "Volume number is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
@@ -461,7 +458,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 volNum = "-1"
                 sb.titleInput.setText("")
             }
-            saveVideoItem(sb,volNum, position);
+            saveVideoItem(sb,volNum, position)
 
             dialog.dismiss()
         }
@@ -477,7 +474,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             else {
                 sb.seasonInput.visibility = View.VISIBLE
                 sb.titleInput.visibility = View.VISIBLE
-                sb.titleInput.setText("");
+                sb.titleInput.setText("")
             }
         }
 
@@ -591,13 +588,13 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 if (item.Watched) "Yes" else "No"
             )
 
-            if (item.ItemCover != null) {
+            if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
+                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 holder.binding.imageItemCover.setImageBitmap(bitmap)
                 holder.binding.imageItemCover.imageTintList = null
             } else {
-                holder.binding.imageItemCover.setImageResource(R.drawable.ic_gallery_black_24dp)
-                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, android.R.color.darker_gray, null)
+                ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, context, resources)
             }
 
             holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }

@@ -1,10 +1,6 @@
 package com.example.medialibrary.book.ui.form
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,36 +9,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.medialibrary.R
-import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.backend.controllers.BookController
-import com.example.medialibrary.backend.models.book.Book
-import java.io.ByteArrayOutputStream
-import java.io.File
-import com.example.medialibrary.backend.models.book.*
-import com.example.medialibrary.backend.models.book.Enums
-import com.example.medialibrary.backend.models.shared.Enums as SharedEnums
-import com.example.medialibrary.backend.models.music.Enums.MusicGenre
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.databinding.BookItemBottomSheetBinding
 import com.example.medialibrary.BaseFormFragment
+import com.example.medialibrary.R
+import controllers.BookController
+import models.book.Book
+import models.book.BookItem
+import models.book.BookSetup
+import models.book.Enums
+import models.music.Enums.MusicGenre
+import models.shared.GenreObject
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.databinding.BookFragmentFormBinding
+import com.example.medialibrary.databinding.BookItemBottomSheetBinding
 import com.example.medialibrary.databinding.BookItemVolumeBinding
-import com.example.medialibrary.utils.*
+import com.example.medialibrary.utils.ImageUtils
+import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
+import models.shared.Enums as SharedEnums
 
 class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewModel>(
     BookFragmentFormBinding::inflate
@@ -146,6 +139,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
         if (book.Cover != null && book.Cover.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
+            binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
             binding.changeImage.imageBookCover.setImageBitmap(bitmap)
             binding.changeImage.imageBookCover.imageTintList = null
             binding.changeImage.buttonClearCover.visibility = View.VISIBLE
@@ -429,7 +423,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                     sb.numberInput.visibility = View.GONE
                     sb.titleInput.visibility = View.GONE
                     sb.numberInput.setText("")
-                    sb.titleInput.setText("");
+                    sb.titleInput.setText("")
                 }
                 else {
                     sb.numberInput.visibility = View.VISIBLE
@@ -564,13 +558,13 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                 if (item.Read) "Yes" else "No"
             )
 
-            if (item.ItemCover != null) {
+            if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
+                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 holder.binding.imageItemCover.setImageBitmap(bitmap)
                 holder.binding.imageItemCover.imageTintList = null
             } else {
-                holder.binding.imageItemCover.setImageResource(R.drawable.ic_gallery_black_24dp)
-                holder.binding.imageItemCover.imageTintList = ResourcesCompat.getColorStateList(resources, android.R.color.darker_gray, null)
+                ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, context, resources)
             }
 
             holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }

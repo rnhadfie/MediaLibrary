@@ -3,17 +3,17 @@ package com.example.medialibrary.utils
 import android.view.View
 import android.widget.TextView
 import com.example.medialibrary.R
-import com.example.medialibrary.backend.models.book.BookFilter
-import com.example.medialibrary.backend.models.book.BookSetup
-import com.example.medialibrary.backend.models.book.Enums as BookEnums
-import com.example.medialibrary.backend.models.music.MusicFilter
-import com.example.medialibrary.backend.models.music.MusicSetup
-import com.example.medialibrary.backend.models.other.OtherFilter
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.MainSetup
-import com.example.medialibrary.backend.models.video.VideoFilter
-import com.example.medialibrary.backend.models.video.VideoSetup
-import com.example.medialibrary.backend.models.video.Enums as VideoEnums
+import models.book.BookFilter
+import models.book.BookSetup
+import models.book.Enums as BookEnums
+import models.music.MusicFilter
+import models.music.MusicSetup
+import models.other.OtherFilter
+import models.shared.Filter
+import models.shared.MainSetup
+import models.video.VideoFilter
+import models.video.VideoSetup
+import models.video.Enums as VideoEnums
 import com.google.android.material.button.MaterialButton
 
 object FilterSummaryHelper {
@@ -39,9 +39,6 @@ object FilterSummaryHelper {
         }
     }
 
-    fun hasActiveFilters(filter: Filter?): Boolean {
-        return getFilterSummaryText(filter, null).isNotEmpty()
-    }
 
     fun getFilterSummaryText(filter: Filter?, setup: Any?): String {
         if (filter == null) return ""

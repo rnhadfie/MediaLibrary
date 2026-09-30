@@ -10,19 +10,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
-import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.backend.repository.XmlRepository
-import com.example.medialibrary.backend.repository.database.BaseRepository
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
-import com.example.medialibrary.backend.utils.XmlExportImport
 import com.example.medialibrary.book.BookActivity
 import com.example.medialibrary.home.MainActivity
 import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
+import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.video.VideoActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import repository.database.BaseRepository
+import repository.database.MediaLibraryDbHelper
+import repository.XmlRepository
+import com.example.medialibrary.utils.XmlExportImport
 
 open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
@@ -40,12 +40,8 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val result = super.onCreateOptionsMenu(menu)
-        // Using findViewById because NavigationView exists in different layout files
-        // between w600dp and w1240dp
         val navView: NavigationView? = findViewById(R.id.nav_view)
         if (navView == null) {
-            // The navigation drawer already has the items including the items in the overflow menu
-            // We only inflate the overflow menu if the navigation drawer isn't visible
             menuInflater.inflate(R.menu.overflow, menu)
         }
         return result

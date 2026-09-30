@@ -8,10 +8,10 @@ import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.MultiSelectFilterHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
-import com.example.medialibrary.backend.models.music.MusicFilter
-import com.example.medialibrary.backend.models.music.MusicSetup
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.SortModel
+import models.music.MusicFilter
+import models.music.MusicSetup
+import models.shared.Filter
+import models.shared.SortModel
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 

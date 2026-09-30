@@ -3,7 +3,7 @@ package com.example.medialibrary.book.ui.publisher
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.book.Publisher
+import models.book.Publisher
 
 class PublisherViewModel : ViewModel() {
 

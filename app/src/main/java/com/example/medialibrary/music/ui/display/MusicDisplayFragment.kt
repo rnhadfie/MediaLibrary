@@ -17,12 +17,12 @@ import com.example.medialibrary.R
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.backend.controllers.MusicController
-import com.example.medialibrary.backend.models.music.Enums.MusicGenre
-import com.example.medialibrary.backend.models.music.Music
-import com.example.medialibrary.backend.models.music.MusicFilter
-import com.example.medialibrary.backend.models.music.MusicSetup
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.MusicController
+import models.music.Enums.MusicGenre
+import models.music.Music
+import models.music.MusicFilter
+import models.music.MusicSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
@@ -122,15 +122,13 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val sheetBinding = MusicBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter ?: MusicFilter()
-
-        SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+        SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
             filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
-            currentFilter = f
+            currentFilter = filter
             loadData()
             dialog.dismiss()
         }
@@ -201,7 +199,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     private fun setupCharts(items: List<Music>, setup: MusicSetup) {
         binding.musicTotalItemsCardText.text = "Total Number of CDs: " + items.count().toString()
 
-        val pieEntries = ArrayList<PieEntry>()
+        val pieEntries = ArrayList<PieEntry<*>>()
         val genreList = setup.MusicGenre
 
         genreList.forEach { (key, value) ->
@@ -214,22 +212,22 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val genrePieChart = binding.musicGenrePieChart
 
         if (pieEntries.isEmpty()) {
-            genrePieChart.setNoDataText("No Genre data to display")
+            genrePieChart.noDataText = "No Genre data to display"
             genrePieChart.data = null
-            genrePieChart.setNoDataTextColor(Color.BLACK)
-            genrePieChart.setCenterTextSize(20f)
+            genrePieChart.noDataTextColor = Color.BLACK
+            genrePieChart.centerTextSize = 20f
         } else {
             val genrePieDataSet = PieDataSet(pieEntries, "Genre")
             genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
             val genrePieData = PieData(genrePieDataSet)
             genrePieChart.data = genrePieData
-            genrePieChart.setHoleColor(Color.TRANSPARENT)
+            genrePieChart.holeColor = Color.TRANSPARENT
             genrePieChart.description.isEnabled = false
-            genrePieChart.setTransparentCircleColor(Color.TRANSPARENT)
+            genrePieChart.transparentCircleColor = Color.TRANSPARENT
             genrePieChart.setBackgroundColor(Color.TRANSPARENT)
             genrePieChart.centerText = "Music Genre"
             genrePieChart.legend.isEnabled = false
-            genrePieChart.setNoDataTextColor(Color.BLACK)
+            genrePieChart.noDataTextColor = Color.BLACK
             genrePieChart.animateXY(1000, 1000)
             genrePieChart.renderer = SafePieChartRenderer(
                 genrePieChart,

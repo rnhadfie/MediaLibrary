@@ -16,10 +16,10 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.backend.controllers.MusicController
-import com.example.medialibrary.backend.models.music.MusicFilter
-import com.example.medialibrary.backend.models.music.MusicSetup
-import com.example.medialibrary.backend.repository.database.MediaLibraryDbHelper
+import controllers.MusicController
+import models.music.MusicFilter
+import models.music.MusicSetup
+import repository.database.MediaLibraryDbHelper
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentCollectingBinding

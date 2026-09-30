@@ -6,7 +6,7 @@
     <data>
         <variable
             name="item"
-            type="com.example.medialibrary.backend.models.shared.DisplayMediaItem" />
+            type="models.shared.DisplayMediaItem" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -39,7 +39,7 @@
                     android:layout_width="60dp"
                     android:layout_height="80dp"
                     android:contentDescription="@null"
-                    android:scaleType="centerCrop"
+                    android:scaleType="fitCenter"
                     android:src="@drawable/ic_gallery_black_24dp"
                     app:tint="?attr/colorPrimary" />
 

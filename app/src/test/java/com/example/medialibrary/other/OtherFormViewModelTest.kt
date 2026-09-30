@@ -1,13 +1,8 @@
 package com.example.medialibrary.other
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.medialibrary.backend.models.book.BookItem
-import com.example.medialibrary.backend.models.book.Enums as BookEnums
-import com.example.medialibrary.backend.models.book.Publisher
-import com.example.medialibrary.backend.models.other.OtherItem
-import com.example.medialibrary.backend.models.shared.GenreObject
-import com.example.medialibrary.backend.models.shared.Tag
-import com.example.medialibrary.book.ui.form.BookFormViewModel
+import models.other.OtherItem
+import models.shared.Tag
 import com.example.medialibrary.other.ui.otherform.OtherFormViewModel
 import org.junit.Assert.*
 import org.junit.Rule

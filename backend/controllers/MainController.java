@@ -1,0 +1,48 @@
+package controllers;
+
+import serivce.MainService;
+import models.shared.*;
+import repository.database.MediaLibraryDbHelper;
+
+import java.util.List;
+
+import kotlin.Lazy;
+import kotlin.LazyKt;
+
+public class MainController extends BaseController {
+
+    public Lazy<MainService> mainSerivce;
+
+    public MainController() {
+
+    }
+    public MainController(MediaLibraryDbHelper dbHelper) {
+        this.dbHelper = dbHelper;
+        this.mainSerivce = LazyKt.lazy(() -> new MainService(dbHelper));
+    }
+
+    public List<DisplayMediaItem> GetAllItems(Filter  filter) {
+        return this.mainSerivce.getValue().GetDisplayList(filter);
+    }
+
+
+    public MainSetup GetSetup() {
+        return this.mainSerivce.getValue().GetSetup();
+    }
+
+    public List<Tag> GetTags() {
+        return this.mainSerivce.getValue().GetTags();
+    }
+
+    public boolean AddTag(Tag tag) {
+        return this.mainSerivce.getValue().AddTag(tag);
+    }
+
+    public boolean UpdateTag(Tag tag) {
+        return this.mainSerivce.getValue().UpdateTag(tag);
+    }
+
+    public boolean DeleteTag(String id) {
+        return this.mainSerivce.getValue().DeleteTag(id);
+    }
+}

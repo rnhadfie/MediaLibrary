@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    //id("de.mannodermaus.android-junit5") version "1.11.0"
 }
 
 android {
@@ -14,6 +15,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument("runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder")
     }
 
     buildTypes {
@@ -23,6 +25,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    sourceSets {
+        getByName("main") {
+            // This tells Gradle to look inside both 'src/main/java' and your new 'backend' folder
+            java.srcDirs("../backend")
         }
     }
 
@@ -69,6 +78,7 @@ dependencies {
     implementation(libs.androidx.cardview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.legacy.support.v4)
     implementation(libs.material)
@@ -78,6 +88,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
+    implementation("com.github.PhilJay.MPAndroidChart:MPChartLib:v4.0.1")
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
@@ -88,7 +99,7 @@ dependencies {
     testImplementation("io.mockk:mockk:1.14.11")
 
 
-    implementation(project(":MPChartLib"))
+
 
 
     // ADD THIS LINE to allow JUnit 5 platform to run JUnit 4 tests
@@ -117,5 +128,8 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")
     debugImplementation("androidx.fragment:fragment-testing:1.6.2")
+    androidTestImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
+    androidTestImplementation("de.mannodermaus.junit5:android-test-core:1.4.0")
+    androidTestRuntimeOnly("de.mannodermaus.junit5:android-test-runner:1.4.0")
     implementation(kotlin("test"))
 }

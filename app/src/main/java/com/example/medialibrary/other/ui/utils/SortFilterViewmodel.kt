@@ -1,9 +1,9 @@
 package com.example.medialibrary.other.ui.utils
 
 import androidx.lifecycle.ViewModel
-import com.example.medialibrary.backend.models.other.OtherFilter
-import com.example.medialibrary.backend.models.shared.Filter
-import com.example.medialibrary.backend.models.shared.SortModel
+import models.other.OtherFilter
+import models.shared.Filter
+import models.shared.SortModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
