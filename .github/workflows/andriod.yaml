@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main  # Triggers the build when you push to main
+      - master  # Triggers the build when you push to master
 
 jobs:
   build:
