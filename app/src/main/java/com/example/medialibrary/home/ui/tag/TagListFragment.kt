@@ -46,6 +46,17 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
         )
         binding.recyclerviewTag.adapter = adapter
 
+        viewModel.tags.observe(viewLifecycleOwner) { tags ->
+            if (tags.isNullOrEmpty()) {
+                binding.recyclerviewTag.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
+            } else {
+                binding.recyclerviewTag.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.GONE
+                adapter.submitList(tags)
+            }
+        }
+
         viewModel.tags.observe(viewLifecycleOwner) {
             adapter.submitList(it)
         }
@@ -92,6 +103,8 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
             }
             .setNegativeButton("Cancel", null)
             .show()
+
+
     }
 
     private fun deleteTag(tag: Tag) {

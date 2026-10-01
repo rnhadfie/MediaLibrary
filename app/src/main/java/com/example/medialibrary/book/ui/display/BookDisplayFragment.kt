@@ -74,7 +74,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         setupEmptyStateMediaItemObserver(
             viewModel.mediaItems,
-            binding.statsContainer,
+            binding.scrollView,
             binding.emptyStateContainer.root
         )
 

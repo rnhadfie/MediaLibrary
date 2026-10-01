@@ -18,7 +18,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
-            /*
+
             db.delete(TABLE_OTHER_ITEMS, null, null);
             db.delete(TABLE_OTHERS, null, null);
             db.delete(TABLE_VIDEO_ITEMS, null, null);
@@ -27,13 +27,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             db.delete(TABLE_BOOK_ITEMS, null, null);
             db.delete(TABLE_BOOKS, null, null);
             db.delete(TABLE_PUBLISHERS, null, null);
-            db.delete(TABLE_TAGS, null, null);*/
-
-            db.execSQL("DELETE FROM sqlite_sequence WHERE name IN ('" +
-                    TABLE_TAGS + "', '" + TABLE_PUBLISHERS + "', '" + TABLE_BOOKS + "', '" +
-                    TABLE_BOOK_ITEMS + "', '" + TABLE_MUSIC + "', '" + TABLE_VIDEOS + "', '" +
-                    TABLE_VIDEO_ITEMS + "', '" + TABLE_OTHERS + "', '" + TABLE_OTHER_ITEMS + "')");
-
+            db.delete(TABLE_TAGS, null, null);
 
             // Drops all tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);

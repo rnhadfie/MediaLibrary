@@ -59,9 +59,10 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
         loadData()
 
+
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
-            binding.scrollViewMusicDisplay,
+            binding.musicStatsContainer,
             binding.emptyStateContainer.root
         )
 
@@ -159,7 +160,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             dualColumnViewOne?.visibility = View.GONE
             dualColumnViewTwo?.visibility = View.GONE
             emptyState?.root?.visibility = View.VISIBLE
-            emptyState?.root?.text = getString(R.string.no_publisher_data_to_display)
+            emptyState?.root?.text = getString(R.string.no_artist_data_to_display)
         }
         else {
 
