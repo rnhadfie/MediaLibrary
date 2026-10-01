@@ -90,7 +90,7 @@
                     android:layout_margin="8dp"
                     android:layout_weight="1"
                     android:textSize="16sp"
-                    app:cardBackgroundColor="@color/card">
+                    app:cardBackgroundColor="@color/section_book_light">
 
                     <TextView
                         android:id="@+id/series_count_text"
@@ -110,7 +110,7 @@
                     android:layout_height="120dp"
                     android:layout_margin="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@color/card">
+                    app:cardBackgroundColor="@color/section_book_light">
 
                     <TextView
                         android:id="@+id/items_text"
@@ -136,7 +136,7 @@
                     android:layout_height="120dp"
                     android:layout_margin="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@color/card">
+                    app:cardBackgroundColor="@color/section_book_light">
 
                     <TextView
                         android:id="@+id/ongoing_series_text"
@@ -156,7 +156,7 @@
                     android:layout_height="120dp"
                     android:layout_margin="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@color/card">
+                    app:cardBackgroundColor="@color/section_book_light">
 
                     <TextView
                         android:id="@+id/completed_series_text"
@@ -183,7 +183,7 @@
                     android:layout_height="120dp"
                     android:layout_margin="8dp"
                     android:layout_weight="1"
-                    app:cardBackgroundColor="@color/card">
+                    app:cardBackgroundColor="@color/section_book_light">
 
                     <TextView
                         android:id="@+id/collecting_text"

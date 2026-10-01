@@ -75,9 +75,7 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
             override fun onQueryTextChange(newText: String?): Boolean {
                 val filter = sortFilterViewModel.getOrCreateMainFilter()
                 filter.Search = newText
-                if (newText.isNullOrEmpty()) {
-                    sortFilterViewModel.updateMainFilter(filter)
-                }
+                sortFilterViewModel.updateMainFilter(filter)
                 return true
             }
         })

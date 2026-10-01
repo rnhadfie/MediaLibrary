@@ -1,5 +1,6 @@
 package com.example.medialibrary.book.ui.publisher
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -97,11 +98,42 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
             .setTitle("Delete Publisher")
             .setMessage("Are you sure you want to delete ${publisher.Name}?")
             .setPositiveButton("Delete") { _, _ ->
-                controller.DeletePublisher(publisher.Id)
-                ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-                loadPublishers()
+                val result = controller.DeletePublisher(publisher.Id, false)
+                if (result.ConflictDetected) {
+                    showConflictDialog(requireContext(), publisher)
+                }
+                else {
+                    if (result.DeleteSuccessful) {
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
+                        loadPublishers()
+                    }
+                    else {
+                        Toast.makeText(requireContext(), "Failed to delete publisher", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showConflictDialog(context: Context, publisher: Publisher) {
+        AlertDialog.Builder(context)
+            .setTitle("Conflict Detected")
+            .setMessage("Publisher ${publisher.Name} is being used by other books. Would you like to still delete it?")
+            .setPositiveButton("Force Proceed") { dialog, _ ->
+                val result = controller.DeletePublisher(publisher.Id, true)
+                if (result.DeleteSuccessful) {
+                    ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
+                    loadPublishers()
+                    dialog.dismiss()
+                }
+                else {
+                  Toast.makeText(context, "Failed to delete publisher", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
             .show()
     }
 
@@ -119,7 +151,9 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
             val publisher = getItem(position)
             holder.binding.textPublisherName.text = publisher.Name
             holder.binding.buttonEditPublisher.setOnClickListener { onEdit(publisher) }
-            holder.binding.buttonDeletePublisher.setOnClickListener { onDelete(publisher) }
+            holder.binding.buttonDeletePublisher.setOnClickListener {
+                onDelete(publisher)
+            }
         }
     }
 

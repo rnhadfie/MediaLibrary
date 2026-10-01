@@ -79,9 +79,7 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
             override fun onQueryTextChange(newText: String?): Boolean {
                 val filter = sortFilterViewModel.getOrCreateBookFilter()
                 filter.Search = newText
-                if (newText.isNullOrEmpty()) {
-                    sortFilterViewModel.updateBookFilter(filter)
-                }
+                sortFilterViewModel.updateBookFilter(filter)
                 return true
             }
         })

@@ -2,10 +2,9 @@ package com.example.medialibrary.book
 
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.Lifecycle
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.medialibrary.R
 import com.example.medialibrary.book.ui.display.BookDisplayFragment
@@ -22,6 +21,7 @@ class BookDisplayFragmentTest {
         )
         scenario.moveToState(Lifecycle.State.RESUMED)
 
-        onView(withId(R.id.scroll_view)).check(matches(isDisplayed()))
+        Espresso.onView(ViewMatchers.withId(R.id.top_controls_container))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 }

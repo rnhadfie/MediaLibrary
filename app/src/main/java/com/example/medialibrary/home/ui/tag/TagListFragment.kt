@@ -1,5 +1,6 @@
 package com.example.medialibrary.home.ui.tag
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +18,7 @@ import com.example.medialibrary.databinding.TagItemBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import controllers.MainController
+import models.book.Publisher
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
 
@@ -97,11 +99,42 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
             .setTitle("Delete Tag")
             .setMessage("Are you sure you want to delete ${tag.Name}?")
             .setPositiveButton("Delete") { _, _ ->
-                controller.DeleteTag(tag.Id)
-                ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-                loadTags()
+                val result = controller.DeleteTag(tag.Id, false)
+                if (result.ConflictDetected) {
+                    showConflictDialog(requireContext(), tag)
+                }
+                else {
+                    if (result.DeleteSuccessful) {
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
+                        loadTags()
+                    }
+                    else {
+                        Toast.makeText(requireContext(), "Failed to delete Tag", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
             .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showConflictDialog(context: Context, tag: Tag) {
+        AlertDialog.Builder(context)
+            .setTitle("Conflict Detected")
+            .setMessage("Tag ${tag.Name} is being used. Would you like to still delete it?")
+            .setPositiveButton("Proceed") { dialog, _ ->
+                val result = controller.DeleteTag(tag.Id, true)
+                if (result.DeleteSuccessful) {
+                    ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
+                    loadTags()
+                    dialog.dismiss()
+                }
+                else {
+                    Toast.makeText(context, "Failed to delete Tag", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
             .show()
     }
 

@@ -17,6 +17,9 @@ public interface IBookRepository {
 
     boolean AddPublisher(Publisher publisher);
     boolean UpdatePublisher(Publisher publisher);
-    boolean DeletePublisher(String id);
+    boolean DeletePublisher(String id, boolean forceDelete);
+
+    boolean PublisherIsBeingUsed(String id);
+
 
 }

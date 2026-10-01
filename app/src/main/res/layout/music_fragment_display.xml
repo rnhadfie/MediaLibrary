@@ -91,7 +91,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_margin="16dp"
-                app:cardBackgroundColor="@color/card">
+                app:cardBackgroundColor="@color/section_music_light">
 
                 <TextView
                     android:id="@+id/music_total_items_card_text"

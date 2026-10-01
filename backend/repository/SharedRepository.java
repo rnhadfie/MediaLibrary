@@ -2,7 +2,13 @@ package repository;
 
 import static utils.DatabaseKeyNames.COLUMN_ID;
 import static utils.DatabaseKeyNames.COLUMN_NAME;
+import static utils.DatabaseKeyNames.COLUMN_PUBLISHER;
+import static utils.DatabaseKeyNames.COLUMN_TAG;
+import static utils.DatabaseKeyNames.TABLE_BOOKS;
+import static utils.DatabaseKeyNames.TABLE_MUSIC;
+import static utils.DatabaseKeyNames.TABLE_OTHERS;
 import static utils.DatabaseKeyNames.TABLE_TAGS;
+import static utils.DatabaseKeyNames.TABLE_VIDEOS;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -127,10 +133,20 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
     }
 
     @Override
-    public boolean DeleteTag(String id) {
+    public boolean DeleteTag(String id, boolean forceDelete) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
+
         try {
+            if (!forceDelete) {
+                ContentValues newContentValues = new ContentValues();
+                newContentValues.put(COLUMN_TAG, "");
+
+               db.update(TABLE_BOOKS, newContentValues, COLUMN_TAG + " = ?", new String[]{id});
+                db.update(TABLE_MUSIC, newContentValues, COLUMN_TAG + " = ?", new String[]{id});
+                db.update(TABLE_VIDEOS, newContentValues, COLUMN_TAG + " = ?", new String[]{id});
+                db.update(TABLE_OTHERS, newContentValues, COLUMN_TAG + " = ?", new String[]{id});
+            }
             int deletedRows = db.delete(TABLE_TAGS, COLUMN_ID + " = ?", new String[]{id});
             db.setTransactionSuccessful();
             return deletedRows > 0;
@@ -143,5 +159,32 @@ public class SharedRepository extends BaseRepository implements ISharedRepositor
         }
     }
 
+    @Override
+    public boolean TagIsBeingUsed(String id) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try {
+            int result = 0;
+            Cursor cursor = db.query(TABLE_BOOKS, null, COLUMN_TAG + " = ?", new String[]{id}, null, null, null);
+            result += cursor.getCount();
+            cursor.close();
+
+            cursor = db.query(TABLE_MUSIC, null, COLUMN_TAG + " = ?", new String[]{id}, null, null, null);
+            result += cursor.getCount();
+            cursor.close();
+
+            cursor = db.query(TABLE_VIDEOS, null, COLUMN_TAG + " = ?", new String[]{id}, null, null, null);
+            result += cursor.getCount();
+            cursor.close();
+
+            cursor = db.query(TABLE_OTHERS, null, COLUMN_TAG + " = ?", new String[]{id}, null, null, null);
+            result += cursor.getCount();
+            cursor.close();
+
+            return result > 0;
+        } catch (Exception e) {
+            Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
+            return false;
+        }
+    }
 
 }

@@ -183,16 +183,43 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
 
+        if(newVersion > oldVersion) {
 
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHER_ITEMS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIDEO_ITEMS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIDEOS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MUSIC);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK_ITEMS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PUBLISHERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);
-        onCreate(db);
+            //Create temporary tables
+            db.execSQL("ALTER TABLE " + TABLE_OTHER_ITEMS + " RENAME TO " + TABLE_OTHER_ITEMS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_OTHERS + " RENAME TO " + TABLE_OTHERS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_VIDEO_ITEMS + " RENAME TO " + TABLE_VIDEO_ITEMS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_VIDEOS + " RENAME TO " + TABLE_VIDEOS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_MUSIC + " RENAME TO " + TABLE_MUSIC+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_BOOK_ITEMS + " RENAME TO " + TABLE_BOOK_ITEMS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_BOOKS + " RENAME TO " + TABLE_BOOKS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_PUBLISHERS + " RENAME TO " + TABLE_PUBLISHERS+ "_TEMP ;");
+            db.execSQL("ALTER TABLE " + TABLE_TAGS + " RENAME TO " + TABLE_TAGS + "_TEMP ;");
+
+            //Recreate tables
+            onCreate(db);
+
+            //Copy data from temporary tables to original tables
+            db.execSQL("INSERT INTO " + TABLE_TAGS + " SELECT * FROM " + TABLE_TAGS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_PUBLISHERS + " SELECT * FROM " + TABLE_PUBLISHERS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_BOOKS + " SELECT * FROM " + TABLE_BOOKS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_BOOK_ITEMS + " SELECT * FROM " + TABLE_BOOK_ITEMS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_MUSIC + " SELECT * FROM " + TABLE_MUSIC + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_VIDEOS + " SELECT * FROM " + TABLE_VIDEOS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_VIDEO_ITEMS + " SELECT * FROM " + TABLE_VIDEO_ITEMS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_OTHERS + " SELECT * FROM " + TABLE_OTHERS + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " SELECT * FROM " + TABLE_OTHER_ITEMS + "_TEMP ;");
+
+            //Drop temporary tables
+            db.execSQL("DROP TABLE " + TABLE_OTHER_ITEMS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_OTHERS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_VIDEO_ITEMS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_VIDEOS + "_TEMP ;");
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MUSIC);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOK_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOKS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_TAGS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_PUBLISHERS);
+        }
     }
 }

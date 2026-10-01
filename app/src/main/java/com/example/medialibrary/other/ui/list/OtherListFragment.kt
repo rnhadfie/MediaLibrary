@@ -67,9 +67,7 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 currentFilter.Search = newText
-                if (newText.isNullOrEmpty()) {
-                    loadData()
-                }
+                loadData()
                 return true
             }
         })

@@ -11,5 +11,7 @@ public interface ISharedRepository {
 
     boolean AddTag(Tag publisher);
     boolean UpdateTag(Tag publisher);
-    boolean DeleteTag(String id);
+    boolean DeleteTag(String id, boolean forceDelete);
+
+    boolean TagIsBeingUsed(String id);
 }

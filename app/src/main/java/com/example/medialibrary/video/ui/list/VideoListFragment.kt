@@ -73,9 +73,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (currentFilter == null) currentFilter = VideoFilter()
                 currentFilter?.Search = newText
-                if (newText.isNullOrEmpty()) {
-                    loadData()
-                }
+                loadData()
                 return true
             }
         })

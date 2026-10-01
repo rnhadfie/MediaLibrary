@@ -9,6 +9,7 @@ import models.book.BookFilter;
 import models.music.Music;
 import models.music.MusicFilter;
 import models.other.Other;
+import models.shared.DeleteConfirmationResult;
 import models.shared.DisplayMediaItem;
 import models.shared.Enums;
 import models.shared.Filter;
@@ -87,7 +88,7 @@ public class SharedService {
             var tempBook = (Book) item;
             displayItem.MediaType = Enums.MediaType.Book;
             displayItem.MediaTypeText = "Type: Book";
-            alternativeStatus = "Type: " + GetSeperatedString(tempBook.Type.name());
+            alternativeStatus = "Type: " + (tempBook.Type != null ? GetSeperatedString(tempBook.Type.name()) : "");
 
             displayItem.ItemCount = tempBook.Items != null ? tempBook.Items.size() : 0;
             if(displayItem.ItemCount > 0)
@@ -99,7 +100,7 @@ public class SharedService {
             displayItem.MediaType = Enums.MediaType.Video;
             displayItem.MediaTypeText = "Type: Movie/TV Show";
             displayItem.ItemCount = tempVideo.Items != null ? tempVideo.Items.size() : 0;
-            alternativeStatus = "Category: " + GetSeperatedString(tempVideo.VideoTag.name());
+            alternativeStatus = "Category: " + (tempVideo.VideoTag != null ? GetSeperatedString(tempVideo.VideoTag.name()) : "");
             if(displayItem.ItemCount > 0)
             {
                 standalone = Objects.equals(tempVideo.Items.get(0).Season, -1);
@@ -149,8 +150,19 @@ public class SharedService {
         return sharedRepository.getValue().UpdateTag(tag);
     }
 
-    public boolean DeleteTag(String id) {
-        return sharedRepository.getValue().DeleteTag(id);
+    public DeleteConfirmationResult DeleteTag(String id, boolean forceDelete) {
+        DeleteConfirmationResult result = new DeleteConfirmationResult();
+        if(!forceDelete) {
+        if(sharedRepository.getValue().TagIsBeingUsed(id))
+        {
+            result.DeleteSuccessful = false;
+            result.ConflictDetected = true;
+            return result;
+        }
+        }
+        result.DeleteSuccessful = sharedRepository.getValue().DeleteTag(id, forceDelete);
+        result.ConflictDetected = false;
+        return result;
     }
 
     public String GetSeperatedString(String inputString) {

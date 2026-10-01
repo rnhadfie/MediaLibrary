@@ -42,7 +42,7 @@ public class MainController extends BaseController {
         return this.mainSerivce.getValue().UpdateTag(tag);
     }
 
-    public boolean DeleteTag(String id) {
-        return this.mainSerivce.getValue().DeleteTag(id);
+    public DeleteConfirmationResult DeleteTag(String id, boolean forceDelete) {
+        return this.mainSerivce.getValue().DeleteTag(id, forceDelete);
     }
 }

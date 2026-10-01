@@ -74,9 +74,7 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (currentFilter == null) currentFilter = MusicFilter()
                 currentFilter?.Search = newText
-                if (newText.isNullOrEmpty()) {
-                    loadData()
-                }
+                loadData()
                 return true
             }
         })

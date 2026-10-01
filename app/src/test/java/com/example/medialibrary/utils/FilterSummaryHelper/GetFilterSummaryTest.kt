@@ -1,5 +1,5 @@
-package utils.FilterSummaryHelper
-/*
+package com.example.medialibrary.utils.FilterSummaryHelper
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import models.book.BookFilter
 import com.example.medialibrary.utils.FilterSummaryHelper
@@ -63,4 +63,4 @@ class GetFilterSummaryTest {
         val result = FilterSummaryHelper.getFilterSummaryText(filter, null)
         assertFalse(result.contains("Type:"))
     }
-}*/
+}

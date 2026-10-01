@@ -313,10 +313,20 @@ public class BookRepository extends BaseRepository implements IBookRepository {
     }
 
     @Override
-    public boolean DeletePublisher(String id) {
+    public boolean DeletePublisher(String id, boolean forceDelete) {
+
+
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
+
+            if (!forceDelete) {
+                ContentValues newContentValues = new ContentValues();
+                newContentValues.put(COLUMN_PUBLISHER, "");
+
+                db.update(TABLE_BOOKS, newContentValues, COLUMN_PUBLISHER + " = ?", new String[]{id});
+            }
+
             int deletedRows = db.delete(TABLE_PUBLISHERS, COLUMN_ID + " = ?", new String[]{id});
             db.setTransactionSuccessful();
             return deletedRows > 0;
@@ -326,6 +336,20 @@ public class BookRepository extends BaseRepository implements IBookRepository {
         } finally {
             clearAllCaches();
             db.endTransaction();
+        }
+    }
+
+    @Override
+    public boolean PublisherIsBeingUsed(String id) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        try {
+            Cursor cursor = db.query(TABLE_BOOKS, null, COLUMN_PUBLISHER + " = ?", new String[]{id}, null, null, null);
+            int result = cursor.getCount();
+            cursor.close();
+            return result > 0;
+        } catch (Exception e) {
+            Logger.getLogger(BookRepository.class.getName()).severe(e.getMessage());
+            return false;
         }
     }
 

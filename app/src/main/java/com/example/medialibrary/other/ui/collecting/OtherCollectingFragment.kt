@@ -66,10 +66,9 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
+                if (currentFilter == null) currentFilter = OtherFilter()
                 currentFilter?.Search = newText
-                if (newText.isNullOrEmpty()) {
-                    loadData()
-                }
+                loadData()
                 return true
             }
         })

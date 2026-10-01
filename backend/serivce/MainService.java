@@ -1,5 +1,6 @@
 package serivce;
 
+import models.shared.DeleteConfirmationResult;
 import models.shared.Enums;
 import models.shared.DisplayMediaItem;
 import models.shared.Filter;
@@ -109,8 +110,8 @@ public class MainService {
         return _sharedService.UpdateTag(tag);
     }
 
-    public boolean DeleteTag(String id) {
-        return _sharedService.DeleteTag(id);
+    public DeleteConfirmationResult DeleteTag(String id, boolean forceDelete) {
+        return _sharedService.DeleteTag(id, forceDelete);
     }
 
     public List<GenreObject> GetGenres() {

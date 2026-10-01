@@ -1,5 +1,6 @@
 package controllers;
 
+import models.shared.DeleteConfirmationResult;
 import serivce.BookService;
 import models.book.*;
 import models.shared.DisplayMediaItem;
@@ -62,7 +63,7 @@ public class BookController extends BaseController {
         return this.bookSerivce.getValue().UpdatePublisher(publisher);
     }
 
-    public boolean DeletePublisher(String id) {
-        return this.bookSerivce.getValue().DeletePublisher(id);
+    public DeleteConfirmationResult DeletePublisher(String id, boolean forceDelete) {
+        return this.bookSerivce.getValue().DeletePublisher(id, forceDelete);
     }
 }

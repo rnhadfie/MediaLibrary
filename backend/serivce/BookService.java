@@ -2,6 +2,7 @@ package serivce;
 
 import models.book.*;
 import models.book.Enums;
+import models.shared.DeleteConfirmationResult;
 import models.shared.DisplayMediaItem;
 import repository.BookRepository;
 import repository.database.MediaLibraryDbHelper;
@@ -196,8 +197,19 @@ public class BookService {
         return _BookRepo.UpdatePublisher(publisher);
     }
 
-    public boolean DeletePublisher(String id) {
-        return _BookRepo.DeletePublisher(id);
+    public DeleteConfirmationResult DeletePublisher(String id, boolean forceDelete) {
+        DeleteConfirmationResult result = new DeleteConfirmationResult();
+        if(!forceDelete) {
+            if (_BookRepo.PublisherIsBeingUsed(id)) {
+
+                result.DeleteSuccessful = false;
+                result.ConflictDetected = true;
+                return result;
+            }
+        }
+        result.DeleteSuccessful = _BookRepo.DeletePublisher(id, forceDelete);
+        result.ConflictDetected = false;
+        return result;
     }
 
     public Enums.BookFormat GetCommonBookFormat(List<BookItem> items) {
