@@ -4,29 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-30T22:50:36.460343800Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="Tests in 'com.example.medialibrary.book'">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-30T22:50:36.460343800Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
-      <SelectionState runConfigName="BookFormFragmentTest">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-30T22:50:36.460343800Z">
+        <DropdownSelection timestamp="2026-10-01T05:10:22.858815800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
@@ -37,7 +15,7 @@
       </SelectionState>
       <SelectionState runConfigName="BookDisplayFragmentTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-30T22:50:36.460343800Z">
+        <DropdownSelection timestamp="2026-10-01T05:11:12.052142100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
@@ -46,9 +24,9 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="BookListFragmentTest">
+      <SelectionState runConfigName="testBookDisplayFragmentEmptyState()">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-30T22:50:36.460343800Z">
+        <DropdownSelection timestamp="2026-10-01T05:11:12.052142100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
@@ -57,9 +35,31 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="testFilterButton_opensBookBottomSheet()">
+      <SelectionState runConfigName="Tests in 'com.example.medialibrary'">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-09-30T22:50:36.460343800Z">
+        <DropdownSelection timestamp="2026-10-01T05:10:22.858815800Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="BookCollectingFragmentTest">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-10-01T05:10:22.858815800Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="Tests in 'com.example.medialibrary.book'">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-10-01T05:10:22.858815800Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Rhian\.android\avd\pixel_8_-_api_36.avd" />

@@ -13,7 +13,7 @@
 
     <fragment
         android:id="@+id/nav_list"
-        android:name="com.example.medialibrary.book.ui.book_list.BookListFragment"
+        android:name="com.example.medialibrary.book.ui.list.BookListFragment"
         android:label="@string/book_collection_list"
         tools:layout="@layout/book_fragment_list" />
 
@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/nav_collecting"
-        android:name="com.example.medialibrary.book.ui.collecting.CollectingBookFragment"
+        android:name="com.example.medialibrary.book.ui.collecting.BookCollectingFragment"
         android:label="@string/book_collection_currently_collecting"
         tools:layout="@layout/book_fragment_collecting" />
 </navigation>

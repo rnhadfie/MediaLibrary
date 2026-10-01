@@ -1,4 +1,4 @@
-package com.example.medialibrary.book.ui.collecting
+package com.example.medialibrary.book.ui.list
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -18,7 +18,7 @@ import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.book.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.BookBottomSheetBinding
-import com.example.medialibrary.databinding.BookFragmentCollectingBinding
+import com.example.medialibrary.databinding.BookFragmentListBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
@@ -30,8 +30,8 @@ import models.book.BookFilter
 import models.book.BookSetup
 import repository.database.MediaLibraryDbHelper
 
-class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, CollectingBookViewModel>(
-    BookFragmentCollectingBinding::inflate
+class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel>(
+    BookFragmentListBinding::inflate
 ) {
 
     private var currentFilter: BookFilter? = null
@@ -44,11 +44,11 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[CollectingBookViewModel::class.java]
+        viewModel = ViewModelProvider(this)[BookListViewModel::class.java]
         sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
-        setFragmentType(FragmentType.Collecting)
+        setFragmentType(FragmentType.List)
 
-        val root: View = super.onCreateView(inflater, container, savedInstanceState)
+        val root = super.onCreateView(inflater, container, savedInstanceState)
 
         val recyclerView = binding.recyclerviewBooks
         val adapter = BaseTransformAdapter()
@@ -73,6 +73,7 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
                 val filter = sortFilterViewModel.getOrCreateBookFilter()
                 filter.Search = query
                 sortFilterViewModel.updateBookFilter(filter)
+                loadData(true)
                 return true
             }
 
@@ -80,6 +81,7 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
                 val filter = sortFilterViewModel.getOrCreateBookFilter()
                 filter.Search = newText
                 sortFilterViewModel.updateBookFilter(filter)
+                loadData(true)
                 return true
             }
         })
@@ -93,7 +95,7 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
                 sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
-                loadData()
+                loadData(true)
             }
         }
 
@@ -118,7 +120,7 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         viewLifecycleOwner.lifecycleScope.launch {
             sortFilterViewModel.currentBookFilter.collectLatest { filter ->
                 currentFilter = filter ?: BookFilter()
-                loadData()
+                loadData(true)
             }
         }
     }
@@ -127,47 +129,26 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         loadData()
     }
 
-    private fun loadData() {
+    private fun loadData(reload: Boolean = false) {
         if (currentFilter == null) {
             currentFilter = sortFilterViewModel.getOrCreateBookFilter()
         }
-        val effectiveFilter = BookFilter().apply {
-            Search = currentFilter?.Search
-            Tag = currentFilter?.Tag ?: 0
-            Genre = currentFilter?.Genre ?: 0
-            MediaType = currentFilter?.MediaType
-            Collecting = true
-            Ongoing = currentFilter?.Ongoing
-            AnyOwned = currentFilter?.AnyOwned
-            Collected = currentFilter?.Collected
-            Read = currentFilter?.Read
-            Reading = currentFilter?.Reading
-            IncludedTags = currentFilter?.IncludedTags ?: ArrayList()
-            ExcludedTags = currentFilter?.ExcludedTags ?: ArrayList()
-            IncludedGenres = currentFilter?.IncludedGenres ?: ArrayList()
-            ExcludedGenres = currentFilter?.ExcludedGenres ?: ArrayList()
-            IncludedMediaTypes = currentFilter?.IncludedMediaTypes ?: ArrayList()
-            ExcludedMediaTypes = currentFilter?.ExcludedMediaTypes ?: ArrayList()
-            IncludedTypes = currentFilter?.IncludedTypes ?: ArrayList()
-            ExcludedTypes = currentFilter?.ExcludedTypes ?: ArrayList()
-            IncludedPublishers = currentFilter?.IncludedPublishers ?: ArrayList()
-            ExcludedPublishers = currentFilter?.ExcludedPublishers ?: ArrayList()
-            IncludedFormats = currentFilter?.IncludedFormats ?: ArrayList()
-            ExcludedFormats = currentFilter?.ExcludedFormats ?: ArrayList()
+        val items = bookController.GetListOfBooks(currentFilter)
+        if (!reload) {
+            setup = bookController.GetBookSetup()
+            if (setup.Publishers.isEmpty() && setup.Tag.isEmpty()) {
+                setup = bookController.GetBookSetup()
+            }
         }
 
-        val items = bookController.GetListOfBooks(effectiveFilter)
-        if (setup.Publishers.isEmpty() && setup.Tag.isEmpty()) {
-            setup = bookController.GetBookSetup()
-        }
         viewModel.setItems(items ?: emptyList())
 
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.active_filter_card),
-            effectiveFilter,
+            currentFilter,
             setup
         ) {
-            val emptyFilter = BookFilter().apply { Collecting = true }
+            val emptyFilter = BookFilter()
             currentFilter = emptyFilter
             sortFilterViewModel.updateBookFilter(emptyFilter)
             binding.searchView.setQuery("", false)
@@ -180,17 +161,15 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: sortFilterViewModel.getOrCreateBookFilter()
-        f.Collecting = true
 
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
-        sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.applyFilterBtn.setOnClickListener {
             f.Read = sheetBinding.read.triStateButton.tag as Boolean?
             f.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
             f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
             f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
-            f.Collecting = true
+            f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
             f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
             sortFilterViewModel.updateBookFilter(f)
             loadData()
@@ -198,7 +177,7 @@ class CollectingBookFragment : BaseFragment<BookFragmentCollectingBinding, Colle
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
-            sortFilterViewModel.updateBookFilter(BookFilter().apply { Collecting = true })
+            sortFilterViewModel.updateBookFilter(BookFilter())
             dialog.dismiss()
         }
 

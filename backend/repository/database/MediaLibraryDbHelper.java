@@ -18,6 +18,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         db.beginTransaction();
         try {
+            /*
             db.delete(TABLE_OTHER_ITEMS, null, null);
             db.delete(TABLE_OTHERS, null, null);
             db.delete(TABLE_VIDEO_ITEMS, null, null);
@@ -26,28 +27,31 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             db.delete(TABLE_BOOK_ITEMS, null, null);
             db.delete(TABLE_BOOKS, null, null);
             db.delete(TABLE_PUBLISHERS, null, null);
-            db.delete(TABLE_TAGS, null, null);
+            db.delete(TABLE_TAGS, null, null);*/
 
             db.execSQL("DELETE FROM sqlite_sequence WHERE name IN ('" +
                     TABLE_TAGS + "', '" + TABLE_PUBLISHERS + "', '" + TABLE_BOOKS + "', '" +
                     TABLE_BOOK_ITEMS + "', '" + TABLE_MUSIC + "', '" + TABLE_VIDEOS + "', '" +
                     TABLE_VIDEO_ITEMS + "', '" + TABLE_OTHERS + "', '" + TABLE_OTHER_ITEMS + "')");
 
+
             // Drops all tables
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_TAGS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_PUBLISHERS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOKS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOK_ITEMS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MUSIC);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_VIDEOS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_VIDEO_ITEMS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_OTHERS);
-            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_OTHER_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PUBLISHERS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MUSIC);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIDEOS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIDEO_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHERS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHER_ITEMS);
 
             //Recreates them
             onCreate(db);
 
             db.setTransactionSuccessful();
+        } catch (Exception e) {
+            //log(e.getMessage());
         } finally {
             db.endTransaction();
         }

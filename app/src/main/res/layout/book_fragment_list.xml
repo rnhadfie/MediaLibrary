@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".book.ui.book_list.BookListFragment"
+    tools:context=".book.ui.list.BookListFragment"
     android:label="@string/book_collection_list">
 
     <LinearLayout

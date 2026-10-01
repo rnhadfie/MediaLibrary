@@ -75,7 +75,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         setupEmptyStateMediaItemObserver(
             viewModel.mediaItems,
             binding.statsContainer,
-            binding.emptyStateContainer.root,
+            binding.emptyStateContainer.root
         )
 
         binding.filterBtn.setOnClickListener {

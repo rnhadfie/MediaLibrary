@@ -1,11 +1,11 @@
-package com.example.medialibrary.book.ui.book_list
+package com.example.medialibrary.book.ui.collecting
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import models.shared.DisplayMediaItem
 
-class BookListViewModel : ViewModel() {
+class BookCollectingViewModel : ViewModel() {
 
     private val _items = MutableLiveData<List<DisplayMediaItem>>()
     val items: LiveData<List<DisplayMediaItem>> = _items

@@ -2,6 +2,7 @@ package com.example.medialibrary.book
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -43,6 +44,17 @@ class BookActivity : BaseActivity<BookActivityBinding>() {
         val navHostFragment =
             (supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_book) as NavHostFragment?)!!
         val navController = navHostFragment.navController
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.nav_publisher, R.id.nav_tag -> {
+                    binding.appBarBook.fab?.visibility = View.GONE
+                }
+                else -> {
+                    binding.appBarBook.fab?.visibility = View.VISIBLE
+                }
+            }
+        }
 
 
         appBarConfiguration = AppBarConfiguration(

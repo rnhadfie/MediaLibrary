@@ -106,6 +106,7 @@ dependencies {
     // Instrumentation / UI Automation Testing
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.6.1")
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     debugImplementation(libs.androidx.fragment.testing)

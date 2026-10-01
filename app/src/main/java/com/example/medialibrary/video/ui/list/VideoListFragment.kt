@@ -66,14 +66,14 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (currentFilter == null) currentFilter = VideoFilter()
                 currentFilter?.Search = query
-                loadData()
+                loadData(true)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 if (currentFilter == null) currentFilter = VideoFilter()
                 currentFilter?.Search = newText
-                loadData()
+                loadData(true)
                 return true
             }
         })
@@ -105,7 +105,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
                 sortFilterViewModel.updateVideoFilter(updatedFilter as VideoFilter)
-                loadData()
+                loadData(true)
             }
         }
 
@@ -116,10 +116,13 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         loadData()
     }
 
-    private fun loadData() {
+    private fun loadData(reload: Boolean = false) {
         currentFilter = sortFilterViewModel.getOrCreateVideoFilter()
         val items = videoController.GetListOfVideos(currentFilter) ?: emptyList()
-        setup = videoController.GetVideoSetup()
+        if(!reload) {
+            setup = videoController.GetVideoSetup()
+        }
+
         viewModel.setItems(items)
 
         FilterSummaryHelper.bindFilterSummary(
@@ -129,9 +132,11 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         ) {
             currentFilter = VideoFilter()
             binding.searchView.setQuery("", false)
-            loadData()
+            loadData(true)
         }
     }
+
+
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
         val dialog = BottomSheetDialog(requireContext())
@@ -147,13 +152,13 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
             filter.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
             filter.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
-            loadData()
+            loadData(true)
             dialog.dismiss()
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
             currentFilter = VideoFilter()
-            loadData()
+            loadData(true)
             dialog.dismiss()
         }
 

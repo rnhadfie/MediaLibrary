@@ -44,6 +44,19 @@
             </AndroidTestResultsTableState>
           </value>
         </entry>
+        <entry key="-1827594653">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="pixel_8_-_api_36" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
         <entry key="-1566260419">
           <value>
             <AndroidTestResultsTableState>
@@ -52,6 +65,7 @@
                   <entry key="Duration" value="90" />
                   <entry key="Pixel_9" value="120" />
                   <entry key="Tests" value="360" />
+                  <entry key="motorola motorola one 5G ace" value="120" />
                   <entry key="pixel_8_-_api_36" value="120" />
                 </map>
               </option>
@@ -65,6 +79,33 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Tests" value="360" />
+                  <entry key="pixel_8_-_api_36" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="-1122224125">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="pixel_8_-_api_36" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="-1003375682">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="motorola motorola one 5G ace" value="120" />
                   <entry key="pixel_8_-_api_36" value="120" />
                 </map>
               </option>
@@ -117,6 +158,7 @@
                 <map>
                   <entry key="Duration" value="90" />
                   <entry key="Tests" value="360" />
+                  <entry key="motorola motorola one 5G ace" value="120" />
                   <entry key="pixel_8_-_api_36" value="120" />
                 </map>
               </option>

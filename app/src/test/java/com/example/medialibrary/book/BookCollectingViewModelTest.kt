@@ -1,21 +1,21 @@
 package com.example.medialibrary.book
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.example.medialibrary.book.ui.collecting.CollectingBookViewModel
+import com.example.medialibrary.book.ui.collecting.BookCollectingViewModel
 import models.shared.DisplayMediaItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 
-class CollectingBookViewModelTest {
+class BookCollectingViewModelTest {
 
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun testSetItems_updatesLiveData() {
-        val viewModel = CollectingBookViewModel()
+        val viewModel = BookCollectingViewModel()
         val item = DisplayMediaItem().apply {
             Id = "10"
             Title = "Collecting Series"

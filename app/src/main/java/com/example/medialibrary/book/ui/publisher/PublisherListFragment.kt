@@ -45,8 +45,15 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
         )
         binding.recyclerviewPublishers.adapter = adapter
 
-        viewModel.publishers.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
+        viewModel.publishers.observe(viewLifecycleOwner) { publishers ->
+            if (publishers.isNullOrEmpty()) {
+                binding.recyclerviewPublishers.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
+            } else {
+                binding.recyclerviewPublishers.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.GONE
+                adapter.submitList(publishers)
+            }
         }
 
         binding.fabAddPublisher.setOnClickListener {
