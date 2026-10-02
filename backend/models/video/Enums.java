@@ -6,7 +6,8 @@ public class Enums {
         NoneSelected,
         DVD,
         BluRay,
-        Digital
+        Digital,
+        UltraHD
     }
 
     public enum VideoTag
