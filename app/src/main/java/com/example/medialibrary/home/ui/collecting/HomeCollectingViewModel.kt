@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import models.shared.DisplayMediaItem
 
-class CollectingViewModel : ViewModel() {
+class HomeCollectingViewModel : ViewModel() {
 
     private val _items = MutableLiveData<List<DisplayMediaItem>>()
     val items: LiveData<List<DisplayMediaItem>> = _items

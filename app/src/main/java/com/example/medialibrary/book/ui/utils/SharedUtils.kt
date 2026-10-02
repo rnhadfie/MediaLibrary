@@ -3,6 +3,8 @@ package com.example.medialibrary.book.ui.utils
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookBottomSheetBinding
@@ -16,6 +18,13 @@ import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import models.shared.Filter
 import models.shared.SortModel
+import kotlin.collections.associate
+import kotlin.collections.chunked
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
+import com.github.mikephil.charting.data.*
+import androidx.fragment.app.Fragment.*;
 
 class SharedUtils {
 

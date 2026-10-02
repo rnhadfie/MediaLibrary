@@ -5,7 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
@@ -28,6 +31,14 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
 
     private lateinit var controller: MainController
 
+    //region component
+
+    private var emptyStateContainer: LinearLayout? = null
+    private var recyclerView: RecyclerView? = null
+    private var addButton: Button? = null
+
+    //endregion
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,21 +49,23 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
 
+        setComponentBindings()
+
         controller = MainController(MediaLibraryDbHelper(requireContext()))
 
         val adapter = TagAdapter(
             onEdit = { showTagDialog(it) },
             onDelete = { deleteTag(it) }
         )
-        binding.recyclerviewTag.adapter = adapter
+        recyclerView!!.adapter = adapter
 
         viewModel.tags.observe(viewLifecycleOwner) { tags ->
             if (tags.isNullOrEmpty()) {
-                binding.recyclerviewTag.visibility = View.GONE
-                binding.emptyStateContainer.root.visibility = View.VISIBLE
+                recyclerView!!.visibility = View.GONE
+                emptyStateContainer!!.visibility = View.VISIBLE
             } else {
-                binding.recyclerviewTag.visibility = View.VISIBLE
-                binding.emptyStateContainer.root.visibility = View.GONE
+                recyclerView!!.visibility = View.VISIBLE
+                emptyStateContainer!!.visibility = View.GONE
                 adapter.submitList(tags)
             }
         }
@@ -61,13 +74,20 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
             adapter.submitList(it)
         }
 
-        binding.fabAddTag.setOnClickListener {
+        addButton?.setOnClickListener {
             showTagDialog()
         }
 
         loadTags()
 
         return root
+    }
+
+    private fun setComponentBindings()
+    {
+        emptyStateContainer = binding.emptyStateContainer.root
+        recyclerView = binding.recyclerviewTag
+        addButton = binding.fabAddTag
     }
 
     override fun onRefreshData() {
@@ -77,6 +97,8 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
     private fun loadTags() {
         viewModel.setTags(controller.GetTags() ?: emptyList())
     }
+
+    //region Dialogs
 
     private fun showTagDialog(tag: Tag? = null) {
         val editText = EditText(requireContext()).apply {
@@ -150,6 +172,8 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
             }
             .show()
     }
+
+    //endregion
 
     class TagAdapter(
         private val onEdit: (Tag) -> Unit,

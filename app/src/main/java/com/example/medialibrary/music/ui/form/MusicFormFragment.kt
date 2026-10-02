@@ -52,61 +52,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         if (setup == null)
             setup = MusicSetup()
 
-        setupMusicGenreRadioGroup(setup)
-        setupTagSelection(setup)
-        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
-            viewModel.updateCollectingPriority(priority)
-        }
-        setupInputListeners()
-
-        binding.changeImage.buttonChangeCover.setOnClickListener {
-            showImageOptionsDialog("music")
-        }
-        binding.changeImage.buttonClearCover.setOnClickListener {
-            clearImage("music")
-        }
-
-        binding.buttonSaveMusic.setOnClickListener {
-            val error = viewModel.validate()
-            if (error.isNotEmpty()) {
-                if (error.containsKey("general")) {
-                    Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
-                }
-                if (error.containsKey("title")) {
-                    binding.editMusicTitleLabel.error = error["title"]
-                    Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                val saveObj = viewModel.getSaveObject()
-                if(controller != null) {
-
-                    val result = if (isEdit) {
-                        controller!!.UpdateMusic(saveObj)
-                    } else {
-                        controller!!.AddMusic(saveObj)
-                    }
-
-                    if(result) {
-                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-                        Toast.makeText(
-                            requireContext(),
-                            if (isEdit) "Cd Updated" else "Cd Saved",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        activity?.finish()
-                    }
-                    else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Cd Failed to Save",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
-            }
-        }
+        setBindings(setup)
 
         // Observe ViewModel
         viewModel.music.observe(viewLifecycleOwner) { music ->
@@ -138,6 +84,69 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             }
         }
 
+    }
+
+    //region Setup
+
+    private fun setBindings(setup: MusicSetup){
+        setupMusicGenreRadioGroup(setup)
+        setupTagSelection(setup)
+        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+            viewModel.updateCollectingPriority(priority)
+        }
+        setupInputListeners()
+
+        binding.changeImage.buttonChangeCover.setOnClickListener {
+            showImageOptionsDialog("music")
+        }
+        binding.changeImage.buttonClearCover.setOnClickListener {
+            clearImage("music")
+        }
+
+        binding.buttonSaveMusic.setOnClickListener {
+            disableForm(false)
+            val error = viewModel.validate()
+            if (error.isNotEmpty()) {
+                if (error.containsKey("general")) {
+                    Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
+                }
+                if (error.containsKey("title")) {
+                    binding.editMusicTitleLabel.error = error["title"]
+                    Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
+                }
+                disableForm(true)
+            } else {
+                val saveObj = viewModel.getSaveObject()
+                if(controller != null) {
+
+                    val result = if (isEdit) {
+                        controller!!.UpdateMusic(saveObj)
+                    } else {
+                        controller!!.AddMusic(saveObj)
+                    }
+
+                    if(result) {
+                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
+                        Toast.makeText(
+                            requireContext(),
+                            if (isEdit) "Cd Updated" else "Cd Saved",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                        activity?.finish()
+                    }
+                    else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Cd Failed to Save",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    }
+                }
+            }
+            disableForm(true)
+        }
     }
 
     private fun setupMusicGenreRadioGroup(setup: MusicSetup) {
@@ -213,6 +222,22 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         }
 
     }
+
+    //endregion
+
+    private fun disableForm(enabled: Boolean) {
+        binding.editMusicTitle.isEnabled = enabled
+        binding.editMusicArtist.isEnabled = enabled
+        binding.musicCollecting.isEnabled = enabled
+        binding.musicHasEnded.isEnabled = enabled
+        binding.musicGenreRadio.radioButtonLabel.isEnabled = enabled
+        binding.tagAutocomplete.autocomplete.isEnabled = enabled
+        binding.collectingPriorityAutocomplete.autocomplete.isEnabled = enabled
+        binding.changeImage.buttonChangeCover.isEnabled = enabled
+        binding.changeImage.buttonClearCover.isEnabled = enabled
+        binding.buttonSaveMusic.isEnabled = enabled
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -9,11 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentCollectingBinding
 import com.example.medialibrary.utils.FragmentType
@@ -59,7 +61,8 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            binding.emptyStateContainer.root,
+            ContextCompat.getColor(requireContext(), R.color.section_video),
+            binding.emptyStateContainer,
             adapter
         )
 

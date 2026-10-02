@@ -5,11 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
 import com.example.medialibrary.other.ui.utils.SharedUtils
@@ -54,7 +56,8 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            binding.emptyStateContainer.root,
+            ContextCompat.getColor(requireContext(), R.color.section_other),
+            binding.emptyStateContainer,
             adapter
         )
 

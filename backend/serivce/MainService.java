@@ -99,7 +99,6 @@ public class MainService {
     public List<Tag> GetTags() {
         var tags = _sharedService.GetTags();
          tags.sort(Comparator.comparing(o -> o.Name));
-         tags.add(0, new Tag("", ""));
         return tags;
     }
 

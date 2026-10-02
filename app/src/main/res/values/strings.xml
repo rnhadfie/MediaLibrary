@@ -16,6 +16,9 @@
     <string name="title_activity_book">BookActivity</string>
     <string name="no_items_found">No items found</string>
     <string name="no_items_desc">No items</string>
+    <string name="no_books_found">No Books Found</string>
+    <string name="no_videos_found">No Movies or TV Shows Found</string>
+    <string name="no_cds_found">No CDs Found</string>
 
     <!-- Book Form Strings -->
     <string name="change_cover">Change Cover</string>

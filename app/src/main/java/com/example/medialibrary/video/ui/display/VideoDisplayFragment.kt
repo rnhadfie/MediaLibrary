@@ -8,14 +8,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
@@ -64,38 +65,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         loadData()
 
-        setupEmptyStateMediaItemObserver(
-            viewModel.MediaItems,
-            binding.videoStatContainer,
-            binding.emptyStateContainer.root
-        )
-
-        binding.filterBtn.setOnClickListener {
-            setup?.let { s -> showFilterSheet(s, currentFilter) }
-        }
-
-        binding.sortBtn.setOnClickListener {
-            val filter = sortFilterViewModel.getOrCreateMusicFilter()
-            val sortModel = sortFilterViewModel.getOrCreateSortModel()
-            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
-                sortFilterViewModel.updateMusicFilter(updatedFilter as MusicFilter)
-                loadData()
-            }
-        }
-
-        binding.copyListBtn.setOnClickListener {
-            val videos = viewModel.MediaItems.value
-            val sortedVideos = videos?.sortedBy { it.Title }
-            val videoList = buildString {
-                sortedVideos?.forEach { book ->
-                    appendLine(book.Title)
-                }
-            }
-            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText("Movies and TV Shows List", videoList)
-            clipboard.setPrimaryClip(clipData)
-            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-        }
+        setupBindings()
 
         return root
     }
@@ -147,6 +117,45 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         dialog.show()
     }
 
+    //region setup
+
+    private fun setupBindings()
+    {
+        setupEmptyStateMediaItemObserver(
+            viewModel.MediaItems,
+            binding.scrollView,
+            ContextCompat.getColor(requireContext(), R.color.section_video),
+            binding.emptyStateContainer,
+            R.string.no_videos_found
+        )
+
+        binding.filterBtn.setOnClickListener {
+            setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
+
+        binding.sortBtn.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateMusicFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateMusicFilter(updatedFilter as MusicFilter)
+                loadData()
+            }
+        }
+
+        binding.copyListBtn.setOnClickListener {
+            val videos = viewModel.MediaItems.value
+            val sortedVideos = videos?.sortedBy { it.Title }
+            val videoList = buildString {
+                sortedVideos?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Movies and TV Shows List", videoList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+    }
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
 
@@ -179,28 +188,28 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
         val readPercentPieData = PieData(readPercentPieDataSet)
 
-        val watchedPieChart = binding.watchedProgressChart
-
-        if (readPercentPieEntries.isEmpty()) {
-            watchedPieChart.noDataTextColor = Color.BLACK
-            watchedPieChart.noDataText = "No data to display"
-            watchedPieChart.data = null
-        } else {
-            watchedPieChart.description.isEnabled = false
-            watchedPieChart.data = readPercentPieData
-            watchedPieChart.centerText = "Watched Percent: $watchPercent%"
-            watchedPieChart.legend.isEnabled = false
-            watchedPieChart.holeColor = Color.TRANSPARENT
-            watchedPieChart.transparentCircleColor = Color.TRANSPARENT
-            watchedPieChart.setBackgroundColor(Color.TRANSPARENT)
-            watchedPieChart.renderer = SafePieChartRenderer(
-                watchedPieChart,
-                watchedPieChart.animator,
-                watchedPieChart.viewPortHandler
-            )
-            watchedPieChart.animateXY(1000, 1000)
+        binding.watchedProgressChart.let { chart ->
+            if (readPercentPieEntries.isEmpty()) {
+                chart.noDataTextColor = Color.BLACK
+                chart.noDataText = "No data to display"
+                chart.data = null
+            } else {
+                chart.description.isEnabled = false
+                chart.data = readPercentPieData
+                chart.centerText = "Watched Percent: $watchPercent%"
+                chart.legend.isEnabled = false
+                chart.holeColor = Color.TRANSPARENT
+                chart.transparentCircleColor = Color.TRANSPARENT
+                chart.setBackgroundColor(Color.TRANSPARENT)
+                chart.renderer = SafePieChartRenderer(
+                    chart,
+                    chart.animator,
+                    chart.viewPortHandler
+                )
+                chart.animateXY(1000, 1000)
+            }
+            chart.invalidate()
         }
-        watchedPieChart.invalidate()
     }
 
     private fun setupFormatPieChart(items: List<Video>) {
@@ -232,32 +241,33 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             if (digitalCount > 0) formatPieEntries.add(PieEntry(digitalCount.toFloat(), "Digital"))
             if (bluRayCount > 0) formatPieEntries.add(PieEntry(bluRayCount.toFloat(), "Blu-Ray"))
 
-            val formatPieChart = binding.formatChart
-
-            if (formatPieEntries.isEmpty()) {
-                formatPieChart.data = null
-                formatPieChart.noDataTextColor = Color.BLACK
-                formatPieChart.noDataText = "No format data to display"
-            } else {
-                foramtPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-                val formatPieData = PieData(foramtPieDataSet)
-                formatPieChart.data = formatPieData
-                formatPieChart.holeColor = Color.TRANSPARENT
-                formatPieChart.transparentCircleColor = Color.TRANSPARENT
-                formatPieChart.setBackgroundColor(Color.TRANSPARENT)
-                formatPieChart.centerText = "Format"
-                formatPieChart.legend.isEnabled = false
-                formatPieChart.isUsePercentValuesEnabled = true
-                formatPieChart.description.isEnabled = false
-                formatPieChart.animateXY(1000, 1000)
-                formatPieChart.renderer = SafePieChartRenderer(
-                    formatPieChart,
-                    formatPieChart.animator,
-                    formatPieChart.viewPortHandler
-                )
+            binding.formatChart.let {
+                chart ->
+                    if (formatPieEntries.isEmpty()) {
+                        chart.data = null
+                        chart.noDataTextColor = Color.BLACK
+                        chart.noDataText = "No format data to display"
+                    } else {
+                        foramtPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+                        val formatPieData = PieData(foramtPieDataSet)
+                        chart.data = formatPieData
+                        chart.holeColor = Color.TRANSPARENT
+                        chart.transparentCircleColor = Color.TRANSPARENT
+                        chart.setBackgroundColor(Color.TRANSPARENT)
+                        chart.centerText = "Format"
+                        chart.legend.isEnabled = false
+                        chart.isUsePercentValuesEnabled = true
+                        chart.description.isEnabled = false
+                        chart.animateXY(1000, 1000)
+                        chart.renderer = SafePieChartRenderer(
+                            chart,
+                            chart.animator,
+                            chart.viewPortHandler
+                        )
+                }
+                chart.invalidate()
             }
 
-            formatPieChart.invalidate()
         }
     }
 
@@ -282,45 +292,13 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         val emptyState = binding.genreCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_video_per_genre)
 
-        if(genreInformationMap.isEmpty())
-        {
-            dualColumnViewOne.visibility = View.GONE
-            dualColumnViewTwo.visibility = View.GONE
-            emptyState.root.visibility = View.VISIBLE
-            emptyState.root.text = getString(R.string.no_genre_data_to_display)
-        }
-        else {
-
-            dualColumnViewOne.visibility = View.VISIBLE
-            dualColumnViewTwo.visibility = View.VISIBLE
-            emptyState.root.visibility = View.GONE
-
-            val genreInformationSortedMap = genreInformationMap.toList()
-                .sortedByDescending { (_, value) -> value } // Sort list by the value
-                .toMap()
-
-            val halfSize = (genreInformationSortedMap.size + 1) / 2
-            val chunks = genreInformationSortedMap.entries.chunked(halfSize)
-
-            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
-            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
-
-            dualColumnViewOne.removeAllViews()
-            dualColumnViewTwo.removeAllViews()
-
-            for ((key, value) in firstHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewOne.addView(textView)
-            }
-            for ((key, value) in secondHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewTwo.addView(textView)
-            }
-        }
+        DualColumnCardHelper.setupDualColumnCard(
+            genreInformationMap,
+            dualColumnViewOne,
+            dualColumnViewTwo,
+            emptyState,
+            R.string.no_genre_data_to_display,
+            requireContext() )
     }
 
     private fun setupVideoTagBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
@@ -398,4 +376,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             chart.invalidate()
         }
     }
+
+    //endregion
 }

@@ -10,6 +10,7 @@ import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.MultiSelectFilterHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import models.shared.DisplayMediaItem
 import models.shared.Enums
 import models.shared.Filter
 import models.shared.MainSetup
@@ -129,5 +130,35 @@ class SharedUtils {
                 .setNegativeButton("Cancel", null)
                 .show()
         }
+
+        fun ClipboardHelper(mediaItems: List<DisplayMediaItem>, text: String): String {
+            val sortedBooks = mediaItems.filter { it.MediaType == Enums.MediaType.Book }.sortedBy { it.Title }
+            val sortedVideos = mediaItems.filter { it.MediaType == Enums.MediaType.Video }.sortedBy { it.Title }
+            val sortedMusics = mediaItems.filter { it.MediaType == Enums.MediaType.Music }.sortedBy { it.Title }
+            val sortedOthers = mediaItems.filter { it.MediaType == Enums.MediaType.Other }.sortedBy { it.Title }
+            val list = buildString {
+                appendLine("Books:")
+                sortedBooks.forEach { book ->
+                    appendLine(book.Title)
+                }
+                appendLine()
+                appendLine("Videos:")
+                sortedVideos.forEach { video ->
+                    appendLine(video.Title)
+                }
+                appendLine()
+                appendLine("Music Collection:")
+                sortedMusics.forEach { music ->
+                    appendLine(music.Title)
+                }
+                appendLine()
+                appendLine("Other Collection:")
+                sortedOthers.forEach { other ->
+                    appendLine(other.Title)
+                }
+            }
+            return list
+        }
+
     }
 }

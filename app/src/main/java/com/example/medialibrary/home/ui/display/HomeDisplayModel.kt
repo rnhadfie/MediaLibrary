@@ -1,11 +1,11 @@
-package com.example.medialibrary.home.ui.graphs
+package com.example.medialibrary.home.ui.display
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import models.shared.DisplayMediaItem
 
-class MainGraphViewModel : ViewModel() {
+class HomeDisplayModel : ViewModel() {
 
     private val _text = MutableLiveData<String>().apply {
         value = "Graphs go here"
