@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
@@ -54,7 +55,8 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            binding.emptyStateContainer.root,
+            ContextCompat.getColor(requireContext(), R.color.section_other),
+            binding.emptyStateContainer,
             adapter
         )
 

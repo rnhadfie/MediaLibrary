@@ -1,44 +1,33 @@
 package com.example.medialibrary.book.ui.display
 
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
+import android.content.*
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
+import android.view.*
+import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.book.ui.utils.SharedUtils
-import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.book.ui.utils.*
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SafePieChartRenderer
+import com.example.medialibrary.databinding.ViewEmptyStateBinding
+import com.example.medialibrary.utils.*
+import com.github.mikephil.charting.charts.*
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import models.book.Book
-import models.book.BookFilter
-import models.book.BookSetup
+import models.book.*
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import repository.database.MediaLibraryDbHelper
@@ -46,10 +35,35 @@ import repository.database.MediaLibraryDbHelper
 class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplayViewModel>(
     BookFragmentDisplayBinding::inflate
 ) {
-
     private var currentFilter = BookFilter()
     private var bookController: BookController? = null
     private var setup: BookSetup? = null
+
+    //region Components
+    private var emptyStateContainer: ViewEmptyStateBinding? = null
+    private var filterButton: ImageButton? = null
+    private var sortButton: ImageButton? = null
+    private var copyListButton: ImageButton? = null
+    private var readProgressChart: PieChart? = null
+    private var seriesCountText: TextView? = null
+    private var itemsText: TextView? = null
+    private var collectedSeriesText: TextView? = null
+    private var ongoingSeriesText: TextView? = null
+    private var collectingText: TextView? = null
+    private var formatChart: PieChart? = null
+    private var bookTypeChart: BarChart? = null
+    //endregion
+
+    //region sheet Components
+    private var applyFilterBtn: Button? = null
+    private var clearActiveFilter: Button? = null
+    private var readToggle: Button? = null
+    private var readingToggle: Button? = null
+    private var ownedToggle: Button? = null
+    private var ongoingToggle: Button? = null
+    private var collectedToggle: Button? = null
+    private var collectingToggle: Button? = null
+    //endregion
 
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
@@ -63,47 +77,14 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         setFragmentType(FragmentType.Display)
 
         val root: View = super.onCreateView(inflater, container, savedInstanceState)
+        setComponentBindings()
+        setupActionBindings()
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
         bookController = BookController(dbHelper)
 
-
         setDialogSort(DialogSortContentBinding.inflate(layoutInflater))
-
         observeSortFilterViewModel()
-
-        setupEmptyStateMediaItemObserver(
-            viewModel.mediaItems,
-            binding.scrollView,
-            binding.emptyStateContainer.root
-        )
-
-        binding.filterBtn.setOnClickListener {
-            setup?.let { s -> showFilterSheet(s, currentFilter) }
-        }
-
-        binding.sortBtn?.setOnClickListener {
-            val filter = sortFilterViewModel.getOrCreateBookFilter()
-            val sortModel = sortFilterViewModel.getOrCreateSortModel()
-            SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
-                sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
-                loadData()
-            }
-        }
-
-        binding.copyListBtn.setOnClickListener {
-            val books = viewModel.mediaItems.value
-            val sortedBooks = books?.sortedBy { it.Title }
-            val bookList = buildString {
-                sortedBooks?.forEach { book ->
-                    appendLine(book.Title)
-                }
-            }
-            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clipData = ClipData.newPlainText("Book List", bookList)
-            clipboard.setPrimaryClip(clipData)
-            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
-        }
 
         return root
     }
@@ -146,21 +127,22 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         dialog.setContentView(sheetBinding.root)
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
+        setComponentSheetBindings(sheetBinding)
 
-        sheetBinding.applyFilterBtn.setOnClickListener {
-            filter.Read = sheetBinding.read.triStateButton.tag as Boolean?
-            filter.Reading = sheetBinding.reading.triStateButton.tag as Boolean?
-            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            filter.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
-            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
-            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+        applyFilterBtn?.setOnClickListener {
+            filter.Read = readToggle?.tag as Boolean?
+            filter.Reading = readingToggle?.tag as Boolean?
+            filter.AnyOwned = ownedToggle?.tag as Boolean?
+            filter.Ongoing = ongoingToggle?.tag as Boolean?
+            filter.Collecting = collectingToggle?.tag as Boolean?
+            filter.Collected = collectedToggle?.tag as Boolean?
 
             sortFilterViewModel.updateBookFilter(filter)
             loadData()
             dialog.dismiss()
         }
 
-        sheetBinding.clearActiveFilter.setOnClickListener {
+        clearActiveFilter?.setOnClickListener {
             sortFilterViewModel.updateBookFilter(BookFilter())
             dialog.dismiss()
         }
@@ -168,7 +150,76 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         dialog.show()
     }
 
-    //region Chart Setup
+    //region Setup
+
+    private fun setupActionBindings()
+    {
+
+        setupEmptyStateMediaItemObserver(
+            viewModel.mediaItems,
+            binding.scrollView,
+            ContextCompat.getColor(requireContext(), R.color.section_book),
+            emptyStateContainer!!,
+            R.string.no_books_found
+        )
+
+        filterButton?.setOnClickListener {
+            setup?.let { s -> showFilterSheet(s, currentFilter) }
+        }
+
+        sortButton?.setOnClickListener {
+            val filter = sortFilterViewModel.getOrCreateBookFilter()
+            val sortModel = sortFilterViewModel.getOrCreateSortModel()
+            SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
+                sortFilterViewModel.updateBookFilter(updatedFilter as BookFilter)
+                loadData()
+            }
+        }
+
+        copyListButton?.setOnClickListener {
+            val books = viewModel.mediaItems.value
+            val sortedBooks = books?.sortedBy { it.Title }
+            val bookList = buildString {
+                sortedBooks?.forEach { book ->
+                    appendLine(book.Title)
+                }
+            }
+            val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clipData = ClipData.newPlainText("Book List", bookList)
+            clipboard.setPrimaryClip(clipData)
+            Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setComponentBindings()
+    {
+        emptyStateContainer = binding.emptyStateContainer
+        filterButton = binding.filterBtn
+        sortButton = binding.sortBtn
+        copyListButton = binding.copyListBtn
+        readProgressChart = binding.readProgressChart
+        seriesCountText = binding.seriesCountText
+        itemsText = binding.itemsText
+        collectedSeriesText = binding.collectedSeriesText
+        ongoingSeriesText = binding.ongoingSeriesText
+        collectingText = binding.collectingText
+        formatChart = binding.formatChart
+        bookTypeChart = binding.bookTypeChart
+
+    }
+
+    private fun setComponentSheetBindings(sb: BookBottomSheetBinding)
+    {
+        readToggle = sb.read.triStateButton
+        readingToggle = sb.reading.triStateButton
+        ownedToggle = sb.anyItemsOwned.triStateButton
+        ongoingToggle = sb.standaloneOrSeriesComplete.triStateButton
+        collectedToggle = sb.collected.triStateButton
+        collectingToggle = sb.collecting.triStateButton
+        applyFilterBtn = sb.applyFilterBtn
+        clearActiveFilter = sb.clearActiveFilter
+
+    }
 
     @SuppressLint("SetTextI18n")
     private fun setupCharts(items: List<Book>, setup: BookSetup) {
@@ -184,13 +235,11 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val updateToDate = items.count { it.Ongoing }
         val collecting = items.count { it.Collecting }
 
-        binding.seriesCountText.text = "Total Number of Series: " + items.count().toString()
-        binding.itemsText.text = "Total Number of Books: $totalBook"
-        binding.collectedSeriesText?.text = "Total Number Series or Standalone books Collected: $completedCount"
-        binding.ongoingSeriesText.text = "Total Number of Ongoing Series: $updateToDate"
-        binding.collectingText.text = "Total Number of Series or Books Currently Collecting: $collecting"
-
-
+        seriesCountText?.text = "Total Number of Series: " + items.count().toString()
+        itemsText?.text = "Total Number of Books: $totalBook"
+        collectedSeriesText?.text = "Total Number Series or Standalone books Collected: $completedCount"
+        ongoingSeriesText?.text = "Total Number of Ongoing Series: $updateToDate"
+        collectingText?.text = "Total Number of Series or Books Currently Collecting: $collecting"
 
         setReadPercentChart(readCount, totalBook)
 
@@ -211,28 +260,29 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
 
         val readPercentPieData = PieData(readPercentPieDataSet)
-        val bookReadProgressChart = binding.readProgressChart
-        if (readPercentPieEntries.isEmpty()) {
-            bookReadProgressChart.noDataText = "No data to display"
-            bookReadProgressChart.data = null
-            bookReadProgressChart.noDataTextColor = Color.BLACK
-            bookReadProgressChart.centerTextSize = 20f
-        }
-        bookReadProgressChart.description.isEnabled = false
-        bookReadProgressChart.data = readPercentPieData
-        bookReadProgressChart.centerText = "Read Percent: $readPercent%"
-        bookReadProgressChart.legend.isEnabled = false
-        bookReadProgressChart.holeColor = Color.TRANSPARENT
-        bookReadProgressChart.transparentCircleColor = Color.TRANSPARENT
-        bookReadProgressChart.setBackgroundColor(Color.TRANSPARENT)
-        bookReadProgressChart.renderer = SafePieChartRenderer(
-            bookReadProgressChart,
-            bookReadProgressChart.animator,
-            bookReadProgressChart.viewPortHandler
-        )
+        readProgressChart!!.let { chart ->
+            if (readPercentPieEntries.isEmpty()) {
+                chart.noDataText = "No data to display"
+                chart.data = null
+                chart.noDataTextColor = Color.BLACK
+                chart.centerTextSize = 20f
+            }
+            chart.description.isEnabled = false
+            chart.data = readPercentPieData
+            chart.centerText = "Read Percent: $readPercent%"
+            chart.legend.isEnabled = false
+            chart.holeColor = Color.TRANSPARENT
+            chart.transparentCircleColor = Color.TRANSPARENT
+            chart.setBackgroundColor(Color.TRANSPARENT)
+            chart.renderer = SafePieChartRenderer(
+                chart,
+                chart.animator,
+                chart.viewPortHandler
+            )
 
-        bookReadProgressChart.animateXY(1000, 1000)
-        bookReadProgressChart.invalidate()
+            chart.animateXY(1000, 1000)
+            chart.invalidate()
+        }
     }
 
     private fun setBookTypeBarChart(items: List<Book>, setup: BookSetup, colors: List<Int>) {
@@ -259,7 +309,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val barData = BarData(dataSets)
 
-        binding.bookTypeChart.let { chart ->
+        bookTypeChart!!.let { chart ->
             chart.noDataText = "No data to display"
 
             if (dataSets.isEmpty()) {
@@ -295,51 +345,15 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             }
         }
 
+
         val dualColumnViewOne = binding.displayGenreCard.dualCardColumnOne
         val dualColumnViewTwo = binding.displayGenreCard.dualCardColumnTwo
         val title = binding.displayGenreCard.cardTitle
         val emptyState = binding.displayGenreCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_books_per_genre)
 
-        if(genreInformationMap.isEmpty())
-        {
-            dualColumnViewOne.visibility = View.GONE
-            dualColumnViewTwo.visibility = View.GONE
-            emptyState.root.visibility = View.VISIBLE
-            emptyState.root.text = getString(R.string.no_genre_data_to_display)
-        }
-        else {
+        DualColumnCardHelper.setupDualColumnCard(genreInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_publisher_data_to_display, requireContext());
 
-            dualColumnViewOne.visibility = View.VISIBLE
-            dualColumnViewTwo.visibility = View.VISIBLE
-            emptyState.root.visibility = View.GONE
-
-            val genreInformationSortedMap = genreInformationMap.toList()
-                .sortedByDescending { (_, value) -> value } // Sort list by the value
-                .toMap()
-
-            val halfSize = (genreInformationSortedMap.size + 1) / 2
-            val chunks = genreInformationSortedMap.entries.chunked(halfSize)
-
-            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
-            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
-
-            dualColumnViewOne.removeAllViews()
-            dualColumnViewTwo.removeAllViews()
-
-            for ((key, value) in firstHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewOne.addView(textView)
-            }
-            for ((key, value) in secondHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewTwo.addView(textView)
-            }
-        }
     }
 
     private fun setPublisherBarChart(items: List<Book>, setup: BookSetup) {
@@ -363,45 +377,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val emptyState = binding.displayPublisherCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_books_per_publisher)
 
-        if(publisherInformationMap.isEmpty())
-        {
-            dualColumnViewOne.visibility = View.GONE
-            dualColumnViewTwo.visibility = View.GONE
-            emptyState.root.visibility = View.VISIBLE
-            emptyState.root.text = getString(R.string.no_publisher_data_to_display)
-        }
-        else {
-
-            dualColumnViewOne.visibility = View.VISIBLE
-            dualColumnViewTwo.visibility = View.VISIBLE
-            emptyState.root.visibility = View.GONE
-
-            val publisherInformationSortedMap = publisherInformationMap.toList()
-                .sortedByDescending { (_, value) -> value } // Sort list by the value
-                .toMap()
-
-            val halfSize = (publisherInformationSortedMap.size + 1) / 2
-            val chunks = publisherInformationSortedMap.entries.chunked(halfSize)
-
-            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
-            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
-
-            dualColumnViewOne.removeAllViews()
-            dualColumnViewTwo.removeAllViews()
-
-            for ((key, value) in firstHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewOne.addView(textView)
-            }
-            for ((key, value) in secondHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewTwo.addView(textView)
-            }
-        }
+        DualColumnCardHelper.setupDualColumnCard(publisherInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_genre_data_to_display,  requireContext());
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {
@@ -428,37 +404,38 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         if (hardCoverCount > 0) formatPieEntries.add(PieEntry(hardCoverCount.toFloat(), "Hardcover"))
         if (paperBackCount > 0) formatPieEntries.add(PieEntry(paperBackCount.toFloat(), "Paperback"))
 
-        val bookFormatPieChart = binding.formatChart
+        formatChart!!.let { chart ->
+            if (formatPieEntries.isEmpty()) {
+                chart.data = null
+                chart.noDataText = "No Format data to display"
+                chart.noDataTextColor = Color.BLACK
+                chart.centerTextSize = 20f
+            } else {
+                val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
+                formatPieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
 
-        if (formatPieEntries.isEmpty()) {
-            bookFormatPieChart.data = null
-            bookFormatPieChart.noDataText = "No Format data to display"
-            bookFormatPieChart.noDataTextColor = Color.BLACK
-            bookFormatPieChart.centerTextSize = 20f
-        } else {
-            val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
-            formatPieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
+                val formatPieData = PieData(formatPieDataSet)
+                chart.data = formatPieData
 
-            val formatPieData = PieData(formatPieDataSet)
-            bookFormatPieChart.data = formatPieData
+                chart.description.isEnabled = false
+                chart.description.text = ""
+                chart.holeColor = Color.TRANSPARENT
+                chart.transparentCircleColor = Color.TRANSPARENT
+                chart.setBackgroundColor(Color.TRANSPARENT)
+                chart.isUsePercentValuesEnabled = true
+                chart.centerText = "Format %"
+                chart.legend.isEnabled = false
 
-            bookFormatPieChart.description.isEnabled = false
-            bookFormatPieChart.description.text = ""
-            bookFormatPieChart.holeColor = Color.TRANSPARENT
-            bookFormatPieChart.transparentCircleColor = Color.TRANSPARENT
-            bookFormatPieChart.setBackgroundColor(Color.TRANSPARENT)
-            bookFormatPieChart.isUsePercentValuesEnabled = true
-            bookFormatPieChart.centerText = "Format %"
-            bookFormatPieChart.legend.isEnabled = false
-
-            bookFormatPieChart.animateXY(1000, 1000)
-            bookFormatPieChart.renderer = SafePieChartRenderer(
-                bookFormatPieChart,
-                bookFormatPieChart.animator,
-                bookFormatPieChart.viewPortHandler
-            )
+                chart.animateXY(1000, 1000)
+                chart.renderer = SafePieChartRenderer(
+                    chart,
+                    chart.animator,
+                    chart.viewPortHandler
+                )
+            }
+            chart.invalidate()
         }
-        bookFormatPieChart.invalidate()
+
     }
 
     //endregion

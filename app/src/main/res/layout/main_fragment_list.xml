@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:label="@string/media_collection_list"
-    tools:context=".home.ui.all_list.AllItemsViewFragment">
+    tools:context=".home.ui.list.HomeListFragment">
 
     <LinearLayout
         android:id="@+id/header_container"

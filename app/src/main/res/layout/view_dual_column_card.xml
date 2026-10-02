@@ -19,6 +19,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="vertical">
         <TextView
             android:layout_width="match_parent"
@@ -40,7 +41,6 @@
             android:layout_gravity="fill_vertical"
             />
 
-        <!--sub view 2-->
         <LinearLayout
             android:id="@+id/dual_card_column_two"
             android:layout_margin="8dp"
@@ -59,9 +59,4 @@
             />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
-
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

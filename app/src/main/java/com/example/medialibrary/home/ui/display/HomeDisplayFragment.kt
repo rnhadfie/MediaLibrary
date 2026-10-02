@@ -1,4 +1,4 @@
-package com.example.medialibrary.home.ui.graphs
+package com.example.medialibrary.home.ui.display
 
 import android.content.Intent
 import android.os.Bundle
@@ -33,7 +33,7 @@ import models.shared.Enums
 import models.shared.Filter
 import repository.database.MediaLibraryDbHelper
 
-class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphViewModel>(
+class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplayModel>(
     MainFragmentDisplayBinding::inflate
 ) {
 
@@ -46,7 +46,7 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[MainGraphViewModel::class.java]
+        viewModel = ViewModelProvider(this)[HomeDisplayModel::class.java]
         sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Display)
 
@@ -59,8 +59,9 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
 
         setupEmptyStateObserver(
             viewModel.mediaItems,
-            binding.mainStatsContainer,
-            binding.emptyStateContainer.root
+            binding.scrollViewAllGraphs,
+            ContextCompat.getColor(requireContext(), R.color.primary),
+            binding.emptyStateContainer,
         )
 
         //region binding
@@ -150,7 +151,6 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
             ContextCompat.getColor(requireContext(), R.color.section_other)
         )
 
-
         val categories = listOf(
             Triple(0f, totalBooks.toFloat(), "Books"),
             Triple(1f, totalVideo.toFloat(), "Videos"),
@@ -165,23 +165,26 @@ class MainGraphFragment : BaseFragment<MainFragmentDisplayBinding, MainGraphView
         }
 
         val barData = BarData(dataSets)
-        binding.barChart.noDataText = "No data to display"
-        if (dataSets.isEmpty()) {
-            binding.barChart.data = null
-        } else {
-            binding.barChart.data = barData
-            binding.barChart.description.isEnabled = false
-            binding.barChart.xAxis.isEnabled = false
+        binding.barChart.let {chart ->
+            chart.noDataText = "No data to display"
+            if (dataSets.isEmpty()) {
+                chart.data = null
+            } else {
+                chart.data = barData
+                chart.description.isEnabled = false
+                chart.xAxis.isEnabled = false
 
-            val legend = binding.barChart.legend
-            legend.isEnabled = true
-            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-            legend.orientation = Legend.LegendOrientation.HORIZONTAL
-            legend.isDrawInsideEnabled = false
+                val legend = chart.legend
+                legend.isEnabled = true
+                legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                legend.isDrawInsideEnabled = false
 
-            binding.barChart.animateY(1000)
+                chart.animateY(1000)
+            }
+            chart.invalidate()
         }
-        binding.barChart.invalidate()
+
     }
 }

@@ -9,11 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentCollectingBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
@@ -56,10 +59,31 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
 
         loadData()
 
+        setupBindings(recyclerView, adapter)
+
+        activity?.let { act ->
+            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
+            var lastVersion = refreshViewModel.refreshVersion
+            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
+                override fun onResume(owner: LifecycleOwner) {
+                    if (refreshViewModel.refreshVersion != lastVersion) {
+                        lastVersion = refreshViewModel.refreshVersion
+                        loadData()
+                    }
+                }
+            })
+        }
+
+        return root
+    }
+
+    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter)
+    {
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            binding.emptyStateContainer.root,
+            ContextCompat.getColor(requireContext(), R.color.section_music),
+            binding.emptyStateContainer,
             adapter
         )
 
@@ -105,22 +129,6 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
             clipboard.setPrimaryClip(clipData)
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
-
-        activity?.let { act ->
-            val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
-            var lastVersion = refreshViewModel.refreshVersion
-            viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                override fun onResume(owner: LifecycleOwner) {
-                    if (refreshViewModel.refreshVersion != lastVersion) {
-                        lastVersion = refreshViewModel.refreshVersion
-                        loadData()
-                    }
-                }
-            })
-        }
-
-
-        return root
     }
 
     override fun onRefreshData() {

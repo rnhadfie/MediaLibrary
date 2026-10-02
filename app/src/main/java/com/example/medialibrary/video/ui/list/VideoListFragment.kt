@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
@@ -58,7 +59,8 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            binding.emptyStateContainer.root,
+            ContextCompat.getColor(requireContext(), R.color.section_video),
+            binding.emptyStateContainer,
             adapter
         )
 

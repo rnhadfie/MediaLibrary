@@ -81,7 +81,7 @@ public class VideoService {
         videoSetup.VideoTags = this.GetVideoTags();
         videoSetup.Genre = sharedService.GetGenres();
         videoSetup.Types = this.GetTypes();
-        videoSetup.Tag = this.sharedService.getValue().GetTags();
+        videoSetup.Tag = sharedService.GetTags();
         videoSetup.Formats = this.GetFormats();
         return videoSetup;
     }

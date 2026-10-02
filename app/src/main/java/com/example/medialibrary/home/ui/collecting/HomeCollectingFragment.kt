@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
+import com.example.medialibrary.R
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
@@ -16,6 +18,7 @@ import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentCollectingBinding
 import com.example.medialibrary.home.ui.utils.SharedUtils
+import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.ClipboardHelper
 import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
@@ -23,12 +26,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MainController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import models.shared.Enums
 import models.shared.Filter
 import models.shared.MainSetup
 import repository.database.MediaLibraryDbHelper
 
-class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, CollectingViewModel>(
+class HomeCollectingFragment : BaseFragment<MainFragmentCollectingBinding, HomeCollectingViewModel>(
     MainFragmentCollectingBinding::inflate
 ) {
 
@@ -42,7 +44,7 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        viewModel = ViewModelProvider(this)[CollectingViewModel::class.java]
+        viewModel = ViewModelProvider(this)[HomeCollectingViewModel::class.java]
         sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Collecting)
 
@@ -60,10 +62,18 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            binding.emptyStateContainer.root,
+            ContextCompat.getColor(requireContext(), R.color.primary),
+            binding.emptyStateContainer,
             adapter
         )
+        setupBindings()
 
+
+        return root
+    }
+
+    private fun setupBindings()
+    {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 val filter = sortFilterViewModel.getOrCreateMainFilter()
@@ -95,39 +105,13 @@ class CollectingFragment : BaseFragment<MainFragmentCollectingBinding, Collectin
 
         binding.allItemList.setOnClickListener {
             val mediaItems = viewModel.items.value
-            val sortedBooks = mediaItems?.filter { it.MediaType == Enums.MediaType.Book }?.sortedBy { it.Title }
-            val sortedVideos = mediaItems?.filter { it.MediaType == Enums.MediaType.Video }?.sortedBy { it.Title }
-            val sortedMusics = mediaItems?.filter { it.MediaType == Enums.MediaType.Music }?.sortedBy { it.Title }
-            val sortedOthers = mediaItems?.filter { it.MediaType == Enums.MediaType.Other }?.sortedBy { it.Title }
-            val list = buildString {
-                appendLine("Books:")
-                sortedBooks?.forEach { book ->
-                    appendLine(book.Title)
-                }
-                appendLine()
-                appendLine("Videos:")
-                sortedVideos?.forEach { video ->
-                    appendLine(video.Title)
-                }
-                appendLine()
-                appendLine("Music Collection:")
-                sortedMusics?.forEach { music ->
-                    appendLine(music.Title)
-                }
-                appendLine()
-                appendLine("Other Collection:")
-                sortedOthers?.forEach { other ->
-                    appendLine(other.Title)
-                }
-            }
+            val list = ClipboardHelper(mediaItems ?: emptyList(), "Media Collection List")
 
             val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("Media Collection List", list)
             clipboard.setPrimaryClip(clipData)
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
-
-        return root
     }
 
     private fun observeSortFilterViewModel() {

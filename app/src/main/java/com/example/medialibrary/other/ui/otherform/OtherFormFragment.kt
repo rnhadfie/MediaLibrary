@@ -155,6 +155,7 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 
     private fun setupTagSelection(setup: MainSetup) {
         val tags = setup.Tag
+        tags.add(0, Tag("", ""))
         val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.tagAutocomplete.autocomplete.setAdapter(adapter)
         binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)

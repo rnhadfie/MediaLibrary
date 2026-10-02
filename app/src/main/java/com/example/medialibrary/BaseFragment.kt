@@ -1,5 +1,6 @@
 package com.example.medialibrary
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
+import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import models.shared.DisplayMediaItem
@@ -81,16 +83,21 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     fun setupEmptyStateObserver(
         items: LiveData<out List<DisplayMediaItem>>,
         recyclerView: RecyclerView?,
-        emptyStateContainerRoot: TextView,
+        color: Int,
+        emptyStateContainer: ViewEmptyStateBinding,
         adapter: ListAdapter<DisplayMediaItem, *>
     ) {
+        if (color != -1) {
+            emptyStateContainer.emptyStateText.setTextColor(color)
+            emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
+        }
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView?.visibility = View.GONE
-                emptyStateContainerRoot.visibility = View.VISIBLE
+                emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 recyclerView?.visibility = View.VISIBLE
-                emptyStateContainerRoot.visibility = View.GONE
+                emptyStateContainer.root.visibility = View.GONE
                 adapter.submitList(itemList)
             }
         }
@@ -99,15 +106,20 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     fun setupEmptyStateObserver(
         items: LiveData<out List<DisplayMediaItem>>,
         recyclerView: View,
-        emptyStateContainerRoot: TextView
+        color: Int,
+        emptyStateContainer: ViewEmptyStateBinding
     ) {
+        if (color != -1) {
+            emptyStateContainer.emptyStateText.setTextColor(color)
+            emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
+        }
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView.visibility = View.GONE
-                emptyStateContainerRoot.visibility = View.VISIBLE
+                emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 recyclerView.visibility = View.VISIBLE
-                emptyStateContainerRoot.visibility = View.GONE
+                emptyStateContainer.root.visibility = View.GONE
             }
         }
     }
@@ -115,15 +127,24 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     fun setupEmptyStateMediaItemObserver(
         items: LiveData<out List<MediaItem>>,
         recyclerView: View,
-        emptyStateContainerRoot: TextView
+        color: Int,
+        emptyStateContainer: ViewEmptyStateBinding,
+        emptyTextResId: Int = R.string.no_items_found
     ) {
+        if (color != -1) {
+            emptyStateContainer.emptyStateText.setTextColor(color)
+            emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
+        }
+        if (emptyTextResId != -1) {
+            emptyStateContainer.emptyStateText.setText(emptyTextResId)
+        }
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView.visibility = View.GONE
-                emptyStateContainerRoot.visibility = View.VISIBLE
+                emptyStateContainer.root.visibility = View.VISIBLE
             } else {
                 recyclerView.visibility = View.VISIBLE
-                emptyStateContainerRoot.visibility = View.GONE
+                emptyStateContainer.root.visibility = View.GONE
             }
         }
     }

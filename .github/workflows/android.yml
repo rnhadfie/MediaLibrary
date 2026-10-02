@@ -1,12 +1,21 @@
-name: Build Android APK
+name: Build Android Release APK
 
 on:
   push:
     branches:
-      - main  # Triggers the build when you push to main
+      - master
+      - dev
+      - main
+  pull_request:
+    branches:
+      - master
+      - dev
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +32,12 @@ jobs:
       - name: Grant Execute Permission for Gradle
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
 
-      - name: Upload APK Artifact
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          name: MediaLibrary-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          retention-days: 30

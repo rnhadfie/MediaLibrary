@@ -1,11 +1,11 @@
-package com.example.medialibrary.home.ui.all_list
+package com.example.medialibrary.home.ui.list
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import models.shared.DisplayMediaItem
 
-class AllItemsViewModelViewModel : ViewModel() {
+class HomeListViewModel : ViewModel() {
 
     private val _items = MutableLiveData<List<DisplayMediaItem>>()
     val items: LiveData<List<DisplayMediaItem>> = _items

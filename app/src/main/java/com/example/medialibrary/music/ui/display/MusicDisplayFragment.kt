@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
@@ -18,6 +19,7 @@ import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
@@ -62,8 +64,9 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
-            binding.musicStatsContainer,
-            binding.emptyStateContainer.root
+            binding.scrollViewMusicDisplay,
+            ContextCompat.getColor(requireContext(), R.color.section_music),
+            binding.emptyStateContainer
         )
 
         binding.buttonFilter?.setOnClickListener {
@@ -148,52 +151,14 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     private fun setArtistChart(items: List<Music>) {
        val artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues { it.value.size }
 
-
         val dualColumnViewOne = binding.artistCard?.dualCardColumnOne
         val dualColumnViewTwo = binding.artistCard?.dualCardColumnTwo
         val title = binding.artistCard?.cardTitle
         val emptyState = binding.artistCard?.emptyStateContainer
         title?.text = getString(R.string.number_of_cds_by_artist)
 
-        if(artistInformationMap.isEmpty())
-        {
-            dualColumnViewOne?.visibility = View.GONE
-            dualColumnViewTwo?.visibility = View.GONE
-            emptyState?.root?.visibility = View.VISIBLE
-            emptyState?.root?.text = getString(R.string.no_artist_data_to_display)
-        }
-        else {
+        DualColumnCardHelper.setupDualColumnCard(artistInformationMap,dualColumnViewOne!!, dualColumnViewTwo!!, emptyState!!,R.string.no_artist_data_to_display, requireContext() )
 
-            dualColumnViewOne?.visibility = View.VISIBLE
-            dualColumnViewTwo?.visibility = View.VISIBLE
-            emptyState?.root?.visibility = View.GONE
-
-            val publisherInformationSortedMap = artistInformationMap.toList()
-                .sortedByDescending { (_, value) -> value } // Sort list by the value
-                .toMap()
-
-            val halfSize = (publisherInformationSortedMap.size + 1) / 2
-            val chunks = publisherInformationSortedMap.entries.chunked(halfSize)
-
-            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
-            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
-
-            dualColumnViewOne?.removeAllViews()
-            dualColumnViewTwo?.removeAllViews()
-
-            for ((key, value) in firstHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewOne?.addView(textView)
-            }
-            for ((key, value) in secondHalf) {
-                val textView = TextView(context)
-                textView.text = getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                dualColumnViewTwo?.addView(textView)
-            }
-        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -210,33 +175,33 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             }
         }
 
-        val genrePieChart = binding.musicGenrePieChart
-
-        if (pieEntries.isEmpty()) {
-            genrePieChart.noDataText = "No Genre data to display"
-            genrePieChart.data = null
-            genrePieChart.noDataTextColor = Color.BLACK
-            genrePieChart.centerTextSize = 20f
-        } else {
-            val genrePieDataSet = PieDataSet(pieEntries, "Genre")
-            genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-            val genrePieData = PieData(genrePieDataSet)
-            genrePieChart.data = genrePieData
-            genrePieChart.holeColor = Color.TRANSPARENT
-            genrePieChart.description.isEnabled = false
-            genrePieChart.transparentCircleColor = Color.TRANSPARENT
-            genrePieChart.setBackgroundColor(Color.TRANSPARENT)
-            genrePieChart.centerText = "Music Genre"
-            genrePieChart.legend.isEnabled = false
-            genrePieChart.noDataTextColor = Color.BLACK
-            genrePieChart.animateXY(1000, 1000)
-            genrePieChart.renderer = SafePieChartRenderer(
-                genrePieChart,
-                genrePieChart.animator,
-                genrePieChart.viewPortHandler
-            )
+        binding.musicGenrePieChart.let{ chart ->
+            if (pieEntries.isEmpty()) {
+                chart.noDataText = "No Genre data to display"
+                chart.data = null
+                chart.noDataTextColor = Color.BLACK
+                chart.centerTextSize = 20f
+            } else {
+                val genrePieDataSet = PieDataSet(pieEntries, "Genre")
+                genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+                val genrePieData = PieData(genrePieDataSet)
+                chart.data = genrePieData
+                chart.holeColor = Color.TRANSPARENT
+                chart.description.isEnabled = false
+                chart.transparentCircleColor = Color.TRANSPARENT
+                chart.setBackgroundColor(Color.TRANSPARENT)
+                chart.centerText = "Music Genre"
+                chart.legend.isEnabled = false
+                chart.noDataTextColor = Color.BLACK
+                chart.animateXY(1000, 1000)
+                chart.renderer = SafePieChartRenderer(
+                    chart,
+                    chart.animator,
+                    chart.viewPortHandler
+                )
+            }
+            chart.invalidate()
         }
-        genrePieChart.invalidate()
 
         setArtistChart(items)
     }
