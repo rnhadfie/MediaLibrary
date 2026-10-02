@@ -34,7 +34,7 @@ public abstract class BaseRepository {
         if (newTag != null && !newTag.isEmpty()) {
             ContentValues tagValues = new ContentValues();
             tagValues.put(COLUMN_ID, primKey);
-            tagValues.put(COLUMN_NAME, newTag);
+            tagValues.put(COLUMN_NAME, newTag.trim());
             db.insert(TABLE_TAGS, null, tagValues);
             tagId = primKey;
         }

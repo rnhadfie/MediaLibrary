@@ -60,7 +60,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             binding.editMusicArtist.setText(music.Artist)
             binding.musicCollecting.isChecked = music.Collecting ?: false
 
-            val currentPriority = music.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+            val currentPriority = music.CollectingPriority ?: SharedEnums.CollectingPriority.None
             binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
             // Update RadioGroup

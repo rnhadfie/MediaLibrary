@@ -177,7 +177,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         ongoingCheck?.isChecked = book.Ongoing ?: false
         collectedCheck?.isChecked = book.HasCollectedAllItems ?: false
 
-        val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+        val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.None
         priorityAutocomplete?.autocomplete?.setText(currentPriority.name, false)
 
         // Update RadioGroup

@@ -53,8 +53,8 @@ public class DatabaseMappings {
         ContentValues itemValues = new ContentValues();
         itemValues.put(COLUMN_ID, UUID.randomUUID().toString());
         itemValues.put(COLUMN_SERIES, bookId);
-        itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber);
-        itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle);
+        itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber.trim());
+        itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle.trim());
         itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
@@ -66,15 +66,15 @@ public class DatabaseMappings {
 
         ContentValues bookValues = new ContentValues();
         bookValues.put(COLUMN_ID, book.Id);
-        bookValues.put(COLUMN_TITLE, book.Title);
+        bookValues.put(COLUMN_TITLE, book.Title.trim());
         bookValues.put(COLUMN_COLLECTING, (book.Collecting != null && book.Collecting) ? 1 : 0);
         bookValues.put(COLUMN_ONGOING, (book.Ongoing != null && book.Ongoing) ? 1 : 0);
         bookValues.put(COLUMN_COLLECTED, (book.HasCollectedAllItems != null && book.HasCollectedAllItems) ? 1 : 0);
         bookValues.put(COLUMN_TAG, tagId);
         bookValues.put(COLUMN_COVER, compressBitmap(book.Cover));
         bookValues.put(COLUMN_GENRE, serializeGenre(book.Genre));
-        bookValues.put(COLUMN_AUTHOR, book.Author);
-        bookValues.put(COLUMN_ARTIST, book.Artist);
+        bookValues.put(COLUMN_AUTHOR, book.Author.trim());
+        bookValues.put(COLUMN_ARTIST, book.Artist.trim());
         bookValues.put(COLUMN_TYPE, book.Type != null ? book.Type.ordinal() : 0);
         bookValues.put(COLUMN_PUBLISHER, publisherId);
         bookValues.put(COLUMN_COLLECTING_PRIORITY, book.CollectingPriority != null ? book.CollectingPriority.ordinal() : 0);
@@ -147,7 +147,7 @@ public class DatabaseMappings {
     public static ContentValues MapVideoContentValues(String tagId, Video video) {
         ContentValues videoValues = new ContentValues();
         videoValues.put(COLUMN_ID, video.Id);
-        videoValues.put(COLUMN_TITLE, video.Title);
+        videoValues.put(COLUMN_TITLE, video.Title.trim());
         videoValues.put(COLUMN_COLLECTING, (video.Collecting != null && video.Collecting) ? 1 : 0);
         videoValues.put(COLUMN_ONGOING, (video.Ongoing != null && video.Ongoing) ? 1 : 0);
         videoValues.put(COLUMN_COLLECTED, (video.HasCollectedAllItems != null && video.HasCollectedAllItems) ? 1 : 0);
@@ -165,7 +165,7 @@ public class DatabaseMappings {
         itemValues.put(COLUMN_ID, UUID.randomUUID().toString());
         itemValues.put(COLUMN_SERIES, videoId);
         itemValues.put(COLUMN_DISC_NUMBER, item.Season);
-        itemValues.put(COLUMN_DISC_TITLE, item.DiscTitle);
+        itemValues.put(COLUMN_DISC_TITLE, item.DiscTitle.trim());
         itemValues.put(COLUMN_WATCHED, item.Watched ? 1 : 0);
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
@@ -190,14 +190,14 @@ public class DatabaseMappings {
     public static ContentValues MapMusicContentValues(String tagId, Music music) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, music.Id);
-        values.put(COLUMN_TITLE, music.Title);
+        values.put(COLUMN_TITLE, music.Title.trim());
         values.put(COLUMN_COLLECTING, (music.Collecting != null && music.Collecting) ? 1 : 0);
         values.put(COLUMN_ONGOING, (music.Ongoing != null && music.Ongoing) ? 1 : 0);
         values.put(COLUMN_COLLECTED, (music.HasCollectedAllItems != null && music.HasCollectedAllItems) ? 1 : 0);
         values.put(COLUMN_TAG, tagId);
         values.put(COLUMN_COVER, music.Cover);
         values.put(COLUMN_GENRE, serializeMusicGenre(music.MusicGenre));
-        values.put(COLUMN_ARTIST, music.Artist);
+        values.put(COLUMN_ARTIST, music.Artist.trim());
         values.put(COLUMN_YEAR, music.Year);
         values.put(COLUMN_COVER, compressBitmap(music.Cover));
         values.put(COLUMN_COLLECTING_PRIORITY, music.CollectingPriority != null ? music.CollectingPriority.ordinal() : 0);
@@ -220,7 +220,7 @@ public class DatabaseMappings {
         ContentValues itemValues = new ContentValues();
         itemValues.put(COLUMN_ID, UUID.randomUUID().toString());
         itemValues.put(COLUMN_SERIES, seriesId);
-        itemValues.put(COLUMN_VOLUME_TITLE, item.Title);
+        itemValues.put(COLUMN_VOLUME_TITLE, item.Title.trim());
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
         return itemValues;
@@ -229,7 +229,7 @@ public class DatabaseMappings {
     public static ContentValues MapOtherContentValues(String tagId, Other other) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, other.Id);
-        values.put(COLUMN_TITLE, other.Title);
+        values.put(COLUMN_TITLE, other.Title.trim());
         values.put(COLUMN_COLLECTING, (other.Collecting != null && other.Collecting) ? 1 : 0);
         values.put(COLUMN_ONGOING, (other.Ongoing != null && other.Ongoing) ? 1 : 0);
         values.put(COLUMN_COLLECTED, (other.HasCollectedAllItems != null && other.HasCollectedAllItems) ? 1 : 0);

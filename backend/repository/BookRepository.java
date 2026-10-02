@@ -130,7 +130,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 String primKey = UUID.randomUUID().toString();
                 ContentValues pubValues = new ContentValues();
                 pubValues.put(COLUMN_ID, primKey);
-                pubValues.put(COLUMN_NAME, bookObj.NewPublisher);
+                pubValues.put(COLUMN_NAME, bookObj.NewPublisher.trim());
                 db.insert(TABLE_PUBLISHERS, null, pubValues);
                 publisherId = primKey;
             }
@@ -173,7 +173,7 @@ public class BookRepository extends BaseRepository implements IBookRepository {
                 publisherId = UUID.randomUUID().toString();
                 ContentValues pubValues = new ContentValues();
                 pubValues.put(COLUMN_ID, publisherId);
-                pubValues.put(COLUMN_NAME, bookObj.NewPublisher);
+                pubValues.put(COLUMN_NAME, bookObj.NewPublisher.trim());
                 db.insert(TABLE_PUBLISHERS, null, pubValues);
             }
 

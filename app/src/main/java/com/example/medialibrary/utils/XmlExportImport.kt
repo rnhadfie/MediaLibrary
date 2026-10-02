@@ -281,16 +281,16 @@ object XmlExportImport {
                         "CollectingPriority" -> {
                             val text = parser.nextText()
                             currentBook?.let { b ->
-                                b.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                                b.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
                             }
                             currentVideo?.let { v ->
-                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
                             }
                             currentOther?.let { v ->
-                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
                             }
                             currentMusic?.let { v ->
-                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.NoPriority
+                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
                             }
                         }
                         "PublisherId" -> currentBook?.Publisher = parser.nextText() ?: ""

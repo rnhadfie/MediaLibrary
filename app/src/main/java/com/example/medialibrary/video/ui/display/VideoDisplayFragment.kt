@@ -119,6 +119,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     //region setup
 
+
     private fun setupBindings()
     {
         setupEmptyStateMediaItemObserver(
@@ -126,6 +127,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             binding.scrollView,
             ContextCompat.getColor(requireContext(), R.color.section_video),
             binding.emptyStateContainer,
+            binding.emptyStateLayout,
             R.string.no_videos_found
         )
 
@@ -156,6 +158,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
     }
+
+
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
 
@@ -235,7 +239,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 }
             }
 
-            val foramtPieDataSet = PieDataSet(formatPieEntries, "Format")
+            val formatPieDataSet = PieDataSet(formatPieEntries, "Format")
 
             if (dvdCount > 0) formatPieEntries.add(PieEntry(dvdCount.toFloat(), "DVD"))
             if (digitalCount > 0) formatPieEntries.add(PieEntry(digitalCount.toFloat(), "Digital"))
@@ -248,16 +252,25 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                         chart.noDataTextColor = Color.BLACK
                         chart.noDataText = "No format data to display"
                     } else {
-                        foramtPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-                        val formatPieData = PieData(foramtPieDataSet)
+                        formatPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+                        val formatPieData = PieData(formatPieDataSet)
                         chart.data = formatPieData
                         chart.holeColor = Color.TRANSPARENT
                         chart.transparentCircleColor = Color.TRANSPARENT
                         chart.setBackgroundColor(Color.TRANSPARENT)
                         chart.centerText = "Format"
-                        chart.legend.isEnabled = false
                         chart.isUsePercentValuesEnabled = true
                         chart.description.isEnabled = false
+                        chart.isDrawEntryLabelsEnabled = false
+
+                        chart.legend.let { legend ->
+                            legend.isEnabled = true
+                            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                            legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                            legend.isDrawInsideEnabled = false
+                            legend.form = Legend.LegendForm.SQUARE
+                        }
                         chart.animateXY(1000, 1000)
                         chart.renderer = SafePieChartRenderer(
                             chart,

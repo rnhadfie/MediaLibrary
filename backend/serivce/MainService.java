@@ -46,7 +46,7 @@ public class MainService {
 
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = _sharedService.BuildWhereClause(filter, selectionArgs);
-        boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.None;
+        boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.NoneSelected;
 
         if(allMedia || filter.MediaType == Enums.MediaType.Book) {
             allItems.addAll(_sharedService.mapToDisplayItems(bookRepository.getValue().GetBooks(whereClause, selectionArgs), true));
@@ -70,7 +70,7 @@ public class MainService {
 
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = _sharedService.BuildWhereClause(filter, selectionArgs);
-        boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.None;
+        boolean allMedia = filter.MediaType == null || filter.MediaType == Enums.MediaType.NoneSelected;
 
         if(allMedia || filter.MediaType == Enums.MediaType.Book) {
             allItems.addAll(_sharedService.mapToMediaItems(bookRepository.getValue().GetBooks(whereClause, selectionArgs)));
