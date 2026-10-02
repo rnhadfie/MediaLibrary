@@ -11,8 +11,7 @@
 ## 📥 Download Release APK
 
 Get the latest stable build ready to install on your Android device:
-
-- 🚀 **[Download Latest Release APK]([https://github.com/Rhian/MediaLibrary/actions](https://github.com/rnhadfie/MediaLibrary/actions/runs/37057434128/artifacts/11249066303))**
+- 🚀 **[Download Latest Release APK](https://github.com/rnhadfie/MediaLibrary/actions/runs/37057434128/artifacts/11249066303)** *(Select the latest GitHub Actions workflow run and download the `MediaLibrary-release-apk` artifact)*
 - 📦 **Direct APK File**: `app-release.apk` compiled for sideloading.
 
 > [!TIP]
