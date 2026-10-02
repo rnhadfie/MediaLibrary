@@ -12,8 +12,8 @@
 
 Get the latest stable build ready to install on your Android device:
 
-- 🚀 **[Download Latest Release APK](https://github.com/Rhian/MediaLibrary/actions)** *(Select the latest GitHub Actions workflow run and download the `MediaLibrary-release-apk` artifact)*
-- 📦 **Direct APK File**: `app-release.apk` compiled and signed for instant sideloading.
+- 🚀 **[Download Latest Release APK]([https://github.com/Rhian/MediaLibrary/actions](https://github.com/rnhadfie/MediaLibrary/actions/runs/37057434128/artifacts/11249066303))**
+- 📦 **Direct APK File**: `app-release.apk` compiled for sideloading.
 
 > [!TIP]
 > To install on Android: Enable *"Install from Unknown Sources"* in your Android Settings when prompted by your browser or file manager.
@@ -56,11 +56,12 @@ Get the latest stable build ready to install on your Android device:
 
 | Main Dashboard | Book Library | Movie & TV Library |
 | :---: | :---: | :---: |
-| ![Main Dashboard Placeholder](docs/images/dashboard.png) | ![Book Library Placeholder](docs/images/books_list.png) | ![Video Library Placeholder](docs/images/video_list.png) |
+| <img width="391" height="837" alt="Screenshot 2026-10-02 132212" src="https://github.com/user-attachments/assets/da1c23d6-0c66-4ed4-9c62-beef5b38e3f6" /> | <img width="311" height="659" alt="image" src="https://github.com/user-attachments/assets/ddbc15e1-e805-4292-8f73-fb01c25e7336" /> | <img width="281" height="628" alt="image" src="https://github.com/user-attachments/assets/5697c48a-ffd0-4183-9dc1-ac63cc485b0a" />
+ |
 
 | Collection Statistics | Form Entry & Volume Management | Filtering & Sorting |
 | :---: | :---: | :---: |
-| ![Statistics Placeholder](docs/images/stats_display.png) | ![Form Entry Placeholder](docs/images/book_form.png) | ![Filter Sheet Placeholder](docs/images/filter_sheet.png) |
+| <img width="398" height="852" alt="Screenshot 2026-10-02 133001" src="https://github.com/user-attachments/assets/948d8178-ec81-4763-9033-a4d4cf9f0260" /> | <img width="402" height="780" alt="Screenshot 2026-10-02 133024" src="https://github.com/user-attachments/assets/ed114bc9-aa12-48e9-a91b-a8d32bf8a25b" /> | <img width="280" height="600" alt="image" src="https://github.com/user-attachments/assets/4e2de5e1-591d-4ba7-ab94-16986aca14c7" /> |
 
 ---
 
