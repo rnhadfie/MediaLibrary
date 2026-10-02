@@ -139,7 +139,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
             }
 
-            val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+            val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.None
             binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
             if (book.Cover != null && book.Cover.isNotEmpty()) {

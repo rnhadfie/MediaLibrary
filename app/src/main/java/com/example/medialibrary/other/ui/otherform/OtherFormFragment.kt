@@ -126,7 +126,7 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             binding.otherCollecting.isChecked = other.Collecting ?: false
             binding.otherCompletedCollecting.isChecked = other.HasCollectedAllItems ?: false
 
-            val currentPriority = other.CollectingPriority ?: SharedEnums.CollectingPriority.NoPriority
+            val currentPriority = other.CollectingPriority ?: SharedEnums.CollectingPriority.None
             binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
             if (other.Cover != null && other.Cover.isNotEmpty()) {

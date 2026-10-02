@@ -241,14 +241,22 @@
         </LinearLayout>
     </ScrollView>
 
-    <include
-        android:id="@+id/empty_state_container"
-        layout="@layout/view_empty_state"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:id="@+id/empty_state_layout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/top_controls_container" />
+
+        app:layout_constraintTop_toBottomOf="@id/top_controls_container">
+        <include
+            android:id="@+id/empty_state_container"
+            layout="@layout/view_empty_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

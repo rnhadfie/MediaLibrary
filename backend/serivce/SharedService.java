@@ -117,7 +117,7 @@ public class SharedService {
             displayItem.MediaTypeText = "Type: Other Collection";
             displayItem.ItemCount = tempOther.Items != null ? tempOther.Items.size() : 0;
         } else {
-            displayItem.MediaType = Enums.MediaType.None;
+            displayItem.MediaType = Enums.MediaType.NoneSelected;
         }
         if(!showType) {
             displayItem.MediaTypeText = alternativeStatus;

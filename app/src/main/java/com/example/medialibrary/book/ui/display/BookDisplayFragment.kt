@@ -160,6 +160,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             binding.scrollView,
             ContextCompat.getColor(requireContext(), R.color.section_book),
             emptyStateContainer!!,
+            binding.emptyStateLayout,
             R.string.no_books_found
         )
 
@@ -352,7 +353,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val emptyState = binding.displayGenreCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_books_per_genre)
 
-        DualColumnCardHelper.setupDualColumnCard(genreInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_publisher_data_to_display, requireContext());
+        DualColumnCardHelper.setupDualColumnCard(genreInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_publisher_data_to_display, requireContext())
 
     }
 
@@ -377,7 +378,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val emptyState = binding.displayPublisherCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_books_per_publisher)
 
-        DualColumnCardHelper.setupDualColumnCard(publisherInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_genre_data_to_display,  requireContext());
+        DualColumnCardHelper.setupDualColumnCard(publisherInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_genre_data_to_display,  requireContext())
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {
@@ -424,7 +425,16 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.setBackgroundColor(Color.TRANSPARENT)
                 chart.isUsePercentValuesEnabled = true
                 chart.centerText = "Format %"
-                chart.legend.isEnabled = false
+                chart.isDrawEntryLabelsEnabled = false
+
+                chart.legend.let { legend ->
+                    legend.isEnabled = true
+                    legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                    legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                    legend.isDrawInsideEnabled = false
+                    legend.form = Legend.LegendForm.SQUARE
+                }
 
                 chart.animateXY(1000, 1000)
                 chart.renderer = SafePieChartRenderer(

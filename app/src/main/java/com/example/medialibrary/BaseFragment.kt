@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
@@ -129,8 +130,10 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         recyclerView: View,
         color: Int,
         emptyStateContainer: ViewEmptyStateBinding,
+        emptyStateLayout: LinearLayout?,
         emptyTextResId: Int = R.string.no_items_found
     ) {
+
         if (color != -1) {
             emptyStateContainer.emptyStateText.setTextColor(color)
             emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
@@ -138,13 +141,32 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         if (emptyTextResId != -1) {
             emptyStateContainer.emptyStateText.setText(emptyTextResId)
         }
-        items.observe(viewLifecycleOwner) { itemList ->
-            if (itemList.isNullOrEmpty()) {
-                recyclerView.visibility = View.GONE
-                emptyStateContainer.root.visibility = View.VISIBLE
-            } else {
-                recyclerView.visibility = View.VISIBLE
-                emptyStateContainer.root.visibility = View.GONE
+        if(emptyStateLayout == null) {
+
+            items.observe(viewLifecycleOwner) { itemList ->
+                if (itemList.isNullOrEmpty()) {
+                    recyclerView.visibility = View.GONE
+                    emptyStateContainer.root.visibility = View.VISIBLE
+                    emptyStateContainer.emptyStateIcon.visibility = View.VISIBLE
+                    emptyStateContainer.emptyStateText.visibility = View.VISIBLE
+                } else {
+                    recyclerView.visibility = View.VISIBLE
+                    emptyStateContainer.root.visibility = View.GONE
+                    emptyStateContainer.emptyStateIcon.visibility = View.GONE
+                    emptyStateContainer.emptyStateText.visibility = View.GONE
+                }
+            }
+        }
+        else {
+            items.observe(viewLifecycleOwner) { itemList ->
+                if (itemList.isNullOrEmpty()) {
+                    recyclerView.visibility = View.GONE
+                    emptyStateLayout.visibility = View.VISIBLE
+                }
+                else {
+                    recyclerView.visibility = View.VISIBLE
+                    emptyStateLayout.visibility = View.GONE
+                }
             }
         }
     }
