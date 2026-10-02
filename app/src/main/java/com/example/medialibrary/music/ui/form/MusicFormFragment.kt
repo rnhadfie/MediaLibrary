@@ -18,6 +18,7 @@ import com.example.medialibrary.utils.SharedRefreshViewModel
 import controllers.MusicController
 import models.music.Enums.MusicGenre
 import models.music.MusicSetup
+import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
 import models.shared.Enums as SharedEnums
 
@@ -165,6 +166,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
     private fun setupTagSelection(setup: MusicSetup) {
         val tags = setup.Tags
+        tags.add(0, Tag("", ""))
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.tagAutocomplete.autocomplete.setAdapter(adapter)
         binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)

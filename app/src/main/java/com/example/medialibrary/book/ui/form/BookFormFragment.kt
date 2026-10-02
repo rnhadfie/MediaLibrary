@@ -32,8 +32,10 @@ import models.book.Book
 import models.book.BookItem
 import models.book.BookSetup
 import models.book.Enums
+import models.book.Publisher
 import models.music.Enums.MusicGenre
 import models.shared.GenreObject
+import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
 import models.shared.Enums as SharedEnums
 
@@ -288,6 +290,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
     private fun setupTagSelection(setup: BookSetup) {
         val tags = setup.Tag
+        tags.add(0, Tag("", ""))
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         val tagBinding = binding.tagAutocomplete.autocomplete
 
@@ -315,6 +318,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
     private fun setupPublisherSelection(setup: BookSetup) {
         val publishers = setup.Publishers
+        publishers.add(0, Publisher("", ""))
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, publishers)
         val publisherBinding = binding.pubAutocomplete.autocomplete
         publisherBinding.setAdapter(adapter)

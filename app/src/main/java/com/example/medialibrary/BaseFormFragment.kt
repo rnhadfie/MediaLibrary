@@ -134,7 +134,7 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
-            priorities.map { it.name }
+            priorities.map { if(it == SharedEnums.CollectingPriority.NoPriority)  "" else it.name }
         )
         dropdownBinding.autoCompleteLabel.setHint(R.string.collecting_priority)
         dropdownBinding.autocomplete.setAdapter(adapter)
