@@ -103,7 +103,8 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
             currentFilter,
-            setup
+            setup,
+            FragmentType.List
         ) {
             currentFilter = OtherFilter()
             binding.searchView.setQuery("", false)

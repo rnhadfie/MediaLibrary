@@ -223,7 +223,8 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
         FilterSummaryHelper.bindFilterSummary(
             root?.findViewById(R.id.active_filter_card),
             effectiveFilter,
-            setup
+            setup,
+            FragmentType.Collecting
         ) {
             val emptyFilter = BookFilter().apply { Collecting = true }
             currentFilter = emptyFilter

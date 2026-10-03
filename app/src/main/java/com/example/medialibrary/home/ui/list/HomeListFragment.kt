@@ -140,7 +140,8 @@ class HomeListFragment : BaseFragment<MainFragmentListBinding, HomeListViewModel
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
             currentFilter,
-            setup
+            setup,
+            FragmentType.List
         ) {
             val emptyFilter = Filter()
             currentFilter = emptyFilter

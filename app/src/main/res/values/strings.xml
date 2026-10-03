@@ -145,4 +145,5 @@
     <string name="desc">DESC</string>
     <string name="number_of_cds_by_artist">Number of CDs by Artist</string>
     <string name="no_artist_data_to_display">No artist data to display</string>
+    <string name="genres">Genres</string>
 </resources>

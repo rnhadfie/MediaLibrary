@@ -30,6 +30,7 @@ import kotlinx.coroutines.launch
 import models.book.*
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
+import models.shared.Enums.MediaType
 import repository.database.MediaLibraryDbHelper
 
 class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplayViewModel>(
@@ -113,7 +114,8 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.active_filter_card),
             currentFilter,
-            setup
+            setup,
+            FragmentType.Display
         ) {
             val emptyFilter = BookFilter()
             currentFilter = emptyFilter
@@ -347,13 +349,15 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         }
 
 
-        val dualColumnViewOne = binding.displayGenreCard.dualCardColumnOne
-        val dualColumnViewTwo = binding.displayGenreCard.dualCardColumnTwo
         val title = binding.displayGenreCard.cardTitle
-        val emptyState = binding.displayGenreCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_books_per_genre)
 
-        DualColumnCardHelper.setupDualColumnCard(genreInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_publisher_data_to_display, requireContext())
+        DualColumnCardHelper.setupDualColumnCard(
+            genreInformationMap,
+            binding.displayGenreCard,
+            R.string.no_publisher_data_to_display,
+            MediaType.Book,
+            requireContext())
 
     }
 
@@ -372,13 +376,15 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             }
         }
 
-        val dualColumnViewOne = binding.displayPublisherCard.dualCardColumnOne
-        val dualColumnViewTwo = binding.displayPublisherCard.dualCardColumnTwo
         val title = binding.displayPublisherCard.cardTitle
-        val emptyState = binding.displayPublisherCard.emptyStateContainer
         title.text = getString(R.string.total_number_of_books_per_publisher)
 
-        DualColumnCardHelper.setupDualColumnCard(publisherInformationMap, dualColumnViewOne, dualColumnViewTwo,emptyState, R.string.no_genre_data_to_display,  requireContext())
+        DualColumnCardHelper.setupDualColumnCard(
+            publisherInformationMap,
+            binding.displayPublisherCard,
+            R.string.no_genre_data_to_display,
+            MediaType.Book,
+            requireContext())
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {

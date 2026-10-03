@@ -156,7 +156,8 @@ class HomeCollectingFragment : BaseFragment<MainFragmentCollectingBinding, HomeC
             FilterSummaryHelper.bindFilterSummary(
                 it,
                 effectiveFilter,
-                setup
+                setup,
+                FragmentType.Collecting
             ) {
                 currentFilter = Filter()
                 sortFilterViewModel.updateMainFilter(Filter())
