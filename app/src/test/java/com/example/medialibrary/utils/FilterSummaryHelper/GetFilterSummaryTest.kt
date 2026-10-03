@@ -43,7 +43,7 @@ class GetFilterSummaryTest {
 
         assertAll(
             { assertTrue(result.contains("Collected: Yes")) },
-            { assertTrue(result.contains("Completed: No")) },
+            { assertTrue(result.contains("Ongoing: No")) },
             { assertTrue(result.contains("Started: Yes")) }
         )
     }

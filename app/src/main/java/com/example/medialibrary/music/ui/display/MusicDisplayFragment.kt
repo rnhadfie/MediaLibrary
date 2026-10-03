@@ -1,10 +1,8 @@
 package com.example.medialibrary.music.ui.display
 
-import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
@@ -21,17 +20,16 @@ import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SafePieChartRenderer
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.utils.ColorTemplate
+import com.example.medialibrary.utils.TextCardHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import models.music.Enums.MusicGenre
 import models.music.Music
 import models.music.MusicFilter
 import models.music.MusicSetup
+import models.shared.Enums
 import repository.database.MediaLibraryDbHelper
 
 class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisplayViewModel>(
@@ -58,15 +56,16 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val dbHelper = MediaLibraryDbHelper(requireContext())
         bookController = MusicController(dbHelper)
 
+        observeSortFilterViewModel()
         loadData()
-
 
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
             binding.scrollViewMusicDisplay,
             ContextCompat.getColor(requireContext(), R.color.section_music),
             binding.emptyStateContainer,
-            binding.emptyStateLayout
+            binding.emptyStateLayout,
+            emptyTextResId = R.string.no_cds_found,
         )
 
         binding.buttonFilter?.setOnClickListener {
@@ -99,24 +98,37 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         return root
     }
 
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentMusicFilter.collectLatest { filter ->
+                currentFilter = filter ?: MusicFilter()
+                loadData()
+            }
+        }
+    }
+
     override fun onRefreshData() {
         loadData()
     }
 
     private fun loadData() {
-
-
         val items = bookController?.GetMusics(currentFilter) ?: emptyList()
         setup = bookController?.GetMusicSetup()
         viewModel.setMediaItems(items)
-        setup?.let { setupCharts(items, it) }
+
+        setArtistChart(items)
+        setGenreChart(items)
+
 
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
             currentFilter,
-            setup
+            setup,
+            FragmentType.Display
         ) {
-            currentFilter = MusicFilter()
+            val emptyFilter = MusicFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateMusicFilter(emptyFilter)
             loadData()
         }
     }
@@ -133,14 +145,15 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
             currentFilter = filter
+            sortFilterViewModel.updateMusicFilter(filter)
             loadData()
             dialog.dismiss()
         }
 
-
-
         sheetBinding.buttonSheetClearBook.setOnClickListener {
-            currentFilter = MusicFilter()
+            val emptyFilter = MusicFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateMusicFilter(emptyFilter)
             loadData()
             dialog.dismiss()
         }
@@ -149,60 +162,42 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     }
 
     private fun setArtistChart(items: List<Music>) {
-       val artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues { it.value.size }
+        var artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues { it.value.size }
 
-        val dualColumnViewOne = binding.artistCard?.dualCardColumnOne
-        val dualColumnViewTwo = binding.artistCard?.dualCardColumnTwo
-        val title = binding.artistCard?.cardTitle
-        val emptyState = binding.artistCard?.emptyStateContainer
-        title?.text = getString(R.string.number_of_cds_by_artist)
+        artistInformationMap = artistInformationMap.filter { it.key != "" }
+        val card = binding.artistCard
+        val title = binding.artistCard.cardTitle
+        val emptyState = binding.artistCard.emptyStateContainer
+        title.text = getString(R.string.genres)
 
-        DualColumnCardHelper.setupDualColumnCard(artistInformationMap,dualColumnViewOne!!, dualColumnViewTwo!!, emptyState!!,R.string.no_artist_data_to_display, requireContext() )
-
+        TextCardHelper.setupTextCard(artistInformationMap, card, emptyState, R.string.no_artist_data_to_display, Enums.MediaType.Music, requireContext())
     }
 
-    @SuppressLint("SetTextI18n")
-    private fun setupCharts(items: List<Music>, setup: MusicSetup) {
-        binding.musicTotalItemsCardText.text = "Total Number of CDs: " + items.count().toString()
+    private fun setGenreChart(items: List<Music>) {
+        val genreList = setup?.MusicGenre
+        val genreInformationMap = mutableMapOf<String, Int>()
 
-        val pieEntries = ArrayList<PieEntry<*>>()
-        val genreList = setup.MusicGenre
-
-        genreList.forEach { (key, value) ->
-            val total = items.filter { it.MusicGenre == MusicGenre.entries[key] }.size
-            if (total > 0 && MusicGenre.entries[key] != MusicGenre.NoneSelected) {
-                pieEntries.add(PieEntry(total.toFloat(), value))
+        genreList?.forEach {  genre ->
+            if(genre.key == MusicGenre.NoneSelected.ordinal) {
+                return@forEach
+            }
+            val items = items.filter { it.MusicGenre.ordinal == genre.key }
+            var totalBooksPerGenre = 0
+            if(!items.isEmpty()) {
+                totalBooksPerGenre = items.size
+                genreInformationMap[genre.value] = totalBooksPerGenre
             }
         }
 
-        binding.musicGenrePieChart.let{ chart ->
-            if (pieEntries.isEmpty()) {
-                chart.noDataText = "No Genre data to display"
-                chart.data = null
-                chart.noDataTextColor = Color.BLACK
-                chart.centerTextSize = 20f
-            } else {
-                val genrePieDataSet = PieDataSet(pieEntries, "Genre")
-                genrePieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-                val genrePieData = PieData(genrePieDataSet)
-                chart.data = genrePieData
-                chart.holeColor = Color.TRANSPARENT
-                chart.description.isEnabled = false
-                chart.transparentCircleColor = Color.TRANSPARENT
-                chart.setBackgroundColor(Color.TRANSPARENT)
-                chart.centerText = "Music Genre"
-                chart.legend.isEnabled = false
-                chart.noDataTextColor = Color.BLACK
-                chart.animateXY(1000, 1000)
-                chart.renderer = SafePieChartRenderer(
-                    chart,
-                    chart.animator,
-                    chart.viewPortHandler
-                )
-            }
-            chart.invalidate()
-        }
+        val title = binding.genreCard.cardTitle
+        title.text = getString(R.string.music_genre)
 
-        setArtistChart(items)
+        DualColumnCardHelper.setupDualColumnCard(
+            genreInformationMap,
+            binding.genreCard,
+            R.string.no_artist_data_to_display,
+            Enums.MediaType.Music,
+            requireContext())
     }
+
 }

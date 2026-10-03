@@ -11,16 +11,17 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
-import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.video.ui.utils.SharedUtils
+import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -32,7 +33,8 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.VideoController
-import models.music.MusicFilter
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import models.video.Enums
 import models.video.Video
 import models.video.VideoFilter
@@ -63,11 +65,21 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         val dbHelper = MediaLibraryDbHelper(requireContext())
         videoController = VideoController(dbHelper)
 
+        observeSortFilterViewModel()
         loadData()
 
         setupBindings()
 
         return root
+    }
+
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentVideoFilter.collectLatest { filter ->
+                currentFilter = filter ?: VideoFilter()
+                loadData()
+            }
+        }
     }
 
     override fun onRefreshData() {
@@ -79,14 +91,20 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         setup = videoController?.GetVideoSetup()
         viewModel.setMediaItems(items)
-        setup?.let { setupCharts(items, it) }
+        setup?.let {
+            setupBindings()
+            setupCharts(items, it)
+        }
 
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
             currentFilter,
-            setup
+            setup,
+            FragmentType.Display
         ) {
-            currentFilter = VideoFilter()
+            val emptyFilter = VideoFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateVideoFilter(emptyFilter)
             loadData()
         }
     }
@@ -104,12 +122,16 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
             filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
 
+            currentFilter = filter
+            sortFilterViewModel.updateVideoFilter(filter)
             loadData()
             dialog.dismiss()
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
-            currentFilter = VideoFilter()
+            val emptyFilter = VideoFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateVideoFilter(emptyFilter)
             loadData()
             dialog.dismiss()
         }
@@ -136,10 +158,10 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
 
         binding.sortBtn.setOnClickListener {
-            val filter = sortFilterViewModel.getOrCreateMusicFilter()
+            val filter = sortFilterViewModel.getOrCreateVideoFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             com.example.medialibrary.book.ui.utils.SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
-                sortFilterViewModel.updateMusicFilter(updatedFilter as MusicFilter)
+                sortFilterViewModel.updateVideoFilter(updatedFilter as VideoFilter)
                 loadData()
             }
         }
@@ -158,8 +180,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
     }
-
-
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
 
@@ -176,30 +196,33 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         setupWatchedPieChart(watchedCount, totalDvds)
         setupFormatPieChart(items)
+        setVideoTypeBarChart(items, setup, colors)
+        setCategoryBarChart(items, setup, colors)
         setupGenreBarChart(items, setup)
-        setupVideoTagBarChart(items, setup, colors)
-        setupVideoTypeBarChart(items, colors)
     }
 
     private fun setupWatchedPieChart(watchedCount: Int, totalDvds: Int) {
         val watchPercent = ((watchedCount.toDouble() / totalDvds.toDouble()) * 100).toInt()
 
-        val readPercentPieEntries = ArrayList<PieEntry<*>>()
-        readPercentPieEntries.add(PieEntry(watchPercent.toFloat()))
-        readPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
+        val watchPercentPieEntries = ArrayList<PieEntry<*>>()
+        watchPercentPieEntries.add(PieEntry(watchPercent.toFloat()))
+        watchPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
-        val readPercentPieDataSet = PieDataSet(readPercentPieEntries, "Read Percent")
-        readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-        val readPercentPieData = PieData(readPercentPieDataSet)
+        val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Read Percent")
+        watchPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+
+        val percentPieData = PieData(watchPercentPieDataSet)
 
         binding.watchedProgressChart.let { chart ->
-            if (readPercentPieEntries.isEmpty()) {
+            if (watchPercentPieEntries.isEmpty()) {
                 chart.noDataTextColor = Color.BLACK
                 chart.noDataText = "No data to display"
                 chart.data = null
+                chart.noDataTextColor = Color.BLACK
+                chart.centerTextSize = 20f
             } else {
                 chart.description.isEnabled = false
-                chart.data = readPercentPieData
+                chart.data = percentPieData
                 chart.centerText = "Watched Percent: $watchPercent%"
                 chart.legend.isEnabled = false
                 chart.holeColor = Color.TRANSPARENT
@@ -287,52 +310,57 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     private fun setupGenreBarChart(items: List<Video>, setup: VideoSetup) {
         val genreList = setup.Genre
         val genreInformationMap = mutableMapOf<String, Int>()
-
         genreList.forEach {  genre ->
-            val items = items.filter { it.Genre.contains(genre.genreId) }
             var totalBooksPerGenre = 0
             if(!items.isEmpty()) {
-                for (book in items) {
-                    totalBooksPerGenre += book.Items?.count() ?: 0
-                }
+                totalBooksPerGenre += items.count { it.Genre.contains(genre.genreId) }
                 genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
         }
 
-        val dualColumnViewOne = binding.genreCard.dualCardColumnOne
-        val dualColumnViewTwo = binding.genreCard.dualCardColumnTwo
-        val title = binding.genreCard.cardTitle
-        val emptyState = binding.genreCard.emptyStateContainer
-        title.text = getString(R.string.total_number_of_video_per_genre)
+        binding.genreCard.cardTitle.text = getString(R.string.total_number_of_books_per_genre)
 
         DualColumnCardHelper.setupDualColumnCard(
             genreInformationMap,
-            dualColumnViewOne,
-            dualColumnViewTwo,
-            emptyState,
+            binding.genreCard,
             R.string.no_genre_data_to_display,
-            requireContext() )
+            models.shared.Enums.MediaType.Video,
+            requireContext()
+        )
     }
 
-    private fun setupVideoTagBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
-        val videoTags = setup.VideoTags
-        val tagDataSets = ArrayList<IBarDataSet<*>>()
+    private fun setVideoTypeBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
+        val dataSets = ArrayList<IBarDataSet<*>>()
+        val typeCounts = setup.Types
 
-        videoTags.forEach { (index, tag) ->
-            if (Enums.VideoTag.entries[index] != Enums.VideoTag.None) {
-                val total = items.count { it.VideoTag?.ordinal == index }.toFloat()
-                val set = BarDataSet(listOf(BarEntry(index.toFloat(), total)), tag)
+        var index = 1
+        typeCounts.forEach { (key, value) ->
+            if (Enums.VideoType.entries[key] != Enums.VideoType.NoneSelected) {
+                val videoType = Enums.VideoType.entries[key]
+                val videos = items.filter { it.Type == videoType }
+                var count = 0
+                videos.forEach {
+                    if (it.Items != null) {
+                        count += it.Items.count()
+                    }
+                }
+                val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
                 set.color = colors[index % colors.size]
-                tagDataSets.add(set)
+                dataSets.add(set)
+                index++
             }
         }
 
-        binding.videoCategoryChart.let { chart ->
-            chart.noDataText = "No media types data to display"
-            if (tagDataSets.isEmpty()) {
+        val barData = BarData(dataSets)
+
+        binding.videoTypeChart.let { chart ->
+            chart.noDataText = "No data to display"
+
+            if (dataSets.isEmpty()) {
                 chart.data = null
+                chart.noDataTextColor = Color.BLACK
             } else {
-                chart.data = BarData(tagDataSets)
+                chart.data = barData
                 chart.description.isEnabled = false
                 chart.xAxis.isEnabled = false
 
@@ -342,6 +370,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL
                 legend.isDrawInsideEnabled = false
+                legend.form = Legend.LegendForm.SQUARE
 
                 chart.animateY(1000)
             }
@@ -349,28 +378,36 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
     }
 
-    private fun setupVideoTypeBarChart(items: List<Video>, colors: List<Int>) {
+    private fun setCategoryBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
         val dataSets = ArrayList<IBarDataSet<*>>()
+        val tagCounts = setup.VideoTags
 
-        val typeCounts = listOf(
-            Enums.VideoType.Movie to "Movies",
-            Enums.VideoType.TVShow to "TV Shows",
-            Enums.VideoType.Miniseries to "Mini Series",
-            Enums.VideoType.WebSeries to "Web Series"
-        )
-
-        typeCounts.forEachIndexed { index, (type, label) ->
-            val count = items.count { it.Type == type }.toFloat()
-            val set = BarDataSet(listOf(BarEntry(index.toFloat(), count)), label)
-            set.color = colors[index % colors.size]
-            dataSets.add(set)
+        var index = 1
+        tagCounts.forEach { (key, value) ->
+            if (Enums.VideoTag.entries[key] != Enums.VideoTag.None) {
+                val videoTag = Enums.VideoTag.entries[key]
+                val videos = items.filter { it.VideoTag == videoTag }
+                var count = 0
+                videos.forEach {
+                    if (it.Items != null) {
+                        count += it.Items.count()
+                    }
+                }
+                val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
+                set.color = colors[index % colors.size]
+                dataSets.add(set)
+                index++
+            }
         }
 
         val barData = BarData(dataSets)
-        binding.videoTypeChart.let { chart ->
-            chart.noDataText = "No Video type data to display"
+
+        binding.videoCategoryChart.let { chart ->
+            chart.noDataText = "No Tag data to display"
+
             if (dataSets.isEmpty()) {
                 chart.data = null
+                chart.noDataTextColor = Color.BLACK
             } else {
                 chart.data = barData
                 chart.description.isEnabled = false

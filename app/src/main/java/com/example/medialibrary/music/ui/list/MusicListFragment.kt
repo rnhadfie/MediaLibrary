@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
@@ -22,6 +23,8 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import models.music.MusicFilter
 import models.music.MusicSetup
 import repository.database.MediaLibraryDbHelper
@@ -54,6 +57,7 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         val dbHelper = MediaLibraryDbHelper(requireContext())
         musicController = MusicController(dbHelper)
 
+        observeSortFilterViewModel()
         loadData()
 
         setupEmptyStateObserver(
@@ -61,21 +65,22 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
             recyclerView,
             ContextCompat.getColor(requireContext(), R.color.section_music),
             binding.emptyStateContainer,
-
             adapter
         )
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (currentFilter == null) currentFilter = MusicFilter()
-                currentFilter?.Search = query
+                val filter = sortFilterViewModel.getOrCreateMusicFilter()
+                filter.Search = query
+                sortFilterViewModel.updateMusicFilter(filter)
                 loadData()
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (currentFilter == null) currentFilter = MusicFilter()
-                currentFilter?.Search = newText
+                val filter = sortFilterViewModel.getOrCreateMusicFilter()
+                filter.Search = newText
+                sortFilterViewModel.updateMusicFilter(filter)
                 loadData()
                 return true
             }
@@ -111,6 +116,15 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         return root
     }
 
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentMusicFilter.collectLatest { filter ->
+                currentFilter = filter ?: MusicFilter()
+                loadData()
+            }
+        }
+    }
+
     override fun onRefreshData() {
         loadData()
     }
@@ -126,9 +140,12 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
             currentFilter,
-            setup
+            setup,
+            FragmentType.List
         ) {
-            currentFilter = MusicFilter()
+            val emptyFilter = MusicFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateMusicFilter(emptyFilter)
             binding.searchView.setQuery("", false)
             loadData()
         }
@@ -136,23 +153,28 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
 
     private fun showFilterSheet(setup: MusicSetup, filter: MusicFilter?) {
         val dialog = BottomSheetDialog(requireContext())
-        val sheetBinding = MusicBottomSheetBinding.inflate(layoutInflater)
-        dialog.setContentView(sheetBinding.root)
+        val sb = MusicBottomSheetBinding.inflate(layoutInflater)
+        dialog.setContentView(sb.root)
 
-        val f = filter ?: MusicFilter()
-        SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+        val f = filter ?: sortFilterViewModel.getOrCreateMusicFilter()
+        SharedUtils.filterSheetSetup(f, setup, sb)
+        sb.collecting.root.visibility = View.VISIBLE
 
-        sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
-            filter?.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
-            filter?.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+        sb.buttonSheetFitlerMusic.setOnClickListener {
+            f.Collecting = sb.collecting.triStateButton.tag as Boolean?
+            f.Collected = sb.collected.triStateButton.tag as Boolean?
 
             currentFilter = f
+            sortFilterViewModel.updateMusicFilter(f)
             loadData()
             dialog.dismiss()
         }
 
-        sheetBinding.buttonSheetClearBook.setOnClickListener {
-            currentFilter = MusicFilter()
+        sb.buttonSheetClearBook.setOnClickListener {
+            val emptyFilter = MusicFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateMusicFilter(emptyFilter)
+            binding.searchView.setQuery("", false)
             loadData()
             dialog.dismiss()
         }

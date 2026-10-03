@@ -152,8 +152,6 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
                 binding.changeImage.buttonClearCover.visibility = View.GONE
             }
-
-
         }
 
         viewModel.items.observe(viewLifecycleOwner) { items ->
@@ -318,6 +316,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
     private fun setupTagSelection(setup: VideoSetup) {
         val tags = setup.Tag
+        tags.add(0, Tag("", ""))
         val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
         binding.tagAutocomplete.autocomplete.setAdapter(adapter)
         binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
@@ -563,7 +562,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                     .show()
             }
 
-            if(item.DiscTitle == null || item.DiscTitle.isEmpty())
+            if(item.Season != -1 && (item.DiscTitle == null || item.DiscTitle.isEmpty()))
             {
                 holder.binding.textVolumeInfo.text = item.Season.toString()
             }

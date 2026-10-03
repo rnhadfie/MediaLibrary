@@ -9,10 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -46,7 +44,6 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     //region Components
-    private var root: View? = null
     private var emptyStateContainer: ViewEmptyStateBinding? = null
     private var filterButton: ImageButton? = null
     private var sortButton: ImageButton? = null
@@ -202,7 +199,8 @@ class BookListFragment : BaseFragment<BookFragmentListBinding, BookListViewModel
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.active_filter_card),
             currentFilter,
-            setup
+            setup,
+            FragmentType.List
         ) {
             val emptyFilter = BookFilter()
             currentFilter = emptyFilter

@@ -5,17 +5,21 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.medialibrary.R
-import com.example.medialibrary.databinding.ViewDualColumnCardBinding
+import com.example.medialibrary.databinding.ViewEmptyStateBinding
+import com.example.medialibrary.databinding.ViewTextCardBinding
 import models.shared.Enums
 
-object DualColumnCardHelper {
-    fun setupDualColumnCard(
+object TextCardHelper {
+    fun setupTextCard(
         map: Map<String, Int>,
-        binding: ViewDualColumnCardBinding,
+        binding: ViewTextCardBinding,
+        emptyState: ViewEmptyStateBinding,
         emptyStateText: Int,
         MediaType: Enums.MediaType,
         context: Context)
     {
+        val layout = binding.textColumn
+
         when(MediaType)
         {
             Enums.MediaType.Book -> {
@@ -33,47 +37,29 @@ object DualColumnCardHelper {
             }
             else -> {}
         }
-        val col1 = binding.dualCardColumnOne
-        val col2 = binding.dualCardColumnTwo
-        val emptyState = binding.emptyStateContainer
 
         if(map.isEmpty())
         {
-            col1.visibility = View.GONE
-            col2.visibility = View.GONE
+            layout.visibility = View.GONE
             emptyState.root.visibility = View.VISIBLE
             emptyState.emptyStateText.setText(emptyStateText)
         }
         else {
 
-            col1.visibility = View.VISIBLE
-            col2.visibility = View.VISIBLE
+            layout.visibility = View.VISIBLE
             emptyState.root.visibility = View.GONE
 
             val sortedMap = map.toList()
                 .sortedByDescending { (_, value) -> value } // Sort list by the value
                 .toMap()
 
-            val halfSize = (sortedMap.size + 1) / 2
-            val chunks = sortedMap.entries.chunked(halfSize)
+            layout.removeAllViews()
 
-            val firstHalf = chunks.getOrNull(0)?.associate { it.key to it.value } ?: emptyMap()
-            val secondHalf = chunks.getOrNull(1)?.associate { it.key to it.value } ?: emptyMap()
-
-            col1.removeAllViews()
-            col2.removeAllViews()
-
-            for ((key, value) in firstHalf) {
+            for ((key, value) in sortedMap) {
                 val textView = TextView(context)
                 textView.text = context.getString(R.string.dual_card_text, key, value)
                 textView.setPadding(8, 8, 8, 8)
-                col1.addView(textView)
-            }
-            for ((key, value) in secondHalf) {
-                val textView = TextView(context)
-                textView.text = context.getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                col2.addView(textView)
+                layout.addView(textView)
             }
         }
     }

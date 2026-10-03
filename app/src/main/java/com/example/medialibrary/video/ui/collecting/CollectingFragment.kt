@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
@@ -24,6 +25,8 @@ import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.VideoController
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import models.video.VideoFilter
 import models.video.VideoSetup
 import repository.database.MediaLibraryDbHelper
@@ -56,6 +59,7 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         val dbHelper = MediaLibraryDbHelper(requireContext())
         videoController = VideoController(dbHelper)
 
+        observeSortFilterViewModel()
         loadData()
 
         setupEmptyStateObserver(
@@ -68,23 +72,21 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                if (currentFilter == null) currentFilter = VideoFilter()
-                currentFilter?.Search = query
+                val filter = sortFilterViewModel.getOrCreateVideoFilter()
+                filter.Search = query
+                sortFilterViewModel.updateVideoFilter(filter)
                 loadData()
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                if (currentFilter == null) currentFilter = VideoFilter()
-                currentFilter?.Search = newText
+                val filter = sortFilterViewModel.getOrCreateVideoFilter()
+                filter.Search = newText
+                sortFilterViewModel.updateVideoFilter(filter)
                 loadData()
                 return true
             }
         })
-
-        if (currentFilter == null) {
-            currentFilter = VideoFilter()
-        }
 
         binding.filterBtn.setOnClickListener {
             showFilterSheet(setup, currentFilter ?: VideoFilter())
@@ -129,6 +131,15 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         return root
     }
 
+    private fun observeSortFilterViewModel() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortFilterViewModel.currentVideoFilter.collectLatest { filter ->
+                currentFilter = filter ?: VideoFilter()
+                loadData()
+            }
+        }
+    }
+
     override fun onRefreshData() {
         loadData()
     }
@@ -137,8 +148,32 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         if (currentFilter == null) {
             currentFilter = sortFilterViewModel.getOrCreateVideoFilter()
         }
-        currentFilter?.Collecting = true
-        val items = videoController.GetListOfVideos(currentFilter)
+        val effectiveFilter = VideoFilter().apply {
+            Search = currentFilter?.Search
+            Tag = currentFilter?.Tag ?: 0
+            Genre = currentFilter?.Genre ?: 0
+            MediaType = currentFilter?.MediaType
+            Collecting = true
+            Ongoing = currentFilter?.Ongoing
+            AnyOwned = currentFilter?.AnyOwned
+            Collected = currentFilter?.Collected
+            Watched = currentFilter?.Watched
+            Watching = currentFilter?.Watching
+            Type = currentFilter?.Type
+            VideoTag = currentFilter?.VideoTag
+            IncludedVideoTags = currentFilter?.IncludedVideoTags ?: ArrayList()
+            ExcludedVideoTags = currentFilter?.ExcludedVideoTags ?: ArrayList()
+            IncludedTypes = currentFilter?.IncludedTypes ?: ArrayList()
+            ExcludedTypes = currentFilter?.ExcludedTypes ?: ArrayList()
+            IncludedTags = currentFilter?.IncludedTags ?: ArrayList()
+            ExcludedTags = currentFilter?.ExcludedTags ?: ArrayList()
+            IncludedGenres = currentFilter?.IncludedGenres ?: ArrayList()
+            ExcludedGenres = currentFilter?.ExcludedGenres ?: ArrayList()
+            SortAlphabetical = currentFilter?.SortAlphabetical
+            SortPriority = currentFilter?.SortPriority
+            SortItemMediaType = currentFilter?.SortItemMediaType
+        }
+        val items = videoController.GetListOfVideos(effectiveFilter)
         setup = videoController.GetVideoSetup()
         viewModel.setItems(items ?: emptyList())
     }
@@ -148,24 +183,28 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         var sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
-
+        val f = filter
+        sheetBinding = SharedUtils.filterSheetSetup(f, setup, sheetBinding)
         sheetBinding.collecting.root.visibility = View.GONE
 
-
         sheetBinding.filterBtn.setOnClickListener {
-            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
-            filter.Collecting = true
-            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
-            filter.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
-            filter.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
+            f.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
+            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+            f.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
+            f.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
+
+            currentFilter = f
+            sortFilterViewModel.updateVideoFilter(f)
             loadData()
             dialog.dismiss()
         }
 
         sheetBinding.clearActiveFilter.setOnClickListener {
-            currentFilter = VideoFilter()
+            val emptyFilter = VideoFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateVideoFilter(emptyFilter)
+            binding.searchView.setQuery("", false)
             loadData()
             dialog.dismiss()
         }

@@ -18,17 +18,28 @@ import models.video.Enums as VideoEnums
 
 object FilterSummaryHelper {
 
+    private var currentFragment: FragmentType? = null
+    private var prevFragment: FragmentType? = null
+
+
     fun bindFilterSummary(
         summaryCardRoot: View?,
         filter: Filter?,
         setup: Any?,
+        curFragment: FragmentType,
         onClear: () -> Unit
     ) {
         if (summaryCardRoot == null) return
 
+        prevFragment = currentFragment
+        currentFragment = curFragment
+
         val summaryTextView = summaryCardRoot.findViewById<TextView>(R.id.text_active_filter_summary)
         val clearButton = summaryCardRoot.findViewById<MaterialButton>(R.id.button_clear_active_filter)
-
+        if(prevFragment == FragmentType.Collecting)
+        {
+            filter?.Collecting = null
+        }
         val summary = getFilterSummaryText(filter, setup)
         if (summary.isNotEmpty()) {
             summaryCardRoot.visibility = View.VISIBLE
@@ -48,9 +59,9 @@ object FilterSummaryHelper {
             parts.add("Search: \"${filter.Search}\"")
         }
 
-
+        if (filter.Collecting != null && currentFragment != FragmentType.Collecting) parts.add("Collecting: "+ if (filter.Collecting) "Yes" else "No")
         if (filter.Collected != null) parts.add("Collected: "+ if (filter.Collected) "Yes" else "No")
-        if (filter.Ongoing  != null) parts.add("Completed: "+ if (filter.Ongoing) "Yes" else "No")
+        if (filter.Ongoing  != null) parts.add("Ongoing: "+ if (filter.Ongoing) "Yes" else "No")
         if (filter.AnyOwned  != null) parts.add("Started: "+ if (filter.AnyOwned) "Yes" else "No")
 
         when (filter) {

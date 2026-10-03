@@ -59,6 +59,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             binding.editMusicTitle.setText(music.Title)
             binding.editMusicArtist.setText(music.Artist)
             binding.musicCollecting.isChecked = music.Collecting ?: false
+            binding.musicHasEnded.isChecked = music.HasCollectedAllItems ?: false
 
             val currentPriority = music.CollectingPriority ?: SharedEnums.CollectingPriority.None
             binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)

@@ -130,7 +130,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         recyclerView: View,
         color: Int,
         emptyStateContainer: ViewEmptyStateBinding,
-        emptyStateLayout: LinearLayout?,
+        emptyStateLayout: LinearLayout? = null,
         emptyTextResId: Int = R.string.no_items_found
     ) {
 
