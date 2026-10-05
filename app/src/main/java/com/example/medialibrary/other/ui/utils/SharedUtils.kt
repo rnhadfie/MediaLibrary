@@ -32,11 +32,6 @@ class SharedUtils {
             filter.ExcludedTags
         )
 
-        TriStateCheckBoxHelper.setupTriStateCheckBox(
-            sheetBinding.standaloneOrSeriesComplete.root,
-            R.string.Ongoing,
-            filter.Ongoing
-        ) { filter.Ongoing = it }
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
                 sheetBinding.collected.root,

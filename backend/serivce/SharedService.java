@@ -90,7 +90,7 @@ public class SharedService {
             displayItem.MediaTypeText = "Type: Book";
             alternativeStatus = "Type: " + (tempBook.Type != null ? GetSeperatedString(tempBook.Type.name()) : "");
 
-            displayItem.ItemCount = tempBook.Items != null ? tempBook.Items.size() : 0;
+            displayItem.ItemCount = Math.toIntExact(tempBook.Items != null ? tempBook.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
             if(displayItem.ItemCount > 0)
             {
                 standalone = Objects.equals(tempBook.Items.get(0).VolumeNumber, "-1");
@@ -99,7 +99,7 @@ public class SharedService {
             var tempVideo = (Video) item;
             displayItem.MediaType = Enums.MediaType.Video;
             displayItem.MediaTypeText = "Type: Movie/TV Show";
-            displayItem.ItemCount = tempVideo.Items != null ? tempVideo.Items.size() : 0;
+            displayItem.ItemCount = Math.toIntExact(tempVideo.Items != null ? tempVideo.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
             alternativeStatus = "Category: " + (tempVideo.VideoTag != null ? GetSeperatedString(tempVideo.VideoTag.name()) : "");
             if(displayItem.ItemCount > 0)
             {
@@ -108,14 +108,14 @@ public class SharedService {
         } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
-            displayItem.ItemCount = 1;
+            displayItem.ItemCount = item.HasCollectedAllItems ? 1 : 0;
             alternativeStatus =  ((Music)item).Artist;
 
         } else if (item instanceof Other) {
             var tempOther = (Other) item;
             displayItem.MediaType = Enums.MediaType.Other;
             displayItem.MediaTypeText = "Type: Other Collection";
-            displayItem.ItemCount = tempOther.Items != null ? tempOther.Items.size() : 0;
+            displayItem.ItemCount = Math.toIntExact(tempOther.Items != null ? tempOther.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
         } else {
             displayItem.MediaType = Enums.MediaType.NoneSelected;
         }

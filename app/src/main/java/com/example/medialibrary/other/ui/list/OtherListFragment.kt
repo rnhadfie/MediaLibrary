@@ -18,6 +18,7 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
+import models.book.BookFilter
 import models.other.OtherFilter
 import models.shared.MainSetup
 import repository.database.MediaLibraryDbHelper
@@ -105,9 +106,10 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
             setup,
             FragmentType.List
         ) {
-            currentFilter = OtherFilter()
+            val emptyFilter = OtherFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateItemFilter(emptyFilter)
             binding.searchView.setQuery("", false)
-            loadData()
         }
     }
 
@@ -121,6 +123,9 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
             currentFilter = f
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            f.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
+            f.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
             loadData()
             dialog.dismiss()
         }

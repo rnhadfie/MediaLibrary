@@ -19,6 +19,7 @@ import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentCollectingBinding
+import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.video.ui.utils.SharedUtils
@@ -176,6 +177,18 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         val items = videoController.GetListOfVideos(effectiveFilter)
         setup = videoController.GetVideoSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup,
+            FragmentType.Display
+        ) {
+            val emptyFilter = VideoFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateVideoFilter(emptyFilter)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
