@@ -48,7 +48,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     private var currentFilter = VideoFilter()
     private var videoController: VideoController? = null
     private var setup: VideoSetup? = null
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -67,7 +66,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
         observeSortFilterViewModel()
         loadData()
-
         setupBindings()
 
         return root
@@ -117,10 +115,10 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
         sheetBinding.filterBtn.setOnClickListener {
-            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
-            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
-            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as? Boolean
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            filter.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
 
             currentFilter = filter
             sortFilterViewModel.updateVideoFilter(filter)
@@ -139,11 +137,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         dialog.show()
     }
 
-    //region setup
-
-
-    private fun setupBindings()
-    {
+    private fun setupBindings() {
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
             binding.scrollView,
@@ -180,6 +174,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
     }
+
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
 
@@ -187,8 +182,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         var totalDvds = 0
 
         for (book in items) {
-            watchedCount += book.Items?.count { it.Watched } ?: 0
-            totalDvds += book.Items?.count() ?: 0
+            watchedCount += book.Items?.count { it.Watched && it.Owned } ?: 0
+            totalDvds += book.Items?.count { it.Owned } ?: 0
         }
 
         binding.totalSeriesText.text = getString(R.string.total_number_of_series, items.count())
@@ -202,13 +197,13 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupWatchedPieChart(watchedCount: Int, totalDvds: Int) {
-        val watchPercent = ((watchedCount.toDouble() / totalDvds.toDouble()) * 100).toInt()
+        val watchPercent = if (totalDvds > 0) ((watchedCount.toDouble() / totalDvds.toDouble()) * 100).toInt() else 0
 
         val watchPercentPieEntries = ArrayList<PieEntry<*>>()
         watchPercentPieEntries.add(PieEntry(watchPercent.toFloat()))
         watchPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
-        val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Read Percent")
+        val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Watched Percent")
         watchPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
 
         val percentPieData = PieData(watchPercentPieDataSet)
@@ -262,57 +257,55 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 }
             }
 
-            val formatPieDataSet = PieDataSet(formatPieEntries, "Format")
+            val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
 
             if (dvdCount > 0) formatPieEntries.add(PieEntry(dvdCount.toFloat(), "DVD"))
             if (digitalCount > 0) formatPieEntries.add(PieEntry(digitalCount.toFloat(), "Digital"))
             if (bluRayCount > 0) formatPieEntries.add(PieEntry(bluRayCount.toFloat(), "Blu-Ray"))
 
-            binding.formatChart.let {
-                chart ->
-                    if (formatPieEntries.isEmpty()) {
-                        chart.data = null
-                        chart.noDataTextColor = Color.BLACK
-                        chart.noDataText = "No format data to display"
-                    } else {
-                        formatPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-                        val formatPieData = PieData(formatPieDataSet)
-                        chart.data = formatPieData
-                        chart.holeColor = Color.TRANSPARENT
-                        chart.transparentCircleColor = Color.TRANSPARENT
-                        chart.setBackgroundColor(Color.TRANSPARENT)
-                        chart.centerText = "Format"
-                        chart.isUsePercentValuesEnabled = true
-                        chart.description.isEnabled = false
-                        chart.isDrawEntryLabelsEnabled = false
+            binding.formatChart.let { chart ->
+                if (formatPieEntries.isEmpty()) {
+                    chart.data = null
+                    chart.noDataTextColor = Color.BLACK
+                    chart.noDataText = "No format data to display"
+                } else {
+                    formatPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+                    val formatPieData = PieData(formatPieDataSet)
+                    chart.data = formatPieData
+                    chart.holeColor = Color.TRANSPARENT
+                    chart.transparentCircleColor = Color.TRANSPARENT
+                    chart.setBackgroundColor(Color.TRANSPARENT)
+                    chart.centerText = "Format"
+                    chart.isUsePercentValuesEnabled = true
+                    chart.description.isEnabled = false
+                    chart.isDrawEntryLabelsEnabled = false
 
-                        chart.legend.let { legend ->
-                            legend.isEnabled = true
-                            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-                            legend.orientation = Legend.LegendOrientation.HORIZONTAL
-                            legend.isDrawInsideEnabled = false
-                            legend.form = Legend.LegendForm.SQUARE
-                        }
-                        chart.animateXY(1000, 1000)
-                        chart.renderer = SafePieChartRenderer(
-                            chart,
-                            chart.animator,
-                            chart.viewPortHandler
-                        )
+                    chart.legend.let { legend ->
+                        legend.isEnabled = true
+                        legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                        legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                        legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                        legend.isDrawInsideEnabled = false
+                        legend.form = Legend.LegendForm.SQUARE
+                    }
+                    chart.animateXY(1000, 1000)
+                    chart.renderer = SafePieChartRenderer(
+                        chart,
+                        chart.animator,
+                        chart.viewPortHandler
+                    )
                 }
                 chart.invalidate()
             }
-
         }
     }
 
     private fun setupGenreBarChart(items: List<Video>, setup: VideoSetup) {
         val genreList = setup.Genre
         val genreInformationMap = mutableMapOf<String, Int>()
-        genreList.forEach {  genre ->
+        genreList.forEach { genre ->
             var totalBooksPerGenre = 0
-            if(!items.isEmpty()) {
+            if (items.isNotEmpty()) {
                 totalBooksPerGenre += items.count { it.Genre.contains(genre.genreId) }
                 genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
@@ -426,6 +419,4 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             chart.invalidate()
         }
     }
-
-    //endregion
 }

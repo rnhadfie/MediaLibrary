@@ -128,8 +128,6 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
         f.Collecting = true
 
         sheetBinding.collecting.root.visibility = View.GONE
-
-
         SharedUtils.filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {

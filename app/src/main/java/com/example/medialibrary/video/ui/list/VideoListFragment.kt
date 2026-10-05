@@ -132,7 +132,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
     private fun loadData(reload: Boolean = false) {
         currentFilter = sortFilterViewModel.getOrCreateVideoFilter()
         val items = videoController.GetListOfVideos(currentFilter) ?: emptyList()
-        if(!reload || setup == null) {
+        if (!reload || setup == null) {
             setup = videoController.GetVideoSetup()
         }
 
@@ -157,20 +157,19 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         var sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter
-        sheetBinding = SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+        sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
         sheetBinding.collecting.root.visibility = View.VISIBLE
 
         sheetBinding.filterBtn.setOnClickListener {
-            f.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
-            f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
-            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
-            f.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
-            f.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
+            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as? Boolean
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            filter.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
+            filter.Watched = sheetBinding.watched.triStateButton.tag as? Boolean
+            filter.Watching = sheetBinding.watching.triStateButton.tag as? Boolean
 
-            currentFilter = f
-            sortFilterViewModel.updateVideoFilter(f)
+            currentFilter = filter
+            sortFilterViewModel.updateVideoFilter(filter)
             loadData(true)
             dialog.dismiss()
         }

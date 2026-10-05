@@ -29,7 +29,6 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
     private var currentFilter = OtherFilter()
     private var controller: OtherController = OtherController()
     private var setup: MainSetup = MainSetup()
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -118,7 +117,6 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: OtherFilter()
-
         SharedUtils.filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {

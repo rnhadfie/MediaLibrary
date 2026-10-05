@@ -10,15 +10,15 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
-import com.example.medialibrary.R
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
+import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentCollectingBinding
 import com.example.medialibrary.home.ui.utils.SharedUtils
-import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.ClipboardHelper
+import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.clipboardHelper
 import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
@@ -68,12 +68,10 @@ class HomeCollectingFragment : BaseFragment<MainFragmentCollectingBinding, HomeC
         )
         setupBindings()
 
-
         return root
     }
 
-    private fun setupBindings()
-    {
+    private fun setupBindings() {
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 val filter = sortFilterViewModel.getOrCreateMainFilter()
@@ -105,7 +103,7 @@ class HomeCollectingFragment : BaseFragment<MainFragmentCollectingBinding, HomeC
 
         binding.allItemList.setOnClickListener {
             val mediaItems = viewModel.items.value
-            val list = ClipboardHelper(mediaItems ?: emptyList(), "Media Collection List")
+            val list = clipboardHelper(mediaItems ?: emptyList(), "Media Collection List")
 
             val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("Media Collection List", list)
@@ -152,17 +150,15 @@ class HomeCollectingFragment : BaseFragment<MainFragmentCollectingBinding, HomeC
         val items = controller.GetAllItems(effectiveFilter)
         viewModel.setItems(items ?: emptyList())
 
-        binding.cardActiveFilter.root.let {
-            FilterSummaryHelper.bindFilterSummary(
-                it,
-                effectiveFilter,
-                setup,
-                FragmentType.Collecting
-            ) {
-                currentFilter = Filter()
-                sortFilterViewModel.updateMainFilter(Filter())
-                binding.searchView.setQuery("", false)
-            }
+        FilterSummaryHelper.bindFilterSummary(
+            binding.cardActiveFilter.root,
+            effectiveFilter,
+            setup,
+            FragmentType.Collecting
+        ) {
+            currentFilter = Filter()
+            sortFilterViewModel.updateMainFilter(Filter())
+            binding.searchView.setQuery("", false)
         }
     }
 

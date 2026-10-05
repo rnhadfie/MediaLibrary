@@ -15,12 +15,12 @@ object TextCardHelper {
         binding: ViewTextCardBinding,
         emptyState: ViewEmptyStateBinding,
         emptyStateText: Int,
-        MediaType: Enums.MediaType,
+        mediaType: Enums.MediaType,
         context: Context)
     {
         val layout = binding.textColumn
 
-        when(MediaType)
+        when(mediaType)
         {
             Enums.MediaType.Book -> {
                 binding.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.section_book_light))

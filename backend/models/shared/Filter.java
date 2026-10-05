@@ -25,4 +25,5 @@ public class Filter {
     public Boolean SortAlphabetical = true;
     public Boolean SortPriority = null;
     public Boolean SortItemMediaType = null;
+    public List<String> SortOrder = new ArrayList<>();
 }

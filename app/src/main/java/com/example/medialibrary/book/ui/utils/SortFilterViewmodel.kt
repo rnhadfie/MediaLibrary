@@ -30,6 +30,7 @@ class SortFilterViewmodel : ViewModel() {
         _filter.value?.SortAlphabetical = sort.Alphabetical
         _filter.value?.SortPriority = sort.Priority
         _filter.value?.SortItemMediaType = sort.ItemMediaType
+        _filter.value?.SortOrder = ArrayList(sort.SortOrder ?: emptyList())
     }
 
     fun getOrCreateBookFilter(): BookFilter {

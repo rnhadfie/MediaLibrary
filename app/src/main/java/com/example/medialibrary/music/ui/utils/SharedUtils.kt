@@ -1,14 +1,11 @@
 package com.example.medialibrary.music.ui.utils
 
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.View
-import androidx.appcompat.app.AlertDialog
 import com.example.medialibrary.R
-import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.utils.FilterOption
 import com.example.medialibrary.utils.MultiSelectFilterHelper
+import com.example.medialibrary.utils.SortDialogHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import models.music.MusicFilter
 import models.music.MusicSetup
@@ -16,6 +13,7 @@ import models.shared.Filter
 import models.shared.SortModel
 
 class SharedUtils {
+
     companion object {
 
         fun filterSheetSetup(
@@ -58,7 +56,7 @@ class SharedUtils {
 
             TriStateCheckBoxHelper.setupTriStateCheckBox(
                 sheetBinding.collecting.root,
-                R.string.collecting,
+                R.string.currently_collecting,
                 filter.Collecting
             ) { filter.Collecting = it }
 
@@ -72,49 +70,7 @@ class SharedUtils {
             sortModel: SortModel? = null,
             onSortApplied: (Filter) -> Unit
         ) {
-            val db = DialogSortContentBinding.inflate(LayoutInflater.from(context))
-
-            TriStateCheckBoxHelper.setupSortTriStateCheckBox(
-                db.Alphabetical.root,
-                R.string.alphabetical,
-                filter.SortAlphabetical
-            ) { filter.SortAlphabetical = it }
-
-            TriStateCheckBoxHelper.setupSortTriStateCheckBox(
-                db.Priority.root,
-                R.string.priority,
-                filter.SortPriority
-            ) { filter.SortPriority = it }
-
-            if (isMain) {
-                db.ItemMediaType.root.visibility = View.VISIBLE
-                TriStateCheckBoxHelper.setupSortTriStateCheckBox(
-                    db.ItemMediaType.root,
-                    R.string.itemMediaType,
-                    filter.SortItemMediaType
-                ) { filter.SortItemMediaType = it }
-            } else {
-                db.ItemMediaType.root.visibility = View.GONE
-            }
-
-            AlertDialog.Builder(context)
-                .setTitle(R.string.sort)
-                .setView(db.root)
-                .setPositiveButton("Apply") { _, _ ->
-                    filter.SortAlphabetical = db.Alphabetical.triStateButton.tag as Boolean?
-                    filter.SortPriority = db.Priority.triStateButton.tag as Boolean?
-                    if (isMain) {
-                        filter.SortItemMediaType = db.ItemMediaType.triStateButton.tag as Boolean?
-                    }
-                    if (sortModel != null) {
-                        sortModel.Alphabetical = filter.SortAlphabetical
-                        sortModel.Priority = filter.SortPriority
-                        sortModel.ItemMediaType = filter.SortItemMediaType
-                    }
-                    onSortApplied(filter)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+            SortDialogHelper.showSortDialog(context, filter, isMain, sortModel, onSortApplied)
         }
     }
 }

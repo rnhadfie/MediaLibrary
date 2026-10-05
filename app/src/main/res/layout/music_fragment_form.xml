@@ -64,7 +64,7 @@
             <include layout="@layout/view_radio_button"
                 android:id="@+id/music_genre_radio"/>
 
-            <CheckBox
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/music_collecting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,12 +72,12 @@
                 android:text="@string/currently_collecting"
                 android:textColor="?attr/colorOnBackground" />
 
-            <CheckBox
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/music_has_ended"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/completely_collected"
+                android:text="@string/owned_label"
                 android:textColor="?attr/colorOnBackground" />
 
             <include layout="@layout/view_autocomplete_dropdown"

@@ -3,8 +3,6 @@ package com.example.medialibrary.video.ui.form
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +12,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
-import androidx.fragment.app.FragmentActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -25,11 +23,9 @@ import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
-import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import controllers.VideoController
 import models.music.Enums.MusicGenre
 import models.shared.GenreObject
@@ -65,9 +61,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         val dbHelper = MediaLibraryDbHelper(requireContext())
         controller = VideoController(dbHelper)
 
-        var setup = controller?.GetVideoSetup()
-        if (setup == null)
-            setup = VideoSetup()
+        val setup = controller?.GetVideoSetup() ?: VideoSetup()
 
         if (isEdit && itemId != "-1") {
             viewModel.loadVideo(itemId, controller, setup)
@@ -82,68 +76,71 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
         setupRecyclerView()
         setupInputListeners()
+        setupClickListeners()
 
+        val formats = VideoFormat.entries.filter { it != VideoFormat.NoneSelected }
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            formats.map { it.name }
+        )
+        binding.formatAutocomplete.autocomplete.setAdapter(adapter)
+        binding.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
+
+        observeViewModel(setup)
+    }
+
+    private fun setupClickListeners() {
         binding.changeImage.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("video")
         }
         binding.changeImage.buttonClearCover.setOnClickListener {
             clearImage("video")
         }
-        setupRecyclerView()
-        setupInputListeners()
-
-        binding.changeImage.buttonChangeCover.setOnClickListener {
-            showImageOptionsDialog("video")
-        }
-        binding.changeImage.buttonClearCover.setOnClickListener {
-            clearImage("video")
-        }
-
         binding.addItemBtn.setOnClickListener {
             showVideoItemSheet()
         }
-
         binding.saveBtn.setOnClickListener {
             val result = saveVideo(isEdit)
-            if (result)
-            {
+            if (result) {
                 activity?.finish()
             }
         }
 
-        // Observe ViewModel
-        viewModel.video.observe(viewLifecycleOwner) { book ->
-            binding.titleInput.setText(book.Title)
-            binding.collectingCheck.isChecked = book.Collecting ?: false
-            binding.ongoingCheck.isChecked = book.Ongoing ?: false
-            binding.collectedCheck.isChecked = book.HasCollectedAllItems ?: false
 
-            val videoCategory = book.VideoTag?.ordinal ?: 0
-            if(videoCategory != 0) {
+    }
+
+    private fun observeViewModel(setup: VideoSetup) {
+        viewModel.video.observe(viewLifecycleOwner) { video ->
+            binding.titleInput.setText(video.Title)
+            binding.collectingCheck.isChecked = video.Collecting ?: false
+            binding.ongoingCheck.isChecked = video.Ongoing ?: false
+            binding.collectedCheck.isChecked = video.HasCollectedAllItems ?: false
+
+            val videoCategory = video.VideoTag?.ordinal ?: 0
+            if (videoCategory != 0) {
                 RadioGridUtils.setSelection(
                     binding.videoCategoryRadio.dynamicTableLayout,
                     videoCategory
                 )
             }
 
-            val videoType = book.Type?.ordinal ?: 0
-            if(videoCategory != 0) {
+            val videoType = video.Type?.ordinal ?: 0
+            if (videoType != 0) {
                 RadioGridUtils.setSelection(
                     binding.videoTypeRadio.dynamicTableLayout,
                     videoType
                 )
             }
 
-            setup.let { s ->
-                val tag = s.Tag.find { it.Id == book.Tag }
-                tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
-            }
+            val tag = setup.Tag.find { it.Id == video.Tag }
+            tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
 
-            val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.None
+            val currentPriority = video.CollectingPriority ?: SharedEnums.CollectingPriority.None
             binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
-            if (book.Cover != null && book.Cover.isNotEmpty()) {
-                val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
+            if (video.Cover != null && video.Cover.isNotEmpty()) {
+                val bitmap = BitmapFactory.decodeByteArray(video.Cover, 0, video.Cover.size)
                 binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 binding.changeImage.imageBookCover.setImageBitmap(bitmap)
                 binding.changeImage.imageBookCover.imageTintList = null
@@ -151,6 +148,20 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             } else {
                 ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
                 binding.changeImage.buttonClearCover.visibility = View.GONE
+            }
+
+            if (video.Items != null && video.Items.size == 1 && video.Items[0].Season == -1) {
+                binding.standaloneSwitch.isChecked = true
+                binding.watchedSwitch.isChecked = video.Items[0].Watched
+                binding.ownedSwitch.isChecked = video.Items[0].Owned
+                binding.formatAutocomplete.autocomplete.setText(video.Items[0].Format.name, false)
+                binding.standaloneSection.visibility = View.VISIBLE
+                binding.seriesSection.visibility = View.GONE
+            }
+            else
+            {
+                binding.standaloneSection.visibility = View.GONE
+                binding.seriesSection.visibility = View.VISIBLE
             }
         }
 
@@ -163,75 +174,86 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
     }
 
-    private fun saveVideo(isEdit: Boolean): Boolean
-    {
+    private fun saveVideo(isEdit: Boolean): Boolean {
         disableFields(false)
         val error = viewModel.validate()
         if (error.isNotEmpty()) {
-            error.forEach { (string, string1) ->
-                when (string) {
+            error.forEach { (key, message) ->
+                when (key) {
                     "title" -> {
-                        binding.titleLabel.error = string1
+                        binding.titleLabel.error = message
                         binding.titleInput.requestFocus()
-                        Toast.makeText(requireContext(), string1, Toast.LENGTH_SHORT).show()
-                    }
-                    else -> {
-                        Toast.makeText(requireContext(), string1, Toast.LENGTH_SHORT).show()
                     }
                 }
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
             disableFields(true)
-        } else {
-            val saveObj = viewModel.getSaveObject()
-            if (controller != null) {
+            return false
+        }
 
-                val result = if (isEdit) {
-                    controller!!.UpdateVideo(saveObj)
-                } else {
-                    controller!!.AddVideo(saveObj)
-                }
-                if (result) {
-                    ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-                    Toast.makeText(
-                        requireContext(),
-                        if (isEdit) "Movie/TV Show Updated" else "Movie/TV Show Saved",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    return true
-                } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Movie/TV Show Failed to Save",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
+        if (binding.standaloneSwitch.isChecked) {
+            createStandAloneVideoItem()
+        }
+        val saveObj = viewModel.getSaveObject()
+        controller?.let { ctrl ->
+            val result = if (isEdit) {
+                ctrl.UpdateVideo(saveObj)
+            } else {
+                ctrl.AddVideo(saveObj)
+            }
+            if (result) {
+                notifyDataChanged()
+                Toast.makeText(
+                    requireContext(),
+                    if (isEdit) "Movie/TV Show Updated" else "Movie/TV Show Saved",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return true
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    "Movie/TV Show Failed to Save",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         disableFields(true)
         return false
     }
 
-    private fun disableFields(enabled: Boolean)
-    {
+    private fun createStandAloneVideoItem() {
+        val formatText = binding.formatAutocomplete.autocomplete.text.toString()
+        val format = try {
+            VideoFormat.valueOf(formatText)
+        } catch (_: Exception) {
+            VideoFormat.NoneSelected
+        }
+
+        val item = VideoItem().apply {
+            Watched = binding.watchedSwitch.isChecked
+            Owned = binding.ownedSwitch.isChecked
+            Season = -1
+            Format = format
+        }
+        viewModel.clearItems()
+        viewModel.addOrUpdateItem(item, 0)
+    }
+    private fun disableFields(enabled: Boolean) {
         binding.titleInput.isEnabled = enabled
-        binding.videoTypeRadio.dynamicTableLayout.children.forEach { it ->
-            if(it is ViewGroup)
-            {
-                it.children.forEach {
-                    if(it is RadioButton)
-                    {
-                        it.isEnabled = enabled
+        binding.videoTypeRadio.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
                     }
                 }
             }
         }
-        binding.videoCategoryRadio.dynamicTableLayout.children.forEach { it ->
-            if(it is ViewGroup)
-            {
-                it.children.forEach {
-                    if(it is RadioButton)
-                    {
-                        it.isEnabled = enabled
+        binding.videoCategoryRadio.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
                     }
                 }
             }
@@ -245,6 +267,10 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         binding.ongoingCheck.isEnabled = enabled
         binding.collectedCheck.isEnabled = enabled
         binding.saveBtn.isEnabled = enabled
+        binding.standaloneSwitch.isEnabled = enabled
+        binding.formatAutocomplete.autocomplete.isEnabled = enabled
+        binding.watchedSwitch.isEnabled = enabled
+        binding.ownedSwitch.isEnabled = enabled
     }
 
     override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
@@ -254,19 +280,17 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     }
 
     private fun handleRadioSelectionChange(id: Int) {
-        // You can update a ViewModel, save state, or trigger network calls here
         val genre = VideoTag.entries.find { it.ordinal == id } ?: return
         viewModel.updateVideoTag(genre)
     }
 
     private fun setupVideoTypeRadioGroup(types: Map<Int, String>) {
-
-        binding.videoTypeRadio.radioButtonLabel.setText(R.string.music_genre)
+        binding.videoTypeRadio.radioButtonLabel.setText(R.string.video_type)
         val tableLayout = binding.videoTypeRadio.dynamicTableLayout
-        val musicGenre = types.filter { it.key != MusicGenre.NoneSelected.ordinal }
+        val videoType = types.filter { it.key != VideoType.NoneSelected.ordinal }
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = tableLayout,
-            optionsMap = musicGenre,
+            optionsMap = videoType,
             columnCount = 2
         ) { selectedId ->
             handleVideoTypeSelectionChange(selectedId)
@@ -274,7 +298,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     }
 
     private fun setupVideoTagRadioGroup(videoTags: Map<Int, String>) {
-        binding.videoCategoryRadio.radioButtonLabel.setText(R.string.music_genre)
+        binding.videoCategoryRadio.radioButtonLabel.setText(R.string.video_tag)
         val tableLayout = binding.videoCategoryRadio.dynamicTableLayout
         val musicGenre = videoTags.filter { it.key != MusicGenre.NoneSelected.ordinal }
         RadioGridUtils.populateRadioGridFromMap(
@@ -295,10 +319,8 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         binding.genreMultiselect.buttonSelectGenres.setOnClickListener {
             val genres = setup.Genre
             val genreNames = genres.map { it.genreName }.toTypedArray()
-            val selected = viewModel.selectedGenres.value ?: mutableSetOf<GenreObject>()
-            val checkedItems = genres.map {
-                selected.contains(it)
-            }.toBooleanArray()
+            val selected = viewModel.selectedGenres.value ?: mutableSetOf()
+            val checkedItems = genres.map { selected.contains(it) }.toBooleanArray()
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Select Genres")
@@ -316,28 +338,28 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
     private fun setupTagSelection(setup: VideoSetup) {
         val tags = setup.Tag
-        tags.add(0, Tag("", ""))
-        val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.tagAutocomplete.autocomplete.setAdapter(adapter)
+        if (tags.isEmpty() || tags[0].Id != "") {
+            tags.add(0, Tag("", ""))
+        }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
+        val tagAutoComplete = binding.tagAutocomplete.autocomplete
+
+        tagAutoComplete.setAdapter(adapter)
         binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
-        binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
+        tagAutoComplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.tagAutocomplete.autocomplete.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val text = s.toString()
-                val existing = tags.find { it.Name == text }
-                if (existing == null) {
-                    viewModel.updateTagName(text)
-                } else {
-                    viewModel.updateTag(existing)
-                }
+        tagAutoComplete.doAfterTextChanged { s ->
+            val text = s.toString()
+            val existing = tags.find { it.Name == text }
+            if (existing == null) {
+                viewModel.updateTagName(text)
+            } else {
+                viewModel.updateTag(existing)
             }
-        })
+        }
     }
 
     private fun updateGenreChips(genres: Set<GenreObject>) {
@@ -364,23 +386,29 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     }
 
     private fun setupInputListeners() {
-        binding.titleInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                viewModel.updateTitle(s.toString())
-                binding.titleLabel.error = ""
-            }
-        })
+        binding.titleInput.doAfterTextChanged { s ->
+            viewModel.updateTitle(s.toString())
+            binding.titleLabel.error = ""
+        }
 
-        binding.collectingCheck.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCollecting(isChecked)
+        binding.collectingCheck.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCollecting(isChecked)
         }
-        binding.ongoingCheck.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCompleted(isChecked)
+        binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCompleted(isChecked)
         }
-        binding.collectedCheck.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCollectionComplete(isChecked)
+        binding.collectedCheck.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCollectionComplete(isChecked)
+        }
+
+        binding.standaloneSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                binding.standaloneSection.visibility = View.VISIBLE
+                binding.seriesSection.visibility = View.GONE
+            } else {
+                binding.standaloneSection.visibility = View.GONE
+                binding.seriesSection.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -395,29 +423,22 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         sb.labelText.text = if (item == null) "Add Set or Season" else "Edit Set or Season"
         sb.cancelButton.setOnClickListener { dialog.dismiss() }
 
-        // Setup Format dropdown
         val formats = VideoFormat.entries.filter { it != VideoFormat.NoneSelected }
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_dropdown_item_1line,
-            formats.map { it.name })
+            formats.map { it.name }
+        )
         sb.formatAutocomplete.autocomplete.setAdapter(adapter)
         sb.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
 
-        // Populate if editing
         item?.let {
-
             sb.seasonInput.setText(it.Season.toString())
             sb.titleInput.setText(it.DiscTitle)
             sb.ownedSwitch.isChecked = it.Owned
             sb.watchedSwitch.isChecked = it.Watched
+
             sb.formatAutocomplete.autocomplete.setText(it.Format.name, false)
-            if(it.Season == -1)
-            {
-                sb.standaloneSwitch.isChecked = true
-                sb.seasonInput.visibility = View.GONE
-                sb.titleInput.visibility = View.GONE
-            }
 
             if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
@@ -447,49 +468,30 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         sb.saveItemBtn.setOnClickListener {
             var volNum = sb.seasonInput.text.toString()
 
-            if (volNum.isBlank() && !sb.standaloneSwitch.isChecked) {
+            if (volNum.isBlank()) {
                 sb.seasonLabel.error = "Volume number is required"
                 Toast.makeText(requireContext(), "Volume number is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            if(sb.standaloneSwitch.isChecked)
-            {
-                volNum = "-1"
-                sb.titleInput.setText("")
-            }
-            saveVideoItem(sb,volNum, position)
 
+            saveVideoItem(sb, volNum, position)
             dialog.dismiss()
-        }
-
-        sb.standaloneSwitch.setOnCheckedChangeListener{
-                _, isChecked ->
-            if(isChecked)
-            {
-                sb.seasonInput.visibility = View.GONE
-                sb.titleInput.visibility = View.GONE
-                sb.seasonInput.setText("")
-            }
-            else {
-                sb.seasonInput.visibility = View.VISIBLE
-                sb.titleInput.visibility = View.VISIBLE
-                sb.titleInput.setText("")
-            }
         }
 
         dialog.show()
     }
 
-    private fun saveVideoItem(sb:VideoItemBottomSheetBinding, volNum: String, position: Int)
-    {
-        var format = VideoFormat.NoneSelected
-        if(sb.formatAutocomplete.autocomplete.text != null && !sb.formatAutocomplete.autocomplete.text.isEmpty())
-        {
-            format = VideoFormat.valueOf(sb.formatAutocomplete.autocomplete.text.toString())
+    private fun saveVideoItem(sb: VideoItemBottomSheetBinding, volNum: String, position: Int) {
+        val formatText = sb.formatAutocomplete.autocomplete.text.toString()
+        val format = try {
+            VideoFormat.valueOf(formatText)
+        } catch (_: Exception) {
+            VideoFormat.NoneSelected
         }
+
         val newItem = VideoItem().apply {
             Season = volNum.toIntOrNull() ?: 0
-            DiscTitle = (sb.titleInput.text ?: "").toString()
+            DiscTitle = sb.titleInput.text?.toString() ?: ""
             Owned = sb.ownedSwitch.isChecked
             Watched = sb.watchedSwitch.isChecked
             Format = format
@@ -497,11 +499,6 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
 
         viewModel.addOrUpdateItem(newItem, position)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        currentSheetBinding = null
     }
 
     inner class VideoItemAdapter(
@@ -522,87 +519,55 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = items[position]
-            val context = holder.binding.root.context
-
-            holder.itemView.setOnClickListener {
-                val context = holder.itemView.context
-                val intent = Intent(context, VideoFormActivity::class.java).apply {
-                    putExtra("EXTRA_ID", item.Id)
-                    putExtra("EXTRA_IS_EDIT", true)
-                }
-                context.startActivity(intent)
-            }
-            holder.binding.buttonEditItem.setOnClickListener {
-                val context = holder.itemView.context
-                val intent = Intent(context, VideoFormActivity::class.java).apply {
-                    putExtra("EXTRA_ID", item.Id)
-                    putExtra("EXTRA_IS_EDIT", true)
-                }
-                context.startActivity(intent)
-            }
-            holder.binding.buttonDeleteItem.setOnClickListener {
-                val dbHelper = MediaLibraryDbHelper(holder.itemView.context)
-                val videoController = VideoController(dbHelper)
-
-                MaterialAlertDialogBuilder(holder.itemView.context)
-                    .setTitle("Confirm Action")
-                    .setMessage("Are you sure you want to delete this Video?")
-                    .setCancelable(false) // Prevents closing by tapping outside
-                    .setPositiveButton("Confirm") { dialog, _ ->
-                        videoController.DeleteVideo(item.Id)
-                        (holder.itemView.context as? FragmentActivity)?.let { act ->
-                            ViewModelProvider(act)[SharedRefreshViewModel::class.java].incrementVersion()
-                        }
-                        dialog.dismiss()
-                    }
-                    .setNegativeButton("Cancel") { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-
-            if(item.Season != -1 && (item.DiscTitle == null || item.DiscTitle.isEmpty()))
-            {
-                holder.binding.textVolumeInfo.text = item.Season.toString()
-            }
-            else
-            {
-
-                if(item.Season == -1)
-                {
-                    holder.binding.textVolumeInfo.text = getString(R.string.standalone)
-                }
-                else {
-                    holder.binding.textVolumeInfo.text = getString(
-                        R.string.video_item_display_text,
-                        item.Season,
-                        item.DiscTitle
-                    )
-                }
-            }
-            holder.binding.textStatusInfo.text = context.getString(
-                R.string.movie_status_format,
-                if (item.Owned) "Yes" else "No",
-                if (item.Watched) "Yes" else "No"
-            )
-
-            if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
-                val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
-                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                holder.binding.imageItemCover.setImageBitmap(bitmap)
-                holder.binding.imageItemCover.imageTintList = null
-            } else {
-                ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, context, resources)
-            }
-
-            holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
-            holder.binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+            holder.bind(items[position], position)
         }
 
         override fun getItemCount() = items.size
 
-        inner class ViewHolder(val binding: BookItemVolumeBinding) : RecyclerView.ViewHolder(binding.root)
-    }
+        inner class ViewHolder(val binding: BookItemVolumeBinding) : RecyclerView.ViewHolder(binding.root) {
+            fun bind(item: VideoItem, position: Int) {
+                val context = binding.root.context
 
+                itemView.setOnClickListener {
+                    val intent = Intent(context, VideoFormActivity::class.java).apply {
+                        putExtra("EXTRA_ID", item.Id)
+                        putExtra("EXTRA_IS_EDIT", true)
+                    }
+                    context.startActivity(intent)
+                }
+
+                if (item.Season != -1 && item.DiscTitle.isNullOrEmpty()) {
+                    binding.textVolumeInfo.text = item.Season.toString()
+                } else {
+                    if (item.Season == -1) {
+                        binding.textVolumeInfo.text = context.getString(R.string.standalone)
+                    } else {
+                        binding.textVolumeInfo.text = context.getString(
+                            R.string.video_item_display_text,
+                            item.Season,
+                            item.DiscTitle
+                        )
+                    }
+                }
+
+                binding.textStatusInfo.text = context.getString(
+                    R.string.movie_status_format,
+                    if (item.Owned) "Yes" else "No",
+                    if (item.Watched) "Yes" else "No"
+                )
+
+                if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
+                    val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
+                    binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
+                    binding.imageItemCover.setImageBitmap(bitmap)
+                    binding.imageItemCover.imageTintList = null
+                } else {
+                    ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
+                }
+
+                binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
+                binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+            }
+        }
+    }
 }

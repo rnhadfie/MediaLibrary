@@ -183,19 +183,18 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         var sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter
-        sheetBinding = SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+        sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
         sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.filterBtn.setOnClickListener {
-            f.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
-            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
-            f.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
-            f.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
+            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as? Boolean
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            filter.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
+            filter.Watched = sheetBinding.watched.triStateButton.tag as? Boolean
+            filter.Watching = sheetBinding.watching.triStateButton.tag as? Boolean
 
-            currentFilter = f
-            sortFilterViewModel.updateVideoFilter(f)
+            currentFilter = filter
+            sortFilterViewModel.updateVideoFilter(filter)
             loadData()
             dialog.dismiss()
         }

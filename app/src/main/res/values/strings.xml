@@ -35,8 +35,8 @@
     <string name="volume_title_hint">Volume Title (Optional)</string>
     <string name="owned_label">Owned</string>
     <string name="read_label">Read</string>
-    <string name="reading_label">Currently Reading</string>
-    <string name="watching_label">Currently Watching</string>
+    <string name="reading_label">Reading</string>
+    <string name="watching_label">Watching</string>
     <string name="format_label">Format</string>
     <string name="save_item">Save Item</string>
     <string name="change_item_cover">Change Item Cover</string>
@@ -49,7 +49,7 @@
     <string name="title_activity_other">OtherActivity</string>
     <string name="currently_collecting">Currently Collecting</string>
     <string name="music_genre">Music Genre</string>
-    <string name="completely_collected">Completely Collected</string>
+    <string name="completely_collected">Collected</string>
     <string name="music_tags">Music Tags</string>
     <string name="save_cd">Save Cd</string>
     <string name="clear_filters">Clear Filters</string>
@@ -58,7 +58,7 @@
     <string name="tag">Tags</string>
     <string name="publisher">Publisher</string>
     <string name="genre">Genre</string>
-    <string name="collecting">Currently Collecting</string>
+    <string name="collecting">Collecting</string>
     <string name="collected">Collected</string>
     <string name="Ongoing">Ongoing</string>
     <string name="started_collecting">Started Collecting</string>
@@ -146,4 +146,5 @@
     <string name="number_of_cds_by_artist">Number of CDs by Artist</string>
     <string name="no_artist_data_to_display">No artist data to display</string>
     <string name="genres">Genres</string>
+    <string name="artists">Artists</string>
 </resources>

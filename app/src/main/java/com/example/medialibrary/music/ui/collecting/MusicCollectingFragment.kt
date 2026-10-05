@@ -40,7 +40,6 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
     private var currentFilter: MusicFilter? = null
     private var musicController: MusicController = MusicController()
     private var setup: MusicSetup = MusicSetup()
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -63,7 +62,6 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
 
         observeSortFilterViewModel()
         loadData()
-
         setupBindings(recyclerView, adapter)
 
         activity?.let { act ->
@@ -91,8 +89,7 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
         }
     }
 
-    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter)
-    {
+    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter) {
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
@@ -200,7 +197,7 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
         sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
-            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+            f.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
 
             currentFilter = f
             sortFilterViewModel.updateMusicFilter(f)

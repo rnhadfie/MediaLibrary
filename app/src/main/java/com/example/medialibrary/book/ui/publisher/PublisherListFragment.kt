@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.databinding.PublisherFragmentListBinding
 import com.example.medialibrary.databinding.PublisherItemBinding
-import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import controllers.BookController
@@ -31,15 +27,6 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
 
     private lateinit var controller: BookController
 
-    //region component
-
-    private var emptyStateContainer: ViewEmptyStateBinding? = null
-    private var recyclerView: RecyclerView? = null
-    private var addButton: Button? = null
-
-    //endregion
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -49,28 +36,28 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
         setFragmentType(FragmentType.Publisher)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
-        setComponentBindings()
-
         controller = BookController(MediaLibraryDbHelper(requireContext()))
 
         val adapter = PublisherAdapter(
             onEdit = { showPublisherDialog(it) },
             onDelete = { deletePublisher(it) }
         )
-        recyclerView?.adapter = adapter
+        binding.recyclerviewPublishers.adapter = adapter
 
         viewModel.publishers.observe(viewLifecycleOwner) { publishers ->
             if (publishers.isNullOrEmpty()) {
-                recyclerView?.visibility = View.GONE
-                emptyStateContainer?.root?.visibility = View.VISIBLE
+                binding.recyclerviewPublishers.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
-                recyclerView?.visibility = View.VISIBLE
-                emptyStateContainer?.root?.visibility = View.GONE
-                adapter.submitList(publishers)
+                binding.recyclerviewPublishers.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.GONE
+                adapter.submitList(publishers) {
+                    binding.recyclerviewPublishers.scrollToPosition(0)
+                }
             }
         }
 
-        addButton?.setOnClickListener {
+        binding.fabAddPublisher.setOnClickListener {
             showPublisherDialog()
         }
 
@@ -85,13 +72,6 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
 
     private fun loadPublishers() {
         viewModel.setPublishers(controller.GetPublishers() ?: emptyList())
-    }
-
-    private fun setComponentBindings()
-    {
-        emptyStateContainer = binding.emptyStateContainer
-        recyclerView = binding.recyclerviewPublishers
-        addButton = binding.fabAddPublisher
     }
 
     //region dialogs
@@ -130,13 +110,11 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
                 val result = controller.DeletePublisher(publisher.Id, false)
                 if (result.ConflictDetected) {
                     showConflictDialog(requireContext(), publisher)
-                }
-                else {
+                } else {
                     if (result.DeleteSuccessful) {
                         ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                         loadPublishers()
-                    }
-                    else {
+                    } else {
                         Toast.makeText(requireContext(), "Failed to delete publisher", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -155,14 +133,11 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
                     ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                     loadPublishers()
                     dialog.dismiss()
-                }
-                else {
-                  Toast.makeText(context, "Failed to delete publisher", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Failed to delete publisher", Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
@@ -173,17 +148,6 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
         private val onDelete: (Publisher) -> Unit
     ) : ListAdapter<Publisher, PublisherViewHolder>(PublisherDiffCallback()) {
 
-        private var nameText: TextView? = null
-        private var deleteButton: ImageButton? = null
-        private var editButton: ImageButton? = null
-
-        private fun setItemComponentBindings(holder: PublisherViewHolder)
-        {
-            nameText = holder.binding.textPublisherName
-            deleteButton = holder.binding.buttonDeletePublisher
-            editButton = holder.binding.buttonEditPublisher
-        }
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PublisherViewHolder {
             val binding = PublisherItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
             return PublisherViewHolder(binding)
@@ -191,12 +155,9 @@ class PublisherListFragment : BaseFragment<PublisherFragmentListBinding, Publish
 
         override fun onBindViewHolder(holder: PublisherViewHolder, position: Int) {
             val publisher = getItem(position)
-            setItemComponentBindings(holder)
-            nameText?.text = publisher.Name
-            editButton?.setOnClickListener { onEdit(publisher) }
-            deleteButton?.setOnClickListener {
-                onDelete(publisher)
-            }
+            holder.binding.textPublisherName.text = publisher.Name
+            holder.binding.buttonEditPublisher.setOnClickListener { onEdit(publisher) }
+            holder.binding.buttonDeletePublisher.setOnClickListener { onDelete(publisher) }
         }
     }
 

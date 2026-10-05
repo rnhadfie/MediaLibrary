@@ -24,139 +24,218 @@ object XmlExportImport {
 
     fun exportToXml(container: DataContainer): String {
         try {
+
             val serializer: XmlSerializer = Xml.newSerializer()
             val writer = StringWriter()
             serializer.setOutput(writer)
             serializer.startDocument("UTF-8", true)
-            serializer.startTag("", "MediaLibrary")
+            // Using null for namespaces prevents empty xmlns="" declaration bugs
+            serializer.startTag(null, "MediaLibrary")
 
-            // Tags
-            serializer.startTag("", "Tags")
+            // --- Tags ---
+            serializer.startTag(null, "Tags")
             container.Tags?.forEach { tag ->
-                serializer.startTag("", "Tag")
-                serializer.attribute("", "id", tag.Id.toString())
-                serializer.attribute("", "name", tag.Name ?: "")
-                serializer.endTag("", "Tag")
+                serializer.startTag(null, "Tag")
+                serializer.attribute(null, "id", tag.Id.toString())
+                serializer.attribute(null, "name", tag.Name ?: "")
+                serializer.endTag(null, "Tag")
             }
-            serializer.endTag("", "Tags")
+            serializer.endTag(null, "Tags")
 
-            // Publishers
-            serializer.startTag("", "Publishers")
+            // --- Publishers ---
+            serializer.startTag(null, "Publishers")
             container.Publishers?.forEach { pub ->
-                serializer.startTag("", "Publisher")
-                serializer.attribute("", "id", pub.Id.toString())
-                serializer.attribute("", "name", pub.Name ?: "")
-                serializer.endTag("", "Publisher")
+                serializer.startTag(null, "Publisher")
+                serializer.attribute(null, "id", pub.Id.toString())
+                serializer.attribute(null, "name", pub.Name ?: "")
+                serializer.endTag(null, "Publisher")
             }
-            serializer.endTag("", "Publishers")
+            serializer.endTag(null, "Publishers")
 
-            // Books
-            serializer.startTag("", "Books")
+            // --- Books ---
+            serializer.startTag(null, "Books")
             container.Books?.forEach { book ->
-                serializer.startTag("", "Book")
+                serializer.startTag(null, "Book")
                 writeMediaItemFields(serializer, book)
-                serializer.startTag("", "Author").text(book.Author ?: "").endTag("", "Author")
-                serializer.startTag("", "Artist").text(book.Artist ?: "").endTag("", "Artist")
-                serializer.startTag("", "Type").text(book.Type?.name ?: "").endTag("", "Type")
-                serializer.startTag("", "PublisherId").text(book?.Publisher ?: "")
-                    .endTag("", "PublisherId")
 
-                serializer.startTag("", "Items")
+                serializer.startTag(null, "Author")
+                serializer.text(book.Author ?: "")
+                serializer.endTag(null, "Author")
+
+                serializer.startTag(null, "Artist")
+                serializer.text(book.Artist ?: "")
+                serializer.endTag(null, "Artist")
+
+                serializer.startTag(null, "Type")
+                serializer.text(book.Type?.name ?: "")
+                serializer.endTag(null, "Type")
+
+                serializer.startTag(null, "PublisherId")
+                serializer.text(book?.Publisher ?: "")
+                serializer.endTag(null, "PublisherId")
+
+                serializer.startTag(null, "Items")
                 book.Items?.forEach { item ->
-                    serializer.startTag("", "BookItem")
-                    serializer.startTag("", "VolumeNumber").text(item.VolumeNumber ?: "")
-                        .endTag("", "VolumeNumber")
-                    serializer.startTag("", "VolumeTitle").text(item.VolumeTitle ?: "")
-                        .endTag("", "VolumeTitle")
-                    serializer.startTag("", "Read").text(item.Read.toString()).endTag("", "Read")
-                    serializer.startTag("", "Owned").text(item.Owned.toString()).endTag("", "Owned")
-                    serializer.startTag("", "Format").text(item.Format?.name ?: "")
-                        .endTag("", "Format")
-                    item.ItemCover?.let {
-                        serializer.startTag("", "ItemCover")
-                            .text(Base64.encodeToString(it, Base64.DEFAULT)).endTag("", "ItemCover")
-                    }
-                    serializer.endTag("", "BookItem")
-                }
-                serializer.endTag("", "Items")
-                serializer.endTag("", "Book")
-            }
-            serializer.endTag("", "Books")
+                    serializer.startTag(null, "BookItem")
 
-            // Videos
-            serializer.startTag("", "Videos")
+                    serializer.startTag(null, "VolumeNumber")
+                    serializer.text(item.VolumeNumber ?: "")
+                    serializer.endTag(null, "VolumeNumber")
+
+                    serializer.startTag(null, "VolumeTitle")
+                    serializer.text(item.VolumeTitle ?: "")
+                    serializer.endTag(null, "VolumeTitle")
+
+                    serializer.startTag(null, "Read")
+                    serializer.text(item.Read.toString())
+                    serializer.endTag(null, "Read")
+
+                    serializer.startTag(null, "Owned")
+                    serializer.text(item.Owned.toString())
+                    serializer.endTag(null, "Owned")
+
+                    serializer.startTag(null, "Format")
+                    serializer.text(item.Format?.name ?: "")
+                    serializer.endTag(null, "Format")
+
+                    item.ItemCover?.let {
+                        serializer.startTag(null, "ItemCover")
+                        serializer.text(Base64.encodeToString(it, Base64.NO_WRAP))
+                        serializer.endTag(null, "ItemCover")
+                    }
+                    serializer.endTag(null, "BookItem")
+                }
+                serializer.endTag(null, "Items")
+                serializer.endTag(null, "Book")
+            }
+            serializer.endTag(null, "Books")
+
+            // --- Videos ---
+            serializer.startTag(null, "Videos")
             container.Videos?.forEach { video ->
-                serializer.startTag("", "Video")
+                serializer.startTag(null, "Video")
                 writeMediaItemFields(serializer, video)
-                serializer.startTag("", "Type").text(video.Type?.name ?: "").endTag("", "Type")
-                serializer.startTag("", "VideoTag").text(video.VideoTag?.name ?: "")
-                    .endTag("", "VideoTag")
 
-                serializer.startTag("", "Items")
+                serializer.startTag(null, "Type")
+                serializer.text(video.Type?.name ?: "")
+                serializer.endTag(null, "Type")
+
+                serializer.startTag(null, "VideoTag")
+                serializer.text(video.VideoTag?.name ?: "")
+                serializer.endTag(null, "VideoTag")
+
+                serializer.startTag(null, "Items")
                 video.Items?.forEach { item ->
-                    serializer.startTag("", "VideoItem")
-                    serializer.startTag("", "DiscNumber").text(item.Season.toString())
-                        .endTag("", "DiscNumber")
-                    serializer.startTag("", "DiscTitle").text(item.DiscTitle ?: "")
-                        .endTag("", "DiscTitle")
-                    serializer.startTag("", "Watched").text(item.Watched.toString())
-                        .endTag("", "Watched")
-                    serializer.startTag("", "Owned").text(item.Owned.toString()).endTag("", "Owned")
-                    serializer.startTag("", "Format").text(item.Format?.name ?: "")
-                        .endTag("", "Format")
+                    serializer.startTag(null, "VideoItem")
+
+                    serializer.startTag(null, "DiscNumber")
+                    serializer.text(item.Season.toString())
+                    serializer.endTag(null, "DiscNumber")
+
+                    serializer.startTag(null, "DiscTitle")
+                    serializer.text(item.DiscTitle ?: "")
+                    serializer.endTag(null, "DiscTitle")
+
+                    serializer.startTag(null, "Watched")
+                    serializer.text(item.Watched.toString())
+                    serializer.endTag(null, "Watched")
+
+                    serializer.startTag(null, "Owned")
+                    serializer.text(item.Owned.toString())
+                    serializer.endTag(null, "Owned")
+
+                    serializer.startTag(null, "Format")
+                    serializer.text(item.Format?.name ?: "")
+                    serializer.endTag(null, "Format")
+
                     item.ItemCover?.let {
-                        serializer.startTag("", "ItemCover")
-                            .text(Base64.encodeToString(it, Base64.DEFAULT)).endTag("", "ItemCover")
+                        serializer.startTag(null, "ItemCover")
+                        serializer.text(Base64.encodeToString(it, Base64.NO_WRAP))
+                        serializer.endTag(null, "ItemCover")
                     }
-                    serializer.endTag("", "VideoItem")
+                    serializer.endTag(null, "VideoItem")
                 }
-                serializer.endTag("", "Items")
-                serializer.endTag("", "Video")
+                serializer.endTag(null, "Items")
+                serializer.endTag(null, "Video")
             }
-            serializer.endTag("", "Videos")
+            serializer.endTag(null, "Videos")
 
-            // Music
-            serializer.startTag("", "MusicList")
+            // --- Music ---
+            serializer.startTag(null, "MusicList")
             container.Music?.forEach { music ->
-                serializer.startTag("", "Music")
+                serializer.startTag(null, "Music")
                 writeMediaItemFields(serializer, music)
-                serializer.startTag("", "Artist").text(music.Artist ?: "").endTag("", "Artist")
-                serializer.startTag("", "Year").text(music.Year.toString()).endTag("", "Year")
-                serializer.endTag("", "Music")
-            }
-            serializer.endTag("", "MusicList")
 
-            // Others
-            serializer.startTag("", "Others")
+                serializer.startTag(null, "Artist")
+                serializer.text(music.Artist ?: "")
+                serializer.endTag(null, "Artist")
+
+                serializer.startTag(null, "Year")
+                serializer.text(music.Year.toString())
+                serializer.endTag(null, "Year")
+
+                serializer.endTag(null, "Music")
+            }
+            serializer.endTag(null, "MusicList")
+
+            // --- Others ---
+            serializer.startTag(null, "Others")
             container.Others?.forEach { other ->
-                serializer.startTag("", "Other")
+                serializer.startTag(null, "Other")
                 writeMediaItemFields(serializer, other)
-                serializer.endTag("", "Other")
+                serializer.endTag(null, "Other")
             }
-            serializer.endTag("", "Others")
+            serializer.endTag(null, "Others")
 
-            serializer.endTag("", "MediaLibrary")
+            serializer.endTag(null, "MediaLibrary")
             serializer.endDocument()
+
+
             return writer.toString()
         } catch (e: Exception) {
             e.printStackTrace()
-            return ""
+            throw e
         }
     }
 
     private fun writeMediaItemFields(serializer: XmlSerializer, item: MediaItem) {
-        serializer.startTag("", "Id").text(item.Id ?: "").endTag("", "Id")
-        serializer.startTag("", "Title").text(item.Title ?: "").endTag("", "Title")
-        serializer.startTag("", "collecting").text(item.Collecting.toString()).endTag("", "collecting")
-        serializer.startTag("", "Ongoing").text(item.Ongoing.toString()).endTag("", "Ongoing")
-        serializer.startTag("", "Collected").text(item.HasCollectedAllItems.toString()).endTag("", "Collected")
-        serializer.startTag("", "TagId").text(item.Tag.toString()).endTag("", "TagId")
-        serializer.startTag("", "CollectingPriority").text(item.CollectingPriority.name).endTag("", "CollectingPriority")
+        serializer.startTag(null, "Id")
+        serializer.text(item.Id ?: "")
+        serializer.endTag(null, "Id")
+
+        serializer.startTag(null, "Title")
+        serializer.text(item.Title ?: "")
+        serializer.endTag(null, "Title")
+
+        serializer.startTag(null, "collecting")
+        serializer.text(item.Collecting.toString())
+        serializer.endTag(null, "collecting")
+
+        serializer.startTag(null, "Ongoing")
+        serializer.text(item.Ongoing.toString())
+        serializer.endTag(null, "Ongoing")
+
+        serializer.startTag(null, "Collected")
+        serializer.text(item.HasCollectedAllItems.toString())
+        serializer.endTag(null, "Collected")
+
+        serializer.startTag(null, "TagId")
+        serializer.text(item.Tag ?: "")
+        serializer.endTag(null, "TagId")
+
+        serializer.startTag(null, "CollectingPriority")
+        serializer.text(item.CollectingPriority?.name ?: "")
+        serializer.endTag(null, "CollectingPriority")
+
         item.Genre?.let {
-            serializer.startTag("", "Genres").text(it.joinToString(",")).endTag("", "Genres")
+            serializer.startTag(null, "Genres")
+            serializer.text(it.joinToString(","))
+            serializer.endTag(null, "Genres")
         }
         item.Cover?.let {
-            serializer.startTag("", "Cover").text(Base64.encodeToString(it, Base64.DEFAULT)).endTag("", "Cover")
+            serializer.startTag(null, "Cover")
+            serializer.text(Base64.encodeToString(it, Base64.NO_WRAP))
+            serializer.endTag(null, "Cover")
         }
     }
 

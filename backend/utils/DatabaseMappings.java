@@ -54,7 +54,7 @@ public class DatabaseMappings {
         itemValues.put(COLUMN_ID, UUID.randomUUID().toString());
         itemValues.put(COLUMN_SERIES, bookId);
         itemValues.put(COLUMN_VOLUME_NUMBER, item.VolumeNumber.trim());
-        itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle.trim());
+        itemValues.put(COLUMN_VOLUME_TITLE, item.VolumeTitle == null ? "" : item.VolumeTitle.trim());
         itemValues.put(COLUMN_READ, item.Read ? 1 : 0);
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
@@ -165,7 +165,7 @@ public class DatabaseMappings {
         itemValues.put(COLUMN_ID, UUID.randomUUID().toString());
         itemValues.put(COLUMN_SERIES, videoId);
         itemValues.put(COLUMN_DISC_NUMBER, item.Season);
-        itemValues.put(COLUMN_DISC_TITLE, item.DiscTitle.trim());
+        itemValues.put(COLUMN_DISC_TITLE, item.DiscTitle == null ? "" : item.DiscTitle.trim());
         itemValues.put(COLUMN_WATCHED, item.Watched ? 1 : 0);
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);

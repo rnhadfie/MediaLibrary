@@ -43,7 +43,7 @@
 
 
 
-            <CheckBox
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/other_collecting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -52,12 +52,12 @@
                 android:textColor="?attr/colorOnBackground" />
 
 
-            <CheckBox
+            <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/other_completed_collecting"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/collected"
+                android:text="@string/owned_label"
                 android:textColor="?attr/colorOnBackground" />
 
             <View

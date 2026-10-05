@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.Main.page.all_list.AllItemsViewFragment">
+    tools:context=".home.ui.list.HomeListFragment">
 
     <TextView
         android:id="@+id/text_reflow"

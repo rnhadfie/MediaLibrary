@@ -19,7 +19,7 @@ import com.example.medialibrary.R
 import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.databinding.MainBottomSheetBinding
 import com.example.medialibrary.databinding.MainFragmentListBinding
-import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.ClipboardHelper
+import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.clipboardHelper
 import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FilterSummaryHelper
@@ -61,7 +61,6 @@ class HomeListFragment : BaseFragment<MainFragmentListBinding, HomeListViewModel
         controller = MainController(dbHelper)
 
         observeSortFilterViewModel()
-
         setupBindings(recyclerView, adapter)
 
         return root
@@ -76,8 +75,7 @@ class HomeListFragment : BaseFragment<MainFragmentListBinding, HomeListViewModel
         }
     }
 
-    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter)
-    {
+    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter) {
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
@@ -117,7 +115,7 @@ class HomeListFragment : BaseFragment<MainFragmentListBinding, HomeListViewModel
 
         binding.allItemList.setOnClickListener {
             val mediaItems = viewModel.items.value
-            val list = ClipboardHelper(mediaItems ?: emptyList(), "Media Collection List")
+            val list = clipboardHelper(mediaItems ?: emptyList(), "Media Collection List")
 
             val clipboard: ClipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
             val clipData = ClipData.newPlainText("Media Collection List", list)
@@ -159,10 +157,10 @@ class HomeListFragment : BaseFragment<MainFragmentListBinding, HomeListViewModel
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerBook.setOnClickListener {
-            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as Boolean?
-            f.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
-            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as? Boolean
+            f.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
+            f.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
             sortFilterViewModel.updateMainFilter(f)
             loadData()
             dialog.dismiss()

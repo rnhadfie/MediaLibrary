@@ -99,7 +99,12 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
             } else {
                 recyclerView?.visibility = View.VISIBLE
                 emptyStateContainer.root.visibility = View.GONE
-                adapter.submitList(itemList)
+                adapter.submitList(itemList) {
+                    recyclerView?.scrollToPosition(0)
+                }
+                recyclerView?.post {
+                    recyclerView.scrollToPosition(0)
+                }
             }
         }
     }
@@ -121,6 +126,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
             } else {
                 recyclerView.visibility = View.VISIBLE
                 emptyStateContainer.root.visibility = View.GONE
+                recyclerView.post {
+                    recyclerView.scrollTo(0, 0)
+                }
             }
         }
     }
@@ -141,8 +149,7 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         if (emptyTextResId != -1) {
             emptyStateContainer.emptyStateText.setText(emptyTextResId)
         }
-        if(emptyStateLayout == null) {
-
+        if (emptyStateLayout == null) {
             items.observe(viewLifecycleOwner) { itemList ->
                 if (itemList.isNullOrEmpty()) {
                     recyclerView.visibility = View.GONE
@@ -154,18 +161,22 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
                     emptyStateContainer.root.visibility = View.GONE
                     emptyStateContainer.emptyStateIcon.visibility = View.GONE
                     emptyStateContainer.emptyStateText.visibility = View.GONE
+                    recyclerView.post {
+                        recyclerView.scrollTo(0, 0)
+                    }
                 }
             }
-        }
-        else {
+        } else {
             items.observe(viewLifecycleOwner) { itemList ->
                 if (itemList.isNullOrEmpty()) {
                     recyclerView.visibility = View.GONE
                     emptyStateLayout.visibility = View.VISIBLE
-                }
-                else {
+                } else {
                     recyclerView.visibility = View.VISIBLE
                     emptyStateLayout.visibility = View.GONE
+                    recyclerView.post {
+                        recyclerView.scrollTo(0, 0)
+                    }
                 }
             }
         }

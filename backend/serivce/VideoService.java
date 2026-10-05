@@ -145,9 +145,7 @@ public class VideoService {
 
                 if (filter.Watched != null) {
                     boolean allWatched = video.Items != null && !video.Items.isEmpty() && video.Items.stream().allMatch(i -> i.Watched);
-                    boolean isComplete = Boolean.TRUE.equals(video.Ongoing) || Boolean.TRUE.equals(video.HasCollectedAllItems);
-                    boolean isWatched = isComplete && allWatched;
-                    if (isWatched != filter.Watched) {
+                    if (allWatched != filter.Watched) {
                         continue;
                     }
                 }
@@ -155,9 +153,7 @@ public class VideoService {
                 if (filter.Watching != null) {
                     boolean anyWatched = video.Items != null && video.Items.stream().anyMatch(i -> i.Watched);
                     boolean allWatched = video.Items != null && !video.Items.isEmpty() && video.Items.stream().allMatch(i -> i.Watched);
-                    boolean isComplete = Boolean.TRUE.equals(video.Ongoing) || Boolean.TRUE.equals(video.HasCollectedAllItems);
-                    boolean isWatched = isComplete && allWatched;
-                    boolean isWatching = anyWatched && !isWatched;
+                    boolean isWatching = anyWatched && !allWatched;
                     if (isWatching != filter.Watching) {
                         continue;
                     }

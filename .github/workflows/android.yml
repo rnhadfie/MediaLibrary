@@ -7,11 +7,17 @@ on:
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - 'README.md'
+      - 'README'
+      - 'readme.md'
+      - '**.md'
+      - 'docs/**'
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build Debug APK
+    name: Build Release APK
     runs-on: ubuntu-latest
 
     steps:
@@ -28,12 +34,27 @@ jobs:
       - name: Grant Execute Permission for Gradle
         run: chmod +x gradlew
 
-      - name: Build Debug APK
+      - name: Extract Version Name
+        id: get_version
+        run: |
+          VERSION_NAME=$(grep "versionName" app/build.gradle.kts | head -n 1 | awk -F '"' '{print $2}')
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Upload Debug APK
+      - name: Rename Release APK
+        run: |
+          cd app/build/outputs/apk/release/
+          for f in *.apk; do
+            if [ -f "$f" ]; then
+              mv "$f" "MediaLibrary-v${{ steps.get_version.outputs.version }}-$f"
+            fi
+          done
+
+      - name: Upload Release APK
         uses: actions/upload-artifact@v4
         with:
-          name: MediaLibrary-release-apk
+          name: MediaLibrary-release-v${{ steps.get_version.outputs.version }}
           path: app/build/outputs/apk/release/*.apk
           retention-days: 30

@@ -11,7 +11,7 @@ import models.shared.Tag
 import models.shared.Enums as SharedEnums
 
 class MusicFormViewModel : ViewModel() {
-    private val _music = MutableLiveData<Music>(Music().apply {
+    private val _music = MutableLiveData(Music().apply {
         MediaType = SharedEnums.MediaType.Music
     })
     val music: LiveData<Music> = _music
