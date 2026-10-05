@@ -36,7 +36,6 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
     private var currentFilter: MusicFilter? = null
     private var musicController: MusicController = MusicController()
     private var setup: MusicSetup = MusicSetup()
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -161,8 +160,8 @@ class MusicListFragment : BaseFragment<MusicFragmentListBinding, MusicListViewMo
         sb.collecting.root.visibility = View.VISIBLE
 
         sb.buttonSheetFitlerMusic.setOnClickListener {
-            f.Collecting = sb.collecting.triStateButton.tag as Boolean?
-            f.Collected = sb.collected.triStateButton.tag as Boolean?
+            f.Collecting = sb.collecting.triStateButton.tag as? Boolean
+            f.Collected = sb.collected.triStateButton.tag as? Boolean
 
             currentFilter = f
             sortFilterViewModel.updateMusicFilter(f)

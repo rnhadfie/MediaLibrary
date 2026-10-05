@@ -1,15 +1,6 @@
 package repository;
 
-import static utils.DatabaseKeyNames.COLUMN_ID;
-import static utils.DatabaseKeyNames.COLUMN_NAME;
-import static utils.DatabaseKeyNames.COLUMN_PUBLISHER;
-import static utils.DatabaseKeyNames.COLUMN_TAG;
-import static utils.DatabaseKeyNames.TABLE_BOOKS;
-import static utils.DatabaseKeyNames.TABLE_MUSIC;
-import static utils.DatabaseKeyNames.TABLE_OTHERS;
-import static utils.DatabaseKeyNames.TABLE_TAGS;
-import static utils.DatabaseKeyNames.TABLE_VIDEOS;
-
+import static utils.DatabaseKeyNames.*;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;

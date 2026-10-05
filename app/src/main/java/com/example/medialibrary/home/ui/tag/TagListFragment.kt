@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
@@ -21,7 +18,6 @@ import com.example.medialibrary.databinding.TagItemBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import controllers.MainController
-import models.book.Publisher
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
 
@@ -30,14 +26,6 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
 ) {
 
     private lateinit var controller: MainController
-
-    //region component
-
-    private var emptyStateContainer: LinearLayout? = null
-    private var recyclerView: RecyclerView? = null
-    private var addButton: Button? = null
-
-    //endregion
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,46 +36,34 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
         setFragmentType(FragmentType.Tag)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)
-
-        setComponentBindings()
-
         controller = MainController(MediaLibraryDbHelper(requireContext()))
 
         val adapter = TagAdapter(
             onEdit = { showTagDialog(it) },
             onDelete = { deleteTag(it) }
         )
-        recyclerView!!.adapter = adapter
+        binding.recyclerviewTag.adapter = adapter
 
         viewModel.tags.observe(viewLifecycleOwner) { tags ->
             if (tags.isNullOrEmpty()) {
-                recyclerView!!.visibility = View.GONE
-                emptyStateContainer!!.visibility = View.VISIBLE
+                binding.recyclerviewTag.visibility = View.GONE
+                binding.emptyStateContainer.root.visibility = View.VISIBLE
             } else {
-                recyclerView!!.visibility = View.VISIBLE
-                emptyStateContainer!!.visibility = View.GONE
-                adapter.submitList(tags)
+                binding.recyclerviewTag.visibility = View.VISIBLE
+                binding.emptyStateContainer.root.visibility = View.GONE
+                adapter.submitList(tags) {
+                    binding.recyclerviewTag.scrollToPosition(0)
+                }
             }
         }
 
-        viewModel.tags.observe(viewLifecycleOwner) {
-            adapter.submitList(it)
-        }
-
-        addButton?.setOnClickListener {
+        binding.fabAddTag.setOnClickListener {
             showTagDialog()
         }
 
         loadTags()
 
         return root
-    }
-
-    private fun setComponentBindings()
-    {
-        emptyStateContainer = binding.emptyStateContainer.root
-        recyclerView = binding.recyclerviewTag
-        addButton = binding.fabAddTag
     }
 
     override fun onRefreshData() {
@@ -125,8 +101,6 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
             }
             .setNegativeButton("Cancel", null)
             .show()
-
-
     }
 
     private fun deleteTag(tag: Tag) {
@@ -137,13 +111,11 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
                 val result = controller.DeleteTag(tag.Id, false)
                 if (result.ConflictDetected) {
                     showConflictDialog(requireContext(), tag)
-                }
-                else {
+                } else {
                     if (result.DeleteSuccessful) {
                         ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                         loadTags()
-                    }
-                    else {
+                    } else {
                         Toast.makeText(requireContext(), "Failed to delete Tag", Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -162,14 +134,11 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
                     ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
                     loadTags()
                     dialog.dismiss()
-                }
-                else {
+                } else {
                     Toast.makeText(context, "Failed to delete Tag", Toast.LENGTH_SHORT).show()
                 }
             }
-            .setNegativeButton("Cancel") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("Cancel", null)
             .show()
     }
 

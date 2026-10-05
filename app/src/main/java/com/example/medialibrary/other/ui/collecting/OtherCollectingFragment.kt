@@ -16,6 +16,7 @@ import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
 import com.example.medialibrary.other.ui.utils.SharedUtils
 import com.example.medialibrary.other.ui.utils.SortFilterViewmodel
+import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -117,6 +118,18 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
         val items = otherController.GetListOfOtherCollections(currentFilter)
         setup = otherController.GetSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup,
+            FragmentType.Collecting
+        ) {
+            val emptyFilter = OtherFilter().apply { Collecting = true }
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateItemFilter(emptyFilter)
+            binding.searchView?.setQuery("", false)
+        }
     }
 
     private fun showFilterSheet(setup: MainSetup, filter: OtherFilter?) {
@@ -128,12 +141,13 @@ class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, Oth
         f.Collecting = true
 
         sheetBinding.collecting.root.visibility = View.GONE
-
-
         SharedUtils.filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
             currentFilter = f
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            f.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
+            f.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
             loadData()
             dialog.dismiss()
         }

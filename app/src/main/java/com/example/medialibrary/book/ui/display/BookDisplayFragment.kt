@@ -1,33 +1,45 @@
 package com.example.medialibrary.book.ui.display
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.*
-import android.widget.*
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.book.ui.utils.*
+import com.example.medialibrary.book.ui.utils.SharedUtils
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.databinding.ViewEmptyStateBinding
-import com.example.medialibrary.utils.*
-import com.github.mikephil.charting.charts.*
+import com.example.medialibrary.utils.DualColumnCardHelper
+import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.utils.SafePieChartRenderer
 import com.github.mikephil.charting.components.Legend
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import models.book.*
+import models.book.Book
+import models.book.BookFilter
+import models.book.BookSetup
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import models.shared.Enums.MediaType
@@ -39,33 +51,6 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     private var currentFilter = BookFilter()
     private var bookController: BookController? = null
     private var setup: BookSetup? = null
-
-    //region Components
-    private var emptyStateContainer: ViewEmptyStateBinding? = null
-    private var filterButton: ImageButton? = null
-    private var sortButton: ImageButton? = null
-    private var copyListButton: ImageButton? = null
-    private var readProgressChart: PieChart? = null
-    private var seriesCountText: TextView? = null
-    private var itemsText: TextView? = null
-    private var collectedSeriesText: TextView? = null
-    private var ongoingSeriesText: TextView? = null
-    private var collectingText: TextView? = null
-    private var formatChart: PieChart? = null
-    private var bookTypeChart: BarChart? = null
-    //endregion
-
-    //region sheet Components
-    private var applyFilterBtn: Button? = null
-    private var clearActiveFilter: Button? = null
-    private var readToggle: Button? = null
-    private var readingToggle: Button? = null
-    private var ownedToggle: Button? = null
-    private var ongoingToggle: Button? = null
-    private var collectedToggle: Button? = null
-    private var collectingToggle: Button? = null
-    //endregion
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -78,7 +63,6 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         setFragmentType(FragmentType.Display)
 
         val root: View = super.onCreateView(inflater, container, savedInstanceState)
-        setComponentBindings()
         setupActionBindings()
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
@@ -129,22 +113,21 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         dialog.setContentView(sheetBinding.root)
 
         sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
-        setComponentSheetBindings(sheetBinding)
 
-        applyFilterBtn?.setOnClickListener {
-            filter.Read = readToggle?.tag as Boolean?
-            filter.Reading = readingToggle?.tag as Boolean?
-            filter.AnyOwned = ownedToggle?.tag as Boolean?
-            filter.Ongoing = ongoingToggle?.tag as Boolean?
-            filter.Collecting = collectingToggle?.tag as Boolean?
-            filter.Collected = collectedToggle?.tag as Boolean?
+        sheetBinding.applyFilterBtn.setOnClickListener {
+            filter.Read = sheetBinding.read.triStateButton.tag as? Boolean
+            filter.Reading = sheetBinding.reading.triStateButton.tag as? Boolean
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            filter.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as? Boolean
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
+            filter.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
 
             sortFilterViewModel.updateBookFilter(filter)
             loadData()
             dialog.dismiss()
         }
 
-        clearActiveFilter?.setOnClickListener {
+        sheetBinding.clearActiveFilter.setOnClickListener {
             sortFilterViewModel.updateBookFilter(BookFilter())
             dialog.dismiss()
         }
@@ -152,25 +135,21 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         dialog.show()
     }
 
-    //region Setup
-
-    private fun setupActionBindings()
-    {
-
+    private fun setupActionBindings() {
         setupEmptyStateMediaItemObserver(
             viewModel.mediaItems,
             binding.scrollView,
             ContextCompat.getColor(requireContext(), R.color.section_book),
-            emptyStateContainer!!,
+            binding.emptyStateContainer,
             binding.emptyStateLayout,
             R.string.no_books_found
         )
 
-        filterButton?.setOnClickListener {
+        binding.filterBtn.setOnClickListener {
             setup?.let { s -> showFilterSheet(s, currentFilter) }
         }
 
-        sortButton?.setOnClickListener {
+        binding.sortBtn?.setOnClickListener {
             val filter = sortFilterViewModel.getOrCreateBookFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
@@ -179,7 +158,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             }
         }
 
-        copyListButton?.setOnClickListener {
+        binding.copyListBtn.setOnClickListener {
             val books = viewModel.mediaItems.value
             val sortedBooks = books?.sortedBy { it.Title }
             val bookList = buildString {
@@ -194,55 +173,25 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         }
     }
 
-    private fun setComponentBindings()
-    {
-        emptyStateContainer = binding.emptyStateContainer
-        filterButton = binding.filterBtn
-        sortButton = binding.sortBtn
-        copyListButton = binding.copyListBtn
-        readProgressChart = binding.readProgressChart
-        seriesCountText = binding.seriesCountText
-        itemsText = binding.itemsText
-        collectedSeriesText = binding.collectedSeriesText
-        ongoingSeriesText = binding.ongoingSeriesText
-        collectingText = binding.collectingText
-        formatChart = binding.formatChart
-        bookTypeChart = binding.bookTypeChart
-
-    }
-
-    private fun setComponentSheetBindings(sb: BookBottomSheetBinding)
-    {
-        readToggle = sb.read.triStateButton
-        readingToggle = sb.reading.triStateButton
-        ownedToggle = sb.anyItemsOwned.triStateButton
-        ongoingToggle = sb.standaloneOrSeriesComplete.triStateButton
-        collectedToggle = sb.collected.triStateButton
-        collectingToggle = sb.collecting.triStateButton
-        applyFilterBtn = sb.applyFilterBtn
-        clearActiveFilter = sb.clearActiveFilter
-
-    }
-
     @SuppressLint("SetTextI18n")
     private fun setupCharts(items: List<Book>, setup: BookSetup) {
         var readCount = 0
         var totalBook = 0
 
         for (book in items) {
-            readCount += book.Items?.count { it.Read } ?: 0
-            totalBook += book.Items?.count() ?: 0
+            readCount += book.Items?.count { it.Read && it.Owned } ?: 0
+            totalBook += book.Items?.count() { it.Owned } ?: 0
         }
 
         val completedCount = items.count { it.HasCollectedAllItems == true }
         val updateToDate = items.count { it.Ongoing }
         val collecting = items.count { it.Collecting }
 
-        seriesCountText?.text = "Total Number of Series: " + items.count().toString()
-        itemsText?.text = "Total Number of Books: $totalBook"
-        collectedSeriesText?.text = "Total Number Series or Standalone books Collected: $completedCount"
-        ongoingSeriesText?.text = "Total Number of Ongoing Series: $updateToDate"
-        collectingText?.text = "Total Number of Series or Books Currently Collecting: $collecting"
+        binding.seriesCountText.text = "Total Number of Series: ${items.count()}"
+        binding.itemsText.text = "Total Number of Books: $totalBook"
+        binding.collectedSeriesText?.text = "Total Number Series or Standalone books Collected: $completedCount"
+        binding.ongoingSeriesText.text = "Total Number of Ongoing Series: $updateToDate"
+        binding.collectingText.text = "Total Number of Series or Books Currently Collecting: $collecting"
 
         setReadPercentChart(readCount, totalBook)
 
@@ -254,16 +203,16 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setReadPercentChart(readCount: Int, totalBook: Int) {
-        val readPercent = ((readCount.toDouble() / totalBook.toDouble()) * 100).toInt()
+        val readPercent = if (totalBook > 0) ((readCount.toDouble() / totalBook.toDouble()) * 100).toInt() else 0
         val readPercentPieEntries = ArrayList<PieEntry<*>>()
         readPercentPieEntries.add(PieEntry(readPercent.toFloat()))
-        readPercentPieEntries.add(PieEntry(100 - readPercent.toFloat()))
+        readPercentPieEntries.add(PieEntry((100 - readPercent).toFloat()))
 
         val readPercentPieDataSet = PieDataSet(readPercentPieEntries, "Read Percent")
         readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
 
         val readPercentPieData = PieData(readPercentPieDataSet)
-        readProgressChart!!.let { chart ->
+        binding.readProgressChart.let { chart ->
             if (readPercentPieEntries.isEmpty()) {
                 chart.noDataText = "No data to display"
                 chart.data = null
@@ -312,7 +261,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val barData = BarData(dataSets)
 
-        bookTypeChart!!.let { chart ->
+        binding.bookTypeChart.let { chart ->
             chart.noDataText = "No data to display"
 
             if (dataSets.isEmpty()) {
@@ -340,51 +289,49 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     private fun setupGenreBarChart(items: List<Book>, setup: BookSetup) {
         val genreList = setup.Genre
         val genreInformationMap = mutableMapOf<String, Int>()
-        genreList.forEach {  genre ->
+        genreList.forEach { genre ->
             var totalBooksPerGenre = 0
-            if(!items.isEmpty()) {
+            if (items.isNotEmpty()) {
                 totalBooksPerGenre += items.count { it.Genre.contains(genre.genreId) }
                 genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
         }
 
-
-        val title = binding.displayGenreCard.cardTitle
-        title.text = getString(R.string.total_number_of_books_per_genre)
+        binding.displayGenreCard.cardTitle.text = getString(R.string.total_number_of_books_per_genre)
 
         DualColumnCardHelper.setupDualColumnCard(
             genreInformationMap,
             binding.displayGenreCard,
             R.string.no_publisher_data_to_display,
             MediaType.Book,
-            requireContext())
-
+            requireContext()
+        )
     }
 
     private fun setPublisherBarChart(items: List<Book>, setup: BookSetup) {
         val publishers = setup.Publishers
         val publisherInformationMap = mutableMapOf<String, Int>()
 
-        publishers.forEach {  publisher ->
-            val items = items.filter { it.Publisher == publisher.Id }
+        publishers.forEach { publisher ->
+            val publisherBooks = items.filter { it.Publisher == publisher.Id }
             var totalBooksPerPublisher = 0
-            if(!items.isEmpty()) {
-                for (book in items) {
+            if (publisherBooks.isNotEmpty()) {
+                for (book in publisherBooks) {
                     totalBooksPerPublisher += book.Items?.count() ?: 0
                 }
                 publisherInformationMap[publisher.Name] = totalBooksPerPublisher
             }
         }
 
-        val title = binding.displayPublisherCard.cardTitle
-        title.text = getString(R.string.total_number_of_books_per_publisher)
+        binding.displayPublisherCard.cardTitle.text = getString(R.string.total_number_of_books_per_publisher)
 
         DualColumnCardHelper.setupDualColumnCard(
             publisherInformationMap,
             binding.displayPublisherCard,
             R.string.no_genre_data_to_display,
             MediaType.Book,
-            requireContext())
+            requireContext()
+        )
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {
@@ -411,7 +358,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         if (hardCoverCount > 0) formatPieEntries.add(PieEntry(hardCoverCount.toFloat(), "Hardcover"))
         if (paperBackCount > 0) formatPieEntries.add(PieEntry(paperBackCount.toFloat(), "Paperback"))
 
-        formatChart!!.let { chart ->
+        binding.formatChart.let { chart ->
             if (formatPieEntries.isEmpty()) {
                 chart.data = null
                 chart.noDataText = "No Format data to display"
@@ -451,8 +398,5 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             }
             chart.invalidate()
         }
-
     }
-
-    //endregion
 }

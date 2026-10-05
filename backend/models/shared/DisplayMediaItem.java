@@ -7,5 +7,6 @@ public class DisplayMediaItem {
     public String MediaTypeText;
     public int ItemCount;
     public Enums.MediaType MediaType;
+    public Enums.CollectingPriority CollectingPriority;
     public byte[] Cover;
 }

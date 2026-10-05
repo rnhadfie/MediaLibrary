@@ -1,16 +1,14 @@
 package com.example.medialibrary.other.ui.otherform
 
-
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,7 +18,6 @@ import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
 import models.other.OtherItem
@@ -56,9 +53,7 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             viewModel.loadOtherCollection(itemId, controller)
         }
 
-        var setup = controller?.GetSetup()
-        if (setup == null)
-            setup = MainSetup()
+        val setup = controller?.GetSetup() ?: MainSetup()
 
         setupTagSelection(setup)
         setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
@@ -66,61 +61,26 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
         setupRecyclerView()
         setupInputListeners()
+        setupClickListeners()
+        observeViewModel()
+    }
 
+    private fun setupClickListeners() {
         binding.changeImage.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("other")
         }
         binding.changeImage.buttonClearCover.setOnClickListener {
             clearImage("other")
         }
-
         binding.buttonAddItem.setOnClickListener {
             showOtherItemSheet()
         }
-
         binding.buttonSaveOther.setOnClickListener {
-            val error = viewModel.validateFields()
-            if (error.isNotEmpty()) {
-                if (error.containsKey("general")) {
-                    Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
-                }
-                if (error.containsKey("title")) {
-                    binding.editOtherTitleLabel.error = error["title"]
-                    Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                val saveObj = viewModel.getSaveObject()
-                if(controller != null) {
-
-                    val result = if (isEdit) {
-                        controller!!.UpdateOther(saveObj)
-                    } else {
-                        controller!!.AddOther(saveObj)
-                    }
-
-                    if(result) {
-                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-                        Toast.makeText(
-                            requireContext(),
-                            if (isEdit) "Other Collection Updated" else "Other Collection Saved",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        activity?.finish()
-                    }
-                    else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Book Failed to Save",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
-            }
+            handleSaveAction()
         }
+    }
 
-        // Observe ViewModel
+    private fun observeViewModel() {
         viewModel.other.observe(viewLifecycleOwner) { other ->
             binding.editOtherTitle.setText(other.Title)
             binding.otherCollecting.isChecked = other.Collecting ?: false
@@ -144,7 +104,44 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         viewModel.items.observe(viewLifecycleOwner) { items ->
             itemAdapter.submitList(items.toList())
         }
+    }
 
+    private fun handleSaveAction() {
+        val error = viewModel.validateFields()
+        if (error.isNotEmpty()) {
+            if (error.containsKey("general")) {
+                Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
+            }
+            if (error.containsKey("title")) {
+                binding.editOtherTitleLabel.error = error["title"]
+                Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            val saveObj = viewModel.getSaveObject()
+            controller?.let { ctrl ->
+                val result = if (isEdit) {
+                    ctrl.UpdateOther(saveObj)
+                } else {
+                    ctrl.AddOther(saveObj)
+                }
+
+                if (result) {
+                    notifyDataChanged()
+                    Toast.makeText(
+                        requireContext(),
+                        if (isEdit) "Other Collection Updated" else "Other Collection Saved",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    activity?.finish()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to Save Collection",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
     }
 
     override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
@@ -155,28 +152,28 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 
     private fun setupTagSelection(setup: MainSetup) {
         val tags = setup.Tag
-        tags.add(0, Tag("", ""))
-        val adapter = ArrayAdapter<Tag>(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.tagAutocomplete.autocomplete.setAdapter(adapter)
+        if (tags.isEmpty() || tags[0].Id != "") {
+            tags.add(0, Tag("", ""))
+        }
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
+        val tagAutoComplete = binding.tagAutocomplete.autocomplete
+
+        tagAutoComplete.setAdapter(adapter)
         binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
-        binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
+        tagAutoComplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.tagAutocomplete.autocomplete.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val text = s.toString()
-                val existing = tags.find { it.Name == text }
-                if (existing == null) {
-                    viewModel.updateTagName(text)
-                } else {
-                    viewModel.updateTag(existing)
-                }
+        tagAutoComplete.doAfterTextChanged { s ->
+            val text = s.toString()
+            val existing = tags.find { it.Name == text }
+            if (existing == null) {
+                viewModel.updateTagName(text)
+            } else {
+                viewModel.updateTag(existing)
             }
-        })
+        }
     }
 
     private fun setupRecyclerView() {
@@ -191,21 +188,17 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
     }
 
     private fun setupInputListeners() {
-        binding.editOtherTitle.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                viewModel.updateTitle(s.toString())
-                binding.editOtherTitleLabel.error = null
-            }
-        })
-
-        binding.otherCollecting.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCollecting(isChecked)
+        binding.editOtherTitle.doAfterTextChanged { s ->
+            viewModel.updateTitle(s.toString())
+            binding.editOtherTitleLabel.error = null
         }
 
-        binding.otherCompletedCollecting.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCollectionComplete(isChecked)
+        binding.otherCollecting.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCollecting(isChecked)
+        }
+
+        binding.otherCompletedCollecting.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCollectionComplete(isChecked)
         }
     }
 
@@ -220,7 +213,6 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         sheetBinding.labelText.text = if (item == null) "Add Item" else "Edit Item"
         sheetBinding.cancelButton.setOnClickListener { dialog.dismiss() }
 
-        // Populate if editing
         item?.let {
             sheetBinding.editSheetVolumeTitle.setText(it.Title)
             sheetBinding.switchSheetOwned.isChecked = it.Owned
@@ -249,17 +241,16 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             clearImage("item")
         }
 
-
         sheetBinding.buttonSheetSave.setOnClickListener {
-            val volNum = sheetBinding.editSheetVolumeTitle.text.toString()
-            if (volNum.isBlank()) {
+            val title = sheetBinding.editSheetVolumeTitle.text.toString()
+            if (title.isBlank()) {
                 sheetBinding.editSheetVolumeTitleLabel.error = "Title is required"
                 Toast.makeText(requireContext(), "Title is required", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             val newItem = OtherItem().apply {
-                Title = sheetBinding.editSheetVolumeTitle.text.toString()
+                Title = title
                 Owned = sheetBinding.switchSheetOwned.isChecked
                 ItemCover = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray
             }
@@ -269,11 +260,6 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
 
         dialog.show()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        currentSheetBinding = null
     }
 
     inner class OtherItemAdapter(
@@ -294,32 +280,34 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            val item = items[position]
-            val context = holder.binding.root.context
-
-            holder.binding.textVolumeInfo.text = item.Title ?: ""
-
-            holder.binding.textStatusInfo.text = context.getString(
-                R.string.Other_volume_status_format,
-                if (item.Owned) "Yes" else "No"
-            )
-
-            if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
-                val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
-                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                holder.binding.imageItemCover.setImageBitmap(bitmap)
-                holder.binding.imageItemCover.imageTintList = null
-            } else {
-                ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, context, resources)
-            }
-
-            holder.binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
-            holder.binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+            holder.bind(items[position], position)
         }
 
         override fun getItemCount() = items.size
 
-        inner class ViewHolder(val binding: BookItemVolumeBinding) : RecyclerView.ViewHolder(binding.root)
-    }
+        inner class ViewHolder(val binding: BookItemVolumeBinding) : RecyclerView.ViewHolder(binding.root) {
+            fun bind(item: OtherItem, position: Int) {
+                val context = binding.root.context
 
+                binding.textVolumeInfo.text = item.Title ?: ""
+
+                binding.textStatusInfo.text = context.getString(
+                    R.string.Other_volume_status_format,
+                    if (item.Owned) "Yes" else "No"
+                )
+
+                if (item.ItemCover != null && item.ItemCover.isNotEmpty()) {
+                    val bitmap = BitmapFactory.decodeByteArray(item.ItemCover, 0, item.ItemCover.size)
+                    binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
+                    binding.imageItemCover.setImageBitmap(bitmap)
+                    binding.imageItemCover.imageTintList = null
+                } else {
+                    ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
+                }
+
+                binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
+                binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+            }
+        }
+    }
 }

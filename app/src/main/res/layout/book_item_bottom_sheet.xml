@@ -45,16 +45,9 @@
         </LinearLayout>
 
 
-
         <include layout="@layout/view_change_image"
             android:id="@+id/image_item_cover"
         />
-
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/standalone_switch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/standalone" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/number_label"

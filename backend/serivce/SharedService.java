@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import kotlin.Lazy;
 import kotlin.LazyKt;
@@ -62,6 +61,7 @@ public class SharedService {
         displayItem.Id = item.Id;
         displayItem.Title = item.Title;
         displayItem.Cover = item.Cover;
+        displayItem.CollectingPriority = item.CollectingPriority;
 
         StringBuilder statusString = new StringBuilder();
         if(item.HasCollectedAllItems != null && item.HasCollectedAllItems)
@@ -90,7 +90,7 @@ public class SharedService {
             displayItem.MediaTypeText = "Type: Book";
             alternativeStatus = "Type: " + (tempBook.Type != null ? GetSeperatedString(tempBook.Type.name()) : "");
 
-            displayItem.ItemCount = tempBook.Items != null ? tempBook.Items.size() : 0;
+            displayItem.ItemCount = Math.toIntExact(tempBook.Items != null ? tempBook.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
             if(displayItem.ItemCount > 0)
             {
                 standalone = Objects.equals(tempBook.Items.get(0).VolumeNumber, "-1");
@@ -99,7 +99,7 @@ public class SharedService {
             var tempVideo = (Video) item;
             displayItem.MediaType = Enums.MediaType.Video;
             displayItem.MediaTypeText = "Type: Movie/TV Show";
-            displayItem.ItemCount = tempVideo.Items != null ? tempVideo.Items.size() : 0;
+            displayItem.ItemCount = Math.toIntExact(tempVideo.Items != null ? tempVideo.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
             alternativeStatus = "Category: " + (tempVideo.VideoTag != null ? GetSeperatedString(tempVideo.VideoTag.name()) : "");
             if(displayItem.ItemCount > 0)
             {
@@ -108,14 +108,14 @@ public class SharedService {
         } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
-            displayItem.ItemCount = 1;
+            displayItem.ItemCount = item.HasCollectedAllItems ? 1 : 0;
             alternativeStatus =  ((Music)item).Artist;
 
         } else if (item instanceof Other) {
             var tempOther = (Other) item;
             displayItem.MediaType = Enums.MediaType.Other;
             displayItem.MediaTypeText = "Type: Other Collection";
-            displayItem.ItemCount = tempOther.Items != null ? tempOther.Items.size() : 0;
+            displayItem.ItemCount = Math.toIntExact(tempOther.Items != null ? tempOther.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
         } else {
             displayItem.MediaType = Enums.MediaType.NoneSelected;
         }
@@ -186,7 +186,9 @@ public class SharedService {
         int maxCount = 0;
 
         for (T element : list) {
-            int count = frequencyMap.getOrDefault(element, 0) + 1;
+            var frequency = frequencyMap.getOrDefault(element, 0);
+
+            int count = frequency != null ? frequency + 1 : 0;
             frequencyMap.put(element, count);
 
             if (count > maxCount) {
@@ -206,7 +208,7 @@ public class SharedService {
                 genreMap.add(new GenreObject(genre.ordinal(), GetSeperatedString(genre.toString())));
             }
         }
-        return genreMap.stream().sorted(Comparator.comparing(g -> g.genreName)).collect(Collectors.toList());
+        return genreMap.stream().sorted(Comparator.comparing(g -> g.genreName)).collect(toList());
     }
 
     private void appendInClause(List<String> conditions, List<String> selectionArgs, String columnName, List<String> values) {
@@ -309,12 +311,12 @@ public class SharedService {
         // Search
         if (filter.Search != null && !filter.Search.isEmpty()) {
             var searchText = filter.Search.trim();
-            if (filter.MediaType == Enums.MediaType.Book) {
+            if (filter instanceof BookFilter) {
                 conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_AUTHOR + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
-            } else if (filter.MediaType == Enums.MediaType.Music) {
+            } else if (filter instanceof MusicFilter) {
                 conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
@@ -474,13 +476,27 @@ public class SharedService {
         List<U> sortedItems = new ArrayList<>(items);
         List<DyanmicSort.SortKey<U, ?>> sortRules = new ArrayList<>();
 
-        if (filter.SortAlphabetical != null) {
-            sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+        List<String> order = (filter.SortOrder != null && !filter.SortOrder.isEmpty())
+                ? filter.SortOrder
+                : List.of("Priority", "Alphabetical", "ItemMediaType");
+
+        for (String key : order) {
+            if ("Priority".equalsIgnoreCase(key) && filter.SortPriority != null) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
+            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+            } else if ("ItemMediaType".equalsIgnoreCase(key) && filter.SortItemMediaType != null) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
+            }
         }
-        if (filter.SortPriority != null) {
+
+        if (filter.SortPriority != null && !order.contains("Priority")) {
             sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
         }
-        if (filter.SortItemMediaType != null) {
+        if (filter.SortAlphabetical != null && !order.contains("Alphabetical")) {
+            sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+        }
+        if (filter.SortItemMediaType != null && !order.contains("ItemMediaType")) {
             sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
         }
 
@@ -490,7 +506,7 @@ public class SharedService {
         return sortedItems;
     }
 
-    public  List<DisplayMediaItem> SortDisplayItem(Filter filter, List<DisplayMediaItem> items) {
+    public List<DisplayMediaItem> SortDisplayItem(Filter filter, List<DisplayMediaItem> items) {
         if (filter == null || items == null || items.isEmpty()) {
             return items != null ? items : new ArrayList<>();
         }
@@ -498,10 +514,27 @@ public class SharedService {
         List<DisplayMediaItem> sortedItems = new ArrayList<>(items);
         List<DyanmicSort.SortKey<DisplayMediaItem, ?>> sortRules = new ArrayList<>();
 
-        if (filter.SortAlphabetical != null) {
+        List<String> order = (filter.SortOrder != null && !filter.SortOrder.isEmpty())
+                ? filter.SortOrder
+                : List.of("Priority", "Alphabetical", "ItemMediaType");
+
+        for (String key : order) {
+            if ("Priority".equalsIgnoreCase(key) && filter.SortPriority != null) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
+            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+            } else if ("ItemMediaType".equalsIgnoreCase(key) && filter.SortItemMediaType != null) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
+            }
+        }
+
+        if (filter.SortPriority != null && !order.contains("Priority")) {
+            sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
+        }
+        if (filter.SortAlphabetical != null && !order.contains("Alphabetical")) {
             sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
         }
-        if (filter.SortItemMediaType != null) {
+        if (filter.SortItemMediaType != null && !order.contains("ItemMediaType")) {
             sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
         }
 

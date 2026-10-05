@@ -37,9 +37,8 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 ) {
 
     private var currentFilter = MusicFilter()
-    private var bookController: MusicController? = null
+    private var musicController: MusicController? = null
     private var setup: MusicSetup? = null
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -54,7 +53,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val root = super.onCreateView(inflater, container, savedInstanceState)
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
-        bookController = MusicController(dbHelper)
+        musicController = MusicController(dbHelper)
 
         observeSortFilterViewModel()
         loadData()
@@ -112,13 +111,19 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     }
 
     private fun loadData() {
-        val items = bookController?.GetMusics(currentFilter) ?: emptyList()
-        setup = bookController?.GetMusicSetup()
+        val items = musicController?.GetMusics(currentFilter) ?: emptyList()
+        setup = musicController?.GetMusicSetup()
         viewModel.setMediaItems(items)
+
+        val total = items.count { it.HasCollectedAllItems }
+        binding.musicTotalItemsCardText.text = buildString {
+            append(getString(R.string.total_cds))
+            append(": ")
+            append(total)
+        }
 
         setArtistChart(items)
         setGenreChart(items)
-
 
         FilterSummaryHelper.bindFilterSummary(
             binding.root.findViewById(R.id.card_active_filter),
@@ -141,8 +146,8 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerMusic.setOnClickListener {
-            filter.Collecting = sheetBinding.collecting.triStateButton.tag as Boolean?
-            filter.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
+            filter.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
+            filter.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
 
             currentFilter = filter
             sortFilterViewModel.updateMusicFilter(filter)
@@ -163,12 +168,11 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
     private fun setArtistChart(items: List<Music>) {
         var artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues { it.value.size }
-
         artistInformationMap = artistInformationMap.filter { it.key != "" }
         val card = binding.artistCard
         val title = binding.artistCard.cardTitle
         val emptyState = binding.artistCard.emptyStateContainer
-        title.text = getString(R.string.genres)
+        title.text = getString(R.string.artists)
 
         TextCardHelper.setupTextCard(artistInformationMap, card, emptyState, R.string.no_artist_data_to_display, Enums.MediaType.Music, requireContext())
     }
@@ -177,15 +181,13 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val genreList = setup?.MusicGenre
         val genreInformationMap = mutableMapOf<String, Int>()
 
-        genreList?.forEach {  genre ->
-            if(genre.key == MusicGenre.NoneSelected.ordinal) {
+        genreList?.forEach { genre ->
+            if (genre.key == MusicGenre.NoneSelected.ordinal) {
                 return@forEach
             }
-            val items = items.filter { it.MusicGenre.ordinal == genre.key }
-            var totalBooksPerGenre = 0
-            if(!items.isEmpty()) {
-                totalBooksPerGenre = items.size
-                genreInformationMap[genre.value] = totalBooksPerGenre
+            val genreItems = items.filter { it.MusicGenre.ordinal == genre.key }
+            if (genreItems.isNotEmpty()) {
+                genreInformationMap[genre.value] = genreItems.size
             }
         }
 
@@ -197,7 +199,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
             binding.genreCard,
             R.string.no_artist_data_to_display,
             Enums.MediaType.Music,
-            requireContext())
+            requireContext()
+        )
     }
-
 }

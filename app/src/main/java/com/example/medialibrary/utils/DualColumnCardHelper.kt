@@ -13,10 +13,10 @@ object DualColumnCardHelper {
         map: Map<String, Int>,
         binding: ViewDualColumnCardBinding,
         emptyStateText: Int,
-        MediaType: Enums.MediaType,
+        mediaType: Enums.MediaType,
         context: Context)
     {
-        when(MediaType)
+        when(mediaType)
         {
             Enums.MediaType.Book -> {
                 binding.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.section_book_light))

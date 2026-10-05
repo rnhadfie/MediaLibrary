@@ -11,7 +11,7 @@ import models.shared.Tag
 import models.shared.Enums as SharedEnums
 
 class OtherFormViewModel : ViewModel() {
-    private val _other = MutableLiveData<Other>(Other().apply {
+    private val _other = MutableLiveData(Other().apply {
         MediaType = SharedEnums.MediaType.Other
     })
     val other: LiveData<Other> = _other

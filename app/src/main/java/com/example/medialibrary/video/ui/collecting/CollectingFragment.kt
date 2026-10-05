@@ -19,6 +19,7 @@ import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentCollectingBinding
+import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.example.medialibrary.video.ui.utils.SharedUtils
@@ -176,6 +177,18 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         val items = videoController.GetListOfVideos(effectiveFilter)
         setup = videoController.GetVideoSetup()
         viewModel.setItems(items ?: emptyList())
+
+        FilterSummaryHelper.bindFilterSummary(
+            binding.root.findViewById(R.id.card_active_filter),
+            currentFilter,
+            setup,
+            FragmentType.Display
+        ) {
+            val emptyFilter = VideoFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateVideoFilter(emptyFilter)
+            loadData()
+        }
     }
 
     private fun showFilterSheet(setup: VideoSetup, filter: VideoFilter) {
@@ -183,19 +196,18 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         var sheetBinding = VideoBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
 
-        val f = filter
-        sheetBinding = SharedUtils.filterSheetSetup(f, setup, sheetBinding)
+        sheetBinding = SharedUtils.filterSheetSetup(filter, setup, sheetBinding)
         sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.filterBtn.setOnClickListener {
-            f.Ongoing = sheetBinding.ongoing.triStateButton.tag as Boolean?
-            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as Boolean?
-            f.Collected = sheetBinding.collected.triStateButton.tag as Boolean?
-            f.Watched = sheetBinding.watched.triStateButton.tag as Boolean?
-            f.Watching = sheetBinding.watching.triStateButton.tag as Boolean?
+            filter.Ongoing = sheetBinding.ongoing.triStateButton.tag as? Boolean
+            filter.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            filter.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
+            filter.Watched = sheetBinding.watched.triStateButton.tag as? Boolean
+            filter.Watching = sheetBinding.watching.triStateButton.tag as? Boolean
 
-            currentFilter = f
-            sortFilterViewModel.updateVideoFilter(f)
+            currentFilter = filter
+            sortFilterViewModel.updateVideoFilter(filter)
             loadData()
             dialog.dismiss()
         }

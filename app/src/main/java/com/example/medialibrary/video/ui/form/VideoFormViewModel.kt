@@ -16,7 +16,7 @@ import models.video.VideoSetup
 
 class VideoFormViewModel : ViewModel() {
 
-    private val _video = MutableLiveData<Video>(Video().apply {
+    private val _video = MutableLiveData(Video().apply {
         MediaType = Enums.MediaType.Video
         Type = VideoType.NoneSelected
         Genre = mutableListOf()
@@ -89,6 +89,11 @@ class VideoFormViewModel : ViewModel() {
         _video.value?.HasCollectedAllItems = collected
     }
 
+    fun clearItems() {
+        val currentList = _items.value ?: mutableListOf()
+        currentList.clear()
+        _items.value = currentList
+    }
     fun addOrUpdateItem(item: VideoItem, position: Int = -1) {
         val currentList = _items.value ?: mutableListOf()
         if (position >= 0 && position < currentList.size) {

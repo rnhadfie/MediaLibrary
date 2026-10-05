@@ -3,6 +3,7 @@ package com.example.medialibrary
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,9 +21,12 @@ import com.example.medialibrary.video.VideoActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import models.shared.DataContainer
 import repository.XmlRepository
 import repository.database.BaseRepository
 import repository.database.MediaLibraryDbHelper
+import java.io.IOException
+import java.io.OutputStream
 
 open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
@@ -137,19 +141,51 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
     }
 
     private fun <T : ViewBinding> exportData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
-        try {
             val xmlRepository = XmlRepository(dbHelper)
             val data = xmlRepository.GetAllData()
-            val xmlString = XmlExportImport.exportToXml(data)
+            saveXmlToInternalStorage(uri, contentResolver, data, "library_export.xml")
+    }
 
-            contentResolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(xmlString.toByteArray())
+    private fun saveXmlToInternalStorage(uri: Uri, contentResolver: ContentResolver, container: DataContainer, fileName: String) {
+        // 1. Generate the raw XML string from your method
+        val xmlString = XmlExportImport.exportToXml(container)
+
+        if (xmlString.isEmpty()) {
+            Log.e("XML_EXPORT", "Export failed: Your exportToXml method returned an empty string.")
+            return
+        }
+
+        var outputStream: OutputStream? = null
+
+        try {
+            // 2. Open a direct output pipe directly into the provided URI
+            // Using "w" ensures it overwrites the file if it already exists
+            outputStream = contentResolver.openOutputStream(uri, "w")
+
+            if (outputStream != null) {
+                val xmlBytes = xmlString.toByteArray(Charsets.UTF_8)
+                outputStream.write(xmlBytes)
+                outputStream.flush()
+
+                Log.d("XML_EXPORT", "Export Successful to URI: $uri")
+                Snackbar.make(binding.root, "Data exported successfully", Snackbar.LENGTH_SHORT).show()
+            } else {
+                throw IOException("Failed to open output stream for the provided URI.")
             }
-            Snackbar.make(binding.root, "Data exported successfully", Snackbar.LENGTH_SHORT).show()
+
         } catch (e: Exception) {
-            Snackbar.make(binding.root, "Export failed: ${e.message}", Snackbar.LENGTH_LONG).show()
+            Log.e("XML_EXPORT", "Disk Write Exception: Could not write bytes to destination URI", e)
+            Snackbar.make(binding.root, "Export failed", Snackbar.LENGTH_LONG).show()
+        } finally {
+            try {
+                outputStream?.close()
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
         }
     }
+
+
 
     private fun <T : ViewBinding> importData(uri: Uri, contentResolver: ContentResolver, binding: T, dbHelper: MediaLibraryDbHelper) {
         try {

@@ -2,19 +2,17 @@ package com.example.medialibrary.music.ui.form
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
-import com.example.medialibrary.utils.SharedRefreshViewModel
 import controllers.MusicController
 import models.music.Enums.MusicGenre
 import models.music.MusicSetup
@@ -48,13 +46,13 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             viewModel.loadCd(itemId, controller)
         }
 
-        var setup = controller?.GetMusicSetup()
-        if (setup == null)
-            setup = MusicSetup()
+        val setup = controller?.GetMusicSetup() ?: MusicSetup()
 
         setBindings(setup)
+        observeViewModel()
+    }
 
-        // Observe ViewModel
+    private fun observeViewModel() {
         viewModel.music.observe(viewLifecycleOwner) { music ->
             binding.editMusicTitle.setText(music.Title)
             binding.editMusicArtist.setText(music.Artist)
@@ -64,9 +62,8 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             val currentPriority = music.CollectingPriority ?: SharedEnums.CollectingPriority.None
             binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
 
-            // Update RadioGroup
             val musicGenreId = music.MusicGenre?.ordinal ?: 0
-            if(musicGenreId != 0) {
+            if (musicGenreId != 0) {
                 RadioGridUtils.setSelection(
                     binding.musicGenreRadio.dynamicTableLayout,
                     musicGenreId
@@ -84,12 +81,9 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
                 binding.changeImage.buttonClearCover.visibility = View.GONE
             }
         }
-
     }
 
-    //region Setup
-
-    private fun setBindings(setup: MusicSetup){
+    private fun setBindings(setup: MusicSetup) {
         setupMusicGenreRadioGroup(setup)
         setupTagSelection(setup)
         setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
@@ -105,53 +99,52 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         }
 
         binding.buttonSaveMusic.setOnClickListener {
-            disableForm(false)
-            val error = viewModel.validate()
-            if (error.isNotEmpty()) {
-                if (error.containsKey("general")) {
-                    Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
-                }
-                if (error.containsKey("title")) {
-                    binding.editMusicTitleLabel.error = error["title"]
-                    Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
-                }
-                disableForm(true)
-            } else {
-                val saveObj = viewModel.getSaveObject()
-                if(controller != null) {
+            handleSaveAction()
+        }
+    }
 
-                    val result = if (isEdit) {
-                        controller!!.UpdateMusic(saveObj)
-                    } else {
-                        controller!!.AddMusic(saveObj)
-                    }
-
-                    if(result) {
-                        ViewModelProvider(requireActivity())[SharedRefreshViewModel::class.java].incrementVersion()
-                        Toast.makeText(
-                            requireContext(),
-                            if (isEdit) "Cd Updated" else "Cd Saved",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        activity?.finish()
-                    }
-                    else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Cd Failed to Save",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                    }
-                }
+    private fun handleSaveAction() {
+        disableForm(false)
+        val error = viewModel.validate()
+        if (error.isNotEmpty()) {
+            if (error.containsKey("general")) {
+                Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
+            }
+            if (error.containsKey("title")) {
+                binding.editMusicTitleLabel.error = error["title"]
+                Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
             }
             disableForm(true)
+        } else {
+            val saveObj = viewModel.getSaveObject()
+            controller?.let { ctrl ->
+                val result = if (isEdit) {
+                    ctrl.UpdateMusic(saveObj)
+                } else {
+                    ctrl.AddMusic(saveObj)
+                }
+
+                if (result) {
+                    notifyDataChanged()
+                    Toast.makeText(
+                        requireContext(),
+                        if (isEdit) "Cd Updated" else "Cd Saved",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    activity?.finish()
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "Cd Failed to Save",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    disableForm(true)
+                }
+            } ?: disableForm(true)
         }
     }
 
     private fun setupMusicGenreRadioGroup(setup: MusicSetup) {
-
         binding.musicGenreRadio.radioButtonLabel.setText(R.string.music_genre)
         val tableLayout = binding.musicGenreRadio.dynamicTableLayout
         val musicGenre = setup.MusicGenre.filter { it.key != MusicGenre.NoneSelected.ordinal }
@@ -165,7 +158,6 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
     }
 
     private fun handleRadioSelectionChange(id: Int) {
-        // You can update a ViewModel, save state, or trigger network calls here
         val genre = MusicGenre.entries.find { it.ordinal == id } ?: return
         viewModel.updateMusicGenre(genre)
     }
@@ -176,55 +168,48 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
     private fun setupTagSelection(setup: MusicSetup) {
         val tags = setup.Tags
-        tags.add(0, Tag("", ""))
+        if (tags.isEmpty() || tags[0].Id != "") {
+            tags.add(0, Tag("", ""))
+        }
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, tags)
-        binding.tagAutocomplete.autocomplete.setAdapter(adapter)
+        val tagAutoComplete = binding.tagAutocomplete.autocomplete
+
+        tagAutoComplete.setAdapter(adapter)
         binding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
-        binding.tagAutocomplete.autocomplete.setOnItemClickListener { _, _, position, _ ->
+        tagAutoComplete.setOnItemClickListener { _, _, position, _ ->
             val selectedTag = adapter.getItem(position)
             selectedTag?.let { viewModel.updateTag(it) }
         }
 
-        binding.tagAutocomplete.autocomplete.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                val text = s.toString()
-                val existing = tags.find { it.Name == text }
-                if (existing == null) {
-                    viewModel.updateTagName(text)
-                } else {
-                    viewModel.updateTag(existing)
-                }
+        tagAutoComplete.doAfterTextChanged { s ->
+            val text = s.toString()
+            val existing = tags.find { it.Name == text }
+            if (existing == null) {
+                viewModel.updateTagName(text)
+            } else {
+                viewModel.updateTag(existing)
             }
-        })
+        }
     }
 
     private fun setupInputListeners() {
-        binding.editMusicTitle.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                viewModel.updateTitle(s.toString())
-                binding.editMusicTitleLabel.error = null
-            }
-        })
-
-        binding.editMusicArtist.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { viewModel.updateArtist(s.toString()) }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-        binding.musicCollecting.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCollecting(isChecked)
-        }
-        binding.musicHasEnded.setOnCheckedChangeListener {
-                _, isChecked -> viewModel.toggleCollectionComplete(isChecked)
+        binding.editMusicTitle.doAfterTextChanged { s ->
+            viewModel.updateTitle(s.toString())
+            binding.editMusicTitleLabel.error = null
         }
 
+        binding.editMusicArtist.doAfterTextChanged { s ->
+            viewModel.updateArtist(s.toString())
+        }
+
+        binding.musicCollecting.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCollecting(isChecked)
+        }
+
+        binding.musicHasEnded.setOnCheckedChangeListener { _, isChecked ->
+            viewModel.toggleCollectionComplete(isChecked)
+        }
     }
-
-    //endregion
 
     private fun disableForm(enabled: Boolean) {
         binding.editMusicTitle.isEnabled = enabled
@@ -238,11 +223,4 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         binding.changeImage.buttonClearCover.isEnabled = enabled
         binding.buttonSaveMusic.isEnabled = enabled
     }
-
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-
 }

@@ -1,7 +1,6 @@
 package serivce;
 
 import models.book.*;
-import models.book.Enums;
 import models.shared.DeleteConfirmationResult;
 import models.shared.DisplayMediaItem;
 import repository.BookRepository;
@@ -123,9 +122,7 @@ public class BookService {
                 filteredList = filteredList.stream()
                         .filter(b -> {
                             boolean allRead = b.Items != null && !b.Items.isEmpty() && b.Items.stream().allMatch(i -> i.Read);
-                            boolean isComplete = Boolean.TRUE.equals(b.Ongoing) || Boolean.TRUE.equals(b.HasCollectedAllItems);
-                            boolean isRead = isComplete && allRead;
-                            return isRead == filter.Read;
+                            return allRead == filter.Read;
                         })
                         .collect(Collectors.toList());
             }
@@ -135,9 +132,7 @@ public class BookService {
                         .filter(b -> {
                             boolean anyRead = b.Items != null && b.Items.stream().anyMatch(i -> i.Read);
                             boolean allRead = b.Items != null && !b.Items.isEmpty() && b.Items.stream().allMatch(i -> i.Read);
-                            boolean isComplete = Boolean.TRUE.equals(b.Ongoing) || Boolean.TRUE.equals(b.HasCollectedAllItems);
-                            boolean isRead = isComplete && allRead;
-                            boolean isReading = anyRead && !isRead;
+                            boolean isReading = anyRead && !allRead;
                             return isReading == filter.Reading;
                         })
                         .collect(Collectors.toList());

@@ -29,7 +29,6 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
     private var currentFilter = OtherFilter()
     private var controller: OtherController = OtherController()
     private var setup: MainSetup = MainSetup()
-
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
     override fun onCreateView(
@@ -106,9 +105,10 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
             setup,
             FragmentType.List
         ) {
-            currentFilter = OtherFilter()
+            val emptyFilter = OtherFilter()
+            currentFilter = emptyFilter
+            sortFilterViewModel.updateItemFilter(emptyFilter)
             binding.searchView.setQuery("", false)
-            loadData()
         }
     }
 
@@ -118,11 +118,13 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         dialog.setContentView(sheetBinding.root)
 
         val f = filter ?: OtherFilter()
-
         SharedUtils.filterSheetSetup(f, setup, sheetBinding)
 
         sheetBinding.buttonSheetFitlerOther.setOnClickListener {
             currentFilter = f
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            f.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
+            f.Collecting = sheetBinding.collecting.triStateButton.tag as? Boolean
             loadData()
             dialog.dismiss()
         }

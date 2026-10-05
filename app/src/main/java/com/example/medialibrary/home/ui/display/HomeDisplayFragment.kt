@@ -64,32 +64,25 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
             binding.emptyStateContainer,
         )
 
-        //region binding
         binding.buttonBook.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_book))
         binding.buttonBook.setOnClickListener {
-            val intent = Intent(requireContext(), BookActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), BookActivity::class.java))
         }
 
         binding.buttonVideo.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_video))
         binding.buttonVideo.setOnClickListener {
-            val intent = Intent(requireContext(), VideoActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), VideoActivity::class.java))
         }
 
         binding.buttonMusic.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_music))
         binding.buttonMusic.setOnClickListener {
-            val intent = Intent(requireContext(), MusicActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), MusicActivity::class.java))
         }
 
         binding.buttonOther.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_other))
         binding.buttonOther.setOnClickListener {
-            val intent = Intent(requireContext(), OtherActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(requireContext(), OtherActivity::class.java))
         }
-
-        //endregion
 
         activity?.let { act ->
             val refreshViewModel = ViewModelProvider(act)[SharedRefreshViewModel::class.java]
@@ -133,8 +126,7 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
         var totalOther = 0
 
         items.forEach {
-            when(it.MediaType)
-            {
+            when (it.MediaType) {
                 Enums.MediaType.Book -> totalBooks += it.ItemCount
                 Enums.MediaType.Music -> totalMusic += it.ItemCount
                 Enums.MediaType.Video -> totalVideo += it.ItemCount
@@ -165,7 +157,7 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
         }
 
         val barData = BarData(dataSets)
-        binding.barChart.let {chart ->
+        binding.barChart.let { chart ->
             chart.noDataText = "No data to display"
             if (dataSets.isEmpty()) {
                 chart.data = null
@@ -185,6 +177,5 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
             }
             chart.invalidate()
         }
-
     }
 }

@@ -4,10 +4,11 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.view.*
-import android.widget.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -15,19 +16,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
-import com.example.medialibrary.book.ui.utils.*
+import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.book.ui.utils.SharedUtils.Companion.filterSheetSetup
+import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentCollectingBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import models.book.*
+import models.book.BookFilter
+import models.book.BookSetup
 import repository.database.MediaLibraryDbHelper
 
 class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookCollectingViewModel>(
@@ -39,27 +41,6 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
     private var setup: BookSetup = BookSetup()
     private lateinit var sortFilterViewModel: SortFilterViewmodel
 
-    //region Components
-    private var root: View? = null
-    private var emptyStateContainer: ViewEmptyStateBinding? = null
-    private var filterButton: ImageButton? = null
-    private var sortButton: ImageButton? = null
-    private var copyListButton: ImageButton? = null
-    private var searchView: SearchView? = null
-    //endregion
-
-    //region sheet Components
-    private var applyFilterBtn: Button? = null
-    private var clearActiveFilter: Button? = null
-    private var readToggle: Button? = null
-    private var readingToggle: Button? = null
-    private var ownedToggle: Button? = null
-    private var ongoingToggle: Button? = null
-    private var collectedToggle: Button? = null
-    private var collectingRoot: ConstraintLayout? = null
-    //endregion
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -69,36 +50,32 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
         sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.Collecting)
 
-         root = super.onCreateView(inflater, container, savedInstanceState)
+        val root = super.onCreateView(inflater, container, savedInstanceState)
 
         val recyclerView = binding.recyclerviewBooks
         val adapter = BaseTransformAdapter()
         recyclerView.adapter = adapter
 
         setDialogSort(DialogSortContentBinding.inflate(layoutInflater))
-
-        //setups binding for components
-        setComponentBindings()
         setupBindings(recyclerView, adapter)
 
         val dbHelper = MediaLibraryDbHelper(requireContext())
         bookController = BookController(dbHelper)
         observeSortFilterViewModel()
 
-        return root!!
+        return root
     }
 
-    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter)
-    {
+    private fun setupBindings(recyclerView: RecyclerView, adapter: BaseTransformAdapter) {
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
             ContextCompat.getColor(requireContext(), R.color.section_book),
-            emptyStateContainer!!,
+            binding.emptyStateContainer,
             adapter
         )
 
-        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 val filter = sortFilterViewModel.getOrCreateBookFilter()
                 filter.Search = query
@@ -116,11 +93,11 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
             }
         })
 
-        filterButton?.setOnClickListener {
+        binding.filterBtn.setOnClickListener {
             showFilterSheet(setup, currentFilter)
         }
 
-        sortButton?.setOnClickListener {
+        binding.sortBtn.setOnClickListener {
             val filter = sortFilterViewModel.getOrCreateBookFilter()
             val sortModel = sortFilterViewModel.getOrCreateSortModel()
             SharedUtils.showSortDialog(requireContext(), filter, isMain = false, sortModel = sortModel) { updatedFilter ->
@@ -129,7 +106,7 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
             }
         }
 
-        copyListButton?.setOnClickListener {
+        binding.copyListBtn.setOnClickListener {
             val books = viewModel.items.value
             val sortedBooks = books?.sortedBy { it.Title }
             val bookList = buildString {
@@ -142,28 +119,6 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
             clipboard.setPrimaryClip(clipData)
             Toast.makeText(context, "Copied to clipboard", Toast.LENGTH_SHORT).show()
         }
-    }
-
-    private fun setComponentBindings()
-    {
-        emptyStateContainer = binding.emptyStateContainer
-        filterButton = binding.filterBtn
-        sortButton = binding.sortBtn
-        copyListButton = binding.copyListBtn
-        searchView = binding.searchView
-    }
-
-    private fun setComponentSheetBindings(sb: BookBottomSheetBinding)
-    {
-        readToggle = sb.read.triStateButton
-        readingToggle = sb.reading.triStateButton
-        ownedToggle = sb.anyItemsOwned.triStateButton
-        ongoingToggle = sb.standaloneOrSeriesComplete.triStateButton
-        collectedToggle = sb.collected.triStateButton
-        collectingRoot = sb.collecting.root
-        applyFilterBtn = sb.applyFilterBtn
-        clearActiveFilter = sb.clearActiveFilter
-
     }
 
     private fun observeSortFilterViewModel() {
@@ -180,7 +135,6 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
     }
 
     private fun loadData(reload: Boolean = false) {
-        //set up filter
         if (currentFilter == null) {
             currentFilter = sortFilterViewModel.getOrCreateBookFilter()
         }
@@ -209,19 +163,16 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
             ExcludedFormats = currentFilter?.ExcludedFormats ?: ArrayList()
         }
 
-        //load list of items
         val items = bookController.GetListOfBooks(effectiveFilter)
-        if(!reload) {
+        if (!reload) {
             if (setup.Publishers.isEmpty() && setup.Tag.isEmpty()) {
                 setup = bookController.GetBookSetup()
             }
         }
         viewModel.setItems(items ?: emptyList())
 
-
-        //setup filter summary
         FilterSummaryHelper.bindFilterSummary(
-            root?.findViewById(R.id.active_filter_card),
+            binding.root.findViewById(R.id.active_filter_card),
             effectiveFilter,
             setup,
             FragmentType.Collecting
@@ -229,7 +180,7 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
             val emptyFilter = BookFilter().apply { Collecting = true }
             currentFilter = emptyFilter
             sortFilterViewModel.updateBookFilter(emptyFilter)
-            searchView?.setQuery("", false)
+            binding.searchView.setQuery("", false)
         }
     }
 
@@ -237,27 +188,26 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
         val dialog = BottomSheetDialog(requireContext())
         var sheetBinding = BookBottomSheetBinding.inflate(layoutInflater)
         dialog.setContentView(sheetBinding.root)
-        setComponentSheetBindings(sheetBinding)
 
         val f = filter ?: sortFilterViewModel.getOrCreateBookFilter()
         f.Collecting = true
 
         sheetBinding = filterSheetSetup(f, setup, sheetBinding)
-       collectingRoot?.visibility = View.GONE
+        sheetBinding.collecting.root.visibility = View.GONE
 
         sheetBinding.applyFilterBtn.setOnClickListener {
-            f.Read = readToggle?.tag as Boolean?
-            f.Reading = readingToggle?.tag as Boolean?
-            f.AnyOwned = ownedToggle?.tag as Boolean?
-            f.Ongoing = ongoingToggle?.tag as Boolean?
+            f.Read = sheetBinding.read.triStateButton.tag as? Boolean
+            f.Reading = sheetBinding.reading.triStateButton.tag as? Boolean
+            f.AnyOwned = sheetBinding.anyItemsOwned.triStateButton.tag as? Boolean
+            f.Ongoing = sheetBinding.standaloneOrSeriesComplete.triStateButton.tag as? Boolean
             f.Collecting = true
-            f.Collected = collectedToggle?.tag as Boolean?
+            f.Collected = sheetBinding.collected.triStateButton.tag as? Boolean
             sortFilterViewModel.updateBookFilter(f)
             loadData(true)
             dialog.dismiss()
         }
 
-        clearActiveFilter?.setOnClickListener {
+        sheetBinding.clearActiveFilter.setOnClickListener {
             sortFilterViewModel.updateBookFilter(BookFilter().apply { Collecting = true })
             dialog.dismiss()
         }

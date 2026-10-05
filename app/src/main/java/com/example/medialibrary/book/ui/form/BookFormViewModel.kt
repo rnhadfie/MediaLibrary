@@ -110,6 +110,11 @@ class BookFormViewModel : ViewModel() {
     }
 
 
+    fun clearItems() {
+        val currentList = _items.value ?: mutableListOf()
+        currentList.clear()
+        _items.value = currentList
+    }
     fun addOrUpdateItem(item: BookItem, position: Int = -1) {
         val currentList = _items.value ?: mutableListOf()
         if (position >= 0 && position < currentList.size) {
