@@ -186,7 +186,9 @@ public class SharedService {
         int maxCount = 0;
 
         for (T element : list) {
-            int count = frequencyMap.getOrDefault(element, 0) + 1;
+            var frequency = frequencyMap.getOrDefault(element, 0);
+
+            int count = frequency != null ? frequency + 1 : 0;
             frequencyMap.put(element, count);
 
             if (count > maxCount) {
@@ -309,12 +311,12 @@ public class SharedService {
         // Search
         if (filter.Search != null && !filter.Search.isEmpty()) {
             var searchText = filter.Search.trim();
-            if (filter.MediaType == Enums.MediaType.Book) {
+            if (filter instanceof BookFilter) {
                 conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_AUTHOR + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
-            } else if (filter.MediaType == Enums.MediaType.Music) {
+            } else if (filter instanceof MusicFilter) {
                 conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");

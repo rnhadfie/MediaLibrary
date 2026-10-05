@@ -18,7 +18,6 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
-import models.book.BookFilter
 import models.other.OtherFilter
 import models.shared.MainSetup
 import repository.database.MediaLibraryDbHelper

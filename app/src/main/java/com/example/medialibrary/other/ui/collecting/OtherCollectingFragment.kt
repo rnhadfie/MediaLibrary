@@ -21,11 +21,8 @@ import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
-import models.book.BookFilter
-import models.other.Other
 import models.other.OtherFilter
 import models.shared.MainSetup
-import models.video.VideoFilter
 import repository.database.MediaLibraryDbHelper
 
 class OtherCollectingFragment : BaseFragment<OtherFragmentCollectingBinding, OtherCollectingViewModel>(
