@@ -84,6 +84,7 @@ public class BookService {
         bookSetup.Format = this.GetBookItemFormats();
         bookSetup.Genre = _SharedService.GetGenres();
         bookSetup.Type = this.GetBookTypes();
+        bookSetup.Demographics = this.GetBookDemographics();
         bookSetup.Publishers = this.GetPublishers();
         bookSetup.Tag = _SharedService.GetTags();
         return bookSetup;
@@ -176,6 +177,16 @@ public class BookService {
             typeMap.put(type.ordinal(), sharedService.GetSeperatedString(type.toString()));
         }
         return typeMap;
+    }
+
+    public Map<Integer, String> GetBookDemographics() {
+        var sharedService = this.sharedService.getValue();
+        Enums.Demographics[] demogs = Enums.Demographics.values();
+        Map<Integer, String> demogMap = new HashMap<>();
+        for (Enums.Demographics demog : demogs) {
+            demogMap.put(demog.ordinal(), sharedService.GetSeperatedString(demog.toString()));
+        }
+        return demogMap;
     }
 
     public List<Publisher> GetPublishers() {

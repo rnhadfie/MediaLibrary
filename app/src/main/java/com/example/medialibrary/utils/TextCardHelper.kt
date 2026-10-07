@@ -1,21 +1,28 @@
 package com.example.medialibrary.utils
 
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
+import com.example.medialibrary.databinding.ViewTextCardDisplayBinding
 import models.shared.Enums
 
 object TextCardHelper {
     fun setupTextCard(
-        map: Map<String, Int>,
+        valueMap: Map<String, Any>,
+        extraValueMap: Map<String, Any>?,
         binding: ViewTextCardBinding,
         emptyState: ViewEmptyStateBinding,
         emptyStateText: Int,
+        textLabel: Int,
+        valueLabel: Int,
+        valueExtraLabel: Int,
         mediaType: Enums.MediaType,
+        layoutInflater: LayoutInflater,
         context: Context)
     {
         val layout = binding.textColumn
@@ -38,7 +45,7 @@ object TextCardHelper {
             else -> {}
         }
 
-        if(map.isEmpty())
+        if(valueMap.isEmpty())
         {
             layout.visibility = View.GONE
             emptyState.root.visibility = View.VISIBLE
@@ -49,17 +56,47 @@ object TextCardHelper {
             layout.visibility = View.VISIBLE
             emptyState.root.visibility = View.GONE
 
-            val sortedMap = map.toList()
-                .sortedByDescending { (_, value) -> value } // Sort list by the value
-                .toMap()
 
             layout.removeAllViews()
 
-            for ((key, value) in sortedMap) {
-                val textView = TextView(context)
-                textView.text = context.getString(R.string.dual_card_text, key, value)
-                textView.setPadding(8, 8, 8, 8)
-                layout.addView(textView)
+            val header = ViewTextCardDisplayBinding.inflate(layoutInflater)
+            if(textLabel > -1) {
+                header.tableText.setText(textLabel)
+            }
+            else{
+                header.tableText.text = ""
+            }
+            if(valueLabel > -1) {
+                header.tableValue.setText(valueLabel)
+            }
+            else {
+                header.tableValue.text = ""
+            }
+            if(valueExtraLabel > -1) {
+                header.tableValueExtra.setText(valueExtraLabel)
+            }
+            else { header.tableValueExtra.text = ""}
+            if(extraValueMap== null)
+            {
+                header.textDivider1.visibility = View.GONE
+            }
+
+            layout.addView(header.root)
+
+
+            for ((key, value) in valueMap) {
+                val textView = ViewTextCardDisplayBinding.inflate(layoutInflater)
+                textView.tableText.text = key
+                textView.tableValue.text = value.toString()
+                if(extraValueMap!= null && extraValueMap.containsKey(key))
+                {
+                    textView.tableValueExtra.text = extraValueMap[key].toString()
+                }
+                else {
+                    textView.tableValueExtra.text = ""
+                    textView.textDivider1.visibility = View.GONE
+                }
+                layout.addView(textView.root)
             }
         }
     }

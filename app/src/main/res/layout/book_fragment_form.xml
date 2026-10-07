@@ -85,6 +85,11 @@
                 android:id="@+id/book_Type_radio"
             />
 
+            <include layout="@layout/view_radio_button"
+                android:id="@+id/demographics_radio"
+                android:visibility="gone"
+            />
+
             <include layout="@layout/view_genre_multiselect"
                 android:id="@+id/genre_multiselect" />
 
