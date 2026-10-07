@@ -11,8 +11,8 @@ android {
         applicationId = "com.example.medialibrary"
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.02"
+        versionCode = 2
+        versionName = "1.03"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument("runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder")
