@@ -212,23 +212,16 @@
                 android:layout_marginTop="16dp" />
 
 
-            <include layout="@layout/view_text_card"
+            <include layout="@layout/view_dual_column_card"
                 android:id="@+id/display_genre_card"
                 />
 
-            <include layout="@layout/view_text_card"
+            <include layout="@layout/view_dual_column_card"
                 android:id="@+id/display_publisher_card"
                 />
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/format_chart"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/base" />
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/demographics_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"

@@ -147,7 +147,7 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp" />
 
-            <include layout="@layout/view_text_card"
+            <include layout="@layout/view_dual_column_card"
                 android:id="@+id/genre_card"
                 />
 

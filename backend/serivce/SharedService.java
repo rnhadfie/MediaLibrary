@@ -108,7 +108,7 @@ public class SharedService {
         } else if (item instanceof Music) {
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
-            displayItem.ItemCount = (item.HasCollectedAllItems != null && item.HasCollectedAllItems) ? 1 : 0;
+            displayItem.ItemCount = item.HasCollectedAllItems ? 1 : 0;
             alternativeStatus =  ((Music)item).Artist;
 
         } else if (item instanceof Other) {
