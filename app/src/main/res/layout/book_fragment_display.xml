@@ -225,21 +225,14 @@
 
             <include
                 android:id="@+id/display_genre_card"
-                layout="@layout/view_text_card" />
+                layout="@layout/view_dual_column_card" />
 
             <include
                 android:id="@+id/display_publisher_card"
-                layout="@layout/view_text_card" />
+                layout="@layout/view_dual_column_card" />
 
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/format_chart"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginTop="16dp"
-                android:background="@color/base" />
-
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/demographics_chart"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp"

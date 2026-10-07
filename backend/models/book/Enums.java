@@ -20,14 +20,4 @@ public class Enums {
         GraphicNovel,
         ArtBook,
     }
-
-    public enum Demographics
-    {
-        NotApplicable,
-        Shounen,
-        Shoujo,
-        Josei,
-        Seinen,
-        Kids
-    }
 }

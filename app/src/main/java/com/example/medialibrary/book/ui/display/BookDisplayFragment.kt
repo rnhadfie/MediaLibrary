@@ -20,12 +20,10 @@ import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.databinding.ViewTextCardBinding
 import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.utils.TextCardHelper
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -42,12 +40,10 @@ import kotlinx.coroutines.launch
 import models.book.Book
 import models.book.BookFilter
 import models.book.BookSetup
-import models.book.Enums
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import models.shared.Enums.MediaType
 import repository.database.MediaLibraryDbHelper
-import java.text.NumberFormat
 
 class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplayViewModel>(
     BookFragmentDisplayBinding::inflate
@@ -199,14 +195,11 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         setReadPercentChart(readCount, totalBook)
 
-        val ownedItems = items.filter { it.CurrentOwnAny }
-
         val colors = ColorTemplate.MATERIAL_COLORS.toList()
-        setBookTypeBarChart(ownedItems, setup, colors)
-        setupGenreBarChart(ownedItems, setup)
-        setPublisherBarChart(ownedItems, setup)
-        setBookFormatPieChart(ownedItems)
-        setDemographicsPieChart(ownedItems)
+        setBookTypeBarChart(items, setup, colors)
+        setupGenreBarChart(items, setup)
+        setPublisherBarChart(items, setup)
+        setBookFormatPieChart(items)
     }
 
     private fun setReadPercentChart(readCount: Int, totalBook: Int) {
@@ -295,89 +288,50 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
     private fun setupGenreBarChart(items: List<Book>, setup: BookSetup) {
         val genreList = setup.Genre
-        var genreInformationMap = mutableMapOf<String, String>()
-        val genreExtraInformationMap = mutableMapOf<String, Int>()
+        val genreInformationMap = mutableMapOf<String, Int>()
         genreList.forEach { genre ->
             var totalBooksPerGenre = 0
             if (items.isNotEmpty()) {
                 totalBooksPerGenre += items.count { it.Genre.contains(genre.genreId) }
-                genreExtraInformationMap[genre.genreName] = totalBooksPerGenre
-                genreInformationMap[genre.genreName] = NumberFormat.getPercentInstance().format(totalBooksPerGenre.toDouble() / items.size)
+                genreInformationMap[genre.genreName] = totalBooksPerGenre
             }
         }
 
-        genreInformationMap = genreInformationMap.entries
-            .sortedByDescending  {
-                it.value.removeSuffix("%").toIntOrNull() }
-            .associate { it.toPair() } as MutableMap<String, String>
-        genreInformationMap.filter { it.value == "0%" }.forEach { genreInformationMap.remove(it.key) }
+        binding.displayGenreCard.cardTitle.text = getString(R.string.total_number_of_books_per_genre)
 
-
-        val card: ViewTextCardBinding = binding.displayGenreCard
-        val title = binding.displayGenreCard.cardTitle
-        title.setText(R.string.total_number_of_books_per_genre)
-        val emptyState = binding.displayGenreCard.emptyStateContainer
-
-
-        TextCardHelper.setupTextCard(
+        DualColumnCardHelper.setupDualColumnCard(
             genreInformationMap,
-            genreExtraInformationMap,
-            card,
-            emptyState,
-            R.string.no_genre_data_to_display,
-            -1,
-            R.string.percent,
-            R.string.number,
-            models.shared.Enums.MediaType.Book,
-            layoutInflater,
+            binding.displayGenreCard,
+            R.string.no_publisher_data_to_display,
+            MediaType.Book,
             requireContext()
         )
     }
 
-
     private fun setPublisherBarChart(items: List<Book>, setup: BookSetup) {
         val publishers = setup.Publishers
+        val publisherInformationMap = mutableMapOf<String, Int>()
 
-        var publisherInformationMap = mutableMapOf<String, String>()
-        val publisherExtraInformationMap = mutableMapOf<String, Int>()
         publishers.forEach { publisher ->
-            var totalBooksPerGenre = 0
-            if (items.isNotEmpty()) {
-                totalBooksPerGenre += items.count { it.Publisher == publisher.Id }
-                publisherExtraInformationMap[publisher.Name] = totalBooksPerGenre
-                publisherInformationMap[publisher.Name] = NumberFormat.getPercentInstance().format(totalBooksPerGenre.toDouble() / items.size)
+            val publisherBooks = items.filter { it.Publisher == publisher.Id }
+            var totalBooksPerPublisher = 0
+            if (publisherBooks.isNotEmpty()) {
+                for (book in publisherBooks) {
+                    totalBooksPerPublisher += book.Items?.count() ?: 0
+                }
+                publisherInformationMap[publisher.Name] = totalBooksPerPublisher
             }
         }
 
-        publisherInformationMap = publisherInformationMap.entries
-            .sortedByDescending  { it.value.removeSuffix("%").toIntOrNull() }
-            .associate { it.toPair() } as MutableMap<String, String>
-        publisherInformationMap.filter { it.value == "0%" }.forEach { publisherInformationMap.remove(it.key) }
+        binding.displayPublisherCard.cardTitle.text = getString(R.string.total_number_of_books_per_publisher)
 
-
-        val card: ViewTextCardBinding = binding.displayPublisherCard
-        val title = binding.displayPublisherCard.cardTitle
-        title.text = getString(R.string.total_number_of_books_per_publisher)
-        val emptyState = binding.displayGenreCard.emptyStateContainer
-
-
-        TextCardHelper.setupTextCard(
+        DualColumnCardHelper.setupDualColumnCard(
             publisherInformationMap,
-            publisherExtraInformationMap,
-            card,
-            emptyState,
-            R.string.no_publisher_data_to_display,
-            -1,
-            R.string.percent,
-            R.string.number,
-            models.shared.Enums.MediaType.Book,
-            layoutInflater,
+            binding.displayPublisherCard,
+            R.string.no_genre_data_to_display,
+            MediaType.Book,
             requireContext()
         )
-
-
-
-
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {
@@ -424,76 +378,6 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.setBackgroundColor(Color.TRANSPARENT)
                 chart.isUsePercentValuesEnabled = true
                 chart.centerText = "Format %"
-                chart.isDrawEntryLabelsEnabled = false
-
-                chart.legend.let { legend ->
-                    legend.isEnabled = true
-                    legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-                    legend.orientation = Legend.LegendOrientation.HORIZONTAL
-                    legend.isDrawInsideEnabled = false
-                    legend.form = Legend.LegendForm.SQUARE
-                }
-
-                chart.animateXY(1000, 1000)
-                chart.renderer = SafePieChartRenderer(
-                    chart,
-                    chart.animator,
-                    chart.viewPortHandler
-                )
-            }
-            chart.invalidate()
-        }
-    }
-
-    private fun setDemographicsPieChart(items: List<Book>) {
-        val demoPieEntries = ArrayList<PieEntry<*>>()
-
-        val targetBooks = items.filter { it.Type == BookType.Manga || it.Type == BookType.LightNovel }
-
-        val demoCounts = mutableMapOf<Enums.Demographics, Int>()
-
-        for (book in targetBooks) {
-            val demo = book.Demographics ?: Enums.Demographics.NotApplicable
-            if (demo != Enums.Demographics.NotApplicable) {
-                demoCounts[demo] = (demoCounts[demo] ?: 0) + 1
-            }
-        }
-
-        demoCounts.forEach { (demo, count) ->
-            if (count > 0) {
-                val name = when (demo) {
-                    Enums.Demographics.NotApplicable -> "Not Applicable"
-                    Enums.Demographics.Shounen -> "Shounen"
-                    Enums.Demographics.Shoujo -> "Shoujo"
-                    Enums.Demographics.Josei -> "Josei"
-                    Enums.Demographics.Seinen -> "Seinen"
-                    Enums.Demographics.Kids -> "Kids"
-                }
-                demoPieEntries.add(PieEntry(count.toFloat(), name))
-            }
-        }
-
-        binding.demographicsChart.let { chart ->
-            if (demoPieEntries.isEmpty()) {
-                chart.data = null
-                chart.noDataText = "No Demographics data to display\n(Manga & Light Novel only)"
-                chart.noDataTextColor = Color.BLACK
-                chart.centerTextSize = 16f
-            } else {
-                val demoPieDataSet = PieDataSet(demoPieEntries, "Demographics %")
-                demoPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
-
-                val demoPieData = PieData(demoPieDataSet)
-                chart.data = demoPieData
-
-                chart.description.isEnabled = false
-                chart.holeColor = Color.TRANSPARENT
-                chart.transparentCircleColor = Color.TRANSPARENT
-                chart.setBackgroundColor(Color.TRANSPARENT)
-                chart.isUsePercentValuesEnabled = true
-                chart.centerText = "Demographics %\n(Manga & Light Novel)"
-                chart.centerTextSize = 14f
                 chart.isDrawEntryLabelsEnabled = false
 
                 chart.legend.let { legend ->

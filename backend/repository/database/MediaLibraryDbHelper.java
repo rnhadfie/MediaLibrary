@@ -81,7 +81,6 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_AUTHOR + " TEXT, " +
                 COLUMN_ARTIST + " TEXT, " +
                 COLUMN_TYPE + " INTEGER, " +
-                COLUMN_DEMOGRAPHICS + " INTEGER DEFAULT 0, " +
                 COLUMN_PUBLISHER + " INTEGER, " +
                 COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
                 "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_AUTHOR + ", " + COLUMN_TYPE + ")," +
@@ -210,15 +209,15 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " SELECT * FROM " + TABLE_OTHER_ITEMS + "_TEMP ;");
 
             //Drop temporary tables
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHER_ITEMS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHERS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIDEO_ITEMS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_VIDEOS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_MUSIC + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK_ITEMS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOKS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_PUBLISHERS + "_TEMP ;");
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAGS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_OTHER_ITEMS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_OTHERS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_VIDEO_ITEMS + "_TEMP ;");
+            db.execSQL("DROP TABLE " + TABLE_VIDEOS + "_TEMP ;");
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_MUSIC);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOK_ITEMS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_BOOKS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_TAGS);
+            db.execSQL("DROP TABLE IF EXISTS "+ TABLE_PUBLISHERS);
         }
     }
 }

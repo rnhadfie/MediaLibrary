@@ -66,7 +66,6 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         }
 
         setupBookTypeRadioGroup(setup)
-        setupDemographicsRadioGroup(setup)
         setupGenreSelection(setup)
         setupPublisherSelection(setup)
         setupTagSelection(setup)
@@ -136,14 +135,6 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                 bookTypeId
             )
         }
-
-        val bookType = book.Type ?: Enums.BookType.NoneSelected
-        updateDemographicsVisibility(bookType)
-        val demoId = book.Demographics?.ordinal ?: Enums.Demographics.NotApplicable.ordinal
-        RadioGridUtils.setSelection(
-            binding.demographicsRadio.dynamicTableLayout,
-            demoId
-        )
 
         if (book.Cover != null && book.Cover.isNotEmpty()) {
             val bitmap = BitmapFactory.decodeByteArray(book.Cover, 0, book.Cover.size)
@@ -260,15 +251,6 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                 }
             }
         }
-        binding.demographicsRadio.dynamicTableLayout.children.forEach { child ->
-            if (child is ViewGroup) {
-                child.children.forEach { subChild ->
-                    if (subChild is RadioButton) {
-                        subChild.isEnabled = enabled
-                    }
-                }
-            }
-        }
         binding.changeImage.buttonChangeCover.isEnabled = enabled
         binding.changeImage.buttonClearCover.isEnabled = enabled
         binding.changeImage.imageBookCover.isEnabled = enabled
@@ -306,40 +288,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
     }
 
     private fun handleRadioSelectionChange(id: Int) {
-        val bookType = Enums.BookType.entries.find { it.ordinal == id } ?: return
-        viewModel.updateBookType(bookType)
-        updateDemographicsVisibility(bookType)
-    }
-
-    private fun setupDemographicsRadioGroup(setup: BookSetup) {
-        binding.demographicsRadio.radioButtonLabel.setText(R.string.demographics_label)
-        val tableLayout = binding.demographicsRadio.dynamicTableLayout
-        RadioGridUtils.populateRadioGridFromMap(
-            tableLayout = tableLayout,
-            optionsMap = setup.Demographics,
-            columnCount = 2,
-            selectedId = Enums.Demographics.NotApplicable.ordinal
-        ) { selectedId ->
-            handleDemographicsSelectionChange(selectedId)
-        }
-    }
-
-    private fun handleDemographicsSelectionChange(id: Int) {
-        val demo = Enums.Demographics.entries.find { it.ordinal == id } ?: Enums.Demographics.NotApplicable
-        viewModel.updateDemographics(demo)
-    }
-
-    private fun updateDemographicsVisibility(bookType: Enums.BookType) {
-        if (bookType == Enums.BookType.Manga || bookType == Enums.BookType.LightNovel) {
-            binding.demographicsRadio.root.visibility = View.VISIBLE
-        } else {
-            binding.demographicsRadio.root.visibility = View.GONE
-            viewModel.updateDemographics(Enums.Demographics.NotApplicable)
-            RadioGridUtils.setSelection(
-                binding.demographicsRadio.dynamicTableLayout,
-                Enums.Demographics.NotApplicable.ordinal
-            )
-        }
+        val genre = Enums.BookType.entries.find { it.ordinal == id } ?: return
+        viewModel.updateBookType(genre)
     }
 
     private fun setupGenreSelection(setup: BookSetup) {

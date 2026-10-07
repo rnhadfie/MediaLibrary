@@ -78,7 +78,7 @@
                     android:textColor="@color/black" />
             </androidx.cardview.widget.CardView>
 
-            <include layout="@layout/view_text_card"
+            <include layout="@layout/view_dual_column_card"
                 android:id="@+id/genre_card"/>
 
             <include layout="@layout/view_text_card"

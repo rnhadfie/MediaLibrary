@@ -26,7 +26,6 @@
     <string name="author_hint">Author</string>
     <string name="artist_hint">Artist</string>
     <string name="book_type_label">Book Type</string>
-    <string name="demographics_label">Demographics (Manga &amp; Light Novel only)</string>
     <string name="select_genres">Select Genres</string>
     <string name="volumes_label">Volumes / Items</string>
     <string name="add_volume">Add Volume</string>
@@ -124,7 +123,7 @@
     <string name="template">template</string>
     <string name="box">☐</string>
     <string name="dual_card_text">%1$s: %2$d</string>
-    <string name="total_number_of_books_per_publisher">Total Number of Series per Publisher</string>
+    <string name="total_number_of_books_per_publisher">Total Number of Books per Publisher</string>
     <string name="total_number_of_books_per_genre">Genre Series Count</string>
     <string name="total_number_of_video_per_genre">Total Number of Movies &amp; TV Shows per Genre</string>
     <string name="no_publisher_data_to_display">No Publisher data to display</string>
@@ -148,6 +147,4 @@
     <string name="no_artist_data_to_display">No artist data to display</string>
     <string name="genres">Genres</string>
     <string name="artists">Artists</string>
-    <string name="number">#</string>
-    <string name="percent">%</string>
 </resources>

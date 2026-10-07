@@ -17,7 +17,6 @@ import org.xmlpull.v1.XmlSerializer
 import java.io.StringReader
 import java.io.StringWriter
 import models.book.Enums as BookEnums
-import models.music.Enums as MusicEnums
 import models.shared.Enums as SharedEmum
 import models.video.Enums as VideoEnums
 
@@ -70,10 +69,6 @@ object XmlExportImport {
                 serializer.startTag(null, "Type")
                 serializer.text(book.Type?.name ?: "")
                 serializer.endTag(null, "Type")
-
-                serializer.startTag(null, "Demographics")
-                serializer.text(book.Demographics?.name ?: "")
-                serializer.endTag(null, "Demographics")
 
                 serializer.startTag(null, "PublisherId")
                 serializer.text(book?.Publisher ?: "")
@@ -174,10 +169,6 @@ object XmlExportImport {
                 serializer.startTag(null, "Artist")
                 serializer.text(music.Artist ?: "")
                 serializer.endTag(null, "Artist")
-
-                serializer.startTag(null, "MusicGenre")
-                serializer.text(music.MusicGenre.name)
-                serializer.endTag(null, "MusicGenre")
 
                 serializer.startTag(null, "Year")
                 serializer.text(music.Year.toString())
@@ -343,12 +334,6 @@ object XmlExportImport {
                             currentMusic?.Genre = genres
                             currentOther?.Genre = genres
                         }
-                        "MusicGenre" -> {
-                            val text = parser.nextText()
-                            currentMusic?.let { b ->
-                                b.MusicGenre = MusicEnums.MusicGenre.entries.find { it.name == text } ?: MusicEnums.MusicGenre.NoneSelected
-                            }
-                        }
                         "Cover" -> {
                             val text = parser.nextText()
                             val bytes = Base64.decode(text, Base64.DEFAULT)
@@ -370,12 +355,6 @@ object XmlExportImport {
                             }
                             currentVideo?.let { v ->
                                 v.Type = VideoEnums.VideoType.entries.find { it.name == text }
-                            }
-                        }
-                        "Demographics" -> {
-                            val text = parser.nextText()
-                            currentBook?.let { b ->
-                                b.Demographics = BookEnums.Demographics.entries.find { it.name.equals(text, ignoreCase = true) } ?: BookEnums.Demographics.NotApplicable
                             }
                         }
                         "CollectingPriority" -> {
