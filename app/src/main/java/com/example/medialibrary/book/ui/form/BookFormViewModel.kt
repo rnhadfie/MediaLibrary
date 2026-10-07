@@ -79,6 +79,10 @@ class BookFormViewModel : ViewModel() {
         _book.value?.Type = type
     }
 
+    fun updateDemographics(demographics: Enums.Demographics) {
+        _book.value?.Demographics = demographics
+    }
+
     fun updateCover(cover: ByteArray?) {
         _book.value?.Cover = cover
         _book.value = _book.value // Trigger observers

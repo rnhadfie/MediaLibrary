@@ -16,10 +16,12 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
-import com.example.medialibrary.utils.DualColumnCardHelper
+import com.example.medialibrary.databinding.ViewTextCardBinding
+
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
+import com.example.medialibrary.utils.TextCardHelper
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import com.github.mikephil.charting.components.Legend
@@ -40,6 +42,8 @@ import models.video.Video
 import models.video.VideoFilter
 import models.video.VideoSetup
 import repository.database.MediaLibraryDbHelper
+import java.text.NumberFormat
+import kotlin.collections.sortedByDescending
 
 class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisplayViewModel>(
     VideoFragmentDisplayBinding::inflate
@@ -192,10 +196,13 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         binding.totalVideoText.text = getString(R.string.total_number_of_dvds, totalDvds)
 
         setupWatchedPieChart(watchedCount, totalDvds)
-        setupFormatPieChart(items)
-        setVideoTypeBarChart(items, setup, colors)
-        setCategoryBarChart(items, setup, colors)
-        setupGenreBarChart(items, setup)
+
+        val ownedVideos = items.filter { it.CurrentOwnAny }
+
+        setupFormatPieChart(ownedVideos)
+        setVideoTypeBarChart(ownedVideos, setup, colors)
+        setCategoryBarChart(ownedVideos, setup, colors)
+        setupGenreBarChart(ownedVideos, setup)
     }
 
     private fun setupWatchedPieChart(watchedCount: Int, totalDvds: Int) {
@@ -304,25 +311,45 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     private fun setupGenreBarChart(items: List<Video>, setup: VideoSetup) {
         val genreList = setup.Genre
-        val genreInformationMap = mutableMapOf<String, Int>()
+        var genreInformationMap = mutableMapOf<String, String>()
+        val genreExtraInformationMap = mutableMapOf<String, Int>()
         genreList.forEach { genre ->
             var totalBooksPerGenre = 0
             if (items.isNotEmpty()) {
                 totalBooksPerGenre += items.count { it.Genre.contains(genre.genreId) }
-                genreInformationMap[genre.genreName] = totalBooksPerGenre
+                genreExtraInformationMap[genre.genreName] = totalBooksPerGenre
+                genreInformationMap[genre.genreName] = NumberFormat.getPercentInstance().format(totalBooksPerGenre.toDouble() / items.size)
             }
         }
 
-        binding.genreCard.cardTitle.text = getString(R.string.total_number_of_books_per_genre)
+        genreInformationMap = genreInformationMap.entries
+            .sortedByDescending  {
+            it.value.removeSuffix("%").toIntOrNull() }
+            .associate { it.toPair() } as MutableMap<String, String>
+        genreInformationMap.filter { it.value == "0%" }.forEach { genreInformationMap.remove(it.key) }
 
-        DualColumnCardHelper.setupDualColumnCard(
+
+        val card: ViewTextCardBinding = binding.genreCard
+        val title = binding.genreCard.cardTitle
+        title.setText(R.string.music_genre)
+        val emptyState = binding.genreCard.emptyStateContainer
+
+
+        TextCardHelper.setupTextCard(
             genreInformationMap,
-            binding.genreCard,
+            genreExtraInformationMap,
+            card,
+            emptyState,
             R.string.no_genre_data_to_display,
+            -1,
+            R.string.percent,
+            R.string.number,
             models.shared.Enums.MediaType.Video,
+            layoutInflater,
             requireContext()
         )
     }
+
 
     private fun setVideoTypeBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
         val dataSets = ArrayList<IBarDataSet<*>>()

@@ -81,6 +81,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_AUTHOR + " TEXT, " +
                 COLUMN_ARTIST + " TEXT, " +
                 COLUMN_TYPE + " INTEGER, " +
+                COLUMN_DEMOGRAPHICS + " INTEGER DEFAULT 0, " +
                 COLUMN_PUBLISHER + " INTEGER, " +
                 COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
                 "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_AUTHOR + ", " + COLUMN_TYPE + ")," +

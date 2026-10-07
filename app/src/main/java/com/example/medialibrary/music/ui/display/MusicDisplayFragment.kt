@@ -15,9 +15,10 @@ import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
+import com.example.medialibrary.databinding.ViewTextCardBinding
+import com.example.medialibrary.databinding.ViewTextCardDisplayBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
-import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.TextCardHelper
@@ -31,6 +32,7 @@ import models.music.MusicFilter
 import models.music.MusicSetup
 import models.shared.Enums
 import repository.database.MediaLibraryDbHelper
+import java.text.NumberFormat
 
 class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisplayViewModel>(
     MusicFragmentDisplayBinding::inflate
@@ -167,38 +169,87 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
     }
 
     private fun setArtistChart(items: List<Music>) {
-        var artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues { it.value.size }
-        artistInformationMap = artistInformationMap.filter { it.key != "" }
+
+        var artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues {
+            if(it.value.isNotEmpty()) {
+                it.value.size.toString()
+            }
+            else
+            {
+                ""
+            }
+        }
+       var sortedMap = artistInformationMap.entries
+            .sortedBy { it.value }
+            .associate { it.toPair() }
+
+
+        sortedMap = sortedMap.filter { it.key != "" && it.value != "" }
         val card = binding.artistCard
         val title = binding.artistCard.cardTitle
         val emptyState = binding.artistCard.emptyStateContainer
         title.text = getString(R.string.artists)
 
-        TextCardHelper.setupTextCard(artistInformationMap, card, emptyState, R.string.no_artist_data_to_display, Enums.MediaType.Music, requireContext())
+        TextCardHelper.setupTextCard(
+            sortedMap,
+            null,
+            card,
+            emptyState,
+            R.string.no_artist_data_to_display,
+            -1,
+            R.string.number,
+            -1,
+            Enums.MediaType.Music,
+            layoutInflater,
+            requireContext()
+        )
     }
 
-    private fun setGenreChart(items: List<Music>) {
-        val genreList = setup?.MusicGenre
-        val genreInformationMap = mutableMapOf<String, Int>()
 
-        genreList?.forEach { genre ->
-            if (genre.key == MusicGenre.NoneSelected.ordinal) {
-                return@forEach
+    private fun setGenreChart(items: List<Music>) {
+        val totalItems = items.size
+
+        var genreInformationMap = items.groupBy { it.MusicGenre.name }.mapValues {
+            if(it.value.isNotEmpty() && it.key != MusicGenre.NoneSelected.name) {
+                val percent = (it.value.size.toFloat() / totalItems.toFloat())
+                NumberFormat.getPercentInstance().format(percent)
             }
-            val genreItems = items.filter { it.MusicGenre.ordinal == genre.key }
-            if (genreItems.isNotEmpty()) {
-                genreInformationMap[genre.value] = genreItems.size
+            else
+            {
+                ""
             }
         }
 
-        val title = binding.genreCard.cardTitle
-        title.text = getString(R.string.music_genre)
+        genreInformationMap = genreInformationMap.filter { it.value != "" && it.key == MusicGenre.NoneSelected.name }
 
-        DualColumnCardHelper.setupDualColumnCard(
+        genreInformationMap = genreInformationMap.entries
+            .sortedBy { it.value }
+            .associate { it.toPair() }
+
+        val genreExtraInfoMap = items.groupBy { it.MusicGenre.name }.mapValues {
+            if(it.value.isNotEmpty()) {
+              it.value.size
+            }
+        }
+
+
+        val card: ViewTextCardBinding = binding.genreCard
+        val title = binding.genreCard.cardTitle
+        title.setText(R.string.music_genre)
+        val emptyState = binding.genreCard.emptyStateContainer
+
+
+        TextCardHelper.setupTextCard(
             genreInformationMap,
-            binding.genreCard,
-            R.string.no_artist_data_to_display,
+            genreExtraInfoMap,
+            card,
+            emptyState,
+            R.string.no_genre_data_to_display,
+            -1,
+            R.string.percent,
+            R.string.number,
             Enums.MediaType.Music,
+            layoutInflater,
             requireContext()
         )
     }

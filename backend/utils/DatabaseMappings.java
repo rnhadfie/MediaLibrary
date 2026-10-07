@@ -76,6 +76,7 @@ public class DatabaseMappings {
         bookValues.put(COLUMN_AUTHOR, book.Author.trim());
         bookValues.put(COLUMN_ARTIST, book.Artist.trim());
         bookValues.put(COLUMN_TYPE, book.Type != null ? book.Type.ordinal() : 0);
+        bookValues.put(COLUMN_DEMOGRAPHICS, book.Demographics != null ? book.Demographics.ordinal() : 0);
         bookValues.put(COLUMN_PUBLISHER, publisherId);
         bookValues.put(COLUMN_COLLECTING_PRIORITY, book.CollectingPriority != null ? book.CollectingPriority.ordinal() : 0);
         return bookValues;
@@ -105,9 +106,21 @@ public class DatabaseMappings {
             book.Type = Enums.BookType.values()[typeValue];
         }
 
+        int demIndex = bookCursor.getColumnIndex(COLUMN_DEMOGRAPHICS);
+        if (demIndex != -1 && !bookCursor.isNull(demIndex)) {
+            int demValue = bookCursor.getInt(demIndex);
+            if (demValue >= 0 && demValue < Enums.Demographics.values().length) {
+                book.Demographics = Enums.Demographics.values()[demValue];
+            } else {
+                book.Demographics = Enums.Demographics.NotApplicable;
+            }
+        } else {
+            book.Demographics = Enums.Demographics.NotApplicable;
+        }
+
         int collectingPriority = bookCursor.getInt(bookCursor.getColumnIndexOrThrow(COLUMN_COLLECTING_PRIORITY));
-        if (collectingPriority >= 0 && collectingPriority < models.shared.Enums.CollectingPriority.values().length) {
-            book.CollectingPriority = models.shared.Enums.CollectingPriority.values()[collectingPriority];
+        if (collectingPriority >= 0 && collectingPriority < CollectingPriority.values().length) {
+            book.CollectingPriority = CollectingPriority.values()[collectingPriority];
         }
     }
 

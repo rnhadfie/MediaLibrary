@@ -17,4 +17,5 @@ public class BookSetup {
     public List<Tag> Tag = new ArrayList<>();
     public Map<Integer, String> Type = new HashMap<>();
     public Map<Integer, String> Format = new HashMap<>();
+    public Map<Integer, String> Demographics = new HashMap<>();
 }

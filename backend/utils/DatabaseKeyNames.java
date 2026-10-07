@@ -45,6 +45,7 @@ public class DatabaseKeyNames {
     //region Book Column names
 
     public static final String COLUMN_AUTHOR = "Author";
+    public static final String COLUMN_DEMOGRAPHICS = "Demographics";
 
     //endregion
 
