@@ -18,6 +18,7 @@ import java.util.List;
 import models.book.BookItem;
 import models.music.Music;
 import models.music.MusicFilter;
+import models.music.MusicItem;
 import models.shared.DisplayMediaItem;
 import repository.MusicRepository;
 import repository.database.MediaLibraryDbHelper;
@@ -59,8 +60,10 @@ public class GetMusicDisplayListsTest {
         Music cd1 = new Music();
         cd1.Id = "1";
         cd1.Title = "Test Book";
-        BookItem item1 = new BookItem();
+        MusicItem item1 = new MusicItem();
+        item1.Collecting = false;
         item1.Owned = true;
+        cd1.MusicItems = List.of(item1);
 
         cds.add(cd1);
 
@@ -79,18 +82,25 @@ public class GetMusicDisplayListsTest {
         List<Music> cds = new ArrayList<>();
         MusicFilter filter = new MusicFilter();
         filter.Collecting = true;
+        filter.SortAlphabetical = true;
 
         Music cd1 = new Music();
         cd1.Id = "1";
-        cd1.Title = "Test Book";
-        BookItem item1 = new BookItem();
-        item1.Owned = true;
+        cd1.Artist = "Test Book";
+        MusicItem item1 = new MusicItem();
+        item1.Collecting = true;
+        cd1.MusicItems = List.of(item1);
 
         Music cd2 = new Music();
         cd2.Id = "2";
-        cd2.Title = "Filtered Book";
+        cd2.Artist = "Filtered Book";
+        MusicItem ite2 = new MusicItem();
+        ite2.Collecting = true;
+        cd2.MusicItems = List.of(item1);
+
         cds.add(cd1);
         cds.add(cd2);
+
 
         String whereClause = sharedService.BuildWhereClause(filter, new ArrayList<>());
 

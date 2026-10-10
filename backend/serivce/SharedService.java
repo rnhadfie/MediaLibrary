@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Lazy;
 import kotlin.LazyKt;
@@ -64,21 +65,34 @@ public class SharedService {
         displayItem.CollectingPriority = item.CollectingPriority;
 
         StringBuilder statusString = new StringBuilder();
-        if(item.HasCollectedAllItems != null && item.HasCollectedAllItems)
-        {
-            statusString.append("Collected");
-        }
-        else if(item.CurrentOwnAny != null && !item.CurrentOwnAny)
-        {
-            statusString.append("To Collect");
-        }
-        else if(item.Collecting != null && item.Collecting)
-        {
-            statusString.append("Collecting");
-        }
-        else
-        {
-            statusString.append("Not Collecting");
+        if(item instanceof Music) {
+            boolean status = false;
+            var music = (Music)item;
+            displayItem.Title = music.Artist;
+            if(!music.MusicItems.isEmpty())
+           {
+                AtomicBoolean collectingStatus = new AtomicBoolean(false);
+                music.MusicItems.forEach(musicItem -> {
+                    collectingStatus.set(collectingStatus.get() || musicItem.Collecting != null && musicItem.Collecting);
+                });
+                status = collectingStatus.get();
+            }
+            if(status) {
+                statusString.append("Collecting");
+            } else {
+                statusString.append("Not Collecting");
+            }
+        } else {
+
+            if (item.HasCollectedAllItems != null && item.HasCollectedAllItems) {
+                statusString.append("Collected");
+            } else if (item.CurrentOwnAny != null && !item.CurrentOwnAny) {
+                statusString.append("To Collect");
+            } else if (item.Collecting != null && item.Collecting) {
+                statusString.append("Collecting");
+            } else {
+                statusString.append("Not Collecting");
+            }
         }
 
 
@@ -109,7 +123,7 @@ public class SharedService {
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
             displayItem.ItemCount = (item.HasCollectedAllItems != null && item.HasCollectedAllItems) ? 1 : 0;
-            alternativeStatus =  ((Music)item).Artist;
+            alternativeStatus =  "Cds: " + ((Music)item).MusicItems.size();
 
         } else if (item instanceof Other) {
             var tempOther = (Other) item;
@@ -274,9 +288,11 @@ public class SharedService {
 
         // region common filters
 
-        if (filter.Collecting != null) {
-            conditions.add(COLUMN_COLLECTING + " = ?");
-            selectionArgs.add(filter.Collecting ? "1" : "0");
+        if(!(filter instanceof MusicFilter) ) {
+            if (filter.Collecting != null) {
+                conditions.add(COLUMN_COLLECTING + " = ?");
+                selectionArgs.add(filter.Collecting ? "1" : "0");
+            }
         }
 
         if (filter.Collected != null) {
@@ -317,8 +333,7 @@ public class SharedService {
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
             } else if (filter instanceof MusicFilter) {
-                conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
-                selectionArgs.add("%" + searchText + "%");
+                conditions.add("(" + COLUMN_ARTIST + " LIKE ?)");
                 selectionArgs.add("%" + searchText + "%");
             } else {
                 conditions.add(COLUMN_TITLE + " LIKE ?");
@@ -483,8 +498,10 @@ public class SharedService {
         for (String key : order) {
             if ("Priority".equalsIgnoreCase(key) && filter.SortPriority != null) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
-            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null) {
+            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null && !(filter instanceof MusicFilter) ) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null && (filter instanceof MusicFilter) ) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> ((Music)u).Artist != null ? ((Music)u).Artist : "", filter.SortAlphabetical));
             } else if ("ItemMediaType".equalsIgnoreCase(key) && filter.SortItemMediaType != null) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
             }
