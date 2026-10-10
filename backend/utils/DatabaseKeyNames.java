@@ -7,6 +7,8 @@ public class DatabaseKeyNames {
     public static final String TABLE_BOOKS = "Books";
     public static final String TABLE_BOOK_ITEMS = "BookItems";
     public static final String TABLE_MUSIC = "Music";
+
+    public static final String TABLE_MUSIC_ITEM = "MusicItems";
     public static final String TABLE_VIDEOS = "Videos";
     public static final String TABLE_VIDEO_ITEMS = "VideoItems";
     public static final String TABLE_OTHERS = "Other";

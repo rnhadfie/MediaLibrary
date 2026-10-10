@@ -2,24 +2,17 @@ package com.example.medialibrary.music
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
-import com.example.medialibrary.book.ui.form.BookFormViewModel
 import com.example.medialibrary.music.ui.form.MusicFormViewModel
-import controllers.BookController
 import controllers.MusicController
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
-import models.book.Book
-import models.book.BookItem
-import models.book.BookSetup
-import models.book.Enums as BookEnums
-import models.book.Publisher
-import models.music.Enums
+import models.music.Enums as MusicEnums
 import models.music.Music
-import models.music.MusicSetup
-import models.shared.Tag
+import models.music.MusicItem
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -50,73 +43,62 @@ class MusicFormFragmentTest {
     }
 
     @Test
-    @DisplayName("When data is visible in edit mode, fields and items are loaded correctly")
+    @DisplayName("When data is visible in edit mode, artist and music items load correctly")
     fun testDataVisibleInEditMode() {
-        val existingBook = Music().apply {
+        val musicItem1 = MusicItem().apply { Title = "Abbey Road"; Year = 1969; MusicGenre = MusicEnums.MusicGenre.Rock }
+        val existingMusic = Music().apply {
             Id = "10"
-            Title = "Dune"
-            Collecting = true
-            MusicGenre = Enums.MusicGenre.Electronic
-            Ongoing = true
+            Artist = "The Beatles"
             Tag = "12"
+            MusicItems = arrayListOf(musicItem1)
         }
 
-        val setup = MusicSetup().apply {
-            Tags = arrayListOf(Tag().apply { Id = "12"; Name = "Sci-Fi" })
-        }
-
-        every { mockController.GetMusic("10") } returns existingBook
+        every { mockController.GetMusic("10") } returns existingMusic
 
         viewModel.loadCd("10", mockController)
 
-        val loadedBook = viewModel.music.value
-        assertNotNull(loadedBook)
-        assertEquals("Dune", loadedBook?.Title)
-        assertTrue(loadedBook?.Collecting == true)
-        assertEquals(Enums.MusicGenre.Electronic, loadedBook?.MusicGenre)
-        assertTrue(loadedBook?.Ongoing == true)
-        assertEquals("12", loadedBook?.Tag)
+        val loadedMusic = viewModel.music.value
+        assertNotNull(loadedMusic)
+        assertEquals("The Beatles", loadedMusic?.Artist)
+        assertEquals("12", loadedMusic?.Tag)
 
+        val items = viewModel.items.value
+        assertNotNull(items)
+        assertEquals(1, items?.size)
+        assertEquals("Abbey Road", items?.get(0)?.Title)
     }
 
     @Test
-    @DisplayName("When there is no data in new mode, initial form state has default values and validation catches missing title")
+    @DisplayName("When there is no data in new mode, initial form state has default values and validation catches missing artist")
     fun testNoDataNewMode() {
-        val initialBook = viewModel.music.value
-        assertNotNull(initialBook)
-        assertTrue(initialBook?.Title.isNullOrEmpty())
+        val initial = viewModel.music.value
+        assertNotNull(initial)
+        assertTrue(initial?.Artist.isNullOrEmpty())
 
-        // Validation fails when title is empty
+        // Validation fails when artist is empty
         val validationErrors = viewModel.validate()
-        assertTrue(validationErrors.isNotEmpty())
+        assertTrue(validationErrors.containsKey("artist"))
 
-        // Validation passes when title is filled
-        viewModel.updateTitle("The Hobbit")
+        // Validation passes when artist is filled
+        viewModel.updateArtist("Pink Floyd")
         val updatedErrors = viewModel.validate()
-        assertTrue(updatedErrors.isEmpty())
+        assertFalse(updatedErrors.containsKey("artist"))
     }
 
-
-
     @Test
-    @DisplayName("Buttons work correctly and invoke form action handlers")
+    @DisplayName("Buttons and form actions work correctly")
     fun testButtonsWorkCorrectly() {
-        // Test updating title and fields
-        viewModel.updateTitle("Foundation")
-        viewModel.updateTagName("Classic")
+        viewModel.updateArtist("Led Zeppelin")
+        viewModel.updateTagName("Classic Rock")
 
-        // Test toggles
-        viewModel.toggleCollecting(true)
-        assertTrue(viewModel.music.value?.Collecting == true)
+        val musicItem = MusicItem().apply { Title = "IV"; Year = 1971; MusicGenre = MusicEnums.MusicGenre.Rock }
+        viewModel.addOrUpdateItem(musicItem)
 
-        viewModel.toggleCollectionComplete(true)
-        assertTrue(viewModel.music.value?.HasCollectedAllItems == true)
+        assertEquals(1, viewModel.items.value?.size)
 
-
-        // Test getSaveObject
         val saveObj = viewModel.getSaveObject()
         assertNotNull(saveObj)
-        assertEquals("Foundation", saveObj.Music?.Title)
-        assertEquals("Classic", saveObj.NewTag)
+        assertEquals("Led Zeppelin", saveObj.Music?.Artist)
+        assertEquals("Classic Rock", saveObj.NewTag)
     }
 }

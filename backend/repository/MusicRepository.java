@@ -2,16 +2,22 @@ package repository;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
+import models.book.BookItem;
 import models.music.*;
 import repository.Interface.Interface.IMusicRepository;
 import repository.database.BaseRepository;
 import repository.database.MediaLibraryDbHelper;
 import utils.DatabaseMappings;
+import utils.NaturalComparator;
 
 import android.content.ContentValues;
 import android.util.LruCache;
 
 import static utils.DatabaseKeyNames.*;
+import static utils.DatabaseMappings.MapBookItem;
+import static utils.DatabaseMappings.MapBookItemContentValues;
+import static utils.DatabaseMappings.MapMusicItems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +70,8 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             if (cursor.moveToFirst()) {
                 do {
                     Music music = new Music();
-                    DatabaseMappings.MapMusicItems(cursor, music);
+                    DatabaseMappings.MapMusic(cursor, music);
+                    music.MusicItems = GetMusicItems(music.Id);
                     musicList.add(music);
                 } while (cursor.moveToNext());
                 cursor.close();
@@ -97,7 +104,7 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
 
             if (cursor.moveToFirst()) {
                 do {
-                    DatabaseMappings.MapMusicItems(cursor, music);
+                    DatabaseMappings.MapMusic(cursor, music);
                 } while (cursor.moveToNext());
                 cursor.close();
             }
@@ -119,7 +126,15 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             music.Id = UUID.randomUUID().toString();
             ContentValues values = DatabaseMappings.MapMusicContentValues(tagId, music);
 
+
             long id = db.insert(TABLE_MUSIC, null, values);
+
+            if (musicObj.Music.MusicItems != null) {
+                for (MusicItem item : musicObj.Music.MusicItems) {
+                    ContentValues itemValues = DatabaseMappings.MapMusicItemContentValues(music.Id, item);
+                    db.insert(TABLE_MUSIC_ITEM, null, itemValues);
+                }
+            }
             db.setTransactionSuccessful();
             return id != -1;
         } catch (Exception e) {
@@ -140,6 +155,16 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             ContentValues values = DatabaseMappings.MapMusicContentValues(music.Tag, music);
 
             long result = db.update(TABLE_MUSIC, values, COLUMN_ID + " = ?", new String[]{music.Id});
+
+            db.delete(TABLE_MUSIC_ITEM, COLUMN_SERIES + " = ?", new String[]{String.valueOf(music.Id)});
+
+            if (music.MusicItems != null) {
+                for (MusicItem item : music.MusicItems) {
+                    ContentValues itemValues = DatabaseMappings.MapMusicItemContentValues(music.Id, item);
+                    db.insert(TABLE_MUSIC_ITEM, null, itemValues);
+                }
+            }
+
             db.setTransactionSuccessful();
             return result != -1;
         } catch (Exception e) {
@@ -155,6 +180,7 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.beginTransaction();
         try {
+            db.delete(TABLE_MUSIC_ITEM, COLUMN_SERIES + " = ?", new String[]{String.valueOf(id)});
             int rowsDeleted = db.delete(TABLE_MUSIC, COLUMN_ID + "=?", new String[]{id});
             db.setTransactionSuccessful();
             return rowsDeleted > 0;
@@ -166,7 +192,31 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
         }
     }
 
+    private List<MusicItem> GetMusicItems(String musicId) {
+        List<MusicItem> items = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        List<String> selectionArgs = new ArrayList<>();
+        selectionArgs.add(String.valueOf(musicId));
+        String whereClause = COLUMN_SERIES + " = ?";
+        Cursor cursor = db.query(
+                TABLE_MUSIC_ITEM,
+                null,
+                whereClause,
+                selectionArgs.toArray(new String[0]),
+                null,
+                null,
+                null
+        );
+        if (cursor.moveToFirst()) {
+            do {
+                MusicItem item = new MusicItem();
+                MapMusicItems(cursor, item);
+                items.add(item);
+            } while (cursor.moveToNext());
+            cursor.close();
+        }
 
-
+        return items;
+    }
 
 }

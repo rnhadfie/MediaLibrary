@@ -4,23 +4,24 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import controllers.MusicController
-import models.music.Enums
 import models.music.Music
+import models.music.MusicItem
 import models.music.MusicObj
 import models.shared.Tag
 import models.shared.Enums as SharedEnums
 
 class MusicFormViewModel : ViewModel() {
+
     private val _music = MutableLiveData(Music().apply {
         MediaType = SharedEnums.MediaType.Music
     })
     val music: LiveData<Music> = _music
 
-    private val _newTag = MutableLiveData<String>()
+    private val _items = MutableLiveData<MutableList<MusicItem>>(mutableListOf())
+    val items: LiveData<MutableList<MusicItem>> = _items
 
-    fun updateTitle(title: String) {
-        _music.value?.Title = title
-    }
+    private val _newTag = MutableLiveData<String>()
+    val newTag: LiveData<String> = _newTag
 
     fun updateArtist(artist: String) {
         _music.value?.Artist = artist
@@ -40,57 +41,54 @@ class MusicFormViewModel : ViewModel() {
         _music.value?.Tag = "0"
     }
 
-
-    fun updateCover(cover: ByteArray?) {
-        _music.value?.Cover = cover
-        _music.value = _music.value // Trigger observers
+    fun updateCollectingPriority(priority: SharedEnums.CollectingPriority) {
+        _music.value?.CollectingPriority = priority
     }
 
-
-    fun toggleCollecting(collecting: Boolean) {
-        _music.value?.Collecting = collecting
+    fun addOrUpdateItem(item: MusicItem, position: Int = -1) {
+        val currentList = _items.value ?: mutableListOf()
+        if (position >= 0 && position < currentList.size) {
+            currentList[position] = item
+        } else {
+            currentList.add(item)
+        }
+        _items.value = currentList
     }
 
-    fun toggleCollectionComplete(collected: Boolean) {
-        _music.value?.HasCollectedAllItems = collected
+    fun deleteItem(position: Int) {
+        val currentList = _items.value ?: mutableListOf()
+        if (position >= 0 && position < currentList.size) {
+            currentList.removeAt(position)
+            _items.value = currentList
+        }
     }
-
-    fun updateMusicGenre(type: Enums.MusicGenre) {
-        _music.value?.MusicGenre = type
-    }
-
-
-
 
     fun loadCd(id: String, controller: MusicController?) {
         val loadedCd = controller?.GetMusic(id)
         loadedCd?.let {
             _music.value = it
-
+            _items.value = it.MusicItems?.toMutableList() ?: mutableListOf()
         }
     }
 
     fun getSaveObject(): MusicObj {
         val saveObj = MusicObj()
-        saveObj.Music = _music.value
+        val m = _music.value ?: Music()
+        m.MusicItems = _items.value ?: mutableListOf()
+        saveObj.Music = m
         saveObj.NewTag = _newTag.value
         return saveObj
     }
 
-    fun updateCollectingPriority(priority: SharedEnums.CollectingPriority) {
-        _music.value?.CollectingPriority = priority
-    }
-
-
     fun validate(): Map<String, String> {
         val errors = mutableMapOf<String, String>()
-        val b = _music.value
-        if (b == null) {
-            errors["general"] = "Book data missing"
+        val m = _music.value
+        if (m == null) {
+            errors["general"] = "Music data missing"
             return errors
         }
-        if (b.Title.isNullOrBlank()) {
-            errors["title"] = "Title is required"
+        if (m.Artist.isNullOrBlank()) {
+            errors["artist"] = "Artist is required"
         }
         return errors
     }

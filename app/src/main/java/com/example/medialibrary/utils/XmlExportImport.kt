@@ -6,11 +6,13 @@ import models.book.Book
 import models.book.BookItem
 import models.book.Publisher
 import models.music.Music
+import models.music.MusicItem
 import models.other.Other
 import models.shared.DataContainer
 import models.shared.MediaItem
 import models.shared.Tag
 import models.video.Video
+import  com.example.medialibrary.BuildConfig
 import models.video.VideoItem
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlSerializer
@@ -30,6 +32,11 @@ object XmlExportImport {
             val writer = StringWriter()
             serializer.setOutput(writer)
             serializer.startDocument("UTF-8", true)
+
+            serializer.startTag(null, "Version")
+            serializer.attribute(null, "num", BuildConfig.VERSION_CODE.toString())
+            serializer.endTag(null, "Version")
+
             // Using null for namespaces prevents empty xmlns="" declaration bugs
             serializer.startTag(null, "MediaLibrary")
 
@@ -166,25 +173,63 @@ object XmlExportImport {
             serializer.endTag(null, "Videos")
 
             // --- Music ---
+
             serializer.startTag(null, "MusicList")
+
             container.Music?.forEach { music ->
-                serializer.startTag(null, "Music")
-                writeMediaItemFields(serializer, music)
+                    serializer.startTag(null, "Music")
+                    serializer.startTag(null, "Id")
+                    serializer.text(music.Id ?: "")
+                    serializer.endTag(null, "Id")
 
-                serializer.startTag(null, "Artist")
-                serializer.text(music.Artist ?: "")
-                serializer.endTag(null, "Artist")
+                    serializer.startTag(null, "Artist")
+                    serializer.text(music.Artist ?: "")
+                    serializer.endTag(null, "Artist")
 
-                serializer.startTag(null, "MusicGenre")
-                serializer.text(music.MusicGenre.name)
-                serializer.endTag(null, "MusicGenre")
+                    serializer.startTag(null, "Tag")
+                    serializer.text(music.Tag ?: "")
+                    serializer.endTag(null, "Tag")
 
-                serializer.startTag(null, "Year")
-                serializer.text(music.Year.toString())
-                serializer.endTag(null, "Year")
+                    serializer.startTag(null, "CollectingPriority")
+                    serializer.text(music.CollectingPriority?.name ?: "None")
+                    serializer.endTag(null, "CollectingPriority")
 
-                serializer.endTag(null, "Music")
-            }
+                    serializer.startTag(null, "MusicItems")
+                    music.MusicItems?.forEach { item ->
+                        serializer.startTag(null, "MusicItem")
+                        serializer.startTag(null, "Title")
+                        serializer.text(item.Title ?: "")
+                        serializer.endTag(null, "Title")
+
+                        serializer.startTag(null, "Year")
+                        serializer.text((item.Year ?: 0).toString())
+                        serializer.endTag(null, "Year")
+
+                        serializer.startTag(null, "MusicGenre")
+                        serializer.text(item.MusicGenre?.name ?: "NoneSelected")
+                        serializer.endTag(null, "MusicGenre")
+
+                        serializer.startTag(null, "Collecting")
+                        serializer.text((item.Collecting ?: false).toString())
+                        serializer.endTag(null, "Collecting")
+
+                        serializer.startTag(null, "Owned")
+                        serializer.text((item.Owned ?: false).toString())
+                        serializer.endTag(null, "Owned")
+
+                        if (item.Cover != null && item.Cover.isNotEmpty()) {
+                            serializer.startTag(null, "ItemCover")
+                            serializer.text(Base64.encodeToString(item.Cover, Base64.NO_WRAP))
+                            serializer.endTag(null, "ItemCover")
+                        }
+
+                        serializer.endTag(null, "MusicItem")
+                    }
+                    serializer.endTag(null, "MusicItems")
+                }
+
+            serializer.endTag(null, "Music")
+
             serializer.endTag(null, "MusicList")
 
             // --- Others ---
@@ -267,6 +312,7 @@ object XmlExportImport {
         var currentOther: Other? = null
         var currentBookItem: BookItem? = null
         var currentVideoItem: VideoItem? = null
+        var currentMusicItem: MusicItem? = null
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             val tagName = parser.name
@@ -285,10 +331,11 @@ object XmlExportImport {
                         }
                         "Book" -> currentBook = Book().apply { Items = mutableListOf() }
                         "Video" -> currentVideo = Video().apply { Items = mutableListOf() }
-                        "Music" -> currentMusic = Music()
+                        "Music" -> currentMusic = Music().apply { MusicItems = mutableListOf() }
                         "Other" -> currentOther = Other()
                         "BookItem" -> currentBookItem = BookItem()
                         "VideoItem" -> currentVideoItem = VideoItem()
+                        "MusicItem" -> currentMusicItem = MusicItem()
 
                         // Fields
                         "Id" -> {
@@ -302,15 +349,16 @@ object XmlExportImport {
                             val text = parser.nextText()
                             currentBook?.Title = text
                             currentVideo?.Title = text
-                            currentMusic?.Title = text
+                            currentMusicItem?.Title = text
                             currentOther?.Title = text
                         }
+                        "Collecting",
                         "collecting" -> {
                             val text = parser.nextText().toBoolean()
                             currentBook?.Collecting = text
                             currentVideo?.Collecting = text
-                            currentMusic?.Collecting = text
                             currentOther?.Collecting = text
+                            currentMusicItem?.Collecting = text
                         }
                         "HasEnded",
                         "Ongoing" -> {
@@ -345,8 +393,8 @@ object XmlExportImport {
                         }
                         "MusicGenre" -> {
                             val text = parser.nextText()
-                            currentMusic?.let { b ->
-                                b.MusicGenre = MusicEnums.MusicGenre.entries.find { it.name == text } ?: MusicEnums.MusicGenre.NoneSelected
+                            currentMusicItem?.let { i ->
+                                i.MusicGenre = MusicEnums.MusicGenre.entries.find { it.name == text } ?: MusicEnums.MusicGenre.NoneSelected
                             }
                         }
                         "Cover" -> {
@@ -401,6 +449,7 @@ object XmlExportImport {
                             val text = parser.nextText().toBoolean()
                             currentBookItem?.Owned = text
                             currentVideoItem?.Owned = text
+                            currentMusicItem?.Owned = text
                         }
                         "Format" -> {
                             val text = parser.nextText()
@@ -416,6 +465,7 @@ object XmlExportImport {
                             val bytes = Base64.decode(text, Base64.DEFAULT)
                             currentBookItem?.ItemCover = bytes
                             currentVideoItem?.ItemCover = bytes
+                            currentMusicItem?.Cover = bytes
                         }
                         "VideoTag" -> {
                             val text = parser.nextText()
@@ -424,7 +474,7 @@ object XmlExportImport {
                         "DiscNumber" -> currentVideoItem?.Season = parser.nextText().toIntOrNull() ?: 0
                         "DiscTitle" -> currentVideoItem?.DiscTitle = parser.nextText()
                         "Watched" -> currentVideoItem?.Watched = parser.nextText().toBoolean()
-                        "Year" -> currentMusic?.Year = parser.nextText().toIntOrNull() ?: 0
+                        "Year" -> currentMusicItem?.Year = parser.nextText().toIntOrNull() ?: 0
                     }
                 }
                 XmlPullParser.END_TAG -> {
@@ -435,6 +485,7 @@ object XmlExportImport {
                         "Other" -> currentOther?.let { container.Others.add(it); currentOther = null }
                         "BookItem" -> currentBookItem?.let { currentBook?.Items?.add(it); currentBookItem = null }
                         "VideoItem" -> currentVideoItem?.let { currentVideo?.Items?.add(it); currentVideoItem = null }
+                        "MusicItem" -> currentMusicItem?.let { currentMusic?.MusicItems?.add(it); currentMusicItem = null }
                     }
                 }
             }
