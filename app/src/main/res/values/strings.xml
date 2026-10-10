@@ -150,4 +150,11 @@
     <string name="artists">Artists</string>
     <string name="number">#</string>
     <string name="percent">%</string>
+    <string name="reading_status">Reading Status</string>
+    <string name="collecting_status">Collecting Status</string>
+    <string name="book_filters">Book Filters</string>
+    <string name="item_filters">Item Filters</string>
+    <string name="music_filters">Music Filters</string>
+    <string name="watching_status">Watching Status</string>
+    <string name="video_filters">Video Filters</string>
 </resources>

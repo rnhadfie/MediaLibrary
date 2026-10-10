@@ -407,6 +407,25 @@ public class SharedService {
             }
             appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excTypes);
 
+            //Book Demographics
+            List<String> incDemographics = new ArrayList<>();
+            if (bFilter.IncludedDemographics != null && !bFilter.IncludedDemographics.isEmpty()) {
+                for (var t : bFilter.IncludedTypes) {
+                        incTypes.add(String.valueOf(t.ordinal()));
+                }
+            } else if (bFilter.Type != null) {
+                incDemographics.add(String.valueOf(bFilter.Type.ordinal()));
+            }
+            appendInClause(conditions, selectionArgs, COLUMN_TYPE, incDemographics);
+
+            List<String> excDemographics = new ArrayList<>();
+            if (bFilter.ExcludedTypes != null && !bFilter.ExcludedTypes.isEmpty()) {
+                for (var t : bFilter.ExcludedTypes) {
+                    excDemographics.add(String.valueOf(t.ordinal()));
+                }
+            }
+            appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excDemographics);
+
             //Publishers
             List<String> incPubs = new ArrayList<>();
             if (bFilter.IncludedPublishers != null && !bFilter.IncludedPublishers.isEmpty()) {

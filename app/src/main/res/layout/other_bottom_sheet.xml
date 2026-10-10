@@ -19,6 +19,13 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/clear_filters" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/collecting_status"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceHeadline6"/>
+
             <include android:id="@+id/collected"
                 layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
@@ -29,12 +36,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
+
             <include android:id="@+id/anyItemsOwned"
                 layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceHeadline6"/>
 
             <include layout="@layout/view_filter_autocomplete_dropdown"
                 android:id="@+id/tag_autocomplete"/>

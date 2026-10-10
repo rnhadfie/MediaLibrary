@@ -9,6 +9,7 @@ import com.example.medialibrary.utils.SortDialogHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import models.book.BookFilter
 import models.book.BookSetup
+import models.book.Enums
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import models.shared.Filter
@@ -53,6 +54,16 @@ class SharedUtils {
                 formatOptions,
                 filter.IncludedFormats,
                 filter.ExcludedFormats
+            )
+
+            val demographicsOptions = setup.Demographics.map { FilterOption(Enums.Demographics.entries[it.key], it.value) }
+            sheetBinding.demographicsAutocomplete.autoCompleteLabel.setHint(R.string.demographics_label)
+            MultiSelectFilterHelper.setupTriStateDropdown(
+                sheetBinding.demographicsAutocomplete.autocomplete,
+                "Demographics",
+                demographicsOptions,
+                filter.IncludedDemographics,
+                filter.ExcludedDemographics
             )
 
             val tagOptions = tags.map { FilterOption(it.Id, it.Name) }

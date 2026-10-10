@@ -23,8 +23,9 @@ class SharedUtils {
             val tags = setup.Tag
 
             val typeOptions = setup.MediaType.filter { it.key != 0 }.map { FilterOption(Enums.MediaType.entries[it.key], it.value) }
+            sb.mediaTypeAutocomplete.autoCompleteLabel.setHint(R.string.itemMediaType)
             MultiSelectFilterHelper.setupTriStateDropdown(
-                sb.dropdownSheetTypeBook,
+                sb.mediaTypeAutocomplete.autocomplete,
                 "Media Types",
                 typeOptions,
                 f.IncludedMediaTypes,
@@ -32,8 +33,9 @@ class SharedUtils {
             )
 
             val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+            sb.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
-                sb.dropdownSheetTagBook,
+                sb.tagAutocomplete.autocomplete,
                 "Tags",
                 tagOptions,
                 f.IncludedTags,

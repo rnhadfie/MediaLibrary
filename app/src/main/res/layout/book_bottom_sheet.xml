@@ -19,7 +19,12 @@
                 android:layout_marginTop="8dp"
                 android:text="@string/clear_filters" />
 
-
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/reading_status"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceHeadline6"/>
 
             <include android:id="@+id/read"
                 layout="@layout/view_filter_checkbox"
@@ -31,6 +36,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/collecting_status"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceHeadline6"/>
+
             <include android:id="@+id/collected"
                 layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
@@ -46,11 +58,25 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/book_filters"
+                android:textAppearance="?attr/textAppearanceHeadline6"/>
+
             <include android:id="@+id/standaloneOrSeriesComplete"
                 layout="@layout/view_filter_checkbox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
+
+            <View
+                android:id="@+id/divider2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                />
 
             <include
                 android:id="@+id/book_type_autocomplete"
@@ -67,6 +93,14 @@
                 android:layout_marginTop="8dp" />
 
             <include
+                android:id="@+id/demographics_autocomplete"
+                layout="@layout/view_filter_autocomplete_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp" />
+
+
+            <include
                 android:id="@+id/pub_autocomplete_input"
                 layout="@layout/view_filter_autocomplete_dropdown"
                 android:layout_width="match_parent"
@@ -79,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:hint="@string/genre"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp">
+                android:layout_margin="8dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/genre_autocomplete"
@@ -87,6 +121,13 @@
                     android:layout_height="wrap_content"
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag"
+                android:gravity="center"
+                android:textAppearance="?attr/textAppearanceHeadline6"/>
 
             <include
                 android:id="@+id/tag_autocomplete"
