@@ -33,6 +33,9 @@ class BookFormViewModel : ViewModel() {
 
     private val _newTag = MutableLiveData<String>()
 
+    private var _tempFormat = MutableLiveData(Enums.BookFormat.NoneSelected)
+    val tempFomart: LiveData<Enums.BookFormat> = _tempFormat
+
     fun updateTitle(title: String) {
         _book.value?.Title = title
     }
@@ -78,6 +81,11 @@ class BookFormViewModel : ViewModel() {
     fun updateBookType(type: Enums.BookType) {
         _book.value?.Type = type
     }
+
+    fun updateBookFormat(format: Enums.BookFormat) {
+        _tempFormat.value = format
+    }
+
 
     fun updateDemographics(demographics: Enums.Demographics) {
         _book.value?.Demographics = demographics

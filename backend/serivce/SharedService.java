@@ -227,27 +227,71 @@ public class SharedService {
 
     private void appendInClause(List<String> conditions, List<String> selectionArgs, String columnName, List<String> values) {
         if (values != null && !values.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(columnName).append(" IN (");
-            for (int i = 0; i < values.size(); i++) {
-                sb.append(i == 0 ? "?" : ", ?");
-                selectionArgs.add(values.get(i));
+            boolean includeEmpty = values.contains("");
+            List<String> nonEmpty = new ArrayList<>();
+            for (String v : values) {
+                if (v != null && !v.isEmpty()) {
+                    nonEmpty.add(v);
+                }
             }
-            sb.append(")");
-            conditions.add(sb.toString());
+            if (includeEmpty) {
+                if (!nonEmpty.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("(").append(columnName).append(" IN (");
+                    for (int i = 0; i < nonEmpty.size(); i++) {
+                        sb.append(i == 0 ? "?" : ", ?");
+                        selectionArgs.add(nonEmpty.get(i));
+                    }
+                    sb.append(") OR ").append(columnName).append(" IS NULL OR ").append(columnName).append(" = '')");
+                    conditions.add(sb.toString());
+                } else {
+                    conditions.add("(" + columnName + " IS NULL OR " + columnName + " = '')");
+                }
+            } else if (!nonEmpty.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(columnName).append(" IN (");
+                for (int i = 0; i < nonEmpty.size(); i++) {
+                    sb.append(i == 0 ? "?" : ", ?");
+                    selectionArgs.add(nonEmpty.get(i));
+                }
+                sb.append(")");
+                conditions.add(sb.toString());
+            }
         }
     }
 
     private void appendNotInClause(List<String> conditions, List<String> selectionArgs, String columnName, List<String> values) {
         if (values != null && !values.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(columnName).append(" NOT IN (");
-            for (int i = 0; i < values.size(); i++) {
-                sb.append(i == 0 ? "?" : ", ?");
-                selectionArgs.add(values.get(i));
+            boolean excludeEmpty = values.contains("");
+            List<String> nonEmpty = new ArrayList<>();
+            for (String v : values) {
+                if (v != null && !v.isEmpty()) {
+                    nonEmpty.add(v);
+                }
             }
-            sb.append(")");
-            conditions.add(sb.toString());
+            if (excludeEmpty) {
+                if (!nonEmpty.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("(").append(columnName).append(" NOT IN (");
+                    for (int i = 0; i < nonEmpty.size(); i++) {
+                        sb.append(i == 0 ? "?" : ", ?");
+                        selectionArgs.add(nonEmpty.get(i));
+                    }
+                    sb.append(") AND ").append(columnName).append(" IS NOT NULL AND ").append(columnName).append(" != '')");
+                    conditions.add(sb.toString());
+                } else {
+                    conditions.add("(" + columnName + " IS NOT NULL AND " + columnName + " != '')");
+                }
+            } else if (!nonEmpty.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(columnName).append(" NOT IN (");
+                for (int i = 0; i < nonEmpty.size(); i++) {
+                    sb.append(i == 0 ? "?" : ", ?");
+                    selectionArgs.add(nonEmpty.get(i));
+                }
+                sb.append(")");
+                conditions.add(sb.toString());
+            }
         }
     }
 

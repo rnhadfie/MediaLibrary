@@ -78,7 +78,10 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             binding.editMusicArtist.setText(music.Artist)
 
             val currentPriority = music.CollectingPriority ?: SharedEnums.CollectingPriority.None
-            binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
+            RadioGridUtils.setSelection(
+                binding.collectingPriorityRadioGroup.dynamicTableLayout,
+                currentPriority.ordinal
+            )
         }
 
         viewModel.items.observe(viewLifecycleOwner) { items ->
@@ -88,7 +91,8 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
     private fun setBindings(setup: MusicSetup) {
         setupTagSelection(setup)
-        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+
+        setupCollectingPriorityRadioGroup(binding.collectingPriorityRadioGroup) { priority ->
             viewModel.updateCollectingPriority(priority)
         }
         setupInputListeners()
@@ -263,7 +267,6 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
     private fun disableForm(enabled: Boolean) {
         binding.editMusicArtist.isEnabled = enabled
         binding.tagAutocomplete.autocomplete.isEnabled = enabled
-        binding.collectingPriorityAutocomplete.autocomplete.isEnabled = enabled
         binding.buttonAddItem.isEnabled = enabled
         binding.buttonSaveMusic.isEnabled = enabled
     }

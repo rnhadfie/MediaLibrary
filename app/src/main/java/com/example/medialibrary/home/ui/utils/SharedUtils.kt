@@ -32,7 +32,9 @@ class SharedUtils {
                 f.ExcludedMediaTypes
             )
 
-            val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+            val tagOptions = mutableListOf(FilterOption("", "No Tag")).apply {
+                addAll(tags.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sb.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sb.tagAutocomplete.autocomplete,

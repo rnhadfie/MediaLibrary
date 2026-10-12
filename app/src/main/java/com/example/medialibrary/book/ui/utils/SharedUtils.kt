@@ -26,7 +26,9 @@ class SharedUtils {
             val publishers = setup.Publishers
             val tags = setup.Tag
 
-            val publisherOptions = publishers.map { FilterOption(it.Id, it.Name) }
+            val publisherOptions = mutableListOf(FilterOption("", "No Publisher")).apply {
+                addAll(publishers.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sheetBinding.pubAutocompleteInput.autoCompleteLabel.setHint(R.string.publisher)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.pubAutocompleteInput.autocomplete,
@@ -66,7 +68,9 @@ class SharedUtils {
                 filter.ExcludedDemographics
             )
 
-            val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+            val tagOptions = mutableListOf(FilterOption("", "No Tag")).apply {
+                addAll(tags.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sheetBinding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.tagAutocomplete.autocomplete,

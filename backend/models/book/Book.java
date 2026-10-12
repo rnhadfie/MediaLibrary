@@ -11,6 +11,5 @@ public class Book extends MediaItem {
     public Enums.Demographics Demographics = Enums.Demographics.NotApplicable;
     public String Publisher;
     public String Year;
-    public String Rating;
     public List<BookItem> Items;
 }

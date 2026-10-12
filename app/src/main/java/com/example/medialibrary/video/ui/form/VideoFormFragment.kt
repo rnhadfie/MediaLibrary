@@ -69,9 +69,10 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
         setupVideoTypeRadioGroup(setup.Types)
         setupVideoTagRadioGroup(setup.VideoTags)
+        setupCollectingStatusRadioGroup()
         setupGenreSelection(setup)
         setupTagSelection(setup)
-        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+        setupCollectingPriorityRadioGroup(binding.collectingPriorityRadioGroup) { priority ->
             viewModel.updateCollectingPriority(priority)
         }
         setupRecyclerView()
@@ -113,9 +114,17 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     private fun observeViewModel(setup: VideoSetup) {
         viewModel.video.observe(viewLifecycleOwner) { video ->
             binding.titleInput.setText(video.Title)
-            binding.collectingCheck.isChecked = video.Collecting ?: false
             binding.ongoingCheck.isChecked = video.Ongoing ?: false
-            binding.collectedCheck.isChecked = video.HasCollectedAllItems ?: false
+
+            val statusId = when {
+                video.Collecting == true -> 1
+                video.HasCollectedAllItems == true -> 2
+                else -> 0
+            }
+            RadioGridUtils.setSelection(
+                binding.collectingStatusRadio.dynamicTableLayout,
+                statusId
+            )
 
             val videoCategory = video.VideoTag?.ordinal ?: 0
             if (videoCategory != 0) {
@@ -137,7 +146,10 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             tag?.let { binding.tagAutocomplete.autocomplete.setText(it.Name, false) }
 
             val currentPriority = video.CollectingPriority ?: SharedEnums.CollectingPriority.None
-            binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
+            RadioGridUtils.setSelection(
+                binding.collectingPriorityRadioGroup.dynamicTableLayout,
+                currentPriority.ordinal
+            )
 
             if (video.Cover != null && video.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(video.Cover, 0, video.Cover.size)
@@ -260,12 +272,17 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
         binding.genreMultiselect.buttonSelectGenres.isEnabled = enabled
         binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
-        binding.collectingPriorityAutocomplete.autoCompleteLabel.isEnabled = enabled
-        binding.collectingPriorityAutocomplete.autocomplete.isEnabled = enabled
+        binding.collectingStatusRadio.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
         binding.addItemBtn.isEnabled = enabled
-        binding.collectingCheck.isEnabled = enabled
         binding.ongoingCheck.isEnabled = enabled
-        binding.collectedCheck.isEnabled = enabled
         binding.saveBtn.isEnabled = enabled
         binding.standaloneSwitch.isEnabled = enabled
         binding.formatAutocomplete.autocomplete.isEnabled = enabled
@@ -282,6 +299,36 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     private fun handleRadioSelectionChange(id: Int) {
         val genre = VideoTag.entries.find { it.ordinal == id } ?: return
         viewModel.updateVideoTag(genre)
+    }
+
+    private fun setupCollectingStatusRadioGroup() {
+        binding.collectingStatusRadio.radioButtonLabel.setText(R.string.collecting_status)
+        val optionsMap = mapOf(
+            0 to "No Collecting",
+            1 to "Collecting",
+            2 to "Collected"
+        )
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = binding.collectingStatusRadio.dynamicTableLayout,
+            optionsMap = optionsMap,
+            columnCount = 3,
+            selectedId = 0
+        ) { selectedId ->
+            when (selectedId) {
+                0 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                1 -> {
+                    viewModel.toggleCollecting(true)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                2 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(true)
+                }
+            }
+        }
     }
 
     private fun setupVideoTypeRadioGroup(types: Map<Int, String>) {
@@ -390,16 +437,17 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             viewModel.updateTitle(s.toString())
             binding.titleLabel.error = ""
         }
-
+/*
         binding.collectingCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCollecting(isChecked)
-        }
+        }*/
         binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCompleted(isChecked)
         }
+        /*
         binding.collectedCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCollectionComplete(isChecked)
-        }
+        }*/
 
         binding.standaloneSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {

@@ -226,9 +226,8 @@ object XmlExportImport {
                         serializer.endTag(null, "MusicItem")
                     }
                     serializer.endTag(null, "MusicItems")
+                    serializer.endTag(null, "Music")
                 }
-
-            serializer.endTag(null, "Music")
 
             serializer.endTag(null, "MusicList")
 

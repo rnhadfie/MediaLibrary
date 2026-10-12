@@ -67,10 +67,13 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
         setupBookTypeRadioGroup(setup)
         setupDemographicsRadioGroup(setup)
+        setupCollectingStatusRadioGroup()
+        setupBookFormatRadioGroup(setup)
         setupGenreSelection(setup)
         setupPublisherSelection(setup)
         setupTagSelection(setup)
-        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+
+        setupCollectingPriorityRadioGroup(binding.collectingPriorityRadioGroup) { priority ->
             viewModel.updateCollectingPriority(priority)
         }
 
@@ -122,12 +125,23 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.titleInput.setText(book.Title)
         binding.authorInput.setText(book.Author)
         binding.artistInput.setText(book.Artist)
-        binding.collectingCheck.isChecked = book.Collecting ?: false
         binding.ongoingCheck.isChecked = book.Ongoing ?: false
-        binding.collectedCheck.isChecked = book.HasCollectedAllItems ?: false
+
+        val statusId = when {
+            book.Collecting == true -> 1
+            book.HasCollectedAllItems == true -> 2
+            else -> 0
+        }
+        RadioGridUtils.setSelection(
+            binding.collectingStatusRadio.dynamicTableLayout,
+            statusId
+        )
 
         val currentPriority = book.CollectingPriority ?: SharedEnums.CollectingPriority.None
-        binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
+        RadioGridUtils.setSelection(
+            binding.collectingPriorityRadioGroup.dynamicTableLayout,
+            currentPriority.ordinal
+        )
 
         val bookTypeId = book.Type?.ordinal ?: 0
         if (bookTypeId != 0) {
@@ -166,7 +180,13 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             binding.standaloneSwitch.isChecked = true
             binding.readSwitch.isChecked = book.Items[0].Read
             binding.ownedSwitch.isChecked = book.Items[0].Owned
-            binding.formatAutocomplete.autocomplete.setText(book.Items[0].Format.name, false)
+
+            val format = book.Items[0].format ?: Enums.BookFormat.NoneSelected
+            RadioGridUtils.setSelection(
+                binding.formatRadioButton.dynamicTableLayout,
+                format.ordinal
+            )
+
             binding.standaloneSection.visibility = View.VISIBLE
             binding.seriesSection.visibility = View.GONE
         }
@@ -230,18 +250,14 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
     }
 
     private fun createStandAloneBookItem() {
-        val formatText = binding.formatAutocomplete.autocomplete.text.toString()
-        val format = try {
-            Enums.BookFormat.valueOf(formatText)
-        } catch (_: Exception) {
-            Enums.BookFormat.NoneSelected
-        }
+
+        val format = viewModel.tempFomart
 
         val item = BookItem().apply {
             Read = binding.readSwitch.isChecked
             Owned = binding.ownedSwitch.isChecked
             VolumeNumber = "-1"
-            Format = format
+            Format = format.value
         }
         viewModel.clearItems()
         viewModel.addOrUpdateItem(item, 0)
@@ -277,20 +293,64 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.pubAutocomplete.autocomplete.isEnabled = enabled
         binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
         binding.tagAutocomplete.autocomplete.isEnabled = enabled
-        binding.collectingPriorityAutocomplete.autoCompleteLabel.isEnabled = enabled
-        binding.collectingPriorityAutocomplete.autocomplete.isEnabled = enabled
+        binding.collectingStatusRadio.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
+
+        binding.formatRadioButton.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
         binding.addItemBtn.isEnabled = enabled
-        binding.collectingCheck.isEnabled = enabled
         binding.ongoingCheck.isEnabled = enabled
-        binding.collectedCheck.isEnabled = enabled
         binding.saveBtn.isEnabled = enabled
         binding.standaloneSwitch.isEnabled = enabled
-        binding.formatAutocomplete.autocomplete.isEnabled = enabled
         binding.readSwitch.isEnabled = enabled
         binding.ownedSwitch.isEnabled = enabled
     }
 
     //region setup
+
+    private fun setupCollectingStatusRadioGroup() {
+        binding.collectingStatusRadio.radioButtonLabel.setText(R.string.collecting_status)
+        val optionsMap = mapOf(
+            0 to "No Collecting",
+            1 to "Collecting",
+            2 to "Collected"
+        )
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = binding.collectingStatusRadio.dynamicTableLayout,
+            optionsMap = optionsMap,
+            columnCount = 3,
+            selectedId = 0
+        ) { selectedId ->
+            when (selectedId) {
+                0 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                1 -> {
+                    viewModel.toggleCollecting(true)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                2 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(true)
+                }
+            }
+        }
+    }
 
     private fun setupBookTypeRadioGroup(setup: BookSetup) {
         binding.bookTypeRadio.radioButtonLabel.setText(R.string.book_type_label)
@@ -305,10 +365,28 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         }
     }
 
+    private fun setupBookFormatRadioGroup(setup: BookSetup) {
+        binding.formatRadioButton.radioButtonLabel.setText(R.string.format_label)
+        val tableLayout = binding.formatRadioButton.dynamicTableLayout
+        val formats = setup.Format.filter { it.key != Enums.BookType.NoneSelected.ordinal }
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = tableLayout,
+            optionsMap = formats,
+            columnCount = 3
+        ) { selectedId ->
+            handleFormatRadioSelectionChange(selectedId)
+        }
+    }
+
     private fun handleRadioSelectionChange(id: Int) {
         val bookType = Enums.BookType.entries.find { it.ordinal == id } ?: return
         viewModel.updateBookType(bookType)
         updateDemographicsVisibility(bookType)
+    }
+
+    private fun handleFormatRadioSelectionChange(id: Int) {
+        val bookFormat = Enums.BookFormat.entries.find { it.ordinal == id } ?:  Enums.BookFormat.NoneSelected
+        viewModel.updateBookFormat(bookFormat)
     }
 
     private fun setupDemographicsRadioGroup(setup: BookSetup) {
@@ -450,15 +528,11 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.artistInput.doAfterTextChanged { s ->
             viewModel.updateArtist(s.toString())
         }
-        binding.collectingCheck.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCollecting(isChecked)
-        }
+
         binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCompleted(isChecked)
         }
-        binding.collectedCheck.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCollectionComplete(isChecked)
-        }
+
 
         binding.standaloneSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -470,14 +544,6 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             }
         }
 
-        val formats = Enums.BookFormat.entries.filter { it != Enums.BookFormat.NoneSelected }
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            formats.map { it.name }
-        )
-        binding.formatAutocomplete.autocomplete.setAdapter(adapter)
-        binding.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
     }
 
     //endregion

@@ -41,8 +41,9 @@
             <include layout="@layout/view_autocomplete_dropdown"
                 android:id="@+id/tag_autocomplete"/>
 
-            <include layout="@layout/view_dropdown"
-                android:id="@+id/collecting_priority_autocomplete"/>
+            <include layout="@layout/view_radio_button"
+                android:id="@+id/collecting_priority_radio_group"
+                />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_add_item"
