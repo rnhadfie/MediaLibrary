@@ -304,10 +304,25 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
                 long id = db.insertWithOnConflict(TABLE_MUSIC, null, values, SQLiteDatabase.CONFLICT_IGNORE);
                 if (id != -1) {
                     addedCounter++;
+                    if (importMusic.MusicItems != null) {
+                        for (MusicItem item : importMusic.MusicItems) {
+                            ContentValues itemValues = MapMusicItemContentValues(importMusic.Id, item);
+                            db.insert(TABLE_MUSIC_ITEM, null, itemValues);
+                        }
+                    }
                 }
                 else {
                     db.update(TABLE_MUSIC, values, COLUMN_ID + " = ?", new String[]{importMusic.Id});
                     updateCounter++;
+
+                    db.delete(TABLE_MUSIC_ITEM, COLUMN_SERIES + " = ?", new String[]{String.valueOf(importMusic.Id)});
+
+                    if (importMusic.MusicItems != null) {
+                        for (MusicItem item : importMusic.MusicItems) {
+                            ContentValues itemValues = MapMusicItemContentValues(importMusic.Id, item);
+                            db.insert(TABLE_MUSIC_ITEM, null, itemValues);
+                        }
+                    }
                 }
 
             }

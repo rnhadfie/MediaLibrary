@@ -84,6 +84,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_DEMOGRAPHICS + " INTEGER DEFAULT 0, " +
                 COLUMN_PUBLISHER + " INTEGER, " +
                 COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
+                COLUMN_YEAR + " TEXT, " +
                 "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_AUTHOR + ", " + COLUMN_TYPE + ")," +
                 "FOREIGN KEY(" + COLUMN_TAG + ") REFERENCES " + TABLE_TAGS + "(" + COLUMN_ID + "), " +
                 "FOREIGN KEY(" + COLUMN_PUBLISHER + ") REFERENCES " + TABLE_PUBLISHERS + "(" + COLUMN_ID + "))");
@@ -140,6 +141,8 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_TYPE + " INTEGER, " +
                 COLUMN_VIDEO_TAG + " INTEGER, " +
                 COLUMN_COLLECTING_PRIORITY + " INTEGER, " +
+                COLUMN_YEAR + " INTEGER, " +
+                COLUMN_RATING + " INTEGER, " +
                 "UNIQUE (" + COLUMN_ID + ", " + COLUMN_TITLE +", " + COLUMN_VIDEO_TAG + ", " + COLUMN_TYPE + ")," +
                 "FOREIGN KEY(" + COLUMN_TAG + ") REFERENCES " + TABLE_TAGS + "(" + COLUMN_ID + "))");
 

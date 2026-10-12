@@ -86,6 +86,10 @@ object XmlExportImport {
                 serializer.text(book?.Publisher ?: "")
                 serializer.endTag(null, "PublisherId")
 
+                serializer.startTag(null, "Year")
+                serializer.text(book?.Year ?: "")
+                serializer.endTag(null, "Year")
+
                 serializer.startTag(null, "Items")
                 book.Items?.forEach { item ->
                     serializer.startTag(null, "BookItem")
@@ -135,6 +139,14 @@ object XmlExportImport {
                 serializer.startTag(null, "VideoTag")
                 serializer.text(video.VideoTag?.name ?: "")
                 serializer.endTag(null, "VideoTag")
+
+                serializer.startTag(null, "Year")
+                serializer.text(video.Year.toString() ?: "")
+                serializer.endTag(null, "Year")
+
+                serializer.startTag(null, "Rating")
+                serializer.text(video.Rating.toString() ?: "")
+                serializer.endTag(null, "Rating")
 
                 serializer.startTag(null, "Items")
                 video.Items?.forEach { item ->
@@ -260,9 +272,9 @@ object XmlExportImport {
         serializer.text(item.Title ?: "")
         serializer.endTag(null, "Title")
 
-        serializer.startTag(null, "collecting")
+        serializer.startTag(null, "Collecting")
         serializer.text(item.Collecting.toString())
-        serializer.endTag(null, "collecting")
+        serializer.endTag(null, "Collecting")
 
         serializer.startTag(null, "Ongoing")
         serializer.text(item.Ongoing.toString())
@@ -473,7 +485,11 @@ object XmlExportImport {
                         "DiscNumber" -> currentVideoItem?.Season = parser.nextText().toIntOrNull() ?: 0
                         "DiscTitle" -> currentVideoItem?.DiscTitle = parser.nextText()
                         "Watched" -> currentVideoItem?.Watched = parser.nextText().toBoolean()
-                        "Year" -> currentMusicItem?.Year = parser.nextText().toIntOrNull() ?: 0
+                        "Year" -> {
+                            currentVideo?.Year = parser.nextText().toIntOrNull() ?: 0
+                            currentMusicItem?.Year = parser.nextText().toIntOrNull() ?: 0
+                            currentBook?.Year = parser.nextText() ?: ""
+                        }
                     }
                 }
                 XmlPullParser.END_TAG -> {

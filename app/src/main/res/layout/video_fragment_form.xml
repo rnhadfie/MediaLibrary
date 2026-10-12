@@ -42,9 +42,32 @@
                     android:textColor="?attr/colorOnBackground" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/year_label"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="@string/year"
+                app:boxBackgroundColor="@color/card"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/year_input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:textColor="?attr/colorOnBackground" />
+            </com.google.android.material.textfield.TextInputLayout>
+
             <include layout="@layout/view_radio_button" android:id="@+id/video_type_radio"/>
 
             <include layout="@layout/view_radio_button" android:id="@+id/video_category_radio"/>
+
+            <include layout="@layout/view_radio_button" android:id="@+id/video_rating_radio"/>
 
 
             <include layout="@layout/view_genre_multiselect"
@@ -114,8 +137,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:id="@+id/standalone_section">
-                <include layout="@layout/view_dropdown"
-                    android:id="@+id/format_autocomplete"/>
+                <include layout="@layout/view_radio_button"
+                    android:id="@+id/format_radio_group"/>
 
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/owned_switch"

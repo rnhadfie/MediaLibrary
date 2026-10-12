@@ -15,7 +15,6 @@ import models.book.Publisher
 import models.shared.Tag
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
@@ -98,6 +97,8 @@ class BookFormFragmentTest {
 
         // Validation passes when title is filled
         viewModel.updateTitle("The Hobbit")
+        viewModel.updateYear("1937")
+        assertEquals("1937", viewModel.book.value?.Year)
         val updatedErrors = viewModel.validateFields()
         assertTrue(updatedErrors.isEmpty())
     }

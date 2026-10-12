@@ -8,11 +8,11 @@ import models.shared.*;
 
 public class VideoSetup {
     public Boolean Watched;
-    public Boolean Watching;
 
     public List<GenreObject> Genre = new ArrayList<>();
     public Map<Integer, String> VideoTags = new HashMap<>();
     public Map<Integer, String> Types = new HashMap<>();
     public Map<Integer, String> Formats = new HashMap<>();
+    public Map<Integer, String> Ratings = new HashMap<>();
     public List<Tag> Tag = new ArrayList<>();
 }

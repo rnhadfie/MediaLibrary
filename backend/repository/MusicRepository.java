@@ -2,21 +2,16 @@ package repository;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
-import models.book.BookItem;
 import models.music.*;
 import repository.Interface.Interface.IMusicRepository;
 import repository.database.BaseRepository;
 import repository.database.MediaLibraryDbHelper;
 import utils.DatabaseMappings;
-import utils.NaturalComparator;
 
 import android.content.ContentValues;
 import android.util.LruCache;
 
 import static utils.DatabaseKeyNames.*;
-import static utils.DatabaseMappings.MapBookItem;
-import static utils.DatabaseMappings.MapBookItemContentValues;
 import static utils.DatabaseMappings.MapMusicItems;
 
 import java.util.ArrayList;
@@ -105,6 +100,7 @@ public class MusicRepository extends BaseRepository implements IMusicRepository 
             if (cursor.moveToFirst()) {
                 do {
                     DatabaseMappings.MapMusic(cursor, music);
+                    music.MusicItems = GetMusicItems(music.Id);
                 } while (cursor.moveToNext());
                 cursor.close();
             }

@@ -90,6 +90,7 @@ configurations.all {
 dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.cardview)
+    implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.fragment.ktx)

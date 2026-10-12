@@ -9,6 +9,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -48,17 +49,16 @@
                 android:id="@+id/music_genre_autocomplete"/>
 
 
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"
+                />
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/tag"
                 android:gravity="center"
                 android:textAppearance="?attr/textAppearanceHeadline6"/>
-
-           <include layout="@layout/view_filter_autocomplete_dropdown"
-               android:id="@+id/tag_autocomplete"
-               />
-
 
 
             <Button

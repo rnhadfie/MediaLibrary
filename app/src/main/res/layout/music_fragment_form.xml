@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/music_form"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/music_form"
     tools:context=".music.ui.form.MusicFormFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -38,13 +39,6 @@
                     android:textColor="?attr/colorOnBackground" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <include layout="@layout/view_autocomplete_dropdown"
-                android:id="@+id/tag_autocomplete"/>
-
-            <include layout="@layout/view_radio_button"
-                android:id="@+id/collecting_priority_radio_group"
-                />
-
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_add_item"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -60,6 +54,14 @@
                 android:layout_marginTop="12dp"
                 app:layoutManager="LinearLayoutManager" />
 
+
+            <include layout="@layout/view_autocomplete_dropdown"
+                android:id="@+id/tag_autocomplete"/>
+
+            <include layout="@layout/view_radio_button"
+                android:id="@+id/collecting_priority_radio_group"
+                />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_save_music"
                 android:layout_width="match_parent"
@@ -68,7 +70,9 @@
                 android:layout_marginBottom="24dp"
                 android:text="@string/save_cd" />
 
+
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

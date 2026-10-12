@@ -52,6 +52,10 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
     private lateinit var itemAdapter: BookItemAdapter
     private var controller: BookController? = null
 
+    private var setup: BookSetup = BookSetup()
+
+    var selectedFormat: Enums.BookFormat = Enums.BookFormat.NoneSelected
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[BookFormViewModel::class.java]
@@ -59,7 +63,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         val dbHelper = MediaLibraryDbHelper(requireContext())
         controller = BookController(dbHelper)
 
-        val setup = controller?.GetBookSetup() ?: BookSetup()
+        setup = controller?.GetBookSetup() ?: BookSetup()
 
         if (isEdit && itemId != "-1") {
             viewModel.loadBook(itemId, controller, setup)
@@ -125,6 +129,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.titleInput.setText(book.Title)
         binding.authorInput.setText(book.Author)
         binding.artistInput.setText(book.Artist)
+        binding.yearInput.setText(book.Year ?: "")
         binding.ongoingCheck.isChecked = book.Ongoing ?: false
 
         val statusId = when {
@@ -267,6 +272,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.titleInput.isEnabled = enabled
         binding.authorInput.isEnabled = enabled
         binding.artistInput.isEnabled = enabled
+        binding.yearInput.isEnabled = enabled
         binding.bookTypeRadio.dynamicTableLayout.children.forEach { child ->
             if (child is ViewGroup) {
                 child.children.forEach { subChild ->
@@ -528,6 +534,9 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.artistInput.doAfterTextChanged { s ->
             viewModel.updateArtist(s.toString())
         }
+        binding.yearInput.doAfterTextChanged { s ->
+            viewModel.updateYear(s.toString())
+        }
 
         binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCompleted(isChecked)
@@ -571,14 +580,17 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
     ) {
         sb.cancelButton.setOnClickListener { dialog.dismiss() }
 
-        val formats = Enums.BookFormat.entries.filter { it != Enums.BookFormat.NoneSelected }
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            formats.map { it.name }
-        )
-        sb.formatAutocomplete.autocomplete.setAdapter(adapter)
-        sb.formatAutocomplete.autoCompleteLabel.setHint(R.string.format_label)
+
+
+        val formats = setup.Format.filter { it.key != Enums.BookFormat.NoneSelected.ordinal }
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = sb.formatRadioGroup.dynamicTableLayout,
+            optionsMap = formats,
+            columnCount = 3
+        ){ selectedId ->
+            selectedFormat = Enums.BookFormat.entries.find { it.ordinal == selectedId } ?:  Enums.BookFormat.NoneSelected
+        }
+
         sb.numberInput.keyListener = DigitsKeyListener.getInstance("0123456789,.- ")
 
         item?.let {
@@ -586,7 +598,11 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             sb.numberInput.setText(it.VolumeNumber)
             sb.ownedSwitch.isChecked = it.Owned
             sb.readSwitch.isChecked = it.Read
-            sb.formatAutocomplete.autocomplete.setText(it.Format.name, false)
+            RadioGridUtils.setSelection(
+                sb.formatRadioGroup.dynamicTableLayout,
+                it.Format.ordinal
+            )
+
             if (it.ItemCover != null && it.ItemCover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(it.ItemCover, 0, it.ItemCover.size)
                 sb.imageItemCover.imageBookCover.setImageBitmap(bitmap)
@@ -628,19 +644,14 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             return
         }
 
-        val formatText = sb.formatAutocomplete.autocomplete.text.toString()
-        val format = try {
-            Enums.BookFormat.valueOf(formatText)
-        } catch (_: Exception) {
-            Enums.BookFormat.NoneSelected
-        }
+
 
         val newItem = BookItem().apply {
             VolumeNumber = volNum
             VolumeTitle = sb.titleInput.text.toString()
             Owned = sb.ownedSwitch.isChecked
             Read = sb.readSwitch.isChecked
-            Format = format
+            Format = selectedFormat
             ItemCover = sb.imageItemCover.imageBookCover.tag as? ByteArray
         }
 

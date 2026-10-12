@@ -52,7 +52,7 @@
     </style>
 
     <style name="Theme.MediaLibrary.BottomSheetStyle" parent="Widget.MaterialComponents.BottomSheet">
-        <item name="backgroundTint">@color/secondary_light</item>
+        <item name="backgroundTint">?attr/colorSecondary</item>
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.MediaLibrary.BottomSheet</item>
     </style>
 

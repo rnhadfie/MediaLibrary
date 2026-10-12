@@ -94,6 +94,10 @@ class VideoFormFragmentTest {
 
         // Validation passes when title is updated
         viewModel.updateTitle("Interstellar")
+        viewModel.updateYear(2014)
+        viewModel.updateRating(VideoEnums.Rating.PG13)
+        assertEquals(2014, viewModel.video.value?.Year)
+        assertEquals(VideoEnums.Rating.PG13, viewModel.video.value?.Rating)
         val updatedErrors = viewModel.validate()
         assertFalse(updatedErrors.containsKey("title"))
     }

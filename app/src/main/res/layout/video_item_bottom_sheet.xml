@@ -5,6 +5,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -90,8 +91,8 @@
                 android:textColor="?attr/colorOnBackground" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include layout="@layout/view_dropdown"
-            android:id="@+id/format_autocomplete"/>
+        <include layout="@layout/view_radio_button"
+            android:id="@+id/format_radio_group"/>
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/owned_switch"

@@ -1,6 +1,7 @@
 package serivce;
 
 import models.shared.DisplayMediaItem;
+import models.video.Enums;
 import models.video.Enums.*;
 import models.video.Video;
 import models.video.VideoFilter;
@@ -83,7 +84,18 @@ public class VideoService {
         videoSetup.Types = this.GetTypes();
         videoSetup.Tag = sharedService.GetTags();
         videoSetup.Formats = this.GetFormats();
+        videoSetup.Ratings = this.GetRatings();
         return videoSetup;
+    }
+
+    public Map<Integer, String> GetRatings() {
+        Map<Integer, String> ratingMap = new HashMap<>();
+        ratingMap.put(Enums.Rating.G.ordinal(), "G");
+        ratingMap.put(Enums.Rating.PG.ordinal(), "PG");
+        ratingMap.put(Enums.Rating.PG13.ordinal(), "14A");
+        ratingMap.put(Enums.Rating.R.ordinal(), "18A");
+        ratingMap.put(Enums.Rating.NC17.ordinal(), "R");
+        return ratingMap;
     }
 
     public Map<Integer, String> GetFormats() {

@@ -48,6 +48,10 @@ class BookFormViewModel : ViewModel() {
         _book.value?.Artist = artist
     }
 
+    fun updateYear(year: String) {
+        _book.value?.Year = year
+    }
+
     fun updatePublisher(publisher: Publisher) {
         _book.value?.Publisher = publisher.Id
         if (publisher.Id == "") {

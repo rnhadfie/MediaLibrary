@@ -80,6 +80,7 @@ public class DatabaseMappings {
         bookValues.put(COLUMN_DEMOGRAPHICS, book.Demographics != null ? book.Demographics.ordinal() : 0);
         bookValues.put(COLUMN_PUBLISHER, publisherId);
         bookValues.put(COLUMN_COLLECTING_PRIORITY, book.CollectingPriority != null ? book.CollectingPriority.ordinal() : 0);
+        bookValues.put(COLUMN_YEAR, book.Year != null ? book.Year.trim() : "");
         return bookValues;
     }
 
@@ -123,6 +124,11 @@ public class DatabaseMappings {
         if (collectingPriority >= 0 && collectingPriority < CollectingPriority.values().length) {
             book.CollectingPriority = CollectingPriority.values()[collectingPriority];
         }
+
+        int yearIdx = bookCursor.getColumnIndex(COLUMN_YEAR);
+        if (yearIdx != -1 && !bookCursor.isNull(yearIdx)) {
+            book.Year = bookCursor.getString(yearIdx);
+        }
     }
 
     //endregion
@@ -152,8 +158,20 @@ public class DatabaseMappings {
         }
 
         int collectingPriority = videoCursor.getInt(videoCursor.getColumnIndexOrThrow(COLUMN_COLLECTING_PRIORITY));
-        if (collectingPriority >= 0 && collectingPriority < models.shared.Enums.CollectingPriority.values().length) {
-            video.CollectingPriority = models.shared.Enums.CollectingPriority.values()[collectingPriority];
+        if (collectingPriority >= 0 && collectingPriority < CollectingPriority.values().length) {
+            video.CollectingPriority = CollectingPriority.values()[collectingPriority];
+        }
+
+        int yearIdx = videoCursor.getColumnIndex(COLUMN_YEAR);
+        if (yearIdx != -1 && !videoCursor.isNull(yearIdx)) {
+            video.Year = videoCursor.getInt(yearIdx);
+        }
+        int ratingIdx = videoCursor.getColumnIndex(COLUMN_RATING);
+        if (ratingIdx != -1 && !videoCursor.isNull(ratingIdx)) {
+            int rVal = videoCursor.getInt(ratingIdx);
+            if (rVal >= 0 && rVal < models.video.Enums.Rating.values().length) {
+                video.Rating = models.video.Enums.Rating.values()[rVal];
+            }
         }
         return id;
     }
@@ -171,6 +189,8 @@ public class DatabaseMappings {
         videoValues.put(COLUMN_TYPE, video.Type != null ? video.Type.ordinal() : 0);
         videoValues.put(COLUMN_VIDEO_TAG, video.VideoTag != null ? video.VideoTag.ordinal() : 0);
         videoValues.put(COLUMN_COLLECTING_PRIORITY, video.CollectingPriority != null ? video.CollectingPriority.ordinal() : 0);
+        videoValues.put(COLUMN_YEAR, video.Year);
+        videoValues.put(COLUMN_RATING, video.Rating != null ? video.Rating.ordinal() : 0);
         return videoValues;
     }
 

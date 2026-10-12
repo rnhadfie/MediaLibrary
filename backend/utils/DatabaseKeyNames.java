@@ -71,6 +71,7 @@ public class DatabaseKeyNames {
     public static final String COLUMN_DISC_TITLE = "DiscTitle";
     public static final String COLUMN_WATCHED = "Watched";
     public static final String COLUMN_VIDEO_TAG = "VideoTag";
+    public static final String COLUMN_RATING = "Rating";
 
     //endregion
 }
