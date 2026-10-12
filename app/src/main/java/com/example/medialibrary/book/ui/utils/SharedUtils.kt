@@ -9,6 +9,7 @@ import com.example.medialibrary.utils.SortDialogHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import models.book.BookFilter
 import models.book.BookSetup
+import models.book.Enums
 import models.book.Enums.BookFormat
 import models.book.Enums.BookType
 import models.shared.Filter
@@ -25,7 +26,9 @@ class SharedUtils {
             val publishers = setup.Publishers
             val tags = setup.Tag
 
-            val publisherOptions = publishers.map { FilterOption(it.Id, it.Name) }
+            val publisherOptions = mutableListOf(FilterOption("", "No Publisher")).apply {
+                addAll(publishers.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sheetBinding.pubAutocompleteInput.autoCompleteLabel.setHint(R.string.publisher)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.pubAutocompleteInput.autocomplete,
@@ -55,7 +58,19 @@ class SharedUtils {
                 filter.ExcludedFormats
             )
 
-            val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+            val demographicsOptions = setup.Demographics.map { FilterOption(Enums.Demographics.entries[it.key], it.value) }
+            sheetBinding.demographicsAutocomplete.autoCompleteLabel.setHint(R.string.demographics_label)
+            MultiSelectFilterHelper.setupTriStateDropdown(
+                sheetBinding.demographicsAutocomplete.autocomplete,
+                "Demographics",
+                demographicsOptions,
+                filter.IncludedDemographics,
+                filter.ExcludedDemographics
+            )
+
+            val tagOptions = mutableListOf(FilterOption("", "No Tag")).apply {
+                addAll(tags.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sheetBinding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.tagAutocomplete.autocomplete,

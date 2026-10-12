@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/music_form"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/music_form"
     tools:context=".music.ui.form.MusicFormFragment">
 
     <androidx.core.widget.NestedScrollView
@@ -18,35 +19,12 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <include layout="@layout/view_change_image"
-                android:id="@+id/change_image"
-                />
-
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:id="@+id/edit_music_title_label"
-                android:hint="@string/title_hint"
-                app:boxBackgroundColor="@color/card"
-                app:boxCornerRadiusBottomEnd="12dp"
-                app:boxCornerRadiusBottomStart="12dp"
-                app:boxCornerRadiusTopEnd="12dp"
-                app:boxCornerRadiusTopStart="12dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edit_music_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="?attr/colorOnBackground" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:id="@+id/edit_music_artist_label"
                 android:hint="@string/artist_hint"
                 app:boxBackgroundColor="@color/card"
                 app:boxCornerRadiusBottomEnd="12dp"
@@ -61,31 +39,28 @@
                     android:textColor="?attr/colorOnBackground" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <include layout="@layout/view_radio_button"
-                android:id="@+id/music_genre_radio"/>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_add_item"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/add_item" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/music_collecting"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerview_music_items"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:text="@string/currently_collecting"
-                android:textColor="?attr/colorOnBackground" />
+                app:layoutManager="LinearLayoutManager" />
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/music_has_ended"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/owned_label"
-                android:textColor="?attr/colorOnBackground" />
 
             <include layout="@layout/view_autocomplete_dropdown"
                 android:id="@+id/tag_autocomplete"/>
 
-            <include layout="@layout/view_dropdown"
-                android:id="@+id/collecting_priority_autocomplete"/>
-
+            <include layout="@layout/view_radio_button"
+                android:id="@+id/collecting_priority_radio_group"
+                />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/button_save_music"
@@ -95,7 +70,9 @@
                 android:layout_marginBottom="24dp"
                 android:text="@string/save_cd" />
 
+
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

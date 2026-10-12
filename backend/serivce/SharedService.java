@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Lazy;
 import kotlin.LazyKt;
@@ -64,21 +65,34 @@ public class SharedService {
         displayItem.CollectingPriority = item.CollectingPriority;
 
         StringBuilder statusString = new StringBuilder();
-        if(item.HasCollectedAllItems != null && item.HasCollectedAllItems)
-        {
-            statusString.append("Collected");
-        }
-        else if(item.CurrentOwnAny != null && !item.CurrentOwnAny)
-        {
-            statusString.append("To Collect");
-        }
-        else if(item.Collecting != null && item.Collecting)
-        {
-            statusString.append("Collecting");
-        }
-        else
-        {
-            statusString.append("Not Collecting");
+        if(item instanceof Music) {
+            boolean status = false;
+            var music = (Music)item;
+            displayItem.Title = music.Artist;
+            if(!music.MusicItems.isEmpty())
+           {
+                AtomicBoolean collectingStatus = new AtomicBoolean(false);
+                music.MusicItems.forEach(musicItem -> {
+                    collectingStatus.set(collectingStatus.get() || musicItem.Collecting != null && musicItem.Collecting);
+                });
+                status = collectingStatus.get();
+            }
+            if(status) {
+                statusString.append("Collecting");
+            } else {
+                statusString.append("Not Collecting");
+            }
+        } else {
+
+            if (item.HasCollectedAllItems != null && item.HasCollectedAllItems) {
+                statusString.append("Collected");
+            } else if (item.CurrentOwnAny != null && !item.CurrentOwnAny) {
+                statusString.append("To Collect");
+            } else if (item.Collecting != null && item.Collecting) {
+                statusString.append("Collecting");
+            } else {
+                statusString.append("Not Collecting");
+            }
         }
 
 
@@ -109,7 +123,7 @@ public class SharedService {
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
             displayItem.ItemCount = (item.HasCollectedAllItems != null && item.HasCollectedAllItems) ? 1 : 0;
-            alternativeStatus =  ((Music)item).Artist;
+            alternativeStatus =  "Cds: " + ((Music)item).MusicItems.size();
 
         } else if (item instanceof Other) {
             var tempOther = (Other) item;
@@ -213,27 +227,71 @@ public class SharedService {
 
     private void appendInClause(List<String> conditions, List<String> selectionArgs, String columnName, List<String> values) {
         if (values != null && !values.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(columnName).append(" IN (");
-            for (int i = 0; i < values.size(); i++) {
-                sb.append(i == 0 ? "?" : ", ?");
-                selectionArgs.add(values.get(i));
+            boolean includeEmpty = values.contains("");
+            List<String> nonEmpty = new ArrayList<>();
+            for (String v : values) {
+                if (v != null && !v.isEmpty()) {
+                    nonEmpty.add(v);
+                }
             }
-            sb.append(")");
-            conditions.add(sb.toString());
+            if (includeEmpty) {
+                if (!nonEmpty.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("(").append(columnName).append(" IN (");
+                    for (int i = 0; i < nonEmpty.size(); i++) {
+                        sb.append(i == 0 ? "?" : ", ?");
+                        selectionArgs.add(nonEmpty.get(i));
+                    }
+                    sb.append(") OR ").append(columnName).append(" IS NULL OR ").append(columnName).append(" = '')");
+                    conditions.add(sb.toString());
+                } else {
+                    conditions.add("(" + columnName + " IS NULL OR " + columnName + " = '')");
+                }
+            } else if (!nonEmpty.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(columnName).append(" IN (");
+                for (int i = 0; i < nonEmpty.size(); i++) {
+                    sb.append(i == 0 ? "?" : ", ?");
+                    selectionArgs.add(nonEmpty.get(i));
+                }
+                sb.append(")");
+                conditions.add(sb.toString());
+            }
         }
     }
 
     private void appendNotInClause(List<String> conditions, List<String> selectionArgs, String columnName, List<String> values) {
         if (values != null && !values.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(columnName).append(" NOT IN (");
-            for (int i = 0; i < values.size(); i++) {
-                sb.append(i == 0 ? "?" : ", ?");
-                selectionArgs.add(values.get(i));
+            boolean excludeEmpty = values.contains("");
+            List<String> nonEmpty = new ArrayList<>();
+            for (String v : values) {
+                if (v != null && !v.isEmpty()) {
+                    nonEmpty.add(v);
+                }
             }
-            sb.append(")");
-            conditions.add(sb.toString());
+            if (excludeEmpty) {
+                if (!nonEmpty.isEmpty()) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("(").append(columnName).append(" NOT IN (");
+                    for (int i = 0; i < nonEmpty.size(); i++) {
+                        sb.append(i == 0 ? "?" : ", ?");
+                        selectionArgs.add(nonEmpty.get(i));
+                    }
+                    sb.append(") AND ").append(columnName).append(" IS NOT NULL AND ").append(columnName).append(" != '')");
+                    conditions.add(sb.toString());
+                } else {
+                    conditions.add("(" + columnName + " IS NOT NULL AND " + columnName + " != '')");
+                }
+            } else if (!nonEmpty.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(columnName).append(" NOT IN (");
+                for (int i = 0; i < nonEmpty.size(); i++) {
+                    sb.append(i == 0 ? "?" : ", ?");
+                    selectionArgs.add(nonEmpty.get(i));
+                }
+                sb.append(")");
+                conditions.add(sb.toString());
+            }
         }
     }
 
@@ -274,9 +332,11 @@ public class SharedService {
 
         // region common filters
 
-        if (filter.Collecting != null) {
-            conditions.add(COLUMN_COLLECTING + " = ?");
-            selectionArgs.add(filter.Collecting ? "1" : "0");
+        if(!(filter instanceof MusicFilter) ) {
+            if (filter.Collecting != null) {
+                conditions.add(COLUMN_COLLECTING + " = ?");
+                selectionArgs.add(filter.Collecting ? "1" : "0");
+            }
         }
 
         if (filter.Collected != null) {
@@ -317,8 +377,7 @@ public class SharedService {
                 selectionArgs.add("%" + searchText + "%");
                 selectionArgs.add("%" + searchText + "%");
             } else if (filter instanceof MusicFilter) {
-                conditions.add("(" + COLUMN_TITLE + " LIKE ? OR " + COLUMN_ARTIST + " LIKE ?)");
-                selectionArgs.add("%" + searchText + "%");
+                conditions.add("(" + COLUMN_ARTIST + " LIKE ?)");
                 selectionArgs.add("%" + searchText + "%");
             } else {
                 conditions.add(COLUMN_TITLE + " LIKE ?");
@@ -391,6 +450,25 @@ public class SharedService {
                 }
             }
             appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excTypes);
+
+            //Book Demographics
+            List<String> incDemographics = new ArrayList<>();
+            if (bFilter.IncludedDemographics != null && !bFilter.IncludedDemographics.isEmpty()) {
+                for (var t : bFilter.IncludedTypes) {
+                        incTypes.add(String.valueOf(t.ordinal()));
+                }
+            } else if (bFilter.Type != null) {
+                incDemographics.add(String.valueOf(bFilter.Type.ordinal()));
+            }
+            appendInClause(conditions, selectionArgs, COLUMN_TYPE, incDemographics);
+
+            List<String> excDemographics = new ArrayList<>();
+            if (bFilter.ExcludedTypes != null && !bFilter.ExcludedTypes.isEmpty()) {
+                for (var t : bFilter.ExcludedTypes) {
+                    excDemographics.add(String.valueOf(t.ordinal()));
+                }
+            }
+            appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excDemographics);
 
             //Publishers
             List<String> incPubs = new ArrayList<>();
@@ -483,8 +561,10 @@ public class SharedService {
         for (String key : order) {
             if ("Priority".equalsIgnoreCase(key) && filter.SortPriority != null) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
-            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null) {
+            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null && !(filter instanceof MusicFilter) ) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+            } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null && (filter instanceof MusicFilter) ) {
+                sortRules.add(new DyanmicSort.SortKey<>(u -> ((Music)u).Artist != null ? ((Music)u).Artist : "", filter.SortAlphabetical));
             } else if ("ItemMediaType".equalsIgnoreCase(key) && filter.SortItemMediaType != null) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
             }

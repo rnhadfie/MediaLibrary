@@ -19,6 +19,7 @@ public class Enums {
         Manga,
         GraphicNovel,
         ArtBook,
+        FanBook,
     }
 
     public enum Demographics

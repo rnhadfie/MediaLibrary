@@ -28,4 +28,14 @@ public class Enums {
         WebSeries,
         Miniseries,
     }
+
+    public enum Rating
+    {
+        NotRated,
+        G,
+        PG,
+        PG13,
+        R,
+        NC17
+    }
 }

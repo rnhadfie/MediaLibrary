@@ -6,6 +6,9 @@ import java.util.List;
 
 public class Video extends MediaItem {
     public Enums.VideoType Type;
+    public int Year;
+    public Enums.Rating Rating;
+
     public List<VideoItem> Items;
     public Enums.VideoTag VideoTag;
 }

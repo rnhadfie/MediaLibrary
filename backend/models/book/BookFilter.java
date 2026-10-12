@@ -19,4 +19,7 @@ public class BookFilter extends Filter {
 
     public List<Enums.BookFormat> IncludedFormats = new ArrayList<>();
     public List<Enums.BookFormat> ExcludedFormats = new ArrayList<>();
+
+    public List<Enums.Demographics> IncludedDemographics = new ArrayList<>();
+    public List<Enums.Demographics> ExcludedDemographics = new ArrayList<>();
 }

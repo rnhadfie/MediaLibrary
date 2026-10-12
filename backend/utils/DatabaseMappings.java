@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 
 import models.book.*;
 import models.music.Music;
+import models.music.MusicItem;
 import models.shared.Enums.CollectingPriority;
 import models.music.Enums.MusicGenre;
 import models.other.Other;
@@ -79,6 +80,7 @@ public class DatabaseMappings {
         bookValues.put(COLUMN_DEMOGRAPHICS, book.Demographics != null ? book.Demographics.ordinal() : 0);
         bookValues.put(COLUMN_PUBLISHER, publisherId);
         bookValues.put(COLUMN_COLLECTING_PRIORITY, book.CollectingPriority != null ? book.CollectingPriority.ordinal() : 0);
+        bookValues.put(COLUMN_YEAR, book.Year != null ? book.Year.trim() : "");
         return bookValues;
     }
 
@@ -122,6 +124,11 @@ public class DatabaseMappings {
         if (collectingPriority >= 0 && collectingPriority < CollectingPriority.values().length) {
             book.CollectingPriority = CollectingPriority.values()[collectingPriority];
         }
+
+        int yearIdx = bookCursor.getColumnIndex(COLUMN_YEAR);
+        if (yearIdx != -1 && !bookCursor.isNull(yearIdx)) {
+            book.Year = bookCursor.getString(yearIdx);
+        }
     }
 
     //endregion
@@ -151,8 +158,20 @@ public class DatabaseMappings {
         }
 
         int collectingPriority = videoCursor.getInt(videoCursor.getColumnIndexOrThrow(COLUMN_COLLECTING_PRIORITY));
-        if (collectingPriority >= 0 && collectingPriority < models.shared.Enums.CollectingPriority.values().length) {
-            video.CollectingPriority = models.shared.Enums.CollectingPriority.values()[collectingPriority];
+        if (collectingPriority >= 0 && collectingPriority < CollectingPriority.values().length) {
+            video.CollectingPriority = CollectingPriority.values()[collectingPriority];
+        }
+
+        int yearIdx = videoCursor.getColumnIndex(COLUMN_YEAR);
+        if (yearIdx != -1 && !videoCursor.isNull(yearIdx)) {
+            video.Year = videoCursor.getInt(yearIdx);
+        }
+        int ratingIdx = videoCursor.getColumnIndex(COLUMN_RATING);
+        if (ratingIdx != -1 && !videoCursor.isNull(ratingIdx)) {
+            int rVal = videoCursor.getInt(ratingIdx);
+            if (rVal >= 0 && rVal < models.video.Enums.Rating.values().length) {
+                video.Rating = models.video.Enums.Rating.values()[rVal];
+            }
         }
         return id;
     }
@@ -170,6 +189,8 @@ public class DatabaseMappings {
         videoValues.put(COLUMN_TYPE, video.Type != null ? video.Type.ordinal() : 0);
         videoValues.put(COLUMN_VIDEO_TAG, video.VideoTag != null ? video.VideoTag.ordinal() : 0);
         videoValues.put(COLUMN_COLLECTING_PRIORITY, video.CollectingPriority != null ? video.CollectingPriority.ordinal() : 0);
+        videoValues.put(COLUMN_YEAR, video.Year);
+        videoValues.put(COLUMN_RATING, video.Rating != null ? video.Rating.ordinal() : 0);
         return videoValues;
     }
 
@@ -190,30 +211,48 @@ public class DatabaseMappings {
 
     //region Music
 
-    public static void MapMusicItems(Cursor cursor, Music music) {
-        MapMediaItem(cursor, music);
+    public static void MapMusic(Cursor cursor, Music music) {
+        //MapMediaItem(cursor, music);
+
+        music.Id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
         music.MediaType = models.shared.Enums.MediaType.Music;
         music.Artist = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ARTIST));
-        music.Year = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_YEAR));
-        music.MusicGenre = deserializeMusicGenre(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_GENRE)));
+        music.Tag = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TAG));
+        music.CollectingPriority = CollectingPriority.values()[cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COLLECTING_PRIORITY))];
+    }
 
+    public static void MapMusicItems(Cursor cursor, MusicItem item) {
+        //MapMediaItem(cursor, music);
 
+        item.Id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
+        item.Title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE));
+        item.Year = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_YEAR));
+        item.MusicGenre = deserializeMusicGenre(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_GENRE)));
+        item.Collecting = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COLLECTING)) == 1;
+        item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COLLECTED)) == 1;
+        item.Cover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_COVER)));
     }
 
     public static ContentValues MapMusicContentValues(String tagId, Music music) {
         ContentValues values = new ContentValues();
         values.put(COLUMN_ID, music.Id);
-        values.put(COLUMN_TITLE, music.Title.trim());
-        values.put(COLUMN_COLLECTING, (music.Collecting != null && music.Collecting) ? 1 : 0);
-        values.put(COLUMN_ONGOING, (music.Ongoing != null && music.Ongoing) ? 1 : 0);
-        values.put(COLUMN_COLLECTED, (music.HasCollectedAllItems != null && music.HasCollectedAllItems) ? 1 : 0);
         values.put(COLUMN_TAG, tagId);
+        values.put(COLUMN_ARTIST, music.Artist.trim());
+        values.put(COLUMN_COLLECTING_PRIORITY, music.CollectingPriority != null ? music.CollectingPriority.ordinal() : 0);
+        return values;
+    }
+
+    public static ContentValues MapMusicItemContentValues(String seriesId, MusicItem music) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_ID, UUID.randomUUID().toString());
+        values.put(COLUMN_TITLE, music.Title.trim());
+        values.put(COLUMN_SERIES,  seriesId);
+        values.put(COLUMN_COLLECTING, (music.Collecting != null && music.Collecting) ? 1 : 0);
+        values.put(COLUMN_COLLECTED, (music.Owned != null && music.Owned) ? 1 : 0);
         values.put(COLUMN_COVER, music.Cover);
         values.put(COLUMN_GENRE, serializeMusicGenre(music.MusicGenre));
-        values.put(COLUMN_ARTIST, music.Artist.trim());
         values.put(COLUMN_YEAR, music.Year);
         values.put(COLUMN_COVER, compressBitmap(music.Cover));
-        values.put(COLUMN_COLLECTING_PRIORITY, music.CollectingPriority != null ? music.CollectingPriority.ordinal() : 0);
         return values;
     }
 

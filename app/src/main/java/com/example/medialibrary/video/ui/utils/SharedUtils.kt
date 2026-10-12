@@ -36,7 +36,9 @@ class SharedUtils {
                 )
             }
 
-            val tagOptions = setup.Tag.map { FilterOption(it.Id, it.Name) }
+            val tagOptions = mutableListOf(FilterOption("", "No Tag")).apply {
+                addAll(setup.Tag.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sheetBinding.tagFilterAutocomplete?.autoCompleteLabel?.setHint(R.string.tag)
             sheetBinding.tagFilterAutocomplete?.autocomplete?.let {
                 MultiSelectFilterHelper.setupTriStateDropdown(

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
@@ -42,17 +44,18 @@ public class MusicService {
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = this.sharedService.getValue().BuildWhereClause(filter, selectionArgs);
         var music = _MusicRepo.GetMusic(whereClause, selectionArgs);
+        music = MusicItemFilter(music, filter);
         music = _SharedService.Sort(filter, music);
         return music;
     }
 
+
     public List<DisplayMediaItem> GetMusicDisplayLists(MusicFilter filter) {
-
-
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
         List<Music> music = _MusicRepo.GetMusic(whereClause, selectionArgs);
         music = _SharedService.Sort(filter, music);
+        music = MusicItemFilter(music, filter);
         return _SharedService.mapToDisplayItems(music, false);
     }
 
@@ -73,21 +76,41 @@ public class MusicService {
         return _MusicRepo.DeleteMusic(id);
     }
 
-    public MusicSetup GetSetup () {
+    public MusicSetup GetSetup() {
         var musicSetup = new MusicSetup();
         musicSetup.MusicGenre = this.GetMusicGenres();
         musicSetup.Tags = this.sharedService.getValue().GetTags();
         return musicSetup;
     }
 
-    public Map<Integer,String> GetMusicGenres() {
+    public Map<Integer, String> GetMusicGenres() {
         var sharedService = this.sharedService.getValue();
         MusicGenre[] mGenres = MusicGenre.values();
-        Map<Integer,String> mGanreMap = new HashMap<>();
+        Map<Integer, String> mGanreMap = new HashMap<>();
         for (MusicGenre mGenre : mGenres) {
             mGanreMap.put(mGenre.ordinal(), sharedService.GetSeperatedString(mGenre.toString()));
         }
         return mGanreMap;
+    }
+
+    private List<Music> MusicItemFilter(List<Music> music, MusicFilter filter)
+    {
+        var filteredMusicList = music.stream();
+        if(filter.Collecting != null) {
+            filteredMusicList = filteredMusicList.filter(item -> {
+                var collecting = !item.MusicItems.isEmpty() && item.MusicItems.stream().anyMatch(musicItem -> musicItem.Collecting  != null && musicItem.Collecting);
+                return collecting == filter.Collecting;
+            });
+        }
+
+        if(filter.Collected != null) {
+            filteredMusicList = filteredMusicList.filter(item -> {
+                var collected = !item.MusicItems.isEmpty() && item.MusicItems.stream().anyMatch(musicItem -> musicItem.Owned != null && musicItem.Owned);
+                return collected == filter.Collected;
+            });
+        }
+
+        return filteredMusicList.collect(Collectors.toList());
     }
 
 }

@@ -18,6 +18,7 @@ import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
+import com.example.medialibrary.utils.RadioGridUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
 import models.other.OtherItem
@@ -56,9 +57,11 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         val setup = controller?.GetSetup() ?: MainSetup()
 
         setupTagSelection(setup)
-        setupCollectingPriorityDropdown(binding.collectingPriorityAutocomplete) { priority ->
+
+        setupCollectingPriorityRadioGroup(binding.collectingPriorityRadioGroup) { priority ->
             viewModel.updateCollectingPriority(priority)
         }
+
         setupRecyclerView()
         setupInputListeners()
         setupClickListeners()
@@ -83,12 +86,22 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
     private fun observeViewModel() {
         viewModel.other.observe(viewLifecycleOwner) { other ->
             binding.editOtherTitle.setText(other.Title)
-            binding.otherCollecting.isChecked = other.Collecting ?: false
-            binding.otherCompletedCollecting.isChecked = other.HasCollectedAllItems ?: false
+
+            val statusId = when {
+                other.Collecting == true -> 1
+                other.HasCollectedAllItems == true -> 2
+                else -> 0
+            }
+            RadioGridUtils.setSelection(
+                binding.collectingStatusRadio.dynamicTableLayout,
+                statusId
+            )
 
             val currentPriority = other.CollectingPriority ?: SharedEnums.CollectingPriority.None
-            binding.collectingPriorityAutocomplete.autocomplete.setText(currentPriority.name, false)
-
+            RadioGridUtils.setSelection(
+                binding.collectingPriorityRadioGroup.dynamicTableLayout,
+                currentPriority.ordinal
+            )
             if (other.Cover != null && other.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(other.Cover, 0, other.Cover.size)
                 binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
@@ -150,6 +163,36 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
     }
 
+    private fun setupCollectingStatusRadioGroup() {
+        binding.collectingStatusRadio.radioButtonLabel.setText(R.string.collecting_status)
+        val optionsMap = mapOf(
+            0 to "No Collecting",
+            1 to "Collecting",
+            2 to "Collected"
+        )
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = binding.collectingStatusRadio.dynamicTableLayout,
+            optionsMap = optionsMap,
+            columnCount = 3,
+            selectedId = 0
+        ) { selectedId ->
+            when (selectedId) {
+                0 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                1 -> {
+                    viewModel.toggleCollecting(true)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                2 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(true)
+                }
+            }
+        }
+    }
+
     private fun setupTagSelection(setup: MainSetup) {
         val tags = setup.Tag
         if (tags.isEmpty() || tags[0].Id != "") {
@@ -193,13 +236,6 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             binding.editOtherTitleLabel.error = null
         }
 
-        binding.otherCollecting.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCollecting(isChecked)
-        }
-
-        binding.otherCompletedCollecting.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCollectionComplete(isChecked)
-        }
     }
 
     private fun showOtherItemSheet(item: OtherItem? = null, position: Int = -1) {

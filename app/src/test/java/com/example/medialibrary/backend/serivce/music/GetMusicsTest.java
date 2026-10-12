@@ -57,7 +57,7 @@ public class GetMusicsTest {
 
         Music cd1 = new Music();
         cd1.Id = "1";
-        cd1.Title = "Test Book";
+        cd1.Artist = "Test Book";
 
 
         cds.add(cd1);
@@ -81,11 +81,11 @@ public class GetMusicsTest {
 
         Music cd1 = new Music();
         cd1.Id = "1";
-        cd1.Title = "Test Book";
+        cd1.Artist = "Test Book";
 
         Music cd2 = new Music();
         cd2.Id = "2";
-        cd2.Title = "Filtered Book";
+        cd2.Artist = "Filtered Book";
         cds.add(cd1);
         cds.add(cd2);
 

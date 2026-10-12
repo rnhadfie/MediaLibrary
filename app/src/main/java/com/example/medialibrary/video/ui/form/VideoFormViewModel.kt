@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import controllers.VideoController
 import models.shared.Enums
+import models.video.Enums as VideoEnums
 import models.shared.GenreObject
 import models.shared.Tag
 import models.video.Enums.VideoTag
@@ -31,6 +32,9 @@ class VideoFormViewModel : ViewModel() {
 
     private val _newTag = MutableLiveData<String>()
 
+    private var _tempFormat = MutableLiveData(VideoEnums.VideoFormat.NoneSelected)
+    val tempFomart: LiveData<VideoEnums.VideoFormat> = _tempFormat
+
     fun updateTitle(title: String) {
         _video.value?.Title = title
     }
@@ -51,12 +55,24 @@ class VideoFormViewModel : ViewModel() {
 
 
 
+    fun updateYear(year: Int) {
+        _video.value?.Year = year
+    }
+
+    fun updateRating(rating: VideoEnums.Rating) {
+        _video.value?.Rating = rating
+    }
+
     fun updateVideoType(type: VideoType) {
         _video.value?.Type = type
     }
 
     fun updateVideoTag(vidTag: VideoTag) {
         _video.value?.VideoTag = vidTag
+    }
+
+    fun updateVideoFormat(format: VideoEnums.VideoFormat) {
+        _tempFormat.value = format
     }
 
     fun updateCover(cover: ByteArray?) {

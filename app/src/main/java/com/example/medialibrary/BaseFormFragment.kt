@@ -16,8 +16,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.databinding.ViewDropdownBinding
+import com.example.medialibrary.databinding.ViewRadioButtonBinding
 import com.example.medialibrary.utils.ImageUtils
+import com.example.medialibrary.utils.RadioGridUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import models.book.Enums
 import java.io.ByteArrayOutputStream
 import java.io.File
 import models.shared.Enums as SharedEnums
@@ -46,6 +49,7 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
 
     private var tempPhotoFile: File? = null
     private var tempPhotoUri: Uri? = null
+
 
     // Image Pickers
     protected val pickGalleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -126,20 +130,26 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
             .show()
     }
 
-    protected fun setupCollectingPriorityDropdown(
-        dropdownBinding: ViewDropdownBinding,
+    protected fun setupCollectingPriorityRadioGroup(
+        radioGroupBinding: ViewRadioButtonBinding,
         onPrioritySelected: (SharedEnums.CollectingPriority) -> Unit
     ) {
-        val priorities = SharedEnums.CollectingPriority.entries.toTypedArray()
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            priorities.map { it.name }
+
+        val priorities = mapOf(
+            SharedEnums.CollectingPriority.None.ordinal to "None",
+            SharedEnums.CollectingPriority.Low.ordinal to "Low",
+            SharedEnums.CollectingPriority.Medium.ordinal to "Medium",
+            SharedEnums.CollectingPriority.High.ordinal to "High"
         )
-        dropdownBinding.autoCompleteLabel.setHint(R.string.collecting_priority)
-        dropdownBinding.autocomplete.setAdapter(adapter)
-        dropdownBinding.autocomplete.setOnItemClickListener { _, _, position, _ ->
-            val selectedPriority = priorities[position]
+
+        radioGroupBinding.radioButtonLabel.setText(R.string.collecting_priority)
+        val tableLayout = radioGroupBinding.dynamicTableLayout
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = tableLayout,
+            optionsMap = priorities,
+            columnCount = 4
+        ) { selectedId ->
+            val selectedPriority = SharedEnums.CollectingPriority.entries.find { it.ordinal == selectedId } ?: SharedEnums.CollectingPriority.None
             onPrioritySelected(selectedPriority)
         }
     }

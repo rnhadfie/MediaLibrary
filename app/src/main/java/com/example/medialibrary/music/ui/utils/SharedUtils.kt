@@ -23,7 +23,9 @@ class SharedUtils {
         ): MusicBottomSheetBinding {
             val tags = setup.Tags
 
-            val tagOptions = tags.map { FilterOption(it.Id, it.Name) }
+            val tagOptions = mutableListOf(FilterOption("", "No Tag")).apply {
+                addAll(tags.filter { it.Id.isNotBlank() }.map { FilterOption(it.Id, it.Name) })
+            }
             sheetBinding.tagAutocomplete.autoCompleteLabel.setHint(R.string.tag)
             MultiSelectFilterHelper.setupTriStateDropdown(
                 sheetBinding.tagAutocomplete.autocomplete,

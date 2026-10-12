@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.book.BookFilter;
 import models.shared.Filter;
 import repository.database.MediaLibraryDbHelper;
 import serivce.SharedService;
@@ -77,5 +78,37 @@ public class BuildWhereClauseTest {
         assertEquals("%10%", selectionArgs.get(0));
         assertEquals("%20%", selectionArgs.get(1));
         assertEquals("%30%", selectionArgs.get(2));
+    }
+
+    @Test
+    public void testBuildWhereClause_NoTagIncludedAndExcluded() {
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
+        Filter filter = new Filter();
+        filter.IncludedTags.add("");
+        List<String> selectionArgs = new ArrayList<>();
+
+        String result = service.BuildWhereClause(filter, selectionArgs);
+
+        assertTrue(result.contains("Tag IS NULL OR Tag = ''"));
+
+        Filter filterEx = new Filter();
+        filterEx.ExcludedTags.add("");
+        List<String> selectionArgsEx = new ArrayList<>();
+
+        String resultEx = service.BuildWhereClause(filterEx, selectionArgsEx);
+
+        assertTrue(resultEx.contains("Tag IS NOT NULL AND Tag != ''"));
+    }
+
+    @Test
+    public void testBuildWhereClause_NoPublisherIncludedAndExcluded() {
+        SharedService service = new SharedService((MediaLibraryDbHelper) null);
+        BookFilter filter = new BookFilter();
+        filter.IncludedPublishers.add("");
+        List<String> selectionArgs = new ArrayList<>();
+
+        String result = service.BuildWhereClause(filter, selectionArgs);
+
+        assertTrue(result.contains("Publisher IS NULL OR Publisher = ''"));
     }
 }

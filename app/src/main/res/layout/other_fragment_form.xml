@@ -43,22 +43,8 @@
 
 
 
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/other_collecting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/collecting"
-                android:textColor="?attr/colorOnBackground" />
-
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/other_completed_collecting"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/owned_label"
-                android:textColor="?attr/colorOnBackground" />
+            <include layout="@layout/view_radio_button"
+                android:id="@+id/collecting_status_radio" />
 
             <View
                 android:layout_width="match_parent"
@@ -107,8 +93,8 @@
                 android:id="@+id/tag_autocomplete"
                 />
 
-            <include layout="@layout/view_dropdown"
-                android:id="@+id/collecting_priority_autocomplete"
+            <include layout="@layout/view_radio_button"
+                android:id="@+id/collecting_priority_radio_group"
                 />
 
             <com.google.android.material.button.MaterialButton

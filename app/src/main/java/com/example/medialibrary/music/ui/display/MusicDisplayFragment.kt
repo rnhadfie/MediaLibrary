@@ -117,7 +117,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         setup = musicController?.GetMusicSetup()
         viewModel.setMediaItems(items)
 
-        val total = items.count { it.HasCollectedAllItems }
+        val total = items.count { it.HasCollectedAllItems ?: false }
         binding.musicTotalItemsCardText.text = buildString {
             append(getString(R.string.total_cds))
             append(": ")
@@ -207,37 +207,32 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
 
     private fun setGenreChart(items: List<Music>) {
-        val totalItems = items.size
+        val allMusicItems = items.flatMap { it.MusicItems ?: emptyList() }
+        val totalItems = allMusicItems.size
 
-        var genreInformationMap = items.groupBy { it.MusicGenre.name }.mapValues {
-            if(it.value.isNotEmpty() && it.key != MusicGenre.NoneSelected.name) {
-                val percent = (it.value.size.toFloat() / totalItems.toFloat())
+        var genreInformationMap = allMusicItems.groupBy { it.MusicGenre?.name ?: "NoneSelected" }.mapValues { entry ->
+            if (entry.value.isNotEmpty() && entry.key != MusicGenre.NoneSelected.name && totalItems > 0) {
+                val percent = (entry.value.size.toFloat() / totalItems.toFloat())
                 NumberFormat.getPercentInstance().format(percent)
-            }
-            else
-            {
+            } else {
                 ""
             }
         }
 
-        genreInformationMap = genreInformationMap.filter { it.value != "" && it.key == MusicGenre.NoneSelected.name }
+        genreInformationMap = genreInformationMap.filter { it.value != "" }
 
         genreInformationMap = genreInformationMap.entries
-            .sortedBy { it.value }
-            .associate { it.toPair() }
+            .sortedByDescending { it.value.removeSuffix("%").toIntOrNull() ?: 0 }
+            .associate { it.toPair() } as MutableMap<String, String>
 
-        val genreExtraInfoMap = items.groupBy { it.MusicGenre.name }.mapValues {
-            if(it.value.isNotEmpty()) {
-              it.value.size
-            }
-        }
-
+        val genreExtraInfoMap = allMusicItems.groupBy { it.MusicGenre?.name ?: "NoneSelected" }
+            .mapValues { entry -> entry.value.size }
+            .filterKeys { it != MusicGenre.NoneSelected.name }
 
         val card: ViewTextCardBinding = binding.genreCard
         val title = binding.genreCard.cardTitle
         title.setText(R.string.music_genre)
         val emptyState = binding.genreCard.emptyStateContainer
-
 
         TextCardHelper.setupTextCard(
             genreInformationMap,

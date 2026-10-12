@@ -7,12 +7,16 @@ android {
     namespace = "com.example.medialibrary"
     compileSdk = 37
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.example.medialibrary"
         minSdk = 29
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.03"
+        versionCode = 2
+        versionName = "1.04"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument("runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder")
@@ -86,6 +90,7 @@ configurations.all {
 dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.cardview)
+    implementation(libs.androidx.coordinatorlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.fragment.ktx)
