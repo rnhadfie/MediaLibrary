@@ -120,9 +120,10 @@ public class SharedService {
                 standalone = Objects.equals(tempVideo.Items.get(0).Season, -1);
             }
         } else if (item instanceof Music) {
+            var tempMusic = (Music) item;
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
-            displayItem.ItemCount = (item.HasCollectedAllItems != null && item.HasCollectedAllItems) ? 1 : 0;
+            displayItem.ItemCount = Math.toIntExact(tempMusic.MusicItems != null ? tempMusic.MusicItems.stream().filter(musicItem -> musicItem.Owned).count() : 0);
             alternativeStatus =  "Cds: " + ((Music)item).MusicItems.size();
 
         } else if (item instanceof Other) {

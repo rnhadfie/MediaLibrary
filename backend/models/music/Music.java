@@ -8,3 +8,4 @@ public class Music extends MediaItem {
     public String Artist;
     public List<MusicItem> MusicItems;
 }
+

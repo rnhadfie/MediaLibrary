@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
+import android.renderscript.Sampler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -116,8 +117,10 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val items = musicController?.GetMusics(currentFilter) ?: emptyList()
         setup = musicController?.GetMusicSetup()
         viewModel.setMediaItems(items)
+        var total = 0;
+        items.forEach { item -> total += item.MusicItems?.filter { it.Owned }?.size ?: 0 }
 
-        val total = items.count { it.HasCollectedAllItems ?: false }
+
         binding.musicTotalItemsCardText.text = buildString {
             append(getString(R.string.total_cds))
             append(": ")
@@ -170,21 +173,15 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
     private fun setArtistChart(items: List<Music>) {
 
-        var artistInformationMap = items.groupBy { it.Artist.trim() }.mapValues {
-            if(it.value.isNotEmpty()) {
-                it.value.size.toString()
-            }
-            else
-            {
-                ""
-            }
+        var artistInformationMap = items.associate { music ->
+            music.Artist to music.MusicItems.filter { it.Owned }.size
         }
        var sortedMap = artistInformationMap.entries
-            .sortedBy { it.value }
+            .sortedByDescending { it.value }
             .associate { it.toPair() }
 
 
-        sortedMap = sortedMap.filter { it.key != "" && it.value != "" }
+        sortedMap = sortedMap.filter { it.key != "" && it.value != 0 }
         val card = binding.artistCard
         val title = binding.artistCard.cardTitle
         val emptyState = binding.artistCard.emptyStateContainer

@@ -196,7 +196,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE " + TABLE_VIDEO_ITEMS + " RENAME TO " + TABLE_VIDEO_ITEMS + "_TEMP ;");
             db.execSQL("ALTER TABLE " + TABLE_VIDEOS + " RENAME TO " + TABLE_VIDEOS + "_TEMP ;");
             db.execSQL("ALTER TABLE " + TABLE_MUSIC + " RENAME TO " + TABLE_MUSIC + "_TEMP ;");
-            if (oldVersion >= 2) {
+            if(oldVersion >=2) {
                 db.execSQL("ALTER TABLE " + TABLE_MUSIC_ITEM + " RENAME TO " + TABLE_MUSIC_ITEM + "_TEMP ;");
             }
             db.execSQL("ALTER TABLE " + TABLE_BOOK_ITEMS + " RENAME TO " + TABLE_BOOK_ITEMS + "_TEMP ;");
@@ -210,10 +210,18 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             // Copy data from temporary tables to original tables
             db.execSQL("INSERT INTO " + TABLE_TAGS + " SELECT * FROM " + TABLE_TAGS + "_TEMP ;");
             db.execSQL("INSERT INTO " + TABLE_PUBLISHERS + " SELECT * FROM " + TABLE_PUBLISHERS + "_TEMP ;");
-            db.execSQL("INSERT INTO " + TABLE_BOOKS + " SELECT * FROM " + TABLE_BOOKS + "_TEMP ;");
+
+            if(oldVersion <=2) {
+                db.execSQL("INSERT INTO " + TABLE_BOOKS + " (" + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_COLLECTING + ", " + COLUMN_COLLECTED + ", " + COLUMN_TAG + ", " + COLUMN_COVER + ", " + COLUMN_GENRE + ") " +
+                        "SELECT " + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_COLLECTING + ", " + COLUMN_COLLECTED + ", " + COLUMN_TAG + ", " + COLUMN_COVER + ", " + COLUMN_GENRE + " FROM " + TABLE_BOOKS + "_TEMP;");
+            }
+            else
+            {
+                db.execSQL("INSERT INTO " + TABLE_BOOKS + " SELECT * FROM " + TABLE_BOOKS + "_TEMP ;");
+            }
             db.execSQL("INSERT INTO " + TABLE_BOOK_ITEMS + " SELECT * FROM " + TABLE_BOOK_ITEMS + "_TEMP ;");
 
-            if (oldVersion < 2) {
+            if (oldVersion <= 2) {
                 db.execSQL("INSERT INTO " + TABLE_MUSIC + " (" + COLUMN_ID + ", " + COLUMN_ARTIST + ", " + COLUMN_TAG + ", " + COLUMN_COLLECTING_PRIORITY + ") " +
                         "SELECT " + COLUMN_ID + ", " + COLUMN_ARTIST + ", " + COLUMN_TAG + ", " + COLUMN_COLLECTING_PRIORITY + " FROM " + TABLE_MUSIC + "_TEMP;");
 
@@ -224,7 +232,15 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 db.execSQL("INSERT INTO " + TABLE_MUSIC_ITEM + " SELECT * FROM " + TABLE_MUSIC_ITEM + "_TEMP ;");
             }
 
-            db.execSQL("INSERT INTO " + TABLE_VIDEOS + " SELECT * FROM " + TABLE_VIDEOS + "_TEMP ;");
+
+            if(oldVersion <=2) {
+                db.execSQL("INSERT INTO "+ TABLE_VIDEOS + " (" + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_COLLECTING + ", " + COLUMN_ONGOING + ", " + COLUMN_COLLECTED + ", " + COLUMN_TAG + ", " + COLUMN_COVER + ", " + COLUMN_GENRE + ", " + COLUMN_TYPE + ", " + COLUMN_VIDEO_TAG + ") " +
+                        "SELECT " + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_COLLECTING + ", " + COLUMN_ONGOING + ", " + COLUMN_COLLECTED + ", " + COLUMN_TAG + ", " + COLUMN_COVER + ", " + COLUMN_GENRE + ", " + COLUMN_TYPE + ", " + COLUMN_VIDEO_TAG + " FROM " + TABLE_VIDEOS + "_TEMP;");
+            }
+            else
+            {
+                db.execSQL("INSERT INTO " + TABLE_VIDEOS + " SELECT * FROM " + TABLE_VIDEOS + "_TEMP ;");
+            }
             db.execSQL("INSERT INTO " + TABLE_VIDEO_ITEMS + " SELECT * FROM " + TABLE_VIDEO_ITEMS + "_TEMP ;");
             db.execSQL("INSERT INTO " + TABLE_OTHERS + " SELECT * FROM " + TABLE_OTHERS + "_TEMP ;");
             db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " SELECT * FROM " + TABLE_OTHER_ITEMS + "_TEMP ;");
