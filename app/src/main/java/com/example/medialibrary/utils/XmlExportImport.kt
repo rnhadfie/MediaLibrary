@@ -13,6 +13,7 @@ import models.shared.MediaItem
 import models.shared.Tag
 import models.video.Video
 import  com.example.medialibrary.BuildConfig
+import models.music.OldMusic
 import models.video.VideoItem
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlSerializer
@@ -311,6 +312,7 @@ object XmlExportImport {
         container.Books = mutableListOf()
         container.Videos = mutableListOf()
         container.Music = mutableListOf()
+        container.OldMusicModelList = mutableListOf()
         container.Others = mutableListOf()
 
         val parser = Xml.newPullParser()
@@ -320,16 +322,19 @@ object XmlExportImport {
         var currentBook: Book? = null
         var currentVideo: Video? = null
         var currentMusic: Music? = null
+        var oldMusicModel: OldMusic? = null;
         var currentOther: Other? = null
         var currentBookItem: BookItem? = null
         var currentVideoItem: VideoItem? = null
         var currentMusicItem: MusicItem? = null
+        var xmlVersion = 1;
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             val tagName = parser.name
             when (eventType) {
                 XmlPullParser.START_TAG -> {
                     when (tagName) {
+                        "Version" -> xmlVersion = parser.getAttributeValue("", "num").toIntOrNull() ?: 1
                         "Tag" -> {
                             val id = parser.getAttributeValue("", "id") ?: ""
                             val name = parser.getAttributeValue("", "name") ?: ""
@@ -342,7 +347,15 @@ object XmlExportImport {
                         }
                         "Book" -> currentBook = Book().apply { Items = mutableListOf() }
                         "Video" -> currentVideo = Video().apply { Items = mutableListOf() }
-                        "Music" -> currentMusic = Music().apply { MusicItems = mutableListOf() }
+                        "Music" -> {
+                            if (xmlVersion <= 1) {
+                                oldMusicModel = OldMusic()
+                            } else {
+                                currentMusic = Music().apply {
+                                    MusicItems = mutableListOf()
+                                }
+                            }
+                        }
                         "Other" -> currentOther = Other()
                         "BookItem" -> currentBookItem = BookItem()
                         "VideoItem" -> currentVideoItem = VideoItem()
@@ -360,7 +373,13 @@ object XmlExportImport {
                             val text = parser.nextText()
                             currentBook?.Title = text
                             currentVideo?.Title = text
-                            currentMusicItem?.Title = text
+                            if(xmlVersion > 1) {
+                                currentMusicItem?.Title = text
+                            }
+                            else
+                            {
+                                oldMusicModel?.Title = text
+                            }
                             currentOther?.Title = text
                         }
                         "Collecting",
@@ -369,14 +388,25 @@ object XmlExportImport {
                             currentBook?.Collecting = text
                             currentVideo?.Collecting = text
                             currentOther?.Collecting = text
-                            currentMusicItem?.Collecting = text
+
+                            if(xmlVersion > 1) {
+                                currentMusicItem?.Collecting = text
+                            }
+                            else {
+                                oldMusicModel?.Collecting = text
+                            }
                         }
                         "HasEnded",
                         "Ongoing" -> {
                             val text = parser.nextText().toBoolean()
                             currentBook?.Ongoing = text
                             currentVideo?.Ongoing = text
-                            currentMusic?.Ongoing = text
+                            if(xmlVersion > 1) {
+                                currentMusic?.Ongoing = text
+                            }
+                            else {
+                                oldMusicModel?.Ongoing = text
+                            }
                             currentOther?.Ongoing = text
                         }
                         "CompletedCollecting",
@@ -384,14 +414,24 @@ object XmlExportImport {
                             val text = parser.nextText().toBoolean()
                             currentBook?.HasCollectedAllItems = text
                             currentVideo?.HasCollectedAllItems = text
-                            currentMusic?.HasCollectedAllItems = text
+                            if(xmlVersion > 1) {
+                                currentMusic?.HasCollectedAllItems = text
+                            }
+                            else {
+                                oldMusicModel?.HasCollectedAllItems = text
+                            }
                             currentOther?.HasCollectedAllItems = text
                         }
                         "TagId" -> {
                             val text = parser.nextText() ?: ""
                             currentBook?.Tag = text
                             currentVideo?.Tag = text
-                            currentMusic?.Tag = text
+                            if(xmlVersion > 1) {
+                                currentMusic?.Tag = text
+                            }
+                            else {
+                                oldMusicModel?.Tag = text
+                            }
                             currentOther?.Tag = text
                         }
                         "Genres" -> {
@@ -400,12 +440,26 @@ object XmlExportImport {
                             currentBook?.Genre = genres
                             currentVideo?.Genre = genres
                             currentMusic?.Genre = genres
+                            if(xmlVersion > 1) {
+                                currentMusic?.Genre = genres
+                            }
+                            else {
+                                oldMusicModel?.Genre = genres
+                            }
                             currentOther?.Genre = genres
                         }
                         "MusicGenre" -> {
                             val text = parser.nextText()
-                            currentMusicItem?.let { i ->
-                                i.MusicGenre = MusicEnums.MusicGenre.entries.find { it.name == text } ?: MusicEnums.MusicGenre.NoneSelected
+
+                            if(xmlVersion > 1) {
+                                currentMusicItem?.let { i ->
+                                    i.MusicGenre = MusicEnums.MusicGenre.entries.find { it.name == text } ?: MusicEnums.MusicGenre.NoneSelected
+                                }
+                            }
+                            else {
+                                oldMusicModel?.let { i ->
+                                    i.MusicGenre = MusicEnums.MusicGenre.entries.find { it.name == text } ?: MusicEnums.MusicGenre.NoneSelected
+                                }
                             }
                         }
                         "Cover" -> {
@@ -414,6 +468,12 @@ object XmlExportImport {
                             currentBook?.Cover = bytes
                             currentVideo?.Cover = bytes
                             currentMusic?.Cover = bytes
+                            if(xmlVersion > 1) {
+                                currentMusic?.Cover = bytes
+                            }
+                            else {
+                                oldMusicModel?.Cover = bytes
+                            }
                             currentOther?.Cover = bytes
                         }
                         "Author" -> currentBook?.Author = parser.nextText()
@@ -421,6 +481,12 @@ object XmlExportImport {
                             val text = parser.nextText()
                             currentBook?.Artist = text
                             currentMusic?.Artist = text
+                            if(xmlVersion > 1) {
+                                currentMusic?.Artist = text
+                            }
+                            else {
+                                oldMusicModel?.Artist = text
+                            }
                         }
                         "Type" -> {
                             val text = parser.nextText()
@@ -448,8 +514,17 @@ object XmlExportImport {
                             currentOther?.let { v ->
                                 v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
                             }
-                            currentMusic?.let { v ->
-                                v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
+
+
+                            if(xmlVersion > 1) {
+                                currentMusic?.let { v ->
+                                    v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
+                                }
+                            }
+                            else {
+                                oldMusicModel?.let { v ->
+                                    v.CollectingPriority = SharedEmum.CollectingPriority.entries.find { it.name == text } ?: SharedEmum.CollectingPriority.None
+                                }
                             }
                         }
                         "PublisherId" -> currentBook?.Publisher = parser.nextText() ?: ""
@@ -461,6 +536,9 @@ object XmlExportImport {
                             currentBookItem?.Owned = text
                             currentVideoItem?.Owned = text
                             currentMusicItem?.Owned = text
+                            if(xmlVersion > 1) {
+                                currentMusicItem?.Owned = text
+                            }
                         }
                         "Format" -> {
                             val text = parser.nextText()
@@ -476,7 +554,9 @@ object XmlExportImport {
                             val bytes = Base64.decode(text, Base64.DEFAULT)
                             currentBookItem?.ItemCover = bytes
                             currentVideoItem?.ItemCover = bytes
-                            currentMusicItem?.Cover = bytes
+                            if(xmlVersion > 1) {
+                                currentMusicItem?.Cover = bytes
+                            }
                         }
                         "VideoTag" -> {
                             val text = parser.nextText()
@@ -487,7 +567,10 @@ object XmlExportImport {
                         "Watched" -> currentVideoItem?.Watched = parser.nextText().toBoolean()
                         "Year" -> {
                             currentVideo?.Year = parser.nextText().toIntOrNull() ?: 0
-                            currentMusicItem?.Year = parser.nextText().toIntOrNull() ?: 0
+                            if(xmlVersion > 1) {
+                                currentMusicItem?.Year = parser.nextText().toIntOrNull() ?: 0
+                            }
+
                             currentBook?.Year = parser.nextText() ?: ""
                         }
                     }
@@ -496,7 +579,14 @@ object XmlExportImport {
                     when (tagName) {
                         "Book" -> currentBook?.let { container.Books.add(it); currentBook = null }
                         "Video" -> currentVideo?.let { container.Videos.add(it); currentVideo = null }
-                        "Music" -> currentMusic?.let { container.Music.add(it); currentMusic = null }
+                        "Music" -> {
+                            if(xmlVersion > 1) {
+                                currentMusic?.let { container.Music.add(it); currentMusic = null }
+                            }
+                            else {
+                                oldMusicModel?.let { container.OldMusicModelList.add(it); oldMusicModel = null }
+                            }
+                        }
                         "Other" -> currentOther?.let { container.Others.add(it); currentOther = null }
                         "BookItem" -> currentBookItem?.let { currentBook?.Items?.add(it); currentBookItem = null }
                         "VideoItem" -> currentVideoItem?.let { currentVideo?.Items?.add(it); currentVideoItem = null }
@@ -507,6 +597,95 @@ object XmlExportImport {
             eventType = parser.next()
         }
 
+        if(container.OldMusicModelList.count() > 0)
+        {
+            container.Music = UpdateMusic(container.OldMusicModelList)
+        }
+
         return container
+    }
+
+    fun UpdateMusic(oldModelList: List<OldMusic> ): List<Music>  {
+        var musicList = arrayListOf<Music>()
+
+        val allArtists = oldModelList.groupBy { it.Artist }
+        allArtists.forEach { artist, music ->
+            if(artist.isEmpty())
+            {
+                val compilation = Music();
+                compilation.Artist = "Compilation"
+                compilation.MusicItems = arrayListOf<MusicItem>()
+
+                music.forEach {
+                    if(it.MusicGenre == MusicEnums.MusicGenre.NoneSelected)
+                    {
+                        val item = MusicItem()
+                        if(compilation.Id.isNullOrEmpty())
+                        {
+                            compilation.Id = it.Id
+                        }
+                        item.Title = it.Title
+                        item.Id = "";
+                        item.Series = it.Id
+                        item.Year = it.Year
+                        item.Cover = it.Cover
+                        item.Collecting = it.Collecting
+                        item.MusicGenre = it.MusicGenre
+                        item.Owned = it.HasCollectedAllItems
+                        compilation.MusicItems.add(item)
+                    }
+                    else
+                    {
+                        val newArtist = Music()
+                        newArtist.Id = it.Id
+                        newArtist.Tag = it.Tag
+                        newArtist.Artist = it.Artist
+                        newArtist.MusicItems = arrayListOf<MusicItem>()
+
+                        val item = MusicItem()
+                        item.Title = it.Title
+                        item.Id = "";
+                        item.Series = it.Id
+                        item.Year = it.Year
+                        item.Cover = it.Cover
+                        item.Collecting = it.Collecting
+                        item.MusicGenre = it.MusicGenre
+                        item.Owned = it.HasCollectedAllItems
+
+                        newArtist.MusicItems.add(item);
+                        musicList.add(newArtist)
+                    }
+                }
+
+                musicList.add(compilation)
+            }
+            else
+            {
+                val newArtist = Music();
+                newArtist.Artist = artist
+                newArtist.MusicItems = arrayListOf<MusicItem>()
+
+                music.forEach {
+                        val item = MusicItem()
+                        if(newArtist.Id.isNullOrEmpty())
+                        {
+                            newArtist.Id = it.Id
+                        }
+                        item.Title = it.Title
+                        item.Id = "";
+                        item.Series = it.Id
+                        item.Year = it.Year
+                        item.Cover = it.Cover
+                        item.Collecting = it.Collecting
+                        item.MusicGenre = it.MusicGenre
+                        item.Owned = it.HasCollectedAllItems
+                        newArtist.MusicItems.add(item)
+                    }
+
+                musicList.add(newArtist)
+            }
+        }
+
+        return musicList;
     }
 }
