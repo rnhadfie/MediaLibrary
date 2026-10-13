@@ -69,6 +69,18 @@ public class SharedService {
             boolean status = false;
             var music = (Music)item;
             displayItem.Title = music.Artist;
+
+            if (music.Cover != null && music.Cover.length > 0) {
+                displayItem.Cover = music.Cover;
+            } else if (music.MusicItems != null) {
+                for (var musicItem : music.MusicItems) {
+                    if (musicItem.Cover != null && musicItem.Cover.length > 0) {
+                        displayItem.Cover = musicItem.Cover;
+                        break;
+                    }
+                }
+            }
+
             if(!music.MusicItems.isEmpty())
            {
                 AtomicBoolean collectingStatus = new AtomicBoolean(false);
@@ -104,7 +116,7 @@ public class SharedService {
             displayItem.MediaTypeText = "Type: Book";
             alternativeStatus = "Type: " + (tempBook.Type != null ? GetSeperatedString(tempBook.Type.name()) : "");
 
-            displayItem.ItemCount = Math.toIntExact(tempBook.Items != null ? tempBook.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
+            displayItem.ItemCount = Math.toIntExact(tempBook.Items != null ? tempBook.Items.stream().filter(bookItem -> bookItem.Owned).count() : 0);
             if(displayItem.ItemCount > 0)
             {
                 standalone = Objects.equals(tempBook.Items.get(0).VolumeNumber, "-1");
@@ -123,14 +135,14 @@ public class SharedService {
             var tempMusic = (Music) item;
             displayItem.MediaType = Enums.MediaType.Music;
             displayItem.MediaTypeText = "Type: CD";
-            displayItem.ItemCount = Math.toIntExact(tempMusic.MusicItems != null ? tempMusic.MusicItems.stream().filter(musicItem -> musicItem.Owned).count() : 0);
-            alternativeStatus =  "Cds: " + ((Music)item).MusicItems.size();
+            displayItem.ItemCount = Math.toIntExact(tempMusic.MusicItems != null ? tempMusic.MusicItems.stream().filter(musicItem -> musicItem.Owned != null && musicItem.Owned).count() : 0);
+            alternativeStatus =  "Cds: " + (((Music)item).MusicItems != null ? ((Music)item).MusicItems.size() : 0);
 
         } else if (item instanceof Other) {
             var tempOther = (Other) item;
             displayItem.MediaType = Enums.MediaType.Other;
             displayItem.MediaTypeText = "Type: Other Collection";
-            displayItem.ItemCount = Math.toIntExact(tempOther.Items != null ? tempOther.Items.stream().filter(videoItem -> videoItem.Owned).count() : 0);
+            displayItem.ItemCount = Math.toIntExact(tempOther.Items != null ? tempOther.Items.stream().filter(otherItem -> otherItem.Owned).count() : 0);
         } else {
             displayItem.MediaType = Enums.MediaType.NoneSelected;
         }

@@ -184,7 +184,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         for (book in items) {
             readCount += book.Items?.count { it.Read && it.Owned } ?: 0
-            totalBook += book.Items?.count() { it.Owned } ?: 0
+            totalBook += book.Items?.count { it.Owned } ?: 0
         }
 
         val completedCount = items.count { it.HasCollectedAllItems == true }
@@ -328,7 +328,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             -1,
             R.string.percent,
             R.string.number,
-            models.shared.Enums.MediaType.Book,
+            MediaType.Book,
             layoutInflater,
             requireContext()
         )
@@ -370,7 +370,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
             -1,
             R.string.percent,
             R.string.number,
-            models.shared.Enums.MediaType.Book,
+            MediaType.Book,
             layoutInflater,
             requireContext()
         )

@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
@@ -152,7 +153,9 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
     private fun showMusicItemSheet(item: MusicItem? = null, position: Int = -1) {
         val dialog = BottomSheetDialog(requireContext())
         val sheetBinding = MusicItemBottomSheetBinding.inflate(layoutInflater)
+        currentSheetBinding = sheetBinding
         dialog.setContentView(sheetBinding.root)
+        dialog.setOnDismissListener { currentSheetBinding = null }
 
         currentSheetCover = item?.Cover
         var selectedGenre = item?.MusicGenre ?: MusicGenre.NoneSelected
@@ -286,9 +289,15 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             holder.binding.textVolumeInfo.text = item.Title
             holder.binding.textStatusInfo.text = "Year: ${item.Year ?: 0} | Genre: ${item.MusicGenre?.name ?: "None"}"
 
+            val collectingStr = if (item.Collecting == true) "Collecting" else "Not Collecting"
+            val ownedStr = if (item.Owned == true) "Owned" else "Not Owned"
+            holder.binding.textStatusInfo.text = "Year: ${item.Year ?: 0} | Genre: ${item.MusicGenre?.name ?: "None"} | $collectingStr | $ownedStr"
+
             if (item.Cover != null && item.Cover.isNotEmpty()) {
                 val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
+                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                 holder.binding.imageItemCover.setImageBitmap(bitmap)
+                holder.binding.imageItemCover.imageTintList = null
             } else {
                 ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, holder.itemView.context, holder.itemView.resources)
             }
@@ -301,8 +310,20 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
     class MusicItemViewHolder(val binding: MusicItemVolumeBinding) : RecyclerView.ViewHolder(binding.root)
 
     class MusicItemDiffCallback : DiffUtil.ItemCallback<MusicItem>() {
-        override fun areItemsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean = oldItem.Id == newItem.Id
+        override fun areItemsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean {
+            return if (!oldItem.Id.isNullOrEmpty() && !newItem.Id.isNullOrEmpty()) {
+                oldItem.Id == newItem.Id
+            } else {
+                oldItem.Title == newItem.Title && oldItem.Year == newItem.Year
+            }
+        }
+
         override fun areContentsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean =
-            oldItem.Title == newItem.Title && oldItem.Year == newItem.Year && oldItem.MusicGenre == newItem.MusicGenre
+            oldItem.Title == newItem.Title &&
+                    oldItem.Year == newItem.Year &&
+                    oldItem.MusicGenre == newItem.MusicGenre &&
+                    oldItem.Collecting == newItem.Collecting &&
+                    oldItem.Owned == newItem.Owned &&
+                    (oldItem.Cover?.contentEquals(newItem.Cover ?: byteArrayOf()) ?: (newItem.Cover == null))
     }
 }

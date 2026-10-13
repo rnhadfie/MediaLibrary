@@ -117,7 +117,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         val items = musicController?.GetMusics(currentFilter) ?: emptyList()
         setup = musicController?.GetMusicSetup()
         viewModel.setMediaItems(items)
-        var total = 0;
+        var total = 0
         items.forEach { item -> total += item.MusicItems?.filter { it.Owned }?.size ?: 0 }
 
 
