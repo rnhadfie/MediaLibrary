@@ -10,6 +10,7 @@ import models.music.Music
 import models.music.MusicItem
 import models.music.OldMusic
 import models.other.Other
+import models.other.OtherItem
 import models.shared.DataContainer
 import models.shared.MediaItem
 import models.shared.Tag
@@ -249,6 +250,27 @@ object XmlExportImport {
             container.Others?.forEach { other ->
                 serializer.startTag(null, "Other")
                 writeMediaItemFields(serializer, other)
+
+                serializer.startTag(null, "Items")
+                other.Items?.forEach { item ->
+                    serializer.startTag(null, "OtherItem")
+
+                    serializer.startTag(null, "Title")
+                    serializer.text(item.Title ?: "")
+                    serializer.endTag(null, "Title")
+
+                    serializer.startTag(null, "Owned")
+                    serializer.text((item.Owned ?: false).toString())
+                    serializer.endTag(null, "Owned")
+
+                    item.ItemCover?.let {
+                        serializer.startTag(null, "ItemCover")
+                        serializer.text(Base64.encodeToString(it, Base64.NO_WRAP))
+                        serializer.endTag(null, "ItemCover")
+                    }
+                    serializer.endTag(null, "OtherItem")
+                }
+                serializer.endTag(null, "Items")
                 serializer.endTag(null, "Other")
             }
             serializer.endTag(null, "Others")
@@ -327,6 +349,7 @@ object XmlExportImport {
         var currentBookItem: BookItem? = null
         var currentVideoItem: VideoItem? = null
         var currentMusicItem: MusicItem? = null
+        var currentOtherItem: OtherItem? = null
         var xmlVersion = 1
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -356,10 +379,11 @@ object XmlExportImport {
                                 }
                             }
                         }
-                        "Other" -> currentOther = Other()
+                        "Other" -> currentOther = Other().apply { Items = mutableListOf() }
                         "BookItem" -> currentBookItem = BookItem()
                         "VideoItem" -> currentVideoItem = VideoItem()
                         "MusicItem" -> currentMusicItem = MusicItem()
+                        "OtherItem" -> currentOtherItem = OtherItem()
 
                         // Fields
                         "Id" -> {
@@ -380,7 +404,11 @@ object XmlExportImport {
                             {
                                 oldMusicModel?.Title = text
                             }
-                            currentOther?.Title = text
+                            if (currentOtherItem != null) {
+                                currentOtherItem?.Title = text
+                            } else {
+                                currentOther?.Title = text
+                            }
                         }
                         "Collecting",
                         "collecting" -> {
@@ -535,7 +563,7 @@ object XmlExportImport {
                             val text = parser.nextText().toBoolean()
                             currentBookItem?.Owned = text
                             currentVideoItem?.Owned = text
-                            currentMusicItem?.Owned = text
+                            currentOtherItem?.Owned = text
                             if(xmlVersion > 1) {
                                 currentMusicItem?.Owned = text
                             }
@@ -554,6 +582,7 @@ object XmlExportImport {
                             val bytes = Base64.decode(text, Base64.DEFAULT)
                             currentBookItem?.ItemCover = bytes
                             currentVideoItem?.ItemCover = bytes
+                            currentOtherItem?.ItemCover = bytes
                             if(xmlVersion > 1) {
                                 currentMusicItem?.Cover = bytes
                             }
@@ -566,12 +595,13 @@ object XmlExportImport {
                         "DiscTitle" -> currentVideoItem?.DiscTitle = parser.nextText()
                         "Watched" -> currentVideoItem?.Watched = parser.nextText().toBoolean()
                         "Year" -> {
-                            currentVideo?.Year = parser.nextText().toIntOrNull() ?: 0
+                            val text = parser.nextText()
+                            currentVideo?.Year = text.toIntOrNull() ?: 0
                             if(xmlVersion > 1) {
-                                currentMusicItem?.Year = parser.nextText().toIntOrNull() ?: 0
+                                currentMusicItem?.Year = text.toIntOrNull() ?: 0
                             }
 
-                            currentBook?.Year = parser.nextText() ?: ""
+                            currentBook?.Year = text
                         }
                     }
                 }
@@ -591,6 +621,7 @@ object XmlExportImport {
                         "BookItem" -> currentBookItem?.let { currentBook?.Items?.add(it); currentBookItem = null }
                         "VideoItem" -> currentVideoItem?.let { currentVideo?.Items?.add(it); currentVideoItem = null }
                         "MusicItem" -> currentMusicItem?.let { currentMusic?.MusicItems?.add(it); currentMusicItem = null }
+                        "OtherItem" -> currentOtherItem?.let { currentOther?.Items?.add(it); currentOtherItem = null }
                     }
                 }
             }

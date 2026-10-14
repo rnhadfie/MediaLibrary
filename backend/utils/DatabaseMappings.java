@@ -261,19 +261,24 @@ public class DatabaseMappings {
     //region Other
 
     public static void MapOtherItem(Cursor cursor, OtherItem item) {
-        item.Id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+        item.Id = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID));
         item.Title = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_VOLUME_TITLE));
-        item.Series = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
-        item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
+        item.Series = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_SERIES));
+        int ownedIdx = cursor.getColumnIndex(COLUMN_OWNED);
+        if (ownedIdx != -1 && !cursor.isNull(ownedIdx)) {
+            item.Owned = cursor.getInt(ownedIdx) == 1;
+        } else {
+            item.Owned = false;
+        }
         item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
     }
 
     public static ContentValues MapOtherItemContentValues(String seriesId, OtherItem item) {
         ContentValues itemValues = new ContentValues();
-        itemValues.put(COLUMN_ID, UUID.randomUUID().toString());
+        itemValues.put(COLUMN_ID, item.Id != null && !item.Id.isEmpty() ? item.Id : UUID.randomUUID().toString());
         itemValues.put(COLUMN_SERIES, seriesId);
-        itemValues.put(COLUMN_VOLUME_TITLE, item.Title.trim());
-        itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
+        itemValues.put(COLUMN_VOLUME_TITLE, item.Title != null ? item.Title.trim() : "");
+        itemValues.put(COLUMN_OWNED, (item.Owned != null && item.Owned) ? 1 : 0);
         itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
         return itemValues;
     }

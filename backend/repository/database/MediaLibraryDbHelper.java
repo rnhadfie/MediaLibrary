@@ -180,7 +180,8 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_OTHER_ITEMS + " (" +
                 COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_SERIES + " INTEGER, " +
-                COLUMN_VOLUME_TITLE + " TEXT NOT NULL, " +
+                COLUMN_VOLUME_TITLE + " TEXT, " +
+                COLUMN_OWNED + " INTEGER, " +
                 COLUMN_ITEM_COVER + " BLOB, " +
                 "FOREIGN KEY(" + COLUMN_SERIES + ") REFERENCES " + TABLE_OTHERS + "(" + COLUMN_ID + "))");
 
