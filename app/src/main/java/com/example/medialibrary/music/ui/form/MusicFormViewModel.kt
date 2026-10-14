@@ -46,7 +46,7 @@ class MusicFormViewModel : ViewModel() {
     }
 
     fun addOrUpdateItem(item: MusicItem, position: Int = -1) {
-        val currentList = _items.value ?: mutableListOf()
+        val currentList = _items.value?.toMutableList() ?: mutableListOf()
         if (position >= 0 && position < currentList.size) {
             currentList[position] = item
         } else {
@@ -56,7 +56,7 @@ class MusicFormViewModel : ViewModel() {
     }
 
     fun deleteItem(position: Int) {
-        val currentList = _items.value ?: mutableListOf()
+        val currentList = _items.value?.toMutableList() ?: mutableListOf()
         if (position >= 0 && position < currentList.size) {
             currentList.removeAt(position)
             _items.value = currentList

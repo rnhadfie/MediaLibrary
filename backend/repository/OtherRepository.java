@@ -1,7 +1,10 @@
 package repository;
+import static java.sql.DriverManager.println;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import models.book.BookItem;
 import models.other.Other;
 import models.other.OtherItem;
 import models.other.OtherSaveObj;
@@ -10,11 +13,15 @@ import repository.Interface.Interface.IOtherRepository;
 import repository.database.BaseRepository;
 import repository.database.MediaLibraryDbHelper;
 import utils.DatabaseMappings;
+import utils.NaturalComparator;
 
 import android.content.ContentValues;
+import android.util.Log;
 import android.util.LruCache;
 
 import static utils.DatabaseKeyNames.*;
+import static utils.DatabaseMappings.MapBookItem;
+import static utils.DatabaseMappings.MapOtherItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -166,6 +173,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
                 }
             }
 
+
             db.setTransactionSuccessful();
             return result > -1;
         } catch (Exception e) {
@@ -201,7 +209,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         selectionArgs.add(String.valueOf(id));
         String whereClause = COLUMN_SERIES + " = ?";
         Cursor cursor = db.query(
-                TABLE_OTHER_ITEMS,
+                TABLE_BOOK_ITEMS,
                 null,
                 whereClause,
                 selectionArgs.toArray(new String[0]),
@@ -212,7 +220,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         if (cursor.moveToFirst()) {
             do {
                 OtherItem item = new OtherItem();
-                DatabaseMappings.MapOtherItem(cursor, item);
+                MapOtherItem(cursor, item);
                 items.add(item);
             } while (cursor.moveToNext());
             cursor.close();

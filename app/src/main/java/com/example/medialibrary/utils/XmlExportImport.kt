@@ -2,18 +2,18 @@ package com.example.medialibrary.utils
 
 import android.util.Base64
 import android.util.Xml
+import com.example.medialibrary.BuildConfig
 import models.book.Book
 import models.book.BookItem
 import models.book.Publisher
 import models.music.Music
 import models.music.MusicItem
+import models.music.OldMusic
 import models.other.Other
 import models.shared.DataContainer
 import models.shared.MediaItem
 import models.shared.Tag
 import models.video.Video
-import  com.example.medialibrary.BuildConfig
-import models.music.OldMusic
 import models.video.VideoItem
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlSerializer
@@ -322,12 +322,12 @@ object XmlExportImport {
         var currentBook: Book? = null
         var currentVideo: Video? = null
         var currentMusic: Music? = null
-        var oldMusicModel: OldMusic? = null;
+        var oldMusicModel: OldMusic? = null
         var currentOther: Other? = null
         var currentBookItem: BookItem? = null
         var currentVideoItem: VideoItem? = null
         var currentMusicItem: MusicItem? = null
-        var xmlVersion = 1;
+        var xmlVersion = 1
 
         while (eventType != XmlPullParser.END_DOCUMENT) {
             val tagName = parser.name
@@ -612,7 +612,7 @@ object XmlExportImport {
         allArtists.forEach { artist, music ->
             if(artist.isEmpty())
             {
-                val compilation = Music();
+                val compilation = Music()
                 compilation.Artist = "Compilation"
                 compilation.MusicItems = arrayListOf<MusicItem>()
 
@@ -625,7 +625,7 @@ object XmlExportImport {
                             compilation.Id = it.Id
                         }
                         item.Title = it.Title
-                        item.Id = "";
+                        item.Id = ""
                         item.Series = it.Id
                         item.Year = it.Year
                         item.Cover = it.Cover
@@ -644,7 +644,7 @@ object XmlExportImport {
 
                         val item = MusicItem()
                         item.Title = it.Title
-                        item.Id = "";
+                        item.Id = ""
                         item.Series = it.Id
                         item.Year = it.Year
                         item.Cover = it.Cover
@@ -652,7 +652,7 @@ object XmlExportImport {
                         item.MusicGenre = it.MusicGenre
                         item.Owned = it.HasCollectedAllItems
 
-                        newArtist.MusicItems.add(item);
+                        newArtist.MusicItems.add(item)
                         musicList.add(newArtist)
                     }
                 }
@@ -661,7 +661,7 @@ object XmlExportImport {
             }
             else
             {
-                val newArtist = Music();
+                val newArtist = Music()
                 newArtist.Artist = artist
                 newArtist.MusicItems = arrayListOf<MusicItem>()
 
@@ -672,8 +672,8 @@ object XmlExportImport {
                             newArtist.Id = it.Id
                         }
                         item.Title = it.Title
-                        item.Id = "";
-                        item.Series = it.Id
+                        item.Id = ""
+                    item.Series = it.Id
                         item.Year = it.Year
                         item.Cover = it.Cover
                         item.Collecting = it.Collecting
@@ -686,6 +686,6 @@ object XmlExportImport {
             }
         }
 
-        return musicList;
+        return musicList
     }
 }

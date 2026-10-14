@@ -23,10 +23,15 @@ class BookFormActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             val bookId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
+            val isView = intent.getBooleanExtra("EXTRA_IS_VIEW", false)
 
-            supportActionBar?.title =  if(isEdit)  "Edit Book" else "Add Book"
+            supportActionBar?.title = when {
+                isView -> "View Book"
+                isEdit -> "Edit Book"
+                else -> "Add Book"
+            }
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, BookFormFragment.newInstance(bookId, isEdit))
+                .replace(R.id.main, BookFormFragment.newInstance(bookId, isEdit = isEdit, isView = isView))
                 .commitNow()
         }
 

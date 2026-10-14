@@ -96,6 +96,13 @@ class MusicFormFragmentTest {
 
         assertEquals(1, viewModel.items.value?.size)
 
+        // Test updating item at position 0
+        val updatedItem = MusicItem().apply { Title = "IV (Remastered)"; Year = 1971; MusicGenre = MusicEnums.MusicGenre.Rock; Collecting = true; Cover = byteArrayOf(1, 2, 3) }
+        viewModel.addOrUpdateItem(updatedItem, 0)
+        assertEquals(1, viewModel.items.value?.size)
+        assertEquals("IV (Remastered)", viewModel.items.value?.get(0)?.Title)
+        assertTrue(viewModel.items.value?.get(0)?.Collecting == true)
+
         val saveObj = viewModel.getSaveObject()
         assertNotNull(saveObj)
         assertEquals("Led Zeppelin", saveObj.Music?.Artist)

@@ -84,6 +84,15 @@
                 </LinearLayout>
 
                 <ImageButton
+                    android:id="@+id/mediaItemViewItem"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:src="@android:drawable/ic_menu_view"
+                    app:tint="?attr/colorPrimary" />
+
+                <ImageButton
                     android:id="@+id/mediaItemEditItem"
                     android:layout_width="48dp"
                     android:layout_height="48dp"

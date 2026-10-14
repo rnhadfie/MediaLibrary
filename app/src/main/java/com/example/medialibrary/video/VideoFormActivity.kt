@@ -22,11 +22,16 @@ class VideoFormActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             val videoId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
+            val isView = intent.getBooleanExtra("EXTRA_IS_VIEW", false)
 
-            supportActionBar?.title =  if(isEdit)  "Edit Movie or TV Show" else "Add Movie or TV Show"
+            supportActionBar?.title = when {
+                isView -> "View Movie or TV Show"
+                isEdit -> "Edit Movie or TV Show"
+                else -> "Add Movie or TV Show"
+            }
 
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, VideoFormFragment.newInstance(videoId, isEdit))
+                .replace(R.id.main, VideoFormFragment.newInstance(videoId, isEdit = isEdit, isView = isView))
                 .commitNow()
         }
     }

@@ -2,7 +2,6 @@ package com.example.medialibrary.music
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
-import com.example.medialibrary.book.ui.list.BookListViewModel
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.music.ui.list.MusicListViewModel
 import io.mockk.clearAllMocks
@@ -10,7 +9,6 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import models.book.BookFilter
-import models.music.Music
 import models.shared.DisplayMediaItem
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals

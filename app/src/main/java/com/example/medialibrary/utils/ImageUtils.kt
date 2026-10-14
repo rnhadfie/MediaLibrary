@@ -17,12 +17,12 @@ import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemBottomSheetBinding
-import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.databinding.MusicItemBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -298,5 +298,25 @@ object ImageUtils {
     fun handleImageUri(uri: Uri, context: Context, handleImageBitmap: (Bitmap) -> Unit) {
         val bitmap = getCorrectlyOrientedBitmap(context, uri)
         bitmap?.let { handleImageBitmap(it) }
+    }
+
+    fun showImagePreviewDialog(context: Context, imageBytes: ByteArray?, title: String? = "Image Preview") {
+        if (imageBytes == null || imageBytes.isEmpty()) return
+        val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size) ?: return
+        showImagePreviewDialog(context, bitmap, title)
+    }
+
+    fun showImagePreviewDialog(context: Context, bitmap: Bitmap, title: String? = "Image Preview") {
+        val imageView = ImageView(context).apply {
+            setImageBitmap(bitmap)
+            adjustViewBounds = true
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setPadding(32, 32, 32, 32)
+        }
+        MaterialAlertDialogBuilder(context)
+            .setTitle(title.takeIf { !it.isNullOrBlank() } ?: "Image Preview")
+            .setView(imageView)
+            .setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 }

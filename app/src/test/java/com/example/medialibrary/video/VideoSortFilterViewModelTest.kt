@@ -2,7 +2,6 @@ package com.example.medialibrary.video
 
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import models.shared.SortModel
-import models.video.VideoFilter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
