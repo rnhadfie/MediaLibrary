@@ -45,7 +45,7 @@ class OtherFormFragmentTest {
     @Test
     @DisplayName("When data is visible in edit mode, other collection and items load correctly")
     fun testDataVisibleInEditMode() {
-        val otherItem = OtherItem().apply { Id = 101; Series = 1 }
+        val otherItem = OtherItem().apply { Id = "101"; Series = "1" }
         val existingOther = Other().apply {
             Id = "1"
             Title = "Vinyl Figure"
@@ -101,7 +101,7 @@ class OtherFormFragmentTest {
         viewModel.updateTagName("New Tag")
         viewModel.toggleCollecting(true)
 
-        val item = OtherItem().apply { Id = 1 }
+        val item = OtherItem().apply { Id = "1" }
         viewModel.addOrUpdateItem(item)
 
         assertEquals(1, viewModel.items.value?.size)

@@ -130,9 +130,8 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         try {
             String id = UUID.randomUUID().toString();
             other.Id = id;
-            ContentValues values = DatabaseMappings.MapOtherContentValues(other.Tag, other);
-
-
+            String tagId = AddNewTag(otherObj.Other.Tag, otherObj.NewTag, db);
+            ContentValues values = DatabaseMappings.MapOtherContentValues(tagId, other);
 
             var result = db.insert(TABLE_OTHERS, null, values);
             if (other.Items != null) {
@@ -209,7 +208,7 @@ public class OtherRepository extends BaseRepository implements IOtherRepository 
         selectionArgs.add(String.valueOf(id));
         String whereClause = COLUMN_SERIES + " = ?";
         Cursor cursor = db.query(
-                TABLE_BOOK_ITEMS,
+                TABLE_OTHER_ITEMS,
                 null,
                 whereClause,
                 selectionArgs.toArray(new String[0]),
