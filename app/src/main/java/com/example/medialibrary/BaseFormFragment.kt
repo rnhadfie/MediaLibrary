@@ -8,19 +8,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
-import com.example.medialibrary.databinding.ViewDropdownBinding
 import com.example.medialibrary.databinding.ViewRadioButtonBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
 import com.example.medialibrary.utils.SharedRefreshViewModel
-import models.book.Enums
 import java.io.ByteArrayOutputStream
 import java.io.File
 import models.shared.Enums as SharedEnums
@@ -32,6 +29,7 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
     companion object {
         const val ARG_ID = "arg_id"
         const val ARG_IS_EDIT = "arg_is_edit"
+        const val ARG_IS_VIEW = "arg_is_view"
     }
 
     private var _binding: VB? = null
@@ -42,6 +40,7 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
 
     protected var itemId: String = "-1"
     protected var isEdit: Boolean = false
+    protected var isView: Boolean = false
 
     protected var pendingImageTarget: String? = null
     protected var pendingItemPosition: Int = -1
@@ -81,6 +80,7 @@ abstract class BaseFormFragment<VB : ViewBinding, VM : ViewModel>(
         super.onViewCreated(view, savedInstanceState)
         itemId = arguments?.getString(ARG_ID) ?: "-1"
         isEdit = arguments?.getBoolean(ARG_IS_EDIT) ?: false
+        isView = arguments?.getBoolean(ARG_IS_VIEW) ?: false
     }
 
     protected open fun onImageBitmapLoaded(bitmap: Bitmap) {

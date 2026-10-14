@@ -18,9 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.databinding.BookFragmentFormBinding
-import com.example.medialibrary.databinding.BookItemBottomSheetBinding
-import com.example.medialibrary.databinding.BookItemVolumeBinding
+import com.example.medialibrary.databinding.*
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -34,6 +32,7 @@ import models.book.Publisher
 import models.shared.GenreObject
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
+import kotlin.sequences.forEach
 import models.shared.Enums as SharedEnums
 
 class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewModel>(
@@ -41,10 +40,11 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 ) {
 
     companion object {
-        fun newInstance(id: String = "-1", isEdit: Boolean = false) = BookFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false, isView: Boolean = false) = BookFormFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
+                putBoolean(ARG_IS_VIEW, isView)
             }
         }
     }
@@ -65,7 +65,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
         setup = controller?.GetBookSetup() ?: BookSetup()
 
-        if (isEdit && itemId != "-1") {
+        if ((isEdit || isView) && itemId != "-1") {
             viewModel.loadBook(itemId, controller, setup)
         }
 
@@ -88,6 +88,12 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
     }
 
     private fun setupClickListeners() {
+        binding.changeImage.imageBookCover.setOnClickListener {
+            val cover = viewModel.book.value?.Cover
+            if (cover != null && cover.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), cover, viewModel.book.value?.Title ?: "Book Cover")
+            }
+        }
         binding.changeImage.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("book")
         }
@@ -97,10 +103,17 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.addItemBtn.setOnClickListener {
             showBookItemSheet()
         }
-        binding.saveBtn.setOnClickListener {
-            val success = saveAction(isEdit)
-            if (success) {
+        if (isView) {
+            binding.saveBtn.setText(R.string.close)
+            binding.saveBtn.setOnClickListener {
                 activity?.finish()
+            }
+        } else {
+            binding.saveBtn.setOnClickListener {
+                val success = saveAction(isEdit)
+                if (success) {
+                    activity?.finish()
+                }
             }
         }
     }
@@ -201,7 +214,9 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             binding.seriesSection.visibility = View.VISIBLE
         }
 
-
+        if (isView) {
+            disableFields(false)
+        }
     }
 
     private fun saveAction(isEdit: Boolean): Boolean {
@@ -293,7 +308,6 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         }
         binding.changeImage.buttonChangeCover.isEnabled = enabled
         binding.changeImage.buttonClearCover.isEnabled = enabled
-        binding.changeImage.imageBookCover.isEnabled = enabled
         binding.genreMultiselect.buttonSelectGenres.isEnabled = enabled
         binding.pubAutocomplete.autoCompleteLabel.isEnabled = enabled
         binding.pubAutocomplete.autocomplete.isEnabled = enabled
@@ -318,12 +332,25 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                 }
             }
         }
-        binding.addItemBtn.isEnabled = enabled
+        binding.collectingPriorityRadioGroup.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
+        if(!isView) {
+            binding.addItemBtn.isEnabled = enabled
+        }
+        binding.addItemBtn.visibility = if (isView) View.GONE else View.VISIBLE
         binding.ongoingCheck.isEnabled = enabled
-        binding.saveBtn.isEnabled = enabled
+        binding.saveBtn.isEnabled = enabled || isView
         binding.standaloneSwitch.isEnabled = enabled
         binding.readSwitch.isEnabled = enabled
         binding.ownedSwitch.isEnabled = enabled
+        binding.genreMultiselect.chipGroupGenres.children.forEach { it.isEnabled = enabled }
     }
 
     //region setup
@@ -505,8 +532,11 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         genres.forEach { genre ->
             val chip = Chip(requireContext()).apply {
                 text = genre.genreName
-                isCloseIconVisible = true
-                setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
+                isCloseIconVisible = !isView
+                isEnabled = !isView
+                if (!isView) {
+                    setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
+                }
             }
             binding.genreMultiselect.chipGroupGenres.addView(chip)
         }
@@ -580,9 +610,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
     ) {
         sb.cancelButton.setOnClickListener { dialog.dismiss() }
 
-
-
         val formats = setup.Format.filter { it.key != Enums.BookFormat.NoneSelected.ordinal }
+        sb.formatRadioGroup.radioButtonLabel.setText(R.string.format_label)
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = sb.formatRadioGroup.dynamicTableLayout,
             optionsMap = formats,
@@ -620,6 +649,12 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             sb.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
+        sb.imageItemCover.imageBookCover.setOnClickListener {
+            val coverBytes = sb.imageItemCover.imageBookCover.tag as? ByteArray ?: item?.ItemCover
+            if (coverBytes != null && coverBytes.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), coverBytes, item?.VolumeTitle ?: "Volume Cover")
+            }
+        }
         sb.imageItemCover.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("item")
         }
@@ -629,6 +664,29 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
         sb.saveItemBtn.setOnClickListener {
             addBookItem(sb, position, dialog)
+        }
+
+        if(isView)
+        {
+            sb.saveItemBtn.text = getString(R.string.close)
+            sb.saveItemBtn.setOnClickListener {
+                dialog.dismiss()
+            }
+            sb.imageItemCover.buttonChangeCover.visibility = View.GONE
+            sb.imageItemCover.buttonClearCover.visibility = View.GONE
+            sb.titleInput.isEnabled = false
+            sb.numberInput.isEnabled = false
+            sb.ownedSwitch.isEnabled = false
+            sb.readSwitch.isEnabled = false
+            sb.formatRadioGroup.dynamicTableLayout.children.forEach { child ->
+                if (child is ViewGroup) {
+                    child.children.forEach { subChild ->
+                        if (subChild is RadioButton) {
+                            subChild.isEnabled = false
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -684,7 +742,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
 
         override fun getItemCount() = items.size
 
-        inner class ViewHolder(val binding: BookItemVolumeBinding) : RecyclerView.ViewHolder(binding.root) {
+        inner class ViewHolder(val binding: BookItemVolumeBinding)
+            : RecyclerView.ViewHolder(binding.root) {
             fun bind(item: BookItem, position: Int) {
                 val context = binding.root.context
 
@@ -709,12 +768,23 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                     binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.imageItemCover.setImageBitmap(bitmap)
                     binding.imageItemCover.imageTintList = null
+                    binding.imageItemCover.setOnClickListener {
+                        ImageUtils.showImagePreviewDialog(context, item.ItemCover, item.VolumeTitle ?: "Volume " + item.VolumeNumber)
+                    }
                 } else {
                     ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
                 }
 
+                if (isView) {
+                    binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_view)
+                    binding.buttonDeleteItem.visibility = View.GONE
+                } else {
+                    binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_edit)
+                    binding.buttonEditItem.visibility = View.VISIBLE
+                    binding.buttonDeleteItem.visibility = View.VISIBLE
+                    binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+                }
                 binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
-                binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
             }
         }
     }

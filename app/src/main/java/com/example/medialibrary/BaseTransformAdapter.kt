@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.databinding.ItemTransformBinding
+import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SaveEditDeleteUtils
 import models.shared.DisplayMediaItem
 import models.shared.Enums
@@ -82,17 +83,26 @@ open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAda
         holder.binding.textMediaStatusInfo2.backgroundTintList = ColorStateList.valueOf(colors.light)
         holder.binding.textMediaStatusInfo2.setTextColor(colors.dark)
 
+        holder.binding.mediaItemViewItem?.imageTintList = ColorStateList.valueOf(colors.main)
         holder.binding.mediaItemEditItem.imageTintList = ColorStateList.valueOf(colors.main)
 
         val crudUtil = SaveEditDeleteUtils(item, holder)
         holder.itemView.setOnClickListener {
-            crudUtil.addEditItem(true, item.Id)
+            crudUtil.addEditItem(isEdit = false, id = item.Id, isView = true)
+        }
+        holder.binding.mediaItemViewItem?.setOnClickListener {
+            crudUtil.addEditItem(isEdit = false, id = item.Id, isView = true)
         }
         holder.binding.mediaItemEditItem.setOnClickListener {
-            crudUtil.addEditItem(true, item.Id)
+            crudUtil.addEditItem(isEdit = true, id = item.Id, isView = false)
         }
         holder.binding.mediaItemDeleteItem.setOnClickListener {
             crudUtil.showDeleteDialog()
+        }
+        holder.binding.mediaItemImageCover.setOnClickListener {
+            if (item.Cover != null && item.Cover.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(context, item.Cover, item.Title)
+            }
         }
     }
 

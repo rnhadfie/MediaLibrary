@@ -3,7 +3,6 @@ package com.example.medialibrary.utils
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.ViewEmptyStateBinding

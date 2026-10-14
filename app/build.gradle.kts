@@ -95,6 +95,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.legacy.support.v4)
+    implementation(libs.androidx.ui)
     implementation(libs.material)
     implementation(libs.androidx.recyclerview)
     implementation(libs.androidx.constraintlayout)

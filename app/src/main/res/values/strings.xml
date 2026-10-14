@@ -158,4 +158,5 @@
     <string name="watching_status">Watching Status</string>
     <string name="video_filters">Video Filters</string>
     <string name="year">Year</string>
+    <string name="close">Close</string>
 </resources>

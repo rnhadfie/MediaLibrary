@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.renderscript.Sampler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,6 @@ import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
-import com.example.medialibrary.databinding.ViewTextCardDisplayBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.utils.FilterSummaryHelper

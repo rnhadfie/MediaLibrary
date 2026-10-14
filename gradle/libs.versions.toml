@@ -27,6 +27,7 @@ androidxTestRunner = "1.7.0"
 androidxTestRules = "1.7.0"
 exifinterface = "1.3.6"
 coordinatorlayout = "1.3.0"
+ui = "1.12.1"
 
 [libraries]
 # Application UI & Core Components
@@ -68,6 +69,7 @@ androidx-fragment-testing = { group = "androidx.fragment", name = "fragment-test
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 androidx-coordinatorlayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "coordinatorlayout" }
+androidx-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -22,11 +22,16 @@ class MusicFormActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             val musicId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
+            val isView = intent.getBooleanExtra("EXTRA_IS_VIEW", false)
 
-            supportActionBar?.title =  if(isEdit)  "Edit CD" else "Add CD"
+            supportActionBar?.title = when {
+                isView -> "View CD"
+                isEdit -> "Edit CD"
+                else -> "Add CD"
+            }
 
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, MusicFormFragment.newInstance(musicId, isEdit))
+                .replace(R.id.main, MusicFormFragment.newInstance(musicId, isEdit = isEdit, isView = isView))
                 .commitNow()
         }
     }

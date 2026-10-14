@@ -7,18 +7,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFormFragment
 import com.example.medialibrary.R
+import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.databinding.MusicItemBottomSheetBinding
-import com.example.medialibrary.databinding.MusicItemVolumeBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -28,6 +28,7 @@ import models.music.MusicItem
 import models.music.MusicSetup
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
+import kotlin.sequences.forEach
 import models.shared.Enums as SharedEnums
 
 class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormViewModel>(
@@ -35,10 +36,11 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 ) {
 
     companion object {
-        fun newInstance(id: String = "-1", isEdit: Boolean = false) = MusicFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false, isView: Boolean = false) = MusicFormFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
+                putBoolean(ARG_IS_VIEW, isView)
             }
         }
     }
@@ -56,7 +58,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
         setup = controller?.GetMusicSetup() ?: MusicSetup()
 
-        if (isEdit && itemId != "-1") {
+        if ((isEdit || isView) && itemId != "-1") {
             viewModel.loadCd(itemId, controller)
         }
 
@@ -70,8 +72,10 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             onEdit = { position, item -> showMusicItemSheet(item, position) },
             onDelete = { position -> viewModel.deleteItem(position) }
         )
-        binding.recyclerviewMusicItems.layoutManager = LinearLayoutManager(requireContext())
-        binding.recyclerviewMusicItems.adapter = itemAdapter
+        binding.recyclerviewMusicItems.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = itemAdapter
+        }
     }
 
     private fun observeViewModel() {
@@ -88,6 +92,10 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         viewModel.items.observe(viewLifecycleOwner) { items ->
             itemAdapter.submitList(items.toList())
         }
+
+        if (isView) {
+            disableForm(false)
+        }
     }
 
     private fun setBindings(setup: MusicSetup) {
@@ -102,8 +110,13 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             showMusicItemSheet()
         }
 
-        binding.buttonSaveMusic.setOnClickListener {
-            handleSaveAction()
+        if (isView) {
+            binding.buttonSaveMusic.setText(R.string.close)
+            binding.buttonSaveMusic.setOnClickListener { activity?.finish() }
+        } else {
+            binding.buttonSaveMusic.setOnClickListener {
+                handleSaveAction()
+            }
         }
     }
 
@@ -175,6 +188,12 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
+        sheetBinding.imageItemCover.imageBookCover.setOnClickListener {
+            val coverBytes = currentSheetCover ?: item?.Cover
+            if (coverBytes != null && coverBytes.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), coverBytes, item?.Title ?: "CD Cover")
+            }
+        }
         sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("sheet_cover")
         }
@@ -205,6 +224,11 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         }
 
         sheetBinding.buttonSheetSave.setOnClickListener {
+            if (isView)
+            {
+                dialog.dismiss()
+                return@setOnClickListener
+            }
             val title = sheetBinding.editSheetMusicTitle.text.toString().trim()
             if (title.isBlank()) {
                 sheetBinding.editSheetMusicTitleLabel.error = "Title is required"
@@ -225,6 +249,27 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
 
             viewModel.addOrUpdateItem(newItem, position)
             dialog.dismiss()
+        }
+
+        if(isView)
+        {
+            sheetBinding.buttonSheetSave.setText(R.string.close)
+            sheetBinding.editSheetMusicTitle.isEnabled = false
+            sheetBinding.editSheetMusicYear.isEnabled = false
+            sheetBinding.switchSheetCollecting.isEnabled = false
+            sheetBinding.switchSheetOwned.isEnabled = false
+            sheetBinding.imageItemCover.buttonChangeCover.visibility = View.GONE
+            sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
+            sheetBinding.imageItemCover.imageBookCover.isEnabled = false
+            sheetBinding.musicGenreRadio.dynamicTableLayout.children.forEach { child ->
+                if (child is ViewGroup) {
+                    child.children.forEach { subChild ->
+                        if (subChild is RadioButton) {
+                            subChild.isEnabled = false
+                        }
+                    }
+                }
+            }
         }
 
         dialog.show()
@@ -270,60 +315,82 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
     private fun disableForm(enabled: Boolean) {
         binding.editMusicArtist.isEnabled = enabled
         binding.tagAutocomplete.autocomplete.isEnabled = enabled
-        binding.buttonAddItem.isEnabled = enabled
-        binding.buttonSaveMusic.isEnabled = enabled
+        binding.buttonAddItem.isEnabled = enabled && !isView
+        binding.buttonAddItem.visibility = if (isView) View.GONE else View.VISIBLE
+        binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
+        if (!isView) {
+            binding.buttonSaveMusic.isEnabled = enabled
+        }
+        binding.collectingPriorityRadioGroup.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
     }
 
-    class MusicItemAdapter(
+    inner class MusicItemAdapter(
         private val onEdit: (Int, MusicItem) -> Unit,
         private val onDelete: (Int) -> Unit
-    ) : ListAdapter<MusicItem, MusicItemViewHolder>(MusicItemDiffCallback()) {
+    ) : RecyclerView.Adapter<MusicItemAdapter.ViewHolder>() {
+            private var items: List<MusicItem> = emptyList()
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MusicItemViewHolder {
-            val binding = MusicItemVolumeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            return MusicItemViewHolder(binding)
-        }
-
-        override fun onBindViewHolder(holder: MusicItemViewHolder, position: Int) {
-            val item = getItem(position)
-            holder.binding.textVolumeInfo.text = item.Title
-            holder.binding.textStatusInfo.text = "Year: ${item.Year ?: 0} | Genre: ${item.MusicGenre?.name ?: "None"}"
-
-            val collectingStr = if (item.Collecting == true) "Collecting" else "Not Collecting"
-            val ownedStr = if (item.Owned == true) "Owned" else "Not Owned"
-            holder.binding.textStatusInfo.text = "Year: ${item.Year ?: 0} | Genre: ${item.MusicGenre?.name ?: "None"} | $collectingStr | $ownedStr"
-
-            if (item.Cover != null && item.Cover.isNotEmpty()) {
-                val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-                holder.binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                holder.binding.imageItemCover.setImageBitmap(bitmap)
-                holder.binding.imageItemCover.imageTintList = null
-            } else {
-                ImageUtils.setPlaceholderCover(holder.binding.imageItemCover, holder.itemView.context, holder.itemView.resources)
+            fun submitList(newList: List<MusicItem>) {
+                items = newList
+                notifyDataSetChanged()
             }
 
-            holder.binding.buttonEditItem.setOnClickListener { onEdit(position, item) }
-            holder.binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
-        }
-    }
+            override fun getItemCount() = items.size
 
-    class MusicItemViewHolder(val binding: MusicItemVolumeBinding) : RecyclerView.ViewHolder(binding.root)
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+                val binding = BookItemVolumeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+                return ViewHolder(binding)
+            }
 
-    class MusicItemDiffCallback : DiffUtil.ItemCallback<MusicItem>() {
-        override fun areItemsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean {
-            return if (!oldItem.Id.isNullOrEmpty() && !newItem.Id.isNullOrEmpty()) {
-                oldItem.Id == newItem.Id
-            } else {
-                oldItem.Title == newItem.Title && oldItem.Year == newItem.Year
+            override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+                holder.bind(items[position], position)
+            }
+
+            inner class ViewHolder(val binding: BookItemVolumeBinding)
+                : RecyclerView.ViewHolder(binding.root)
+            {
+                fun bind(item: MusicItem, position: Int) {
+                    val context = binding.root.context
+                    val collectingStr = if (item.Collecting == true) "Collecting" else "Not Collecting"
+                    val ownedStr = if (item.Owned == true) "Owned" else "Not Owned"
+                    "Year: ${item.Year ?: 0} | Genre: ${item.MusicGenre?.name ?: "None"} | $collectingStr | $ownedStr".also { binding.textStatusInfo.text = it }
+
+                    if (item.Cover != null && item.Cover.isNotEmpty()) {
+                        val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
+                       binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
+                        binding.imageItemCover.setImageBitmap(bitmap)
+                        binding.imageItemCover.imageTintList = null
+                        binding.imageItemCover.setOnClickListener {
+                            ImageUtils.showImagePreviewDialog(itemView.context, item.Cover, item.Title)
+                        }
+                    } else {
+                        ImageUtils.setPlaceholderCover(binding.imageItemCover, itemView.context, itemView.resources)
+                    }
+
+                    if (isView) {
+                        binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_view)
+                        binding.buttonDeleteItem.visibility = View.GONE
+                    } else {
+                        binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_edit)
+                        binding.buttonEditItem.visibility = View.VISIBLE
+                        binding.buttonDeleteItem.visibility = View.VISIBLE
+                    }
+                    binding.buttonEditItem.setOnClickListener { onEdit(position, item) }
+                    binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+                }
             }
         }
 
-        override fun areContentsTheSame(oldItem: MusicItem, newItem: MusicItem): Boolean =
-            oldItem.Title == newItem.Title &&
-                    oldItem.Year == newItem.Year &&
-                    oldItem.MusicGenre == newItem.MusicGenre &&
-                    oldItem.Collecting == newItem.Collecting &&
-                    oldItem.Owned == newItem.Owned &&
-                    (oldItem.Cover?.contentEquals(newItem.Cover ?: byteArrayOf()) ?: (newItem.Cover == null))
-    }
+
+
+
+
 }

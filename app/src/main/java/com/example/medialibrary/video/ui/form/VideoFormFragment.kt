@@ -2,6 +2,7 @@ package com.example.medialibrary.video.ui.form
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,6 @@ import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import controllers.VideoController
-import models.book.Enums
 import models.video.Enums as VideoEnums
 import models.music.Enums.MusicGenre
 import models.shared.GenreObject
@@ -45,10 +45,11 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 ) {
 
     companion object {
-        fun newInstance(id: String = "-1", isEdit: Boolean = false) = VideoFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false, isView: Boolean = false) = VideoFormFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
+                putBoolean(ARG_IS_VIEW, isView)
             }
         }
     }
@@ -69,7 +70,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
         setup = controller?.GetVideoSetup() ?: VideoSetup()
 
-        if (isEdit && itemId != "-1") {
+        if ((isEdit || isView)  && itemId != "-1") {
             viewModel.loadVideo(itemId, controller, setup)
         }
 
@@ -102,6 +103,12 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     }
 
     private fun setupClickListeners() {
+        binding.changeImage.imageBookCover.setOnClickListener {
+            val cover = viewModel.video.value?.Cover
+            if (cover != null && cover.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), cover, viewModel.video.value?.Title ?: "Video Cover")
+            }
+        }
         binding.changeImage.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("video")
         }
@@ -111,14 +118,19 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         binding.addItemBtn.setOnClickListener {
             showVideoItemSheet()
         }
-        binding.saveBtn.setOnClickListener {
-            val result = saveVideo(isEdit)
-            if (result) {
+        if (isView) {
+            binding.saveBtn.text = "Close"
+            binding.saveBtn.setOnClickListener {
                 activity?.finish()
             }
+        } else {
+            binding.saveBtn.setOnClickListener {
+                val result = saveVideo(isEdit)
+                if (result) {
+                    activity?.finish()
+                }
+            }
         }
-
-
     }
 
     private fun observeViewModel(setup: VideoSetup) {
@@ -202,6 +214,10 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
         viewModel.selectedGenres.observe(viewLifecycleOwner) { genres ->
             updateGenreChips(genres)
+        }
+
+        if (isView) {
+            disableFields(false)
         }
     }
 
@@ -304,11 +320,24 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 }
             }
         }
-        binding.addItemBtn.isEnabled = enabled
+        binding.addItemBtn.isEnabled = enabled && !isView
+        binding.addItemBtn.visibility = if (isView) View.GONE else View.VISIBLE
         binding.ongoingCheck.isEnabled = enabled
-        binding.saveBtn.isEnabled = enabled
+        if(!isView) {
+            binding.saveBtn.isEnabled = enabled
+        }
         binding.standaloneSwitch.isEnabled = enabled
+        binding.genreMultiselect.chipGroupGenres.children.forEach { it.isEnabled = enabled }
         binding.formatRadioGroup.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
+        binding.collectingPriorityRadioGroup.dynamicTableLayout.children.forEach { child ->
             if (child is ViewGroup) {
                 child.children.forEach { subChild ->
                     if (subChild is RadioButton) {
@@ -319,6 +348,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
         binding.watchedSwitch.isEnabled = enabled
         binding.ownedSwitch.isEnabled = enabled
+
     }
 
     override fun onCoverImageUpdated(byteArray: ByteArray?, target: String?) {
@@ -465,8 +495,11 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         genres.forEach { genre ->
             val chip = Chip(requireContext()).apply {
                 text = genre.genreName
-                isCloseIconVisible = true
-                setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
+                isCloseIconVisible = !isView
+                isEnabled = !isView
+                if (!isView) {
+                    setOnCloseIconClickListener { viewModel.toggleGenre(genre) }
+                }
             }
             binding.genreMultiselect.chipGroupGenres.addView(chip)
         }
@@ -491,17 +524,10 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         binding.yearInput.doAfterTextChanged { s ->
             viewModel.updateYear(s.toString().toIntOrNull() ?: 0)
         }
-/*
-        binding.collectingCheck.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCollecting(isChecked)
-        }*/
+
         binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->
             viewModel.toggleCompleted(isChecked)
         }
-        /*
-        binding.collectedCheck.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.toggleCollectionComplete(isChecked)
-        }*/
 
         binding.standaloneSwitch.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
@@ -526,8 +552,8 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         sb.cancelButton.setOnClickListener { dialog.dismiss() }
 
         val formats = setup.Formats.filter { it.key != VideoFormat.NoneSelected.ordinal }
-        binding.formatRadioGroup.radioButtonLabel.setText(R.string.format_label)
-        val tableLayout = binding.formatRadioGroup.dynamicTableLayout
+        sb.formatRadioGroup.radioButtonLabel.setText(R.string.format_label)
+        val tableLayout = sb.formatRadioGroup.dynamicTableLayout
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = tableLayout,
             optionsMap = formats,
@@ -562,6 +588,12 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             sb.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
+        sb.imageItemCover.imageBookCover.setOnClickListener {
+            val coverBytes = sb.imageItemCover.imageBookCover.tag as? ByteArray ?: item?.ItemCover
+            if (coverBytes != null && coverBytes.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), coverBytes, item?.DiscTitle ?: "Season Cover")
+            }
+        }
         sb.imageItemCover.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("item")
         }
@@ -570,7 +602,12 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         }
 
         sb.saveItemBtn.setOnClickListener {
-            var volNum = sb.seasonInput.text.toString()
+            if(isView)
+            {
+                dialog.dismiss()
+                return@setOnClickListener
+            }
+            val volNum = sb.seasonInput.text.toString()
 
             if (volNum.isBlank()) {
                 sb.seasonLabel.error = "Volume number is required"
@@ -582,12 +619,31 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             dialog.dismiss()
         }
 
+        if (isView) {
+            sb.saveItemBtn.setText(R.string.close)
+            sb.ownedSwitch.isEnabled = false
+            sb.imageItemCover.buttonChangeCover.visibility = View.GONE
+            sb.imageItemCover.buttonClearCover.visibility = View.GONE
+            sb.titleInput.isEnabled = false
+            sb.watchedSwitch.isEnabled = false
+            sb.seasonInput.isEnabled = false
+            sb.seasonLabel.isEnabled = false
+            sb.seasonInput.isEnabled = false
+            sb.formatRadioGroup.dynamicTableLayout.children.forEach { child ->
+                if (child is ViewGroup) {
+                    child.children.forEach { subChild ->
+                        if (subChild is RadioButton) {
+                            subChild.isEnabled = false
+                        }
+                    }
+                }
+            }
+        }
+
         dialog.show()
     }
 
     private fun saveVideoItem(sb: VideoItemBottomSheetBinding, volNum: String, position: Int) {
-
-
         val newItem = VideoItem().apply {
             Season = volNum.toIntOrNull() ?: 0
             DiscTitle = sb.titleInput.text?.toString() ?: ""
@@ -623,17 +679,10 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
 
         override fun getItemCount() = items.size
 
-        inner class ViewHolder(val binding: BookItemVolumeBinding) : RecyclerView.ViewHolder(binding.root) {
+        inner class ViewHolder(val binding: BookItemVolumeBinding)
+            : RecyclerView.ViewHolder(binding.root) {
             fun bind(item: VideoItem, position: Int) {
                 val context = binding.root.context
-
-                itemView.setOnClickListener {
-                    val intent = Intent(context, VideoFormActivity::class.java).apply {
-                        putExtra("EXTRA_ID", item.Id)
-                        putExtra("EXTRA_IS_EDIT", true)
-                    }
-                    context.startActivity(intent)
-                }
 
                 if (item.Season != -1 && item.DiscTitle.isNullOrEmpty()) {
                     binding.textVolumeInfo.text = item.Season.toString()
@@ -660,12 +709,22 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                     binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.imageItemCover.setImageBitmap(bitmap)
                     binding.imageItemCover.imageTintList = null
+                    binding.imageItemCover.setOnClickListener {
+                        ImageUtils.showImagePreviewDialog(context, item.ItemCover, (item.DiscTitle ?: ("Season " + item.Season)))
+                    }
                 } else {
                     ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
                 }
-
                 binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
                 binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
+                if (isView) {
+                    binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_view)
+                    binding.buttonDeleteItem.visibility = View.GONE
+                } else {
+                    binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_edit)
+                    binding.buttonEditItem.visibility = View.VISIBLE
+                    binding.buttonDeleteItem.visibility = View.VISIBLE
+                }
             }
         }
     }

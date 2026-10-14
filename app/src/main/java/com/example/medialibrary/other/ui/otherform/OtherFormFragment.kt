@@ -7,7 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.Toast
+import androidx.core.view.children
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,10 +34,11 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 ) {
 
     companion object {
-        fun newInstance(id: String = "-1", isEdit: Boolean = false) = OtherFormFragment().apply {
+        fun newInstance(id: String = "-1", isEdit: Boolean = false, isView: Boolean = false) = OtherFormFragment().apply {
             arguments = Bundle().apply {
                 putString(ARG_ID, id)
                 putBoolean(ARG_IS_EDIT, isEdit)
+                putBoolean(ARG_IS_VIEW, isView)
             }
         }
     }
@@ -50,7 +53,7 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         val dbHelper = MediaLibraryDbHelper(requireContext())
         controller = OtherController(dbHelper)
 
-        if (isEdit && itemId != "-1") {
+        if ((isEdit || isView)  && itemId != "-1") {
             viewModel.loadOtherCollection(itemId, controller)
         }
 
@@ -64,11 +67,18 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 
         setupRecyclerView()
         setupInputListeners()
+        setupCollectingStatusRadioGroup()
         setupClickListeners()
         observeViewModel()
     }
 
     private fun setupClickListeners() {
+        binding.changeImage.imageBookCover.setOnClickListener {
+            val cover = viewModel.other.value?.Cover
+            if (cover != null && cover.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), cover, viewModel.other.value?.Title ?: "Collection Cover")
+            }
+        }
         binding.changeImage.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("other")
         }
@@ -78,8 +88,43 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         binding.buttonAddItem.setOnClickListener {
             showOtherItemSheet()
         }
-        binding.buttonSaveOther.setOnClickListener {
-            handleSaveAction()
+        if (isView) {
+            binding.buttonSaveOther.text = "Close"
+            binding.buttonSaveOther.setOnClickListener { activity?.finish() }
+        } else {
+            binding.buttonSaveOther.setOnClickListener {
+                handleSaveAction()
+            }
+        }
+    }
+
+    private fun setupCollectingStatusRadioGroup() {
+        binding.collectingStatusRadio.radioButtonLabel.setText(R.string.collecting_status)
+        val optionsMap = mapOf(
+            0 to "No Collecting",
+            1 to "Collecting",
+            2 to "Collected"
+        )
+        RadioGridUtils.populateRadioGridFromMap(
+            tableLayout = binding.collectingStatusRadio.dynamicTableLayout,
+            optionsMap = optionsMap,
+            columnCount = 3,
+            selectedId = 0
+        ) { selectedId ->
+            when (selectedId) {
+                0 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                1 -> {
+                    viewModel.toggleCollecting(true)
+                    viewModel.toggleCollectionComplete(false)
+                }
+                2 -> {
+                    viewModel.toggleCollecting(false)
+                    viewModel.toggleCollectionComplete(true)
+                }
+            }
         }
     }
 
@@ -117,10 +162,16 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         viewModel.items.observe(viewLifecycleOwner) { items ->
             itemAdapter.submitList(items.toList())
         }
+
+        if (isView) {
+            disableForm(false)
+        }
     }
 
     private fun handleSaveAction() {
+        disableForm(false)
         val error = viewModel.validateFields()
+
         if (error.isNotEmpty()) {
             if (error.containsKey("general")) {
                 Toast.makeText(requireContext(), error["general"], Toast.LENGTH_SHORT).show()
@@ -129,6 +180,7 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
                 binding.editOtherTitleLabel.error = error["title"]
                 Toast.makeText(requireContext(), error["title"], Toast.LENGTH_SHORT).show()
             }
+            disableForm(true)
         } else {
             val saveObj = viewModel.getSaveObject()
             controller?.let { ctrl ->
@@ -145,8 +197,10 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
                         if (isEdit) "Other Collection Updated" else "Other Collection Saved",
                         Toast.LENGTH_SHORT
                     ).show()
+                    disableForm(true)
                     activity?.finish()
                 } else {
+                    disableForm(true)
                     Toast.makeText(
                         requireContext(),
                         "Failed to Save Collection",
@@ -163,33 +217,34 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
     }
 
-    private fun setupCollectingStatusRadioGroup() {
-        binding.collectingStatusRadio.radioButtonLabel.setText(R.string.collecting_status)
-        val optionsMap = mapOf(
-            0 to "No Collecting",
-            1 to "Collecting",
-            2 to "Collected"
-        )
-        RadioGridUtils.populateRadioGridFromMap(
-            tableLayout = binding.collectingStatusRadio.dynamicTableLayout,
-            optionsMap = optionsMap,
-            columnCount = 3,
-            selectedId = 0
-        ) { selectedId ->
-            when (selectedId) {
-                0 -> {
-                    viewModel.toggleCollecting(false)
-                    viewModel.toggleCollectionComplete(false)
-                }
-                1 -> {
-                    viewModel.toggleCollecting(true)
-                    viewModel.toggleCollectionComplete(false)
-                }
-                2 -> {
-                    viewModel.toggleCollecting(false)
-                    viewModel.toggleCollectionComplete(true)
+
+    private fun disableForm(enabled: Boolean) {
+        binding.editOtherTitle.isEnabled = enabled
+        binding.collectingStatusRadio.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
                 }
             }
+        }
+        binding.collectingPriorityRadioGroup.dynamicTableLayout.children.forEach { child ->
+            if (child is ViewGroup) {
+                child.children.forEach { subChild ->
+                    if (subChild is RadioButton) {
+                        subChild.isEnabled = enabled
+                    }
+                }
+            }
+        }
+        binding.changeImage.buttonChangeCover.isEnabled = enabled
+        binding.changeImage.buttonClearCover.isEnabled = enabled
+        binding.tagAutocomplete.autoCompleteLabel.isEnabled = enabled
+        binding.tagAutocomplete.autocomplete.isEnabled = enabled
+        binding.buttonAddItem.isEnabled = enabled
+        if(!isView) {
+            binding.buttonSaveOther.isEnabled = enabled
         }
     }
 
@@ -270,6 +325,12 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
             sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
+        sheetBinding.imageItemCover.imageBookCover.setOnClickListener {
+            val coverBytes = sheetBinding.imageItemCover.imageBookCover.tag as? ByteArray ?: item?.ItemCover
+            if (coverBytes != null && coverBytes.isNotEmpty()) {
+                ImageUtils.showImagePreviewDialog(requireContext(), coverBytes, item?.Title ?: "Item Cover")
+            }
+        }
         sheetBinding.imageItemCover.buttonChangeCover.setOnClickListener {
             showImageOptionsDialog("item")
         }
@@ -278,6 +339,11 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         }
 
         sheetBinding.buttonSheetSave.setOnClickListener {
+            if(isView)
+            {
+                dialog.dismiss()
+                return@setOnClickListener
+            }
             val title = sheetBinding.editSheetVolumeTitle.text.toString()
             if (title.isBlank()) {
                 sheetBinding.editSheetVolumeTitleLabel.error = "Title is required"
@@ -293,6 +359,15 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
 
             viewModel.addOrUpdateItem(newItem, position)
             dialog.dismiss()
+        }
+
+        if(isView)
+        {
+            sheetBinding.editSheetVolumeTitle.isEnabled = false
+            sheetBinding.switchSheetOwned.isEnabled = false
+            sheetBinding.imageItemCover.buttonChangeCover.isEnabled = false;
+            sheetBinding.imageItemCover.buttonClearCover.isEnabled = false;
+            sheetBinding.buttonSheetSave.setText(R.string.close)
         }
 
         dialog.show()
@@ -337,10 +412,21 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
                     binding.imageItemCover.scaleType = ImageView.ScaleType.CENTER_CROP
                     binding.imageItemCover.setImageBitmap(bitmap)
                     binding.imageItemCover.imageTintList = null
+                    binding.imageItemCover.setOnClickListener {
+                        ImageUtils.showImagePreviewDialog(context, item.ItemCover, item.Title)
+                    }
                 } else {
                     ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
                 }
 
+                if (isView) {
+                    binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_view)
+                    binding.buttonDeleteItem.visibility = View.GONE
+                } else {
+                    binding.buttonEditItem.setImageResource(android.R.drawable.ic_menu_edit)
+                    binding.buttonEditItem.visibility = View.VISIBLE
+                    binding.buttonDeleteItem.visibility = View.VISIBLE
+                }
                 binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
                 binding.buttonDeleteItem.setOnClickListener { onDelete(position) }
             }

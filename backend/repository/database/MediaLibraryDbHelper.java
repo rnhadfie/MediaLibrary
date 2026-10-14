@@ -180,6 +180,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE IF NOT EXISTS " + TABLE_OTHER_ITEMS + " (" +
                 COLUMN_ID + " TEXT PRIMARY KEY, " +
                 COLUMN_SERIES + " INTEGER, " +
+                COLUMN_VOLUME_TITLE + " TEXT NOT NULL, " +
                 COLUMN_ITEM_COVER + " BLOB, " +
                 "FOREIGN KEY(" + COLUMN_SERIES + ") REFERENCES " + TABLE_OTHERS + "(" + COLUMN_ID + "))");
 
@@ -243,8 +244,13 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             }
             db.execSQL("INSERT INTO " + TABLE_VIDEO_ITEMS + " SELECT * FROM " + TABLE_VIDEO_ITEMS + "_TEMP ;");
             db.execSQL("INSERT INTO " + TABLE_OTHERS + " SELECT * FROM " + TABLE_OTHERS + "_TEMP ;");
-            db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " SELECT * FROM " + TABLE_OTHER_ITEMS + "_TEMP ;");
-
+            if(oldVersion <= 2) {
+                db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " (" + COLUMN_ID + ", " + COLUMN_SERIES + ", " + COLUMN_ITEM_COVER + ") " +
+                        "SELECT " + COLUMN_ID + ", " + COLUMN_ID + ", " + COLUMN_ITEM_COVER + " FROM " + TABLE_OTHER_ITEMS + "_TEMP;");
+            }
+            else {
+                db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " SELECT * FROM " + TABLE_OTHER_ITEMS + "_TEMP ;");
+            }
             // Drop temporary tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHER_ITEMS + "_TEMP ;");
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHERS + "_TEMP ;");

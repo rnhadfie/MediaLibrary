@@ -1,7 +1,6 @@
 package com.example.medialibrary.other
 
 import com.example.medialibrary.other.ui.utils.SortFilterViewmodel
-import models.shared.Filter
 import models.shared.SortModel
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull

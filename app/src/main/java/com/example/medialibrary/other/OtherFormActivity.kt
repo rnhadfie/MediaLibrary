@@ -22,11 +22,16 @@ class OtherFormActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             val otherId = intent.getStringExtra("EXTRA_ID") ?: "-1"
             val isEdit = intent.getBooleanExtra("EXTRA_IS_EDIT", false)
+            val isView = intent.getBooleanExtra("EXTRA_IS_VIEW", false)
 
-            supportActionBar?.title =  if(isEdit)  "Edit Collection" else "Add Collection"
+            supportActionBar?.title = when {
+                isView -> "View Collection"
+                isEdit -> "Edit Collection"
+                else -> "Add Collection"
+            }
 
             supportFragmentManager.beginTransaction()
-                .replace(R.id.main, OtherFormFragment.newInstance(otherId, isEdit))
+                .replace(R.id.main, OtherFormFragment.newInstance(otherId, isEdit = isEdit, isView = isView))
                 .commitNow()
         }
     }

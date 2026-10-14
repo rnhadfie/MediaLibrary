@@ -21,7 +21,6 @@ import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
-import com.example.medialibrary.utils.DualColumnCardHelper
 import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
