@@ -24,6 +24,7 @@ import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.utils.YearPickerHelper
 import com.example.medialibrary.video.VideoFormActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
@@ -401,11 +402,12 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
     private fun setupVideoRatingRadioGroup(setup: VideoSetup) {
         binding.videoRatingRadio.radioButtonLabel.text = "Rating"
         val tableLayout = binding.videoRatingRadio.dynamicTableLayout
-        val ratings = setup.Ratings.filter { it.key != VideoEnums.Rating.NotRated.ordinal }
+        val ratings = setup.Ratings
         RadioGridUtils.populateRadioGridFromMap(
             tableLayout = tableLayout,
             optionsMap = ratings,
-            columnCount = 5
+            columnCount = 3,
+            selectedId = 0
         ) { selectedId ->
             val rating = VideoEnums.Rating.entries.find { it.ordinal == selectedId } ?: VideoEnums.Rating.NotRated
             viewModel.updateRating(rating)
@@ -485,6 +487,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             if (existing == null) {
                 viewModel.updateTagName(text)
             } else {
+
                 viewModel.updateTag(existing)
             }
         }
@@ -521,8 +524,23 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             viewModel.updateTitle(s.toString())
             binding.titleLabel.error = ""
         }
-        binding.yearInput.doAfterTextChanged { s ->
-            viewModel.updateYear(s.toString().toIntOrNull() ?: 0)
+        binding.yearInput.setOnClickListener {
+            if (!isView) {
+                val currentYear = binding.yearInput.text.toString().toIntOrNull()
+                YearPickerHelper.showYearPickerDialog(requireContext(), currentYear, title = "Select Release Year") { year ->
+                    binding.yearInput.setText(year.toString())
+                    viewModel.updateYear(year)
+                }
+            }
+        }
+        binding.yearLabel.setEndIconOnClickListener {
+            if (!isView) {
+                val currentYear = binding.yearInput.text.toString().toIntOrNull()
+                YearPickerHelper.showYearPickerDialog(requireContext(), currentYear, title = "Select Release Year") { year ->
+                    binding.yearInput.setText(year.toString())
+                    viewModel.updateYear(year)
+                }
+            }
         }
 
         binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->

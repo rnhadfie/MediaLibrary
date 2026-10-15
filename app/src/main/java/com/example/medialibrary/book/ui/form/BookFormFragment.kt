@@ -21,6 +21,7 @@ import com.example.medialibrary.R
 import com.example.medialibrary.databinding.*
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.utils.YearPickerHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import controllers.BookController
@@ -564,8 +565,23 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.artistInput.doAfterTextChanged { s ->
             viewModel.updateArtist(s.toString())
         }
-        binding.yearInput.doAfterTextChanged { s ->
-            viewModel.updateYear(s.toString())
+        binding.yearInput.setOnClickListener {
+            if (!isView) {
+                val currentYear = binding.yearInput.text.toString().toIntOrNull()
+                YearPickerHelper.showYearPickerDialog(requireContext(), currentYear, title = "Select Book Year") { year ->
+                    binding.yearInput.setText(year.toString())
+                    viewModel.updateYear(year.toString())
+                }
+            }
+        }
+        binding.yearLabel.setEndIconOnClickListener {
+            if (!isView) {
+                val currentYear = binding.yearInput.text.toString().toIntOrNull()
+                YearPickerHelper.showYearPickerDialog(requireContext(), currentYear, title = "Select Book Year") { year ->
+                    binding.yearInput.setText(year.toString())
+                    viewModel.updateYear(year.toString())
+                }
+            }
         }
 
         binding.ongoingCheck.setOnCheckedChangeListener { _, isChecked ->

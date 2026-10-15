@@ -9,6 +9,7 @@ import com.example.medialibrary.utils.SortDialogHelper
 import com.example.medialibrary.utils.TriStateCheckBoxHelper
 import models.shared.Filter
 import models.shared.SortModel
+import models.video.Enums
 import models.video.Enums.VideoTag
 import models.video.Enums.VideoType
 import models.video.VideoFilter
@@ -71,6 +72,18 @@ class SharedUtils {
                     categoryOptions,
                     filter.IncludedVideoTags,
                     filter.ExcludedVideoTags
+                )
+            }
+
+            val ratingOptions = setup.Ratings.map { FilterOption(Enums.Rating.entries[it.key], it.value) }
+            sheetBinding.ratingFilterAutocomplete?.autoCompleteLabel?.setHint("Rating")
+            sheetBinding.ratingFilterAutocomplete?.autocomplete?.let {
+                MultiSelectFilterHelper.setupTriStateDropdown(
+                    it,
+                    "Ratings",
+                    ratingOptions,
+                    filter.IncludedRatings,
+                    filter.ExcludedRatings
                 )
             }
 

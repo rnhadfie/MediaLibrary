@@ -21,6 +21,7 @@ import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.databinding.MusicItemBottomSheetBinding
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.utils.YearPickerHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
 import models.music.Enums.MusicGenre
@@ -176,6 +177,22 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         sheetBinding.labelText.text = if (item == null) "Add Item" else "Edit Item"
         sheetBinding.editSheetMusicTitle.setText(item?.Title ?: "")
         sheetBinding.editSheetMusicYear.setText(item?.Year?.toString() ?: "")
+        sheetBinding.editSheetMusicYear.setOnClickListener {
+            if (!isView) {
+                val currentYear = sheetBinding.editSheetMusicYear.text.toString().toIntOrNull()
+                YearPickerHelper.showYearPickerDialog(requireContext(), currentYear, title = "Select CD Release Year") { year ->
+                    sheetBinding.editSheetMusicYear.setText(year.toString())
+                }
+            }
+        }
+        sheetBinding.editSheetMusicYearLabel.setEndIconOnClickListener {
+            if (!isView) {
+                val currentYear = sheetBinding.editSheetMusicYear.text.toString().toIntOrNull()
+                YearPickerHelper.showYearPickerDialog(requireContext(), currentYear, title = "Select CD Release Year") { year ->
+                    sheetBinding.editSheetMusicYear.setText(year.toString())
+                }
+            }
+        }
         sheetBinding.switchSheetCollecting.isChecked = item?.Collecting ?: false
         sheetBinding.switchSheetOwned.isChecked = item?.Owned ?: false
 
@@ -359,6 +376,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             {
                 fun bind(item: MusicItem, position: Int) {
                     val context = binding.root.context
+                    binding.textVolumeInfo.text = item.Title
                     val collectingStr = if (item.Collecting == true) "Collecting" else "Not Collecting"
                     val ownedStr = if (item.Owned == true) "Owned" else "Not Owned"
                     "Year: ${item.Year ?: 0} | Genre: ${item.MusicGenre?.name ?: "None"} | $collectingStr | $ownedStr".also { binding.textStatusInfo.text = it }

@@ -81,6 +81,9 @@
             <include layout="@layout/view_filter_autocomplete_dropdown"
                 android:id="@+id/video_type"/>
 
+            <include layout="@layout/view_filter_autocomplete_dropdown"
+                android:id="@+id/rating_filter_autocomplete"/>
+
 
             <include layout="@layout/view_filter_autocomplete_dropdown"
                 android:id="@+id/genre_select"

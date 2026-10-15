@@ -200,13 +200,28 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val ownedItems = items.filter { it.CurrentOwnAny }
 
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
+        val colors = BOOK_THEME_COLORS
         setBookTypeBarChart(ownedItems, setup, colors)
         setupGenreBarChart(ownedItems, setup)
         setPublisherBarChart(ownedItems, setup)
         setBookFormatPieChart(ownedItems)
         setDemographicsPieChart(ownedItems)
     }
+
+    private val BOOK_THEME_COLORS = listOf(
+        Color.parseColor("#6366F1"),
+        Color.parseColor("#8B5CF6"),
+        Color.parseColor("#EC4899"),
+        Color.parseColor("#10B981"),
+        Color.parseColor("#F59E0B"),
+        Color.parseColor("#3B82F6"),
+        Color.parseColor("#4338CA")
+    )
+
+    private val BOOK_READ_PROGRESS_COLORS = listOf(
+        Color.parseColor("#6366F1"),
+        Color.parseColor("#E0E7FF")
+    )
 
     private fun setReadPercentChart(readCount: Int, totalBook: Int) {
         val readPercent = if (totalBook > 0) ((readCount.toDouble() / totalBook.toDouble()) * 100).toInt() else 0
@@ -215,7 +230,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         readPercentPieEntries.add(PieEntry((100 - readPercent).toFloat()))
 
         val readPercentPieDataSet = PieDataSet(readPercentPieEntries, "Read Percent")
-        readPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+        readPercentPieDataSet.colors = BOOK_READ_PROGRESS_COLORS
 
         val readPercentPieData = PieData(readPercentPieDataSet)
         binding.readProgressChart.let { chart ->
@@ -280,9 +295,9 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
                 val legend = chart.legend
                 legend.isEnabled = true
-                legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
-                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
-                legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
+                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
+                legend.orientation = Legend.LegendOrientation.VERTICAL
                 legend.isDrawInsideEnabled = false
                 legend.form = Legend.LegendForm.SQUARE
 
@@ -411,7 +426,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.centerTextSize = 20f
             } else {
                 val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
-                formatPieDataSet.colors = ColorTemplate.COLORFUL_COLORS.toList()
+                formatPieDataSet.colors = BOOK_THEME_COLORS
 
                 val formatPieData = PieData(formatPieDataSet)
                 chart.data = formatPieData
@@ -481,7 +496,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.centerTextSize = 16f
             } else {
                 val demoPieDataSet = PieDataSet(demoPieEntries, "Demographics %")
-                demoPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+                demoPieDataSet.colors = BOOK_THEME_COLORS
 
                 val demoPieData = PieData(demoPieDataSet)
                 chart.data = demoPieData

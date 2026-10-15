@@ -24,6 +24,7 @@ import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.utils.TextCardHelper
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
+import models.video.Enums as VideoEnums
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -181,8 +182,23 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
     }
 
+    private val VIDEO_THEME_COLORS = listOf(
+        Color.parseColor("#0891B2"),
+        Color.parseColor("#F97316"),
+        Color.parseColor("#10B981"),
+        Color.parseColor("#6366F1"),
+        Color.parseColor("#F59E0B"),
+        Color.parseColor("#0284C7"),
+        Color.parseColor("#155E75")
+    )
+
+    private val VIDEO_WATCHED_PROGRESS_COLORS = listOf(
+        Color.parseColor("#0891B2"),
+        Color.parseColor("#CEF8FD")
+    )
+
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
-        val colors = ColorTemplate.MATERIAL_COLORS.toList()
+        val colors = VIDEO_THEME_COLORS
 
         var watchedCount = 0
         var totalDvds = 0
@@ -202,6 +218,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         setupFormatPieChart(ownedVideos)
         setVideoTypeBarChart(ownedVideos, setup, colors)
         setCategoryBarChart(ownedVideos, setup, colors)
+        setRatingBarChart(ownedVideos, setup, colors)
         setupGenreBarChart(ownedVideos, setup)
     }
 
@@ -213,7 +230,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         watchPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
         val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Watched Percent")
-        watchPercentPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+        watchPercentPieDataSet.colors = VIDEO_WATCHED_PROGRESS_COLORS
 
         val percentPieData = PieData(watchPercentPieDataSet)
 
@@ -278,7 +295,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                     chart.noDataTextColor = Color.BLACK
                     chart.noDataText = "No format data to display"
                 } else {
-                    formatPieDataSet.colors = ColorTemplate.JOYFUL_COLORS.toList()
+                    formatPieDataSet.colors = VIDEO_THEME_COLORS
                     val formatPieData = PieData(formatPieDataSet)
                     chart.data = formatPieData
                     chart.holeColor = Color.TRANSPARENT
@@ -306,6 +323,55 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 }
                 chart.invalidate()
             }
+        }
+    }
+
+    private fun setRatingBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
+        val dataSets = ArrayList<IBarDataSet<*>>()
+        val ratingsMap = setup.Ratings
+
+        var index = 1
+        ratingsMap.forEach { (key, value) ->
+            val ratingEnum = VideoEnums.Rating.entries.find { it.ordinal == key }
+            if (ratingEnum != null) {
+                val videos = items.filter { (it.Rating ?: VideoEnums.Rating.NotRated) == ratingEnum }
+                var count = 0
+                videos.forEach { video ->
+                    count += video.Items?.count { item -> item.Owned } ?: 1
+                }
+                if (count > 0) {
+                    val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
+                    set.color = colors[index % colors.size]
+                    dataSets.add(set)
+                    index++
+                }
+            }
+        }
+
+        val barData = BarData(dataSets)
+
+        binding.ratingChart.let { chart ->
+            chart.noDataText = "No rating data to display"
+
+            if (dataSets.isEmpty()) {
+                chart.data = null
+                chart.noDataTextColor = Color.BLACK
+            } else {
+                chart.data = barData
+                chart.description.isEnabled = false
+                chart.xAxis.isEnabled = false
+
+                val legend = chart.legend
+                legend.isEnabled = true
+                legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                legend.isDrawInsideEnabled = false
+                legend.form = Legend.LegendForm.SQUARE
+
+                chart.animateY(1000)
+            }
+            chart.invalidate()
         }
     }
 

@@ -7,6 +7,7 @@ import java.util.List;
 public class VideoFilter extends Filter {
     public Enums.VideoType Type;
     public Enums.VideoTag VideoTag;
+    public Enums.Rating Rating;
 
     public Boolean Watched;
     public Boolean Watching;
@@ -15,4 +16,7 @@ public class VideoFilter extends Filter {
 
     public List<Enums.VideoTag> IncludedVideoTags = new ArrayList<>();
     public List<Enums.VideoTag> ExcludedVideoTags = new ArrayList<>();
+
+    public List<Enums.Rating> IncludedRatings = new ArrayList<>();
+    public List<Enums.Rating> ExcludedRatings = new ArrayList<>();
 }
