@@ -62,7 +62,7 @@ public class XmlRepository extends BaseRepository implements IXmlRepository {
         db.beginTransaction();
         try {
             // Insert new data
-            if (container.Tags != null) {
+            if (container.Tags != null ) {
                 importResult.append("Importing Tags").append(System.lineSeparator());
                 var counts =  ImportTags(db, container);
                 importResult.append("Added: ").append(counts.get("Added")).append(System.lineSeparator());
