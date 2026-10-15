@@ -603,6 +603,10 @@ object XmlExportImport {
 
                             currentBook?.Year = text
                         }
+                        "Rating" -> {
+                            val text = parser.nextText()
+                            currentVideo?.Rating = VideoEnums.Rating.entries.find { it.name == text } ?: VideoEnums.Rating.NotRated
+                        }
                     }
                 }
                 XmlPullParser.END_TAG -> {
