@@ -90,11 +90,12 @@ public class VideoService {
 
     public Map<Integer, String> GetRatings() {
         Map<Integer, String> ratingMap = new HashMap<>();
-        ratingMap.put(Enums.Rating.G.ordinal(), "G");
-        ratingMap.put(Enums.Rating.PG.ordinal(), "PG");
-        ratingMap.put(Enums.Rating.PG13.ordinal(), "14A");
-        ratingMap.put(Enums.Rating.R.ordinal(), "18A");
-        ratingMap.put(Enums.Rating.NC17.ordinal(), "R");
+        ratingMap.put(Rating.NotRated.ordinal(), "No Rating");
+        ratingMap.put(Rating.G.ordinal(), "G");
+        ratingMap.put(Rating.PG.ordinal(), "PG");
+        ratingMap.put(Rating.PG13.ordinal(), "14A");
+        ratingMap.put(Rating.R.ordinal(), "18A");
+        ratingMap.put(Rating.NC17.ordinal(), "R");
         return ratingMap;
     }
 

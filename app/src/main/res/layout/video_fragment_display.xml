@@ -157,6 +157,12 @@
                 android:layout_height="300dp"
                 android:layout_marginTop="16dp" />
 
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/rating_chart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp" />
+
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/format_chart"
                 android:layout_width="match_parent"

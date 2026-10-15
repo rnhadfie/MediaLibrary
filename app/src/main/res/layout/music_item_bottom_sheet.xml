@@ -76,6 +76,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:hint="@string/year"
+                app:endIconMode="custom"
+                app:endIconDrawable="@android:drawable/ic_menu_today"
                 app:boxBackgroundColor="@color/card"
                 app:boxCornerRadiusBottomEnd="12dp"
                 app:boxCornerRadiusBottomStart="12dp"
@@ -86,7 +88,8 @@
                     android:id="@+id/edit_sheet_music_year"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
+                    android:focusable="false"
+                    android:clickable="true"
                     android:textColor="?attr/colorOnBackground" />
             </com.google.android.material.textfield.TextInputLayout>
 

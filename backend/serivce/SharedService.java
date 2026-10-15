@@ -552,6 +552,24 @@ public class SharedService {
                 }
             }
             appendNotInClause(conditions, selectionArgs, COLUMN_VIDEO_TAG, excVideoTags);
+
+            List<String> incRatings = new ArrayList<>();
+            if (vFilter.IncludedRatings != null && !vFilter.IncludedRatings.isEmpty()) {
+                for (var r : vFilter.IncludedRatings) {
+                    incRatings.add(String.valueOf(r.ordinal()));
+                }
+            } else if (vFilter.Rating != null) {
+                incRatings.add(String.valueOf(vFilter.Rating.ordinal()));
+            }
+            appendInClause(conditions, selectionArgs, COLUMN_RATING, incRatings);
+
+            List<String> excRatings = new ArrayList<>();
+            if (vFilter.ExcludedRatings != null && !vFilter.ExcludedRatings.isEmpty()) {
+                for (var r : vFilter.ExcludedRatings) {
+                    excRatings.add(String.valueOf(r.ordinal()));
+                }
+            }
+            appendNotInClause(conditions, selectionArgs, COLUMN_RATING, excRatings);
         }
 
         //endregion

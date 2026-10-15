@@ -31,7 +31,7 @@ public abstract class BaseRepository {
     public String AddNewTag(String tagId, String newTag, SQLiteDatabase db)
     {
         String primKey = UUID.randomUUID().toString();
-        if (newTag != null && !newTag.isEmpty()) {
+        if (newTag != null && !newTag.trim().isEmpty()) {
             ContentValues tagValues = new ContentValues();
             tagValues.put(COLUMN_ID, primKey);
             tagValues.put(COLUMN_NAME, newTag.trim());
