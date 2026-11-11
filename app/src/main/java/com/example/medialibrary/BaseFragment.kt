@@ -19,6 +19,7 @@ import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.ThemeUtils
 import models.shared.DisplayMediaItem
 import models.shared.MediaItem
 
@@ -88,10 +89,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         emptyStateContainer: ViewEmptyStateBinding,
         adapter: ListAdapter<DisplayMediaItem, *>
     ) {
-        if (color != -1) {
-            emptyStateContainer.emptyStateText.setTextColor(color)
-            emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
-        }
+        val effectiveColor = if (color != -1) color else ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary)
+        emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
+        emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView?.visibility = View.GONE
@@ -115,10 +115,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         color: Int,
         emptyStateContainer: ViewEmptyStateBinding
     ) {
-        if (color != -1) {
-            emptyStateContainer.emptyStateText.setTextColor(color)
-            emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
-        }
+        val effectiveColor = if (color != -1) color else ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary)
+        emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
+        emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView.visibility = View.GONE
@@ -141,11 +140,9 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         emptyStateLayout: LinearLayout? = null,
         emptyTextResId: Int = R.string.no_items_found
     ) {
-
-        if (color != -1) {
-            emptyStateContainer.emptyStateText.setTextColor(color)
-            emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(color)
-        }
+        val effectiveColor = if (color != -1) color else ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary)
+        emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
+        emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
         if (emptyTextResId != -1) {
             emptyStateContainer.emptyStateText.setText(emptyTextResId)
         }

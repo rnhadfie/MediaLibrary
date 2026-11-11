@@ -42,4 +42,130 @@
     <color name="section_video_dark">#155E75</color>
     <color name="section_music_dark">#065F46</color>
     <color name="section_other_dark">#92400E</color>
+
+    <!-- Sakura Theme (Cherry Blossom Pink) -->
+    <color name="sakura_primary">#EC4899</color>
+    <color name="sakura_primary_dark">#BE185D</color>
+    <color name="sakura_secondary">#FBCFE8</color>
+    <color name="sakura_base">#FDF2F8</color>
+    <color name="sakura_book">#8B5CF6</color>
+    <color name="sakura_book_dark">#6D28D9</color>
+    <color name="sakura_book_light">#EDE9FE</color>
+    <color name="sakura_video">#E11D48</color>
+    <color name="sakura_video_dark">#BE123C</color>
+    <color name="sakura_video_light">#FFE4E6</color>
+    <color name="sakura_music">#0D9488</color>
+    <color name="sakura_music_dark">#0F766E</color>
+    <color name="sakura_music_light">#CCFBF1</color>
+    <color name="sakura_other">#F97316</color>
+    <color name="sakura_other_dark">#C2410C</color>
+    <color name="sakura_other_light">#FFEDD5</color>
+
+    <!-- Ocean Theme (Deep Sea Cyan/Blue) -->
+    <color name="ocean_primary">#0284C7</color>
+    <color name="ocean_primary_dark">#075985</color>
+    <color name="ocean_secondary">#38BDF8</color>
+    <color name="ocean_base">#F0F9FF</color>
+    <color name="ocean_book">#4F46E5</color>
+    <color name="ocean_book_dark">#3730A3</color>
+    <color name="ocean_book_light">#E0E7FF</color>
+    <color name="ocean_video">#0284C7</color>
+    <color name="ocean_video_dark">#0369A1</color>
+    <color name="ocean_video_light">#E0F2FE</color>
+    <color name="ocean_music">#059669</color>
+    <color name="ocean_music_dark">#047857</color>
+    <color name="ocean_music_light">#D1FAE5</color>
+    <color name="ocean_other">#EA580C</color>
+    <color name="ocean_other_dark">#C2410C</color>
+    <color name="ocean_other_light">#FFEDD5</color>
+
+    <!-- High Contrast Theme (Black & Yellow) -->
+    <color name="highcontrast_primary">#000000</color>
+    <color name="highcontrast_primary_dark">#000000</color>
+    <color name="highcontrast_secondary">#FFD700</color>
+    <color name="highcontrast_base">#FFFFFF</color>
+    <color name="highcontrast_book">#1E1B4B</color>
+    <color name="highcontrast_book_dark">#0F172A</color>
+    <color name="highcontrast_book_light">#FEF08A</color>
+    <color name="highcontrast_video">#134E4A</color>
+    <color name="highcontrast_video_dark">#042F2E</color>
+    <color name="highcontrast_video_light">#FEF08A</color>
+    <color name="highcontrast_music">#14532D</color>
+    <color name="highcontrast_music_dark">#052E16</color>
+    <color name="highcontrast_music_light">#FEF08A</color>
+    <color name="highcontrast_other">#78350F</color>
+    <color name="highcontrast_other_dark">#451A03</color>
+    <color name="highcontrast_other_light">#FEF08A</color>
+
+    <!-- Autumn Theme (Warm Fall Orange) -->
+    <color name="autumn_primary">#EA580C</color>
+    <color name="autumn_primary_dark">#C2410C</color>
+    <color name="autumn_secondary">#F59E0B</color>
+    <color name="autumn_base">#FFF7ED</color>
+    <color name="autumn_book">#9A3412</color>
+    <color name="autumn_book_dark">#7C2D12</color>
+    <color name="autumn_book_light">#FFEDD5</color>
+    <color name="autumn_video">#D97706</color>
+    <color name="autumn_video_dark">#B45309</color>
+    <color name="autumn_video_light">#FEF3C7</color>
+    <color name="autumn_music">#15803D</color>
+    <color name="autumn_music_dark">#166534</color>
+    <color name="autumn_music_light">#DCFCE7</color>
+    <color name="autumn_other">#B45309</color>
+    <color name="autumn_other_dark">#78350F</color>
+    <color name="autumn_other_light">#FEF3C7</color>
+
+    <!-- Matcha Theme (Earthy Green & Tea) -->
+    <color name="matcha_primary">#4A7C59</color>
+    <color name="matcha_primary_dark">#365B40</color>
+    <color name="matcha_secondary">#C8D6AF</color>
+    <color name="matcha_base">#F3F6F1</color>
+    <color name="matcha_book">#5A8B66</color>
+    <color name="matcha_book_dark">#406448</color>
+    <color name="matcha_book_light">#E2EBE0</color>
+    <color name="matcha_video">#3B7A87</color>
+    <color name="matcha_video_dark">#2A5862</color>
+    <color name="matcha_video_light">#DCEBEF</color>
+    <color name="matcha_music">#7E9F41</color>
+    <color name="matcha_music_dark">#5B752B</color>
+    <color name="matcha_music_light">#EDF4DF</color>
+    <color name="matcha_other">#C08240</color>
+    <color name="matcha_other_dark">#8C5C29</color>
+    <color name="matcha_other_light">#F8EDE2</color>
+
+    <!-- Tropical Theme (Vibrant Turquoise & Paradise) -->
+    <color name="tropical_primary">#00A896</color>
+    <color name="tropical_primary_dark">#028090</color>
+    <color name="tropical_secondary">#FF6F59</color>
+    <color name="tropical_base">#F0FDF4</color>
+    <color name="tropical_book">#6C5CE7</color>
+    <color name="tropical_book_dark">#4834D4</color>
+    <color name="tropical_book_light">#EAE6FF</color>
+    <color name="tropical_video">#00A896</color>
+    <color name="tropical_video_dark">#028090</color>
+    <color name="tropical_video_light">#E0F7F5</color>
+    <color name="tropical_music">#10B981</color>
+    <color name="tropical_music_dark">#047857</color>
+    <color name="tropical_music_light">#D1FAE5</color>
+    <color name="tropical_other">#F59E0B</color>
+    <color name="tropical_other_dark">#D97706</color>
+    <color name="tropical_other_light">#FEF3C7</color>
+
+    <!-- Winter Theme (Ice Blue & Frost Navy) -->
+    <color name="winter_primary">#2563EB</color>
+    <color name="winter_primary_dark">#1D4ED8</color>
+    <color name="winter_secondary">#93C5FD</color>
+    <color name="winter_base">#F0F9FF</color>
+    <color name="winter_book">#4338CA</color>
+    <color name="winter_book_dark">#312E81</color>
+    <color name="winter_book_light">#E0E7FF</color>
+    <color name="winter_video">#0284C7</color>
+    <color name="winter_video_dark">#0369A1</color>
+    <color name="winter_video_light">#E0F2FE</color>
+    <color name="winter_music">#0D9488</color>
+    <color name="winter_music_dark">#0F766E</color>
+    <color name="winter_music_light">#CCFBF1</color>
+    <color name="winter_other">#475569</color>
+    <color name="winter_other_dark">#334155</color>
+    <color name="winter_other_light">#F1F5F9</color>
 </resources>

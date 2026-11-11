@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
+import com.example.medialibrary.utils.ThemeUtils
 import com.example.medialibrary.video.ui.form.VideoFormFragment
 
 class VideoFormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtils.applyTheme(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.video_activity_form)

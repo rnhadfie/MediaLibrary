@@ -1,10 +1,9 @@
 package com.example.medialibrary.utils
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
-import androidx.core.content.ContextCompat
-import com.example.medialibrary.R
 import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
 import com.example.medialibrary.databinding.ViewTextCardDisplayBinding
@@ -26,29 +25,17 @@ object TextCardHelper {
     {
         val layout = binding.textColumn
 
-        when(mediaType)
-        {
-            Enums.MediaType.Book -> {
-                binding.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.section_book_light))
-            }
-            Enums.MediaType.Music -> {
-                binding.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.section_music_light))
-            }
-            Enums.MediaType.Video -> {
-                binding.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.section_video_light))
-            }
-
-            Enums.MediaType.Other -> {
-                binding.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.section_other_light))
-            }
-            else -> {}
-        }
+        val cardBgColor = ThemeUtils.getThemeColor(context, com.google.android.material.R.attr.colorSecondary)
+        binding.cardView.setCardBackgroundColor(cardBgColor)
 
         if(valueMap.isEmpty())
         {
             layout.visibility = View.GONE
             emptyState.root.visibility = View.VISIBLE
             emptyState.emptyStateText.setText(emptyStateText)
+            val themePrimary = ThemeUtils.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
+            emptyState.emptyStateText.setTextColor(themePrimary)
+            emptyState.emptyStateIcon.imageTintList = ColorStateList.valueOf(themePrimary)
         }
         else {
 

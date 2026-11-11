@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +18,8 @@ import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.utils.ThemeUtils.getActivityColour
 import com.example.medialibrary.video.VideoActivity
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -60,26 +61,34 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
         setupEmptyStateObserver(
             viewModel.mediaItems,
             binding.scrollViewAllGraphs,
-            ContextCompat.getColor(requireContext(), R.color.primary),
+            ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary),
             binding.emptyStateContainer,
         )
 
-        binding.buttonBook.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_book))
+        binding.buttonBook.setBackgroundColor(
+            getActivityColour(requireContext(), BookActivity::class.java.simpleName)
+        )
         binding.buttonBook.setOnClickListener {
             startActivity(Intent(requireContext(), BookActivity::class.java))
         }
 
-        binding.buttonVideo.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_video))
+        binding.buttonVideo.setBackgroundColor(
+            getActivityColour(requireContext(), VideoActivity::class.java.simpleName)
+        )
         binding.buttonVideo.setOnClickListener {
             startActivity(Intent(requireContext(), VideoActivity::class.java))
         }
 
-        binding.buttonMusic.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_music))
+        binding.buttonMusic.setBackgroundColor(
+            getActivityColour(requireContext(), MusicActivity::class.java.simpleName)
+        )
         binding.buttonMusic.setOnClickListener {
             startActivity(Intent(requireContext(), MusicActivity::class.java))
         }
 
-        binding.buttonOther.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.section_other))
+        binding.buttonOther.setBackgroundColor(
+            getActivityColour(requireContext(), OtherActivity::class.java.simpleName)
+        )
         binding.buttonOther.setOnClickListener {
             startActivity(Intent(requireContext(), OtherActivity::class.java))
         }
@@ -137,10 +146,10 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
 
         val dataSets = ArrayList<IBarDataSet<*>>()
         val colors = listOf(
-            ContextCompat.getColor(requireContext(), R.color.section_book),
-            ContextCompat.getColor(requireContext(), R.color.section_video),
-            ContextCompat.getColor(requireContext(), R.color.section_music),
-            ContextCompat.getColor(requireContext(), R.color.section_other)
+            getActivityColour(requireContext(), "BookActivity"),
+            getActivityColour(requireContext(), "VideoActivity"),
+            getActivityColour(requireContext(), "MusicActivity"),
+            getActivityColour(requireContext(), "OtherActivity")
         )
 
         val categories = listOf(

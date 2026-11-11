@@ -7,10 +7,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.music.ui.form.MusicFormFragment
+import com.example.medialibrary.utils.ThemeUtils
 
 class MusicFormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtils.applyTheme(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.music_activity_form)

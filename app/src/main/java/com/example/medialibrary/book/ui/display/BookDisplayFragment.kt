@@ -25,6 +25,7 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.utils.TextCardHelper
+import com.example.medialibrary.utils.ThemeUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -200,7 +201,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val ownedItems = items.filter { it.CurrentOwnAny }
 
-        val colors = BOOK_THEME_COLORS
+        val colors = getThemeChartColors()
         setBookTypeBarChart(ownedItems, setup, colors)
         setupGenreBarChart(ownedItems, setup)
         setPublisherBarChart(ownedItems, setup)
@@ -208,20 +209,27 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         setDemographicsPieChart(ownedItems)
     }
 
-    private val BOOK_THEME_COLORS = listOf(
-        Color.parseColor("#6366F1"),
-        Color.parseColor("#8B5CF6"),
-        Color.parseColor("#EC4899"),
-        Color.parseColor("#10B981"),
-        Color.parseColor("#F59E0B"),
-        Color.parseColor("#3B82F6"),
-        Color.parseColor("#4338CA")
-    )
+    private fun getThemeChartColors(): List<Int> {
+        val ctx = context ?: return listOf(Color.BLUE)
+        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        val primaryDark = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimaryDark)
+        return listOf(
+            primary,
+            secondary,
+            primaryDark,
+            ThemeUtils.adjustAlpha(primary, 0.7f),
+            ThemeUtils.adjustAlpha(secondary, 0.8f),
+            ThemeUtils.adjustAlpha(primaryDark, 0.6f)
+        )
+    }
 
-    private val BOOK_READ_PROGRESS_COLORS = listOf(
-        Color.parseColor("#6366F1"),
-        Color.parseColor("#E0E7FF")
-    )
+    private fun getProgressChartColors(): List<Int> {
+        val ctx = context ?: return listOf(Color.BLUE, Color.LTGRAY)
+        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        return listOf(primary, secondary)
+    }
 
     private fun setReadPercentChart(readCount: Int, totalBook: Int) {
         val readPercent = if (totalBook > 0) ((readCount.toDouble() / totalBook.toDouble()) * 100).toInt() else 0
@@ -230,7 +238,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         readPercentPieEntries.add(PieEntry((100 - readPercent).toFloat()))
 
         val readPercentPieDataSet = PieDataSet(readPercentPieEntries, "Read Percent")
-        readPercentPieDataSet.colors = BOOK_READ_PROGRESS_COLORS
+        readPercentPieDataSet.colors = getProgressChartColors()
 
         val readPercentPieData = PieData(readPercentPieDataSet)
         binding.readProgressChart.let { chart ->
@@ -426,7 +434,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.centerTextSize = 20f
             } else {
                 val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
-                formatPieDataSet.colors = BOOK_THEME_COLORS
+                formatPieDataSet.colors = getThemeChartColors()
 
                 val formatPieData = PieData(formatPieDataSet)
                 chart.data = formatPieData
@@ -496,7 +504,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.centerTextSize = 16f
             } else {
                 val demoPieDataSet = PieDataSet(demoPieEntries, "Demographics %")
-                demoPieDataSet.colors = BOOK_THEME_COLORS
+                demoPieDataSet.colors = getThemeChartColors()
 
                 val demoPieData = PieData(demoPieDataSet)
                 chart.data = demoPieData

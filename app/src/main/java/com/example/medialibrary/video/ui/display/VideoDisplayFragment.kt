@@ -22,6 +22,7 @@ import com.example.medialibrary.utils.FilterSummaryHelper
 import com.example.medialibrary.utils.FragmentType
 import com.example.medialibrary.utils.SafePieChartRenderer
 import com.example.medialibrary.utils.TextCardHelper
+import com.example.medialibrary.utils.ThemeUtils
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import models.video.Enums as VideoEnums
@@ -182,23 +183,30 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         }
     }
 
-    private val VIDEO_THEME_COLORS = listOf(
-        Color.parseColor("#0891B2"),
-        Color.parseColor("#F97316"),
-        Color.parseColor("#10B981"),
-        Color.parseColor("#6366F1"),
-        Color.parseColor("#F59E0B"),
-        Color.parseColor("#0284C7"),
-        Color.parseColor("#155E75")
-    )
+    private fun getThemeChartColors(): List<Int> {
+        val ctx = context ?: return listOf(Color.BLUE)
+        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        val primaryDark = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimaryDark)
+        return listOf(
+            primary,
+            secondary,
+            primaryDark,
+            ThemeUtils.adjustAlpha(primary, 0.7f),
+            ThemeUtils.adjustAlpha(secondary, 0.8f),
+            ThemeUtils.adjustAlpha(primaryDark, 0.6f)
+        )
+    }
 
-    private val VIDEO_WATCHED_PROGRESS_COLORS = listOf(
-        Color.parseColor("#0891B2"),
-        Color.parseColor("#CEF8FD")
-    )
+    private fun getProgressChartColors(): List<Int> {
+        val ctx = context ?: return listOf(Color.BLUE, Color.LTGRAY)
+        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        return listOf(primary, secondary)
+    }
 
     private fun setupCharts(items: List<Video>, setup: VideoSetup) {
-        val colors = VIDEO_THEME_COLORS
+        val colors = getThemeChartColors()
 
         var watchedCount = 0
         var totalDvds = 0
@@ -230,7 +238,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         watchPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
         val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Watched Percent")
-        watchPercentPieDataSet.colors = VIDEO_WATCHED_PROGRESS_COLORS
+        watchPercentPieDataSet.colors = getProgressChartColors()
 
         val percentPieData = PieData(watchPercentPieDataSet)
 
@@ -295,7 +303,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                     chart.noDataTextColor = Color.BLACK
                     chart.noDataText = "No format data to display"
                 } else {
-                    formatPieDataSet.colors = VIDEO_THEME_COLORS
+                    formatPieDataSet.colors = getThemeChartColors()
                     val formatPieData = PieData(formatPieDataSet)
                     chart.data = formatPieData
                     chart.holeColor = Color.TRANSPARENT
