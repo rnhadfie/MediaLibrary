@@ -361,7 +361,9 @@ object XmlExportImport {
                         "Tag" -> {
                             val id = parser.getAttributeValue("", "id") ?: ""
                             val name = parser.getAttributeValue("", "name") ?: ""
-                            container.Tags.add(Tag(id, name))
+                            if(name.isNotBlank()) {
+                                container.Tags.add(Tag(id, name))
+                            }
                         }
                         "Publisher" -> {
                             val id = parser.getAttributeValue("", "id") ?: ""

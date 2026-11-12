@@ -3,6 +3,7 @@ package com.example.medialibrary
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +17,7 @@ import com.example.medialibrary.home.MainActivity
 import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
 import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.utils.ThemeUtils
 import com.example.medialibrary.utils.XmlExportImport
 import com.example.medialibrary.video.VideoActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -28,6 +30,9 @@ import repository.database.MediaLibraryDbHelper
 import java.io.IOException
 import java.io.OutputStream
 
+import android.content.res.ColorStateList
+import android.graphics.drawable.GradientDrawable
+
 open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     private var _binding: VB? = null
@@ -36,6 +41,11 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         set(value) {
             _binding = value
         }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtils.applyTheme(this)
+        super.onCreate(savedInstanceState)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -52,6 +62,39 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
     }
 
     protected fun setupDrawer(navView: NavigationView) {
+        val primaryColor = ThemeUtils.getThemeColor(this, androidx.appcompat.R.attr.colorPrimary)
+        val primaryDarkColor = ThemeUtils.getThemeColor(this, androidx.appcompat.R.attr.colorPrimaryDark)
+        val surfaceColor = ThemeUtils.getThemeColor(this, com.google.android.material.R.attr.colorSurface)
+        val secondaryColor = ThemeUtils.getThemeColor(this, com.google.android.material.R.attr.colorSecondary)
+        val onSurfaceColor = ThemeUtils.getThemeColor(this, com.google.android.material.R.attr.colorOnSurface)
+
+        val headerGradient = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            intArrayOf(primaryColor, primaryDarkColor)
+        )
+        if (navView.headerCount > 0) {
+            val headerView = navView.getHeaderView(0)
+            headerView.background = headerGradient
+        }
+
+        navView.setBackgroundColor(surfaceColor)
+
+        val stateList = ColorStateList(
+            arrayOf(
+                intArrayOf(android.R.attr.state_checked),
+                intArrayOf(-android.R.attr.state_checked)
+            ),
+            intArrayOf(primaryColor, onSurfaceColor)
+        )
+        navView.itemIconTintList = stateList
+        navView.itemTextColor = stateList
+
+        val itemBgDrawable = GradientDrawable().apply {
+            setColor(secondaryColor)
+            cornerRadius = 16f
+        }
+        navView.itemBackground = itemBgDrawable
+
         navView.setNavigationItemSelectedListener { item ->
             val handled = onOptionsItemSelected(item)
             if (handled) {
@@ -92,6 +135,10 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
                 showResetAppConfirmationDialog()
                 return true
             }
+            R.id.nav_settings -> {
+                showThemeSelectionDialog()
+                return true
+            }
             R.id.nav_home -> {
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
@@ -119,6 +166,47 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    protected fun showThemeSelectionDialog() {
+        val currentTheme = ThemeUtils.getSelectedTheme(this)
+        val themeKeys = arrayOf(
+            ThemeUtils.THEME_DEFAULT,
+            ThemeUtils.THEME_SAKURA,
+            ThemeUtils.THEME_OCEAN,
+            ThemeUtils.THEME_HIGH_CONTRAST,
+            ThemeUtils.THEME_AUTUMN,
+            ThemeUtils.THEME_MATCHA,
+            ThemeUtils.THEME_TROPICAL,
+            ThemeUtils.THEME_WINTER
+        )
+        val themeNames = arrayOf(
+            "Default (Classic Blue & Amber)",
+            "Sakura (Cherry Blossom Pink)",
+            "Ocean (Deep Sea Cyan)",
+            "High Contrast (Black & Yellow)",
+            "Autumn (Warm Orange & Rust)",
+            "Matcha (Earthy Green & Tea)",
+            "Tropical (Vibrant Turquoise & Paradise)",
+            "Winter (Ice Blue & Frost Navy)"
+        )
+        var selectedIndex = themeKeys.indexOf(currentTheme).coerceAtLeast(0)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle("Select Theme")
+            .setSingleChoiceItems(themeNames, selectedIndex) { _, which ->
+                selectedIndex = which
+            }
+            .setPositiveButton("Apply") { dialog, _ ->
+                val newTheme = themeKeys[selectedIndex]
+                if (newTheme != currentTheme) {
+                    ThemeUtils.setSelectedTheme(this, newTheme)
+                    recreate()
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     private fun showResetAppConfirmationDialog() {

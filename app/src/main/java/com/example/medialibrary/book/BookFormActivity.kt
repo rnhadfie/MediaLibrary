@@ -7,10 +7,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.book.ui.form.BookFormFragment
+import com.example.medialibrary.utils.ThemeUtils
 
 class BookFormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtils.applyTheme(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.book_activity_form)

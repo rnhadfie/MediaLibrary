@@ -7,10 +7,12 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.other.ui.otherform.OtherFormFragment
+import com.example.medialibrary.utils.ThemeUtils
 
 class OtherFormActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ThemeUtils.applyTheme(this)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.other_activity_form)

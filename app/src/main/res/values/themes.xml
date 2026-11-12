@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="Theme.MediaLibrary" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.MediaLibrary" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary2</item>
@@ -47,7 +47,7 @@
         <item name="cardBackgroundColor">@color/white</item>
     </style>
 
-    <style name="Theme.MediaLibrary.BottomSheetDialog" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
+    <style name="Theme.MediaLibrary.BottomSheetDialog" parent="Theme.MaterialComponents.Light.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/Theme.MediaLibrary.BottomSheetStyle</item>
     </style>
 
@@ -119,6 +119,342 @@
         <item name="colorSecondary">@color/section_other_light</item>
     </style>
     <style name="Theme.MediaLibrary.Other.NoActionBar" parent="Theme.MediaLibrary.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Sakura Theme -->
+    <style name="Theme.MediaLibrary.Sakura" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/sakura_primary</item>
+        <item name="colorPrimaryVariant">@color/sakura_primary_dark</item>
+        <item name="colorSecondary">@color/sakura_secondary</item>
+        <item name="android:windowBackground">@color/sakura_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.NoActionBar" parent="Theme.MediaLibrary.Sakura">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Book" parent="Theme.MediaLibrary.Sakura">
+        <item name="colorPrimary">@color/sakura_book</item>
+        <item name="colorPrimaryVariant">@color/sakura_book_dark</item>
+        <item name="colorSecondary">@color/sakura_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Book.NoActionBar" parent="Theme.MediaLibrary.Sakura.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Video" parent="Theme.MediaLibrary.Sakura">
+        <item name="colorPrimary">@color/sakura_video</item>
+        <item name="colorPrimaryVariant">@color/sakura_video_dark</item>
+        <item name="colorSecondary">@color/sakura_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Video.NoActionBar" parent="Theme.MediaLibrary.Sakura.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Music" parent="Theme.MediaLibrary.Sakura">
+        <item name="colorPrimary">@color/sakura_music</item>
+        <item name="colorPrimaryVariant">@color/sakura_music_dark</item>
+        <item name="colorSecondary">@color/sakura_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Music.NoActionBar" parent="Theme.MediaLibrary.Sakura.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Other" parent="Theme.MediaLibrary.Sakura">
+        <item name="colorPrimary">@color/sakura_other</item>
+        <item name="colorPrimaryVariant">@color/sakura_other_dark</item>
+        <item name="colorSecondary">@color/sakura_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Sakura.Other.NoActionBar" parent="Theme.MediaLibrary.Sakura.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Ocean Theme -->
+    <style name="Theme.MediaLibrary.Ocean" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/ocean_primary</item>
+        <item name="colorPrimaryVariant">@color/ocean_primary_dark</item>
+        <item name="colorSecondary">@color/ocean_secondary</item>
+        <item name="android:windowBackground">@color/ocean_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.NoActionBar" parent="Theme.MediaLibrary.Ocean">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Book" parent="Theme.MediaLibrary.Ocean">
+        <item name="colorPrimary">@color/ocean_book</item>
+        <item name="colorPrimaryVariant">@color/ocean_book_dark</item>
+        <item name="colorSecondary">@color/ocean_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Book.NoActionBar" parent="Theme.MediaLibrary.Ocean.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Video" parent="Theme.MediaLibrary.Ocean">
+        <item name="colorPrimary">@color/ocean_video</item>
+        <item name="colorPrimaryVariant">@color/ocean_video_dark</item>
+        <item name="colorSecondary">@color/ocean_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Video.NoActionBar" parent="Theme.MediaLibrary.Ocean.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Music" parent="Theme.MediaLibrary.Ocean">
+        <item name="colorPrimary">@color/ocean_music</item>
+        <item name="colorPrimaryVariant">@color/ocean_music_dark</item>
+        <item name="colorSecondary">@color/ocean_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Music.NoActionBar" parent="Theme.MediaLibrary.Ocean.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Other" parent="Theme.MediaLibrary.Ocean">
+        <item name="colorPrimary">@color/ocean_other</item>
+        <item name="colorPrimaryVariant">@color/ocean_other_dark</item>
+        <item name="colorSecondary">@color/ocean_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Ocean.Other.NoActionBar" parent="Theme.MediaLibrary.Ocean.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- High Contrast Theme -->
+    <style name="Theme.MediaLibrary.HighContrast" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/highcontrast_primary</item>
+        <item name="colorPrimaryVariant">@color/highcontrast_primary_dark</item>
+        <item name="colorSecondary">@color/highcontrast_secondary</item>
+        <item name="android:windowBackground">@color/highcontrast_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.NoActionBar" parent="Theme.MediaLibrary.HighContrast">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Book" parent="Theme.MediaLibrary.HighContrast">
+        <item name="colorPrimary">@color/highcontrast_book</item>
+        <item name="colorPrimaryVariant">@color/highcontrast_book_dark</item>
+        <item name="colorSecondary">@color/highcontrast_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Book.NoActionBar" parent="Theme.MediaLibrary.HighContrast.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Video" parent="Theme.MediaLibrary.HighContrast">
+        <item name="colorPrimary">@color/highcontrast_video</item>
+        <item name="colorPrimaryVariant">@color/highcontrast_video_dark</item>
+        <item name="colorSecondary">@color/highcontrast_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Video.NoActionBar" parent="Theme.MediaLibrary.HighContrast.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Music" parent="Theme.MediaLibrary.HighContrast">
+        <item name="colorPrimary">@color/highcontrast_music</item>
+        <item name="colorPrimaryVariant">@color/highcontrast_music_dark</item>
+        <item name="colorSecondary">@color/highcontrast_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Music.NoActionBar" parent="Theme.MediaLibrary.HighContrast.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Other" parent="Theme.MediaLibrary.HighContrast">
+        <item name="colorPrimary">@color/highcontrast_other</item>
+        <item name="colorPrimaryVariant">@color/highcontrast_other_dark</item>
+        <item name="colorSecondary">@color/highcontrast_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.HighContrast.Other.NoActionBar" parent="Theme.MediaLibrary.HighContrast.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Autumn Theme -->
+    <style name="Theme.MediaLibrary.Autumn" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/autumn_primary</item>
+        <item name="colorPrimaryVariant">@color/autumn_primary_dark</item>
+        <item name="colorSecondary">@color/autumn_secondary</item>
+        <item name="android:windowBackground">@color/autumn_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.NoActionBar" parent="Theme.MediaLibrary.Autumn">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Book" parent="Theme.MediaLibrary.Autumn">
+        <item name="colorPrimary">@color/autumn_book</item>
+        <item name="colorPrimaryVariant">@color/autumn_book_dark</item>
+        <item name="colorSecondary">@color/autumn_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Book.NoActionBar" parent="Theme.MediaLibrary.Autumn.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Video" parent="Theme.MediaLibrary.Autumn">
+        <item name="colorPrimary">@color/autumn_video</item>
+        <item name="colorPrimaryVariant">@color/autumn_video_dark</item>
+        <item name="colorSecondary">@color/autumn_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Video.NoActionBar" parent="Theme.MediaLibrary.Autumn.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Music" parent="Theme.MediaLibrary.Autumn">
+        <item name="colorPrimary">@color/autumn_music</item>
+        <item name="colorPrimaryVariant">@color/autumn_music_dark</item>
+        <item name="colorSecondary">@color/autumn_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Music.NoActionBar" parent="Theme.MediaLibrary.Autumn.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Other" parent="Theme.MediaLibrary.Autumn">
+        <item name="colorPrimary">@color/autumn_other</item>
+        <item name="colorPrimaryVariant">@color/autumn_other_dark</item>
+        <item name="colorSecondary">@color/autumn_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Autumn.Other.NoActionBar" parent="Theme.MediaLibrary.Autumn.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Matcha Theme -->
+    <style name="Theme.MediaLibrary.Matcha" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/matcha_primary</item>
+        <item name="colorPrimaryVariant">@color/matcha_primary_dark</item>
+        <item name="colorSecondary">@color/matcha_secondary</item>
+        <item name="android:windowBackground">@color/matcha_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.NoActionBar" parent="Theme.MediaLibrary.Matcha">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Book" parent="Theme.MediaLibrary.Matcha">
+        <item name="colorPrimary">@color/matcha_book</item>
+        <item name="colorPrimaryVariant">@color/matcha_book_dark</item>
+        <item name="colorSecondary">@color/matcha_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Book.NoActionBar" parent="Theme.MediaLibrary.Matcha.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Video" parent="Theme.MediaLibrary.Matcha">
+        <item name="colorPrimary">@color/matcha_video</item>
+        <item name="colorPrimaryVariant">@color/matcha_video_dark</item>
+        <item name="colorSecondary">@color/matcha_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Video.NoActionBar" parent="Theme.MediaLibrary.Matcha.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Music" parent="Theme.MediaLibrary.Matcha">
+        <item name="colorPrimary">@color/matcha_music</item>
+        <item name="colorPrimaryVariant">@color/matcha_music_dark</item>
+        <item name="colorSecondary">@color/matcha_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Music.NoActionBar" parent="Theme.MediaLibrary.Matcha.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Other" parent="Theme.MediaLibrary.Matcha">
+        <item name="colorPrimary">@color/matcha_other</item>
+        <item name="colorPrimaryVariant">@color/matcha_other_dark</item>
+        <item name="colorSecondary">@color/matcha_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Matcha.Other.NoActionBar" parent="Theme.MediaLibrary.Matcha.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Tropical Theme -->
+    <style name="Theme.MediaLibrary.Tropical" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/tropical_primary</item>
+        <item name="colorPrimaryVariant">@color/tropical_primary_dark</item>
+        <item name="colorSecondary">@color/tropical_secondary</item>
+        <item name="android:windowBackground">@color/tropical_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.NoActionBar" parent="Theme.MediaLibrary.Tropical">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Book" parent="Theme.MediaLibrary.Tropical">
+        <item name="colorPrimary">@color/tropical_book</item>
+        <item name="colorPrimaryVariant">@color/tropical_book_dark</item>
+        <item name="colorSecondary">@color/tropical_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Book.NoActionBar" parent="Theme.MediaLibrary.Tropical.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Video" parent="Theme.MediaLibrary.Tropical">
+        <item name="colorPrimary">@color/tropical_video</item>
+        <item name="colorPrimaryVariant">@color/tropical_video_dark</item>
+        <item name="colorSecondary">@color/tropical_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Video.NoActionBar" parent="Theme.MediaLibrary.Tropical.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Music" parent="Theme.MediaLibrary.Tropical">
+        <item name="colorPrimary">@color/tropical_music</item>
+        <item name="colorPrimaryVariant">@color/tropical_music_dark</item>
+        <item name="colorSecondary">@color/tropical_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Music.NoActionBar" parent="Theme.MediaLibrary.Tropical.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Other" parent="Theme.MediaLibrary.Tropical">
+        <item name="colorPrimary">@color/tropical_other</item>
+        <item name="colorPrimaryVariant">@color/tropical_other_dark</item>
+        <item name="colorSecondary">@color/tropical_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Tropical.Other.NoActionBar" parent="Theme.MediaLibrary.Tropical.Other">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Winter Theme -->
+    <style name="Theme.MediaLibrary.Winter" parent="Theme.MediaLibrary">
+        <item name="colorPrimary">@color/winter_primary</item>
+        <item name="colorPrimaryVariant">@color/winter_primary_dark</item>
+        <item name="colorSecondary">@color/winter_secondary</item>
+        <item name="android:windowBackground">@color/winter_base</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.NoActionBar" parent="Theme.MediaLibrary.Winter">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Book" parent="Theme.MediaLibrary.Winter">
+        <item name="colorPrimary">@color/winter_book</item>
+        <item name="colorPrimaryVariant">@color/winter_book_dark</item>
+        <item name="colorSecondary">@color/winter_book_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Book.NoActionBar" parent="Theme.MediaLibrary.Winter.Book">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Video" parent="Theme.MediaLibrary.Winter">
+        <item name="colorPrimary">@color/winter_video</item>
+        <item name="colorPrimaryVariant">@color/winter_video_dark</item>
+        <item name="colorSecondary">@color/winter_video_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Video.NoActionBar" parent="Theme.MediaLibrary.Winter.Video">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Music" parent="Theme.MediaLibrary.Winter">
+        <item name="colorPrimary">@color/winter_music</item>
+        <item name="colorPrimaryVariant">@color/winter_music_dark</item>
+        <item name="colorSecondary">@color/winter_music_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Music.NoActionBar" parent="Theme.MediaLibrary.Winter.Music">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Other" parent="Theme.MediaLibrary.Winter">
+        <item name="colorPrimary">@color/winter_other</item>
+        <item name="colorPrimaryVariant">@color/winter_other_dark</item>
+        <item name="colorSecondary">@color/winter_other_light</item>
+    </style>
+    <style name="Theme.MediaLibrary.Winter.Other.NoActionBar" parent="Theme.MediaLibrary.Winter.Other">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
