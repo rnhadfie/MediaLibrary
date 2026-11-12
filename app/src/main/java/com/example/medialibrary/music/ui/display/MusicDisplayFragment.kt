@@ -202,7 +202,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
 
 
     private fun setGenreChart(items: List<Music>) {
-        val allMusicItems = items.flatMap { it.MusicItems ?: emptyList() }
+        val allMusicItems = items.flatMap { it.MusicItems.filter { it.Owned }?: emptyList() }
         val totalItems = allMusicItems.size
 
         var genreInformationMap = allMusicItems.groupBy { it.MusicGenre?.name ?: "NoneSelected" }.mapValues { entry ->
