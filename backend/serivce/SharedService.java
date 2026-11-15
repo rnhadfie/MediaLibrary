@@ -593,11 +593,11 @@ public class SharedService {
             if ("Priority".equalsIgnoreCase(key) && filter.SortPriority != null) {
                 sortRules.add(new DyanmicSort.SortKey<>(u -> u.CollectingPriority != null ? u.CollectingPriority.ordinal() : 0, !filter.SortPriority));
             } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null && !(filter instanceof MusicFilter) ) {
-                sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title : "", filter.SortAlphabetical));
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.Title != null ? u.Title.toLowerCase() : "", filter.SortAlphabetical));
             } else if ("Alphabetical".equalsIgnoreCase(key) && filter.SortAlphabetical != null && (filter instanceof MusicFilter) ) {
-                sortRules.add(new DyanmicSort.SortKey<>(u -> ((Music)u).Artist != null ? ((Music)u).Artist : "", filter.SortAlphabetical));
+                sortRules.add(new DyanmicSort.SortKey<>(u -> ((Music)u).Artist != null ? ((Music)u).Artist.toLowerCase() : "", filter.SortAlphabetical));
             } else if ("ItemMediaType".equalsIgnoreCase(key) && filter.SortItemMediaType != null) {
-                sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name() : "", filter.SortItemMediaType));
+                sortRules.add(new DyanmicSort.SortKey<>(u -> u.MediaType != null ? u.MediaType.name().toLowerCase() : "", filter.SortItemMediaType));
             }
         }
 

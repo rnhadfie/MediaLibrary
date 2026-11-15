@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.databinding.ItemTransformBinding
+import com.example.medialibrary.utils.CoverFrameUtils
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SaveEditDeleteUtils
 import models.shared.DisplayMediaItem
@@ -71,14 +72,12 @@ open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAda
 
         holder.binding.mediaItemCategoryStrip.setBackgroundColor(colors.main)
 
-        if (item.Cover != null && item.Cover.isNotEmpty()) {
-            val bitmap = BitmapFactory.decodeByteArray(item.Cover, 0, item.Cover.size)
-            holder.binding.mediaItemImageCover.setImageBitmap(bitmap)
-            holder.binding.mediaItemImageCover.imageTintList = null
-        } else {
-            holder.binding.mediaItemImageCover.setImageResource(colors.iconRes)
-            holder.binding.mediaItemImageCover.imageTintList = ColorStateList.valueOf(colors.main)
-        }
+        CoverFrameUtils.applyCoverFrame(
+            holder.binding.mediaItemImageCover,
+            item.Cover,
+            item.MediaType,
+            context
+        )
 
         holder.binding.textMediaStatusInfo2.backgroundTintList = ColorStateList.valueOf(colors.light)
         holder.binding.textMediaStatusInfo2.setTextColor(colors.dark)

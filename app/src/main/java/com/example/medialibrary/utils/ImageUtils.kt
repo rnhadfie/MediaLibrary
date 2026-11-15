@@ -1,20 +1,16 @@
 package com.example.medialibrary.utils
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
-import android.util.TypedValue
 import android.view.View
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.viewbinding.ViewBinding
-import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookFragmentFormBinding
 import com.example.medialibrary.databinding.BookItemBottomSheetBinding
 import com.example.medialibrary.databinding.MusicItemBottomSheetBinding
@@ -23,6 +19,7 @@ import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import models.shared.Enums.MediaType
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -147,17 +144,13 @@ object ImageUtils {
         return pendingImageTarget == "book" || pendingImageTarget == "video" || pendingImageTarget == "other" || pendingImageTarget == "music"
     }
 
-    fun setPlaceholderCover(imageView: ImageView, requireContext: Context, resources: Resources) {
-        imageView.setImageResource(R.drawable.ic_gallery_black_24dp)
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
-        val typedValue = TypedValue()
-        requireContext.theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
-        val color = if (typedValue.resourceId != 0) {
-            ContextCompat.getColor(requireContext, typedValue.resourceId)
-        } else {
-            typedValue.data
-        }
-        imageView.imageTintList = ColorStateList.valueOf(color)
+    fun setPlaceholderCover(
+        imageView: ImageView,
+        requireContext: Context,
+        resources: Resources,
+        mediaType: MediaType = MediaType.Other
+    ) {
+        CoverFrameUtils.applyCoverFrame(imageView, null, mediaType, requireContext)
     }
 
     fun handleImageBitmap(
@@ -174,21 +167,15 @@ object ImageUtils {
         if (isFormTargeted(pendingImageTarget)) {
             when (binding) {
                 is BookFragmentFormBinding -> {
-                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                    binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
-                    binding.changeImage.imageBookCover.imageTintList = null
+                    CoverFrameUtils.applyCoverFrame(binding.changeImage.imageBookCover, byteArray, MediaType.Book, binding.root.context)
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
                 }
                 is VideoFragmentFormBinding -> {
-                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                    binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
-                    binding.changeImage.imageBookCover.imageTintList = null
+                    CoverFrameUtils.applyCoverFrame(binding.changeImage.imageBookCover, byteArray, MediaType.Video, binding.root.context)
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
                 }
                 is OtherFragmentFormBinding -> {
-                    binding.changeImage.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                    binding.changeImage.imageBookCover.setImageBitmap(scaledBitmap)
-                    binding.changeImage.imageBookCover.imageTintList = null
+                    CoverFrameUtils.applyCoverFrame(binding.changeImage.imageBookCover, byteArray, MediaType.Other, binding.root.context)
                     binding.changeImage.buttonClearCover.visibility = View.VISIBLE
                 }
             }
@@ -196,30 +183,22 @@ object ImageUtils {
             currentSheetBinding?.let { sheet ->
                 when (sheet) {
                     is BookItemBottomSheetBinding -> {
-                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                        sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
-                        sheet.imageItemCover.imageBookCover.imageTintList = null
+                        CoverFrameUtils.applyCoverFrame(sheet.imageItemCover.imageBookCover, byteArray, MediaType.Book, sheet.root.context)
                         sheet.imageItemCover.imageBookCover.tag = byteArray
                         sheet.imageItemCover.buttonClearCover.visibility = View.VISIBLE
                     }
                     is VideoItemBottomSheetBinding -> {
-                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                        sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
-                        sheet.imageItemCover.imageBookCover.imageTintList = null
+                        CoverFrameUtils.applyCoverFrame(sheet.imageItemCover.imageBookCover, byteArray, MediaType.Video, sheet.root.context)
                         sheet.imageItemCover.imageBookCover.tag = byteArray
                         sheet.imageItemCover.buttonClearCover.visibility = View.VISIBLE
                     }
                     is OtherItemBottomSheetBinding -> {
-                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                        sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
-                        sheet.imageItemCover.imageBookCover.imageTintList = null
+                        CoverFrameUtils.applyCoverFrame(sheet.imageItemCover.imageBookCover, byteArray, MediaType.Other, sheet.root.context)
                         sheet.imageItemCover.imageBookCover.tag = byteArray
                         sheet.imageItemCover.buttonClearCover.visibility = View.VISIBLE
                     }
                     is MusicItemBottomSheetBinding -> {
-                        sheet.imageItemCover.imageBookCover.scaleType = ImageView.ScaleType.CENTER_CROP
-                        sheet.imageItemCover.imageBookCover.setImageBitmap(scaledBitmap)
-                        sheet.imageItemCover.imageBookCover.imageTintList = null
+                        CoverFrameUtils.applyCoverFrame(sheet.imageItemCover.imageBookCover, byteArray, MediaType.Music, sheet.root.context)
                         sheet.imageItemCover.imageBookCover.tag = byteArray
                         sheet.imageItemCover.buttonClearCover.visibility = View.VISIBLE
                     }
@@ -241,7 +220,8 @@ object ImageUtils {
                     setPlaceholderCover(
                         binding.changeImage.imageBookCover,
                         requireContext,
-                        resources
+                        resources,
+                        MediaType.Book
                     )
                     binding.changeImage.buttonClearCover.visibility = View.GONE
                 }
@@ -249,7 +229,8 @@ object ImageUtils {
                     setPlaceholderCover(
                         binding.changeImage.imageBookCover,
                         requireContext,
-                        resources
+                        resources,
+                        MediaType.Video
                     )
                     binding.changeImage.buttonClearCover.visibility = View.GONE
                 }
@@ -257,18 +238,20 @@ object ImageUtils {
                     setPlaceholderCover(
                         binding.changeImage.imageBookCover,
                         requireContext,
-                        resources
+                        resources,
+                        MediaType.Other
                     )
                     binding.changeImage.buttonClearCover.visibility = View.GONE
                 }
             }
-        } else if (target == "item") {
+        } else if (target == "item" || target == "music_item") {
             when (currentSheetBinding) {
                 is BookItemBottomSheetBinding -> {
                     setPlaceholderCover(
                         currentSheetBinding.imageItemCover.imageBookCover,
                         requireContext,
-                        resources
+                        resources,
+                        MediaType.Book
                     )
                     currentSheetBinding.imageItemCover.imageBookCover.tag = null
                     currentSheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
@@ -277,7 +260,8 @@ object ImageUtils {
                     setPlaceholderCover(
                         currentSheetBinding.imageItemCover.imageBookCover,
                         requireContext,
-                        resources
+                        resources,
+                        MediaType.Video
                     )
                     currentSheetBinding.imageItemCover.imageBookCover.tag = null
                     currentSheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
@@ -286,7 +270,18 @@ object ImageUtils {
                     setPlaceholderCover(
                         currentSheetBinding.imageItemCover.imageBookCover,
                         requireContext,
-                        resources
+                        resources,
+                        MediaType.Other
+                    )
+                    currentSheetBinding.imageItemCover.imageBookCover.tag = null
+                    currentSheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
+                }
+                is MusicItemBottomSheetBinding -> {
+                    setPlaceholderCover(
+                        currentSheetBinding.imageItemCover.imageBookCover,
+                        requireContext,
+                        resources,
+                        MediaType.Music
                     )
                     currentSheetBinding.imageItemCover.imageBookCover.tag = null
                     currentSheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE

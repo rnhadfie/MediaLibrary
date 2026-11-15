@@ -32,6 +32,7 @@ import java.io.OutputStream
 
 import android.content.res.ColorStateList
 import android.graphics.drawable.GradientDrawable
+import androidx.core.content.ContextCompat
 
 open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
@@ -65,7 +66,6 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         val primaryColor = ThemeUtils.getThemeColor(this, androidx.appcompat.R.attr.colorPrimary)
         val primaryDarkColor = ThemeUtils.getThemeColor(this, androidx.appcompat.R.attr.colorPrimaryDark)
         val surfaceColor = ThemeUtils.getThemeColor(this, com.google.android.material.R.attr.colorSurface)
-        val secondaryColor = ThemeUtils.getThemeColor(this, com.google.android.material.R.attr.colorSecondary)
         val onSurfaceColor = ThemeUtils.getThemeColor(this, com.google.android.material.R.attr.colorOnSurface)
 
         val headerGradient = GradientDrawable(
@@ -90,7 +90,7 @@ open class BaseActivity<VB : ViewBinding> : AppCompatActivity() {
         navView.itemTextColor = stateList
 
         val itemBgDrawable = GradientDrawable().apply {
-            setColor(secondaryColor)
+            setColor(ContextCompat.getColor(this@BaseActivity, R.color.white))
             cornerRadius = 16f
         }
         navView.itemBackground = itemBgDrawable

@@ -19,8 +19,8 @@
         <item name="colorError">@color/error</item>
         <item name="colorOnError">@color/white</item>
         <item name="colorOnBackground">#0F172A</item>
-        <item name="itemBackground">@color/secondary</item>
-        <item name="popupMenuBackground">@color/secondary_light</item>
+        <item name="itemBackground">@color/white</item>
+        <item name="popupMenuBackground">@color/white</item>
         <item name="bottomSheetDialogTheme">@style/Theme.MediaLibrary.BottomSheetDialog</item>
 
         <!-- Component Styles -->
