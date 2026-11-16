@@ -70,7 +70,7 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_book),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

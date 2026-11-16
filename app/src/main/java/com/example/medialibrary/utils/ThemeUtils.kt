@@ -7,7 +7,9 @@ import android.util.TypedValue
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.viewbinding.ViewBinding
+
 import com.example.medialibrary.R
+import models.shared.Enums
 
 object ThemeUtils {
 
@@ -148,12 +150,136 @@ object ThemeUtils {
         return ContextCompat.getColor(context, R.color.primary)
     }
 
+    fun getThemeColor2(context: Context, type: Enums.MediaType) : SectionColors {
+        val activityName = when(type) {
+            Enums.MediaType.Book -> "BookActivity"
+            Enums.MediaType.Video -> "VideoActivity"
+            Enums.MediaType.Music -> "MusicActivity"
+            Enums.MediaType.Other -> "OtherActivity"
+            else -> "MainActivity"
+        }
+        val mainColor = getActivityColour(context, activityName);
+        val lightColor = getLightActivityColour(context, activityName);
+        val darkColor = getDarkActivityColour(context, activityName);
+
+        val colours = when (type) {
+            Enums.MediaType.Book -> SectionColors(
+                mainColor,
+                lightColor,
+                darkColor,
+                R.drawable.ic_book_small
+            )
+
+            Enums.MediaType.Video -> SectionColors(
+                mainColor,
+                lightColor,
+                 darkColor,
+                R.drawable.ic_movie
+            )
+
+            Enums.MediaType.Music -> SectionColors(
+                 mainColor,
+                 lightColor,
+                 darkColor,
+                R.drawable.ic_music
+            )
+
+            Enums.MediaType.Other -> SectionColors(
+                 mainColor,
+                 lightColor,
+                darkColor,
+                R.drawable.other_item_small
+            )
+
+            else -> {
+                val typedValue = TypedValue()
+                context.theme.resolveAttribute(
+                    androidx.appcompat.R.attr.colorPrimary,
+                    typedValue,
+                    true
+                )
+                SectionColors(
+                    mainColor,
+                    lightColor,
+                    darkColor,
+                    R.drawable.ic_gallery_black_24dp
+                )
+            }
+        }
+        return colours
+    }
+
+
     fun adjustAlpha(color: Int, factor: Float): Int {
         val alpha = Math.round(Color.alpha(color) * factor)
         val red = Color.red(color)
         val green = Color.green(color)
         val blue = Color.blue(color)
         return Color.argb(alpha, red, green, blue)
+    }
+
+    fun getLightActivityColour(context: Context, activityName: String): Int {
+        val themeKey = getSelectedTheme(context)
+        val simpleName = activityName.substringAfterLast('.')
+        val colorResId = when (themeKey) {
+            THEME_SAKURA -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.sakura_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.sakura_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.sakura_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.sakura_other_light
+                else -> R.color.sakura_primary
+            }
+            THEME_OCEAN -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.ocean_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.ocean_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.ocean_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.ocean_other_light
+                else -> R.color.ocean_primary
+            }
+            THEME_HIGH_CONTRAST -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.highcontrast_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.highcontrast_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.highcontrast_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.highcontrast_other_light
+                else -> R.color.highcontrast_primary
+            }
+            THEME_AUTUMN -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.autumn_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.autumn_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.autumn_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.autumn_other_light
+                else -> R.color.autumn_primary
+            }
+            THEME_MATCHA -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.matcha_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.matcha_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.matcha_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.matcha_other_light
+                else -> R.color.matcha_primary
+            }
+            THEME_TROPICAL -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.tropical_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.tropical_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.tropical_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.tropical_other_light
+                else -> R.color.tropical_primary
+            }
+            THEME_WINTER -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.winter_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.winter_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.winter_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.winter_other_light
+                else -> R.color.winter_primary
+            }
+            else -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.section_book_light
+                "VideoActivity", "VideoFormActivity" -> R.color.section_video_light
+                "MusicActivity", "MusicFormActivity" -> R.color.section_music_light
+                "OtherActivity", "OtherFormActivity" -> R.color.section_other_light
+                else -> R.color.primary
+            }
+        }
+        return ContextCompat.getColor(context, colorResId);
     }
 
     fun getActivityColour(context: Context, activityName: String): Int {
@@ -219,4 +345,76 @@ object ThemeUtils {
         }
         return ContextCompat.getColor(context, colorResId)
     }
+
+    fun getDarkActivityColour(context: Context, activityName: String): Int {
+        val themeKey = getSelectedTheme(context)
+        val simpleName = activityName.substringAfterLast('.')
+        val colorResId = when (themeKey) {
+            THEME_SAKURA -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.sakura_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.sakura_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.sakura_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.sakura_other_dark
+                else -> R.color.sakura_primary_dark
+            }
+            THEME_OCEAN -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.ocean_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.ocean_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.ocean_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.ocean_other_dark
+                else -> R.color.ocean_primary_dark
+            }
+            THEME_HIGH_CONTRAST -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.highcontrast_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.highcontrast_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.highcontrast_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.highcontrast_other_dark
+                else -> R.color.highcontrast_primary_dark
+            }
+            THEME_AUTUMN -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.autumn_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.autumn_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.autumn_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.autumn_other_dark
+                else -> R.color.autumn_primary_dark
+            }
+            THEME_MATCHA -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.matcha_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.matcha_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.matcha_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.matcha_other_dark
+                else -> R.color.matcha_primary_dark
+            }
+            THEME_TROPICAL -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.tropical_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.tropical_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.tropical_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.tropical_other_dark
+                else -> R.color.tropical_primary_dark
+            }
+            THEME_WINTER -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.winter_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.winter_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.winter_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.winter_other_dark
+                else -> R.color.winter_primary_dark
+            }
+            else -> when (simpleName) {
+                "BookActivity", "BookFormActivity" -> R.color.section_book_dark
+                "VideoActivity", "VideoFormActivity" -> R.color.section_video_dark
+                "MusicActivity", "MusicFormActivity" -> R.color.section_music_dark
+                "OtherActivity", "OtherFormActivity" -> R.color.section_other_dark
+                else -> R.color.primary
+            }
+        }
+        return ContextCompat.getColor(context, colorResId)
+    }
+
+
+    public data class SectionColors(
+        val main: Int,
+        val light: Int,
+        val dark: Int,
+        val iconRes: Int
+    )
 }

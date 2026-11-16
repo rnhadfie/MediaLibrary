@@ -36,6 +36,11 @@ public class BookController extends BaseController {
 
     }
 
+    public List<BookSpine> GetBookSpines(BookFilter filter) {
+        return this.bookSerivce.getValue().GetBookSpines(filter);
+    }
+
+
     public boolean AddBook(BookSaveObject book) {
         return this.bookSerivce.getValue().AddBook(book);
     }

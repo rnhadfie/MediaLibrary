@@ -62,7 +62,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
             binding.scrollViewMusicDisplay,
-            ContextCompat.getColor(requireContext(), R.color.section_music),
+            -1,
             binding.emptyStateContainer,
             binding.emptyStateLayout,
             emptyTextResId = R.string.no_cds_found,

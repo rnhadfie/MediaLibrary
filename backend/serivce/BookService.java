@@ -189,6 +189,45 @@ public class BookService {
         return demogMap;
     }
 
+    public List<BookSpine> GetBookSpines(BookFilter filter) {
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
+
+        List<Book> books = _BookRepo.GetBooks(whereClause, selectionArgs);
+        books = _SharedService.Sort(filter, books);
+
+        List<BookSpine> bookSpines = new ArrayList<>();
+        for (Book book : books) {
+            String title = book.Title;
+            for (BookItem item : book.Items) {
+                if (item.Owned) {
+
+                    String spineDisplayTitle;
+
+                    BookSpine bookSpine = new BookSpine();
+                    bookSpine.BookTitle = title;
+                    bookSpine.spineDisplayTitle = GetTitle(title, item);
+                    bookSpine.spineColorHex = _SharedService.GetRandomHex();
+                    bookSpines.add(bookSpine);
+                }
+            }
+        }
+        return bookSpines;
+    }
+
+    private String GetTitle(String title, BookItem item) {
+        String displayTitle = title;
+        if(item.VolumeTitle!= null && !item.VolumeTitle.isEmpty()) {
+            displayTitle = item.VolumeTitle;
+        }
+        if(!Objects.equals(item.VolumeNumber, "-1"))
+        {
+            displayTitle = displayTitle + " #" + item.VolumeNumber;
+        }
+
+        return displayTitle;
+    }
+
     public List<Publisher> GetPublishers() {
         var publishers = _BookRepo.GetPublishers();
         publishers.sort(Comparator.comparing(o -> o.Name));

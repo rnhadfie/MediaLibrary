@@ -66,7 +66,7 @@ class CollectingFragment : BaseFragment<VideoFragmentCollectingBinding, Collecti
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_video),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

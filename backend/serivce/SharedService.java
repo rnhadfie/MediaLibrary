@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Lazy;
@@ -653,5 +654,17 @@ public class SharedService {
             sortedItems.sort(buildDynamicComparator(sortRules));
         }
         return sortedItems;
+    }
+
+    public String GetRandomHex()
+    {
+        Random random = new Random();
+
+        // Generate a random integer between 0 and 0xFFFFFF (16,777,215)
+        int nextInt = random.nextInt(0x1000000);
+
+        // Format as a 6-digit uppercase hex string with a leading '#'
+        String colorCode = String.format("#%06X", nextInt);
+        return colorCode;
     }
 }

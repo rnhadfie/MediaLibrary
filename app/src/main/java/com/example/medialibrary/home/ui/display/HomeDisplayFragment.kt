@@ -144,6 +144,7 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
             }
         }
 
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val colors = listOf(
             getActivityColour(requireContext(), "BookActivity"),
@@ -162,11 +163,14 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
         categories.forEachIndexed { index, (x, y, label) ->
             val set = BarDataSet(listOf(BarEntry(x, y)), label)
             set.color = colors[index]
+            set.valueTextColor = onSurfaceColor
+            set.valueTextSize = 12f
             dataSets.add(set)
         }
 
         val barData = BarData(dataSets)
         binding.barChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             chart.noDataText = "No data to display"
             if (dataSets.isEmpty()) {
                 chart.data = null
@@ -177,6 +181,8 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
 
                 val legend = chart.legend
                 legend.isEnabled = true
+                legend.textColor = onSurfaceColor
+                legend.textSize = 12f
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL

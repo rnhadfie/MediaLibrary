@@ -54,7 +54,7 @@ class OtherListFragment : BaseFragment<OtherFragmentListBinding, OtherListViewMo
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_other),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

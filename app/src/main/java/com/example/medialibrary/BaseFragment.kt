@@ -82,16 +82,30 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
         }
     }
 
+    fun getSectionIconResId(): Int {
+        val activityName = activity?.javaClass?.simpleName ?: ""
+        return when {
+            activityName.contains("Book") -> R.drawable.ic_book_large
+            activityName.contains("Video") || activityName.contains("Movie") -> R.drawable.ic_movie
+            activityName.contains("Music") -> R.drawable.ic_music
+            activityName.contains("Other") -> R.drawable.other_item_large
+            else -> R.drawable.ic_gallery_120dp
+        }
+    }
+
     fun setupEmptyStateObserver(
         items: LiveData<out List<DisplayMediaItem>>,
         recyclerView: RecyclerView?,
-        color: Int,
+        color: Int = -1,
         emptyStateContainer: ViewEmptyStateBinding,
-        adapter: ListAdapter<DisplayMediaItem, *>
+        adapter: ListAdapter<DisplayMediaItem, *>,
+        iconResId: Int = -1
     ) {
         val effectiveColor = if (color != -1) color else ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary)
+        val effectiveIcon = if (iconResId != -1) iconResId else getSectionIconResId()
         emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
         emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
+        emptyStateContainer.emptyStateIcon.setImageResource(effectiveIcon)
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView?.visibility = View.GONE
@@ -112,12 +126,15 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     fun setupEmptyStateObserver(
         items: LiveData<out List<DisplayMediaItem>>,
         recyclerView: View,
-        color: Int,
-        emptyStateContainer: ViewEmptyStateBinding
+        color: Int = -1,
+        emptyStateContainer: ViewEmptyStateBinding,
+        iconResId: Int = -1
     ) {
         val effectiveColor = if (color != -1) color else ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary)
+        val effectiveIcon = if (iconResId != -1) iconResId else getSectionIconResId()
         emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
         emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
+        emptyStateContainer.emptyStateIcon.setImageResource(effectiveIcon)
         items.observe(viewLifecycleOwner) { itemList ->
             if (itemList.isNullOrEmpty()) {
                 recyclerView.visibility = View.GONE
@@ -135,14 +152,17 @@ abstract class BaseFragment<VB : ViewBinding, VM : ViewModel>(
     fun setupEmptyStateMediaItemObserver(
         items: LiveData<out List<MediaItem>>,
         recyclerView: View,
-        color: Int,
+        color: Int = -1,
         emptyStateContainer: ViewEmptyStateBinding,
         emptyStateLayout: LinearLayout? = null,
-        emptyTextResId: Int = R.string.no_items_found
+        emptyTextResId: Int = R.string.no_items_found,
+        iconResId: Int = -1
     ) {
         val effectiveColor = if (color != -1) color else ThemeUtils.getThemeColor(requireContext(), androidx.appcompat.R.attr.colorPrimary)
+        val effectiveIcon = if (iconResId != -1) iconResId else getSectionIconResId()
         emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
         emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
+        emptyStateContainer.emptyStateIcon.setImageResource(effectiveIcon)
         if (emptyTextResId != -1) {
             emptyStateContainer.emptyStateText.setText(emptyTextResId)
         }

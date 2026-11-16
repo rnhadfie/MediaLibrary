@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.View
+import com.example.medialibrary.R
 import com.example.medialibrary.databinding.ViewEmptyStateBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
 import com.example.medialibrary.databinding.ViewTextCardDisplayBinding
@@ -36,6 +37,14 @@ object TextCardHelper {
             val themePrimary = ThemeUtils.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
             emptyState.emptyStateText.setTextColor(themePrimary)
             emptyState.emptyStateIcon.imageTintList = ColorStateList.valueOf(themePrimary)
+            val iconResId = when (mediaType) {
+                Enums.MediaType.Book -> R.drawable.ic_book_large
+                Enums.MediaType.Video -> R.drawable.ic_movie
+                Enums.MediaType.Music -> R.drawable.ic_music
+                Enums.MediaType.Other -> R.drawable.other_item_large
+                else -> R.drawable.ic_gallery_120dp
+            }
+            emptyState.emptyStateIcon.setImageResource(iconResId)
         }
         else {
 

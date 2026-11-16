@@ -93,7 +93,7 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_music),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

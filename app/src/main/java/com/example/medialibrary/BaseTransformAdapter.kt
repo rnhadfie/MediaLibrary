@@ -13,17 +13,13 @@ import com.example.medialibrary.databinding.ItemTransformBinding
 import com.example.medialibrary.utils.CoverFrameUtils
 import com.example.medialibrary.utils.ImageUtils
 import com.example.medialibrary.utils.SaveEditDeleteUtils
+import com.example.medialibrary.utils.ThemeUtils
 import models.shared.DisplayMediaItem
 import models.shared.Enums
 
 open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAdapter.TransformViewHolder>(DIFF_CALLBACK) {
 
-    private data class SectionColors(
-        val main: Int,
-        val light: Int,
-        val dark: Int,
-        val iconRes: Int
-    )
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransformViewHolder {
         val binding = ItemTransformBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -37,38 +33,7 @@ open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAda
 
         val context = holder.itemView.context
 
-        val colors = when (item.MediaType) {
-            Enums.MediaType.Book -> SectionColors(
-                ContextCompat.getColor(context, R.color.section_book),
-                ContextCompat.getColor(context, R.color.section_book_light),
-                ContextCompat.getColor(context, R.color.section_book_dark),
-                R.drawable.ic_book_small
-            )
-            Enums.MediaType.Video -> SectionColors(
-                ContextCompat.getColor(context, R.color.section_video),
-                ContextCompat.getColor(context, R.color.section_video_light),
-                ContextCompat.getColor(context, R.color.section_video_dark),
-                R.drawable.ic_movie
-            )
-            Enums.MediaType.Music -> SectionColors(
-                ContextCompat.getColor(context, R.color.section_music),
-                ContextCompat.getColor(context, R.color.section_music_light),
-                ContextCompat.getColor(context, R.color.section_music_dark),
-                R.drawable.ic_music
-            )
-            Enums.MediaType.Other -> SectionColors(
-                ContextCompat.getColor(context, R.color.section_other),
-                ContextCompat.getColor(context, R.color.section_other_light),
-                ContextCompat.getColor(context, R.color.section_other_dark),
-                R.drawable.other_item_small
-            )
-            else -> {
-                val typedValue = TypedValue()
-                context.theme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
-                val primary = ContextCompat.getColor(context, typedValue.resourceId)
-                SectionColors(primary, primary, primary, R.drawable.ic_gallery_black_24dp)
-            }
-        }
+        val colors = ThemeUtils.getThemeColor2(context, item.MediaType);
 
         holder.binding.mediaItemCategoryStrip.setBackgroundColor(colors.main)
 

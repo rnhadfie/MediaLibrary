@@ -12,6 +12,12 @@
         tools:layout="@layout/book_fragment_display" />
 
     <fragment
+        android:id="@+id/nav_shelf"
+        android:name="com.example.medialibrary.book.ui.shelf.BookShelfFragment"
+        android:label="@string/shelf_view"
+        tools:layout="@layout/fragment_book_shelf" />
+
+    <fragment
         android:id="@+id/nav_list"
         android:name="com.example.medialibrary.book.ui.list.BookListFragment"
         android:label="@string/book_collection_list"
