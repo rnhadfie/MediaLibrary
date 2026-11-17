@@ -20,7 +20,7 @@
         android:layout_marginBottom="8dp"
         android:background="#33FFFFFF" />
 
-    <com.example.medialibrary.book.ui.shelf.VerticalSpineTextView
+    <com.example.medialibrary.shared.VerticalSpineTextView
         android:id="@+id/tvSpineTitle"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"

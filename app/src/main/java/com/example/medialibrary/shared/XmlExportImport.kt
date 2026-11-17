@@ -1,4 +1,4 @@
-package com.example.medialibrary.utils
+package com.example.medialibrary.shared
 
 import android.util.Base64
 import android.util.Xml

@@ -1,21 +1,17 @@
 package com.example.medialibrary
 
 import android.content.res.ColorStateList
-import android.graphics.BitmapFactory
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.databinding.ItemTransformBinding
-import com.example.medialibrary.utils.CoverFrameUtils
-import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.utils.SaveEditDeleteUtils
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.CoverFrameUtils
+import com.example.medialibrary.shared.ImageUtils
+import com.example.medialibrary.shared.SaveEditDeleteUtils
+import com.example.medialibrary.shared.ThemeUtils
 import models.shared.DisplayMediaItem
-import models.shared.Enums
 
 open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAdapter.TransformViewHolder>(DIFF_CALLBACK) {
 

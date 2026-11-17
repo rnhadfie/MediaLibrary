@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
@@ -21,11 +20,11 @@ import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.utils.TextCardHelper
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SafePieChartRenderer
+import com.example.medialibrary.shared.TextCardHelper
+import com.example.medialibrary.shared.ThemeUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -34,7 +33,6 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest

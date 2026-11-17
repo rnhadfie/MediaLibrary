@@ -1,8 +1,6 @@
 package com.example.medialibrary.video.ui.form
 
-import android.content.Intent
 import android.graphics.BitmapFactory
-import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,10 +20,9 @@ import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.VideoFragmentFormBinding
 import com.example.medialibrary.databinding.VideoItemBottomSheetBinding
-import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.utils.RadioGridUtils
-import com.example.medialibrary.utils.YearPickerHelper
-import com.example.medialibrary.video.VideoFormActivity
+import com.example.medialibrary.shared.ImageUtils
+import com.example.medialibrary.shared.RadioGridUtils
+import com.example.medialibrary.shared.YearPickerHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.chip.Chip
 import controllers.VideoController

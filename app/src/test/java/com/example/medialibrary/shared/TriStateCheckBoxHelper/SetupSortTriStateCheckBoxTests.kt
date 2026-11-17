@@ -1,4 +1,4 @@
-package com.example.medialibrary.utils.TriStateCheckBoxHelper
+package com.example.medialibrary.shared.TriStateCheckBoxHelper
 
 import android.content.Context
 import android.graphics.Color
@@ -7,7 +7,7 @@ import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
 import com.example.medialibrary.R
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import com.example.medialibrary.shared.TriStateCheckBoxHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before

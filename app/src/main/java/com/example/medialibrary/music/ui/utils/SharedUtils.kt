@@ -3,10 +3,10 @@ package com.example.medialibrary.music.ui.utils
 import android.content.Context
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.MusicBottomSheetBinding
-import com.example.medialibrary.utils.FilterOption
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.SortDialogHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import com.example.medialibrary.shared.FilterOption
+import com.example.medialibrary.shared.MultiSelectFilterHelper
+import com.example.medialibrary.shared.SortDialogHelper
+import com.example.medialibrary.shared.TriStateCheckBoxHelper
 import models.music.MusicFilter
 import models.music.MusicSetup
 import models.shared.Filter

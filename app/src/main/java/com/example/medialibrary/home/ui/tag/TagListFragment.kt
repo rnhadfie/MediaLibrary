@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.databinding.TagFragmentListBinding
 import com.example.medialibrary.databinding.TagItemBinding
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SharedRefreshViewModel
+import com.example.medialibrary.shared.ThemeUtils
 import controllers.MainController
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper

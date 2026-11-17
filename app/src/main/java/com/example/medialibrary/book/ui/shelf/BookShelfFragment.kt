@@ -1,25 +1,21 @@
 package com.example.medialibrary.book.ui.shelf
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.R
-import com.example.medialibrary.book.ui.utils.SharedUtils
 import com.example.medialibrary.book.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.FragmentBookShelfBinding
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.ShelfItemDecoration
 import com.google.android.flexbox.FlexDirection
 import com.google.android.flexbox.FlexWrap
 import com.google.android.flexbox.FlexboxLayoutManager
@@ -32,7 +28,7 @@ import models.book.BookFilter
 import models.book.BookSetup
 import repository.database.MediaLibraryDbHelper
 
-//class BookShelfFragment : Fragment(R.layout.fragment_book_shelf) {
+//class VideoShelfFragment : Fragment(R.layout.fragment_book_shelf) {
 class BookShelfFragment : BaseFragment<FragmentBookShelfBinding, BookShelfViewModel>(
     FragmentBookShelfBinding::inflate
 ) {

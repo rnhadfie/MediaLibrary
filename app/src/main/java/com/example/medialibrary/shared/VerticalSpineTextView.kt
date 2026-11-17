@@ -1,5 +1,6 @@
-package com.example.medialibrary.book.ui.shelf
+package com.example.medialibrary.shared
 
+import android.R
 import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
@@ -9,7 +10,7 @@ import androidx.core.graphics.withSave
 class VerticalSpineTextView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
-    defStyleAttr: Int = android.R.attr.textViewStyle
+    defStyleAttr: Int = R.attr.textViewStyle
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
 
     var topToBottom: Boolean = true

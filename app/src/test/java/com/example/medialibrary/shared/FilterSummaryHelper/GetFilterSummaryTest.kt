@@ -1,8 +1,8 @@
-package com.example.medialibrary.utils.FilterSummaryHelper
+package com.example.medialibrary.shared.FilterSummaryHelper
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import models.book.BookFilter
-import com.example.medialibrary.utils.FilterSummaryHelper
+import com.example.medialibrary.shared.FilterSummaryHelper
 import models.book.Enums as BookEnums
 import org.junit.Rule
 import org.junit.jupiter.api.Assertions.*

@@ -1,4 +1,4 @@
-package com.example.medialibrary.utils
+package com.example.medialibrary.shared
 
 import models.book.Book
 import models.book.Publisher

@@ -19,9 +19,9 @@ import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.databinding.MusicItemBottomSheetBinding
-import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.utils.RadioGridUtils
-import com.example.medialibrary.utils.YearPickerHelper
+import com.example.medialibrary.shared.ImageUtils
+import com.example.medialibrary.shared.RadioGridUtils
+import com.example.medialibrary.shared.YearPickerHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
 import models.music.Enums.MusicGenre

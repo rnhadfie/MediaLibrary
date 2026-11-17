@@ -1,4 +1,4 @@
-package com.example.medialibrary.utils
+package com.example.medialibrary.shared
 
 import android.view.View
 import android.widget.TextView

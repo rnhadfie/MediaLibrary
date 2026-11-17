@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/spineContainer"
+    android:layout_width="wrap_content"
+    android:layout_height="190dp"
+    android:minWidth="26dp"
+    android:layout_marginHorizontal="1dp"
+    android:layout_marginTop="16dp"
+    android:background="@drawable/book_spine"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Top decorative spine band -->
+    <View
+        android:layout_width="6dp"
+        android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+
+        android:background="#33FFFFFF" />
+
+    <com.example.medialibrary.shared.VerticalSpineTextView
+        android:id="@+id/tvSpineTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="4dp"
+        android:lineSpacingMultiplier="1.1"
+        android:textColor="#FFFFFF"
+
+        android:textSize="13sp"
+        android:textStyle="bold"
+        tools:text="The Lord of the Rings #1"
+        android:layout_marginBottom="4dp"/>
+
+</FrameLayout>

@@ -3,10 +3,10 @@ package com.example.medialibrary.video.ui.utils
 import android.content.Context
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
-import com.example.medialibrary.utils.FilterOption
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.SortDialogHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import com.example.medialibrary.shared.FilterOption
+import com.example.medialibrary.shared.MultiSelectFilterHelper
+import com.example.medialibrary.shared.SortDialogHelper
+import com.example.medialibrary.shared.TriStateCheckBoxHelper
 import models.shared.Filter
 import models.shared.SortModel
 import models.video.Enums

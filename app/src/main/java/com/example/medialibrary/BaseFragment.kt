@@ -17,9 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.ViewEmptyStateBinding
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SharedRefreshViewModel
+import com.example.medialibrary.shared.ThemeUtils
 import models.shared.DisplayMediaItem
 import models.shared.MediaItem
 

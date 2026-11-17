@@ -1,4 +1,4 @@
-package com.example.medialibrary.utils
+package com.example.medialibrary.shared
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

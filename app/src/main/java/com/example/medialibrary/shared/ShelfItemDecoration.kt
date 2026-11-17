@@ -1,4 +1,4 @@
-package com.example.medialibrary.book.ui.shelf
+package com.example.medialibrary.shared
 
 import android.graphics.Canvas
 import android.graphics.Color

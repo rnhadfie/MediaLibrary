@@ -19,8 +19,8 @@ import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.OtherFragmentFormBinding
 import com.example.medialibrary.databinding.OtherItemBottomSheetBinding
-import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.utils.RadioGridUtils
+import com.example.medialibrary.shared.ImageUtils
+import com.example.medialibrary.shared.RadioGridUtils
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
 import models.other.OtherItem

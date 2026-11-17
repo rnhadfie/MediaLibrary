@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -16,9 +15,9 @@ import com.example.medialibrary.databinding.OtherBottomSheetBinding
 import com.example.medialibrary.databinding.OtherFragmentCollectingBinding
 import com.example.medialibrary.other.ui.utils.SharedUtils
 import com.example.medialibrary.other.ui.utils.SortFilterViewmodel
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.OtherController
 import models.other.OtherFilter

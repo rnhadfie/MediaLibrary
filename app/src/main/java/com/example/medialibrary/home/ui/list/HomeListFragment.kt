@@ -22,8 +22,8 @@ import com.example.medialibrary.databinding.MainFragmentListBinding
 import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.clipboardHelper
 import com.example.medialibrary.home.ui.utils.SharedUtils.Companion.filterSheetSetup
 import com.example.medialibrary.home.ui.utils.SortFilterViewmodel
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MainController
 import kotlinx.coroutines.flow.collectLatest

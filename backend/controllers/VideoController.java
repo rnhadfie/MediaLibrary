@@ -1,5 +1,7 @@
 package controllers;
 
+import models.book.BookFilter;
+import models.book.BookSpine;
 import serivce.VideoService;
 import models.shared.DisplayMediaItem;
 import models.video.*;
@@ -48,5 +50,8 @@ public class VideoController extends BaseController {
         return this.videoSerivce.getValue().GetVideoSetup();
     }
 
+    public List<VideoSpine> GetBookSpines(VideoFilter filter) {
+        return this.videoSerivce.getValue().GetBookSpines(filter);
+    }
 
 }
