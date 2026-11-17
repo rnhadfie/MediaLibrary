@@ -1,5 +1,6 @@
 package com.example.medialibrary.shared
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -128,7 +129,7 @@ object CoverFrameUtils {
             val srcRect = Rect(0, 0, source.width, source.height)
             canvas.drawBitmap(source, srcRect, rect, paint)
         } else {
-            val bookColor = ThemeUtils.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
+            val bookColor = ThemeUtils.getThemeColor2(context, MediaType.Book).main
             paint.color = bookColor
             canvas.drawRoundRect(rect, 8f, 8f, paint)
 
@@ -194,7 +195,7 @@ object CoverFrameUtils {
             canvas.drawBitmap(source, srcRect, artworkRect, paint)
             canvas.restore()
         } else {
-            val videoColor = ThemeUtils.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
+            val videoColor = ThemeUtils.getThemeColor2(context, MediaType.Video).main
             paint.color = videoColor
             canvas.drawRect(artworkRect, paint)
 
@@ -253,7 +254,7 @@ object CoverFrameUtils {
             val destRect = RectF(0f, 0f, size.toFloat(), size.toFloat())
             canvas.drawBitmap(source, srcRect, destRect, paint)
         } else {
-            val cdColor = ThemeUtils.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
+            val cdColor = ThemeUtils.getThemeColor2(context, MediaType.Music).main
             paint.color = cdColor
             canvas.drawRect(0f, 0f, size.toFloat(), size.toFloat(), paint)
 
@@ -306,7 +307,7 @@ object CoverFrameUtils {
             val srcRect = Rect(0, 0, source.width, source.height)
             canvas.drawBitmap(source, srcRect, rect, paint)
         } else {
-            val color = ThemeUtils.getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
+            val color = ThemeUtils.getThemeColor2(context, MediaType.Other).main
             paint.color = color
             canvas.drawRoundRect(rect, 8f, 8f, paint)
             drawVectorIcon(context, canvas, R.drawable.other_item_small, width / 2f, height / 2f, (width * 0.4f).toInt(), Color.WHITE)

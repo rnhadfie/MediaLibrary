@@ -56,6 +56,8 @@ public class DatabaseKeyNames {
     public static final String COLUMN_VOLUME_NUMBER = "VolumeNumber";
     public static final String COLUMN_VOLUME_TITLE = "VolumeTitle";
     public static final String COLUMN_READ = "Read";
+    public static final String COLUMN_LANGUAGE = "Language";
+    public static final String COLUMN_DESCRIPTION = "Description";
 
     //endregion
 

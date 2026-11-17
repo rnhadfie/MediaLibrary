@@ -220,6 +220,7 @@ public class BookService {
         if(item.VolumeTitle!= null && !item.VolumeTitle.isEmpty()) {
             displayTitle = item.VolumeTitle;
         }
+
         if(!Objects.equals(item.VolumeNumber, "-1"))
         {
             displayTitle = displayTitle + " #" + item.VolumeNumber;

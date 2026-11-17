@@ -187,7 +187,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 binding.changeImage.imageBookCover.imageTintList = null
                 binding.changeImage.buttonClearCover.visibility = View.VISIBLE
             } else {
-                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+                ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Video)
                 binding.changeImage.buttonClearCover.visibility = View.GONE
             }
 
@@ -195,6 +195,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 binding.standaloneSwitch.isChecked = true
                 binding.watchedSwitch.isChecked = video.Items[0].Watched
                 binding.ownedSwitch.isChecked = video.Items[0].Owned
+                binding.descriptionInput.setText(video.Items[0].Description)
                 RadioGridUtils.setSelection(binding.formatRadioGroup.dynamicTableLayout, video.Items[0].Format.ordinal)
                 binding.standaloneSection.visibility = View.VISIBLE
                 binding.seriesSection.visibility = View.GONE
@@ -345,6 +346,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             }
         }
         binding.watchedSwitch.isEnabled = enabled
+        binding.descriptionInput.isEnabled = enabled
         binding.ownedSwitch.isEnabled = enabled
 
     }
@@ -582,6 +584,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             sb.titleInput.setText(it.DiscTitle)
             sb.ownedSwitch.isChecked = it.Owned
             sb.watchedSwitch.isChecked = it.Watched
+            sb.descriptionInput.setText(it.Description)
 
             RadioGridUtils.setSelection(sb.formatRadioGroup.dynamicTableLayout, it.Format.ordinal)
 
@@ -593,12 +596,12 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 sb.imageItemCover.imageBookCover.tag = it.ItemCover
                 sb.imageItemCover.buttonClearCover.visibility = View.VISIBLE
             } else {
-                ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources)
+                ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Video)
                 sb.imageItemCover.imageBookCover.tag = null
                 sb.imageItemCover.buttonClearCover.visibility = View.GONE
             }
         } ?: run {
-            ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Video)
             sb.imageItemCover.imageBookCover.tag = null
             sb.imageItemCover.buttonClearCover.visibility = View.GONE
         }
@@ -728,7 +731,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                         ImageUtils.showImagePreviewDialog(context, item.ItemCover, (item.DiscTitle ?: ("Season " + item.Season)))
                     }
                 } else {
-                    ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
+                    ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources, SharedEnums.MediaType.Video)
                 }
                 binding.buttonEditItem.setOnClickListener { onEdit(item, position) }
                 binding.buttonDeleteItem.setOnClickListener { onDelete(position) }

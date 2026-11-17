@@ -31,4 +31,14 @@ public class Enums {
         Seinen,
         Kids
     }
+
+    public enum Language
+    {
+        NoneSelected,
+        English,
+        Spanish,
+        Japanese,
+        French,
+        German
+    }
 }

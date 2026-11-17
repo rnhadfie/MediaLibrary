@@ -189,6 +189,33 @@
                 <include layout="@layout/view_radio_button"
                     android:id="@+id/format_radio_button"/>
 
+                <include
+                    android:id="@+id/language_dropdown"
+                    layout="@layout/view_autocomplete_dropdown" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/description_label"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/description_hint"
+                    app:boxBackgroundColor="@color/card"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/description_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:minLines="2"
+                        android:textColor="?attr/colorOnBackground" />
+                </com.google.android.material.textfield.TextInputLayout>
+
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/owned_switch"
                     android:layout_width="match_parent"

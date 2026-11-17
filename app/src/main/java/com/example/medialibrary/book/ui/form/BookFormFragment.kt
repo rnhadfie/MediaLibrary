@@ -185,7 +185,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             binding.changeImage.imageBookCover.imageTintList = null
             binding.changeImage.buttonClearCover.visibility = View.VISIBLE
         } else {
-            ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(binding.changeImage.imageBookCover, requireContext(), resources , SharedEnums.MediaType.Book)
             binding.changeImage.buttonClearCover.visibility = View.GONE
         }
 
@@ -199,6 +199,23 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             binding.standaloneSwitch.isChecked = true
             binding.readSwitch.isChecked = book.Items[0].Read
             binding.ownedSwitch.isChecked = book.Items[0].Owned
+            binding.descriptionInput.setText(book.Items[0].Description)
+
+            val languages = Enums.Language.entries.toList()
+            val languageNames = languages.map { lang ->
+                if (lang == Enums.Language.NoneSelected) "None Selected" else lang.name
+            }
+            val langAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
+            binding.languageDropdown.autocomplete.setAdapter(langAdapter)
+            binding.languageDropdown.autoCompleteLabel.hint = getString(R.string.language)
+
+            selectedItemLanguage = book.Items[0].Language ?: Enums.Language.NoneSelected
+            val initialLangText = if (selectedItemLanguage == Enums.Language.NoneSelected) "" else selectedItemLanguage.name
+            binding.languageDropdown.autocomplete.setText(initialLangText, false)
+
+            binding.languageDropdown.autocomplete.setOnItemClickListener { _, _, pos, _ ->
+                selectedItemLanguage = languages[pos]
+            }
 
             val format = book.Items[0].format ?: Enums.BookFormat.NoneSelected
             RadioGridUtils.setSelection(
@@ -277,6 +294,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         val item = BookItem().apply {
             Read = binding.readSwitch.isChecked
             Owned = binding.ownedSwitch.isChecked
+            Description = binding.descriptionInput.text.toString()
+            Language = selectedItemLanguage
             VolumeNumber = "-1"
             Format = format.value
         }
@@ -351,6 +370,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         binding.standaloneSwitch.isEnabled = enabled
         binding.readSwitch.isEnabled = enabled
         binding.ownedSwitch.isEnabled = enabled
+        binding.descriptionInput.isEnabled = enabled
+        binding.languageDropdown.autocomplete.isEnabled = enabled
         binding.genreMultiselect.chipGroupGenres.children.forEach { it.isEnabled = enabled }
     }
 
@@ -618,6 +639,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         dialog.show()
     }
 
+    private var selectedItemLanguage = Enums.Language.NoneSelected
+
     private fun setupItemSheetBindings(
         sb: BookItemBottomSheetBinding,
         dialog: BottomSheetDialog,
@@ -625,6 +648,22 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         position: Int
     ) {
         sb.cancelButton.setOnClickListener { dialog.dismiss() }
+
+        val languages = Enums.Language.entries.toList()
+        val languageNames = languages.map { lang ->
+            if (lang == Enums.Language.NoneSelected) "None Selected" else lang.name
+        }
+        val langAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
+        sb.languageDropdown.autocomplete.setAdapter(langAdapter)
+        sb.languageDropdown.autoCompleteLabel.hint = getString(R.string.language)
+
+        selectedItemLanguage = item?.Language ?: Enums.Language.NoneSelected
+        val initialLangText = if (selectedItemLanguage == Enums.Language.NoneSelected) "" else selectedItemLanguage.name
+        sb.languageDropdown.autocomplete.setText(initialLangText, false)
+
+        sb.languageDropdown.autocomplete.setOnItemClickListener { _, _, pos, _ ->
+            selectedItemLanguage = languages[pos]
+        }
 
         val formats = setup.Format.filter { it.key != Enums.BookFormat.NoneSelected.ordinal }
         sb.formatRadioGroup.radioButtonLabel.setText(R.string.format_label)
@@ -641,6 +680,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         item?.let {
             sb.titleInput.setText(it.VolumeTitle)
             sb.numberInput.setText(it.VolumeNumber)
+            sb.descriptionInput.setText(it.Description)
             sb.ownedSwitch.isChecked = it.Owned
             sb.readSwitch.isChecked = it.Read
             RadioGridUtils.setSelection(
@@ -655,12 +695,12 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                 sb.imageItemCover.imageBookCover.tag = it.ItemCover
                 sb.imageItemCover.buttonClearCover.visibility = View.VISIBLE
             } else {
-                ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources)
+                ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Book)
                 sb.imageItemCover.imageBookCover.tag = null
                 sb.imageItemCover.buttonClearCover.visibility = View.GONE
             }
         } ?: run {
-            ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(sb.imageItemCover.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Book)
             sb.imageItemCover.imageBookCover.tag = null
             sb.imageItemCover.buttonClearCover.visibility = View.GONE
         }
@@ -692,6 +732,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             sb.imageItemCover.buttonClearCover.visibility = View.GONE
             sb.titleInput.isEnabled = false
             sb.numberInput.isEnabled = false
+            sb.descriptionInput.isEnabled = false
+            sb.languageDropdown.autocomplete.isEnabled = false
             sb.ownedSwitch.isEnabled = false
             sb.readSwitch.isEnabled = false
             sb.formatRadioGroup.dynamicTableLayout.children.forEach { child ->
@@ -718,14 +760,14 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             return
         }
 
-
-
         val newItem = BookItem().apply {
             VolumeNumber = volNum
             VolumeTitle = sb.titleInput.text.toString()
             Owned = sb.ownedSwitch.isChecked
             Read = sb.readSwitch.isChecked
             Format = selectedFormat
+            Language = selectedItemLanguage
+            Description = sb.descriptionInput.text.toString()
             ItemCover = sb.imageItemCover.imageBookCover.tag as? ByteArray
         }
 
@@ -788,7 +830,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                         ImageUtils.showImagePreviewDialog(context, item.ItemCover, item.VolumeTitle ?: "Volume " + item.VolumeNumber)
                     }
                 } else {
-                    ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources)
+                    ImageUtils.setPlaceholderCover(binding.imageItemCover, context, resources, SharedEnums.MediaType.Book)
                 }
 
                 if (isView) {

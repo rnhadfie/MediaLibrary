@@ -104,6 +104,14 @@ object XmlExportImport {
                     serializer.text(item.VolumeTitle ?: "")
                     serializer.endTag(null, "VolumeTitle")
 
+                    serializer.startTag(null, "Language")
+                    serializer.text((item.Language ?: "") as String?)
+                    serializer.endTag(null, "Language")
+
+                    serializer.startTag(null, "Description")
+                    serializer.text(item.Description ?: "")
+                    serializer.endTag(null, "Description")
+
                     serializer.startTag(null, "Read")
                     serializer.text(item.Read.toString())
                     serializer.endTag(null, "Read")
@@ -161,6 +169,10 @@ object XmlExportImport {
                     serializer.startTag(null, "DiscTitle")
                     serializer.text(item.DiscTitle ?: "")
                     serializer.endTag(null, "DiscTitle")
+
+                    serializer.startTag(null, "Description")
+                    serializer.text(item.Description ?: "")
+                    serializer.endTag(null, "Description")
 
                     serializer.startTag(null, "Watched")
                     serializer.text(item.Watched.toString())
@@ -560,6 +572,12 @@ object XmlExportImport {
                         "PublisherId" -> currentBook?.Publisher = parser.nextText() ?: ""
                         "VolumeNumber" -> currentBookItem?.VolumeNumber = parser.nextText()
                         "VolumeTitle" -> currentBookItem?.VolumeTitle = parser.nextText()
+                        "Language" -> currentBookItem?.Language = BookEnums.Language.entries.find { it.name == parser.nextText() }
+                        "Description" -> {
+                            val text = parser.nextText()
+                            currentBookItem?.Description = text
+                            currentVideoItem?.Description = text
+                        }
                         "Read" -> currentBookItem?.Read = parser.nextText().toBoolean()
                         "Owned" -> {
                             val text = parser.nextText().toBoolean()
