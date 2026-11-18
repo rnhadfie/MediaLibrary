@@ -11,6 +11,7 @@ public class VideoItem {
     public boolean Owned;
     public Enums.VideoFormat Format;
     public byte[] ItemCover;
+    public String Description;
 
     @SuppressLint("DefaultLocale")
     public String GetSeason()

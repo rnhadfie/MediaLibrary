@@ -15,8 +15,8 @@ android {
         applicationId = "com.example.medialibrary"
         minSdk = 29
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.04"
+        versionCode = 4
+        versionName = "2.00"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testInstrumentationRunnerArgument("runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder")
@@ -104,6 +104,8 @@ dependencies {
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
     implementation("com.github.PhilJay.MPAndroidChart:MPChartLib:v4.0.1")
+    implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     // Pure JUnit 5 Local Testing Stack
     testImplementation(libs.junit.jupiter.api)

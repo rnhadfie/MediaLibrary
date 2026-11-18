@@ -19,9 +19,9 @@ import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookItemVolumeBinding
 import com.example.medialibrary.databinding.MusicFragmentFormBinding
 import com.example.medialibrary.databinding.MusicItemBottomSheetBinding
-import com.example.medialibrary.utils.ImageUtils
-import com.example.medialibrary.utils.RadioGridUtils
-import com.example.medialibrary.utils.YearPickerHelper
+import com.example.medialibrary.shared.ImageUtils
+import com.example.medialibrary.shared.RadioGridUtils
+import com.example.medialibrary.shared.YearPickerHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
 import models.music.Enums.MusicGenre
@@ -201,7 +201,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
             sheetBinding.imageItemCover.imageBookCover.setImageBitmap(bitmap)
             sheetBinding.imageItemCover.buttonClearCover.visibility = View.VISIBLE
         } else {
-            ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Music)
             sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
@@ -216,7 +216,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
         }
         sheetBinding.imageItemCover.buttonClearCover.setOnClickListener {
             currentSheetCover = null
-            ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources)
+            ImageUtils.setPlaceholderCover(sheetBinding.imageItemCover.imageBookCover, requireContext(), resources, SharedEnums.MediaType.Music)
             sheetBinding.imageItemCover.buttonClearCover.visibility = View.GONE
         }
 
@@ -390,7 +390,7 @@ class MusicFormFragment : BaseFormFragment<MusicFragmentFormBinding, MusicFormVi
                             ImageUtils.showImagePreviewDialog(itemView.context, item.Cover, item.Title)
                         }
                     } else {
-                        ImageUtils.setPlaceholderCover(binding.imageItemCover, itemView.context, itemView.resources)
+                        ImageUtils.setPlaceholderCover(binding.imageItemCover, itemView.context, itemView.resources, SharedEnums.MediaType.Music)
                     }
 
                     if (isView) {

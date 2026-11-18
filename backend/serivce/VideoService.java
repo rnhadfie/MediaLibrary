@@ -1,18 +1,21 @@
 package serivce;
 
 import models.shared.DisplayMediaItem;
-import models.video.Enums;
 import models.video.Enums.*;
 import models.video.Video;
 import models.video.VideoFilter;
+import models.video.VideoItem;
 import models.video.VideoSaveObject;
 import models.video.VideoSetup;
+import models.video.VideoSpine;
 import repository.VideoRepository;
 import repository.database.MediaLibraryDbHelper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
 import kotlin.Lazy;
 import kotlin.LazyKt;
 
@@ -177,5 +180,47 @@ public class VideoService {
         }
 
         return filteredList;
+    }
+
+    public List<VideoSpine> GetVideoSpines(VideoFilter filter) {
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
+
+        List<Video> videos = _VideoRepo.GetVideos(whereClause, selectionArgs);
+        videos = _SharedService.Sort(filter, videos);
+
+        List<VideoSpine> videoSpines = new ArrayList<>();
+        for (Video video : videos) {
+            String title = video.Title;
+            for (VideoItem item : video.Items) {
+                if (item.Owned) {
+
+                    VideoSpine videoSpine = new VideoSpine();
+                    videoSpine.Id = video.Id;
+                    videoSpine.VideoTitle = title;
+                    videoSpine.SpineDisplayTitle = GetTitle(title, item);
+                    videoSpine.SpineColorHex = _SharedService.GetRandomHex();
+                    videoSpines.add(videoSpine);
+                }
+            }
+        }
+        return videoSpines;
+    }
+
+    private String GetTitle(String title, VideoItem item) {
+        String displayTitle = title;
+        if(item.DiscTitle!= null && !item.DiscTitle.isEmpty()) {
+            displayTitle = item.DiscTitle;
+            return displayTitle;
+        }
+        if(!Objects.equals(item.GetSeason(), "-1"))
+        {
+            displayTitle = displayTitle + " #" + item.GetSeason();
+        }
+        if(item.Description!= null && !item.Description.isEmpty()) {
+            displayTitle = displayTitle + " " + item.Description;
+        }
+
+        return displayTitle;
     }
 }

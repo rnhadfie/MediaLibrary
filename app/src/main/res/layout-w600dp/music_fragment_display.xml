@@ -66,7 +66,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_margin="16dp"
-                app:cardBackgroundColor="@color/section_music_light">
+                app:cardBackgroundColor="?attr/colorSecondary">
 
                 <TextView
                     android:id="@+id/music_total_items_card_text"
@@ -75,7 +75,7 @@
                     android:gravity="center"
                     android:text="@string/total_cds"
                     android:textAppearance="?attr/textAppearanceHeadline6"
-                    android:textColor="@color/black" />
+                    android:textColor="?attr/colorOnSurface" />
             </androidx.cardview.widget.CardView>
 
             <include layout="@layout/view_text_card"

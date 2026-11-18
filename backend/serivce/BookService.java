@@ -85,6 +85,7 @@ public class BookService {
         bookSetup.Genre = _SharedService.GetGenres();
         bookSetup.Type = this.GetBookTypes();
         bookSetup.Demographics = this.GetBookDemographics();
+        bookSetup.Languages = this.GetBookLanguages();
         bookSetup.Publishers = this.GetPublishers();
         bookSetup.Tag = _SharedService.GetTags();
         return bookSetup;
@@ -150,7 +151,20 @@ public class BookService {
                     if (filter.ExcludedFormats != null && !filter.ExcludedFormats.isEmpty()) {
                         formatExcluded = filter.ExcludedFormats.contains(commonFormat);
                     }
-                    return !(formatNotIncluded || formatExcluded);
+                    if (formatNotIncluded || formatExcluded) {
+                        return false;
+                    }
+                }
+
+                if (b.Items != null && !b.Items.isEmpty()) {
+                    if (filter.IncludedLanguages != null && !filter.IncludedLanguages.isEmpty()) {
+                        boolean match = b.Items.stream().anyMatch(i -> i.Language != null && filter.IncludedLanguages.contains(i.Language));
+                        if (!match) return false;
+                    }
+                    if (filter.ExcludedLanguages != null && !filter.ExcludedLanguages.isEmpty()) {
+                        boolean match = b.Items.stream().anyMatch(i -> i.Language != null && filter.ExcludedLanguages.contains(i.Language));
+                        return !match;
+                    }
                 }
                 return true;
             }).collect(Collectors.toList());
@@ -167,6 +181,16 @@ public class BookService {
             formatMap.put(format.ordinal(), sharedService.GetSeperatedString(format.toString()));
         }
         return formatMap;
+    }
+
+    public Map<Integer, String> GetBookLanguages() {
+        var sharedService = this.sharedService.getValue();
+        Enums.Language[] languages = Enums.Language.values();
+        Map<Integer, String> langMap = new HashMap<>();
+        for (Enums.Language lang : languages) {
+            langMap.put(lang.ordinal(), sharedService.GetSeperatedString(lang.toString()));
+        }
+        return langMap;
     }
 
     public Map<Integer, String> GetBookTypes() {
@@ -187,6 +211,51 @@ public class BookService {
             demogMap.put(demog.ordinal(), sharedService.GetSeperatedString(demog.toString()));
         }
         return demogMap;
+    }
+
+    public List<BookSpine> GetBookSpines(BookFilter filter) {
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
+
+        List<Book> books = _BookRepo.GetBooks(whereClause, selectionArgs);
+        books = _SharedService.Sort(filter, books);
+
+        List<BookSpine> bookSpines = new ArrayList<>();
+        for (Book book : books) {
+            String title = book.Title;
+            for (BookItem item : book.Items) {
+                if (item.Owned) {
+                    BookSpine bookSpine = new BookSpine();
+                    bookSpine.Id = book.Id;
+                    bookSpine.BookTitle = title;
+                    bookSpine.SpineDisplayTitle = GetTitle(title, item);
+                    bookSpine.SpineColorHex = _SharedService.GetRandomHex();
+                    bookSpines.add(bookSpine);
+                }
+            }
+        }
+        return bookSpines;
+    }
+
+    private String GetTitle(String title, BookItem item) {
+        String displayTitle = title;
+        if(item.VolumeTitle!= null && !item.VolumeTitle.isEmpty()) {
+            displayTitle = item.VolumeTitle;
+            return displayTitle;
+        }
+
+
+        if(!Objects.equals(item.VolumeNumber, "-1"))
+        {
+            displayTitle = displayTitle + " #" + item.VolumeNumber;
+        }
+
+        if(item.Description != null && !item.Description.isEmpty())
+        {
+            displayTitle = displayTitle + " " + item.Description;
+        }
+
+        return displayTitle;
     }
 
     public List<Publisher> GetPublishers() {

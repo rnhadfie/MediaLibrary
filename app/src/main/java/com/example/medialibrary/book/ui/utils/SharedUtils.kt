@@ -3,10 +3,10 @@ package com.example.medialibrary.book.ui.utils
 import android.content.Context
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.BookBottomSheetBinding
-import com.example.medialibrary.utils.FilterOption
-import com.example.medialibrary.utils.MultiSelectFilterHelper
-import com.example.medialibrary.utils.SortDialogHelper
-import com.example.medialibrary.utils.TriStateCheckBoxHelper
+import com.example.medialibrary.shared.FilterOption
+import com.example.medialibrary.shared.MultiSelectFilterHelper
+import com.example.medialibrary.shared.SortDialogHelper
+import com.example.medialibrary.shared.TriStateCheckBoxHelper
 import models.book.BookFilter
 import models.book.BookSetup
 import models.book.Enums
@@ -56,6 +56,16 @@ class SharedUtils {
                 formatOptions,
                 filter.IncludedFormats,
                 filter.ExcludedFormats
+            )
+
+            val languageOptions = setup.Languages.filter { it.key != 0 }.map { FilterOption(Enums.Language.entries[it.key], it.value) }
+            sheetBinding.languageAutocomplete.autoCompleteLabel.setHint(R.string.language)
+            MultiSelectFilterHelper.setupTriStateDropdown(
+                sheetBinding.languageAutocomplete.autocomplete,
+                "Languages",
+                languageOptions,
+                filter.IncludedLanguages,
+                filter.ExcludedLanguages
             )
 
             val demographicsOptions = setup.Demographics.map { FilterOption(Enums.Demographics.entries[it.key], it.value) }

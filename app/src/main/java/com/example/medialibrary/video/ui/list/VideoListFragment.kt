@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
@@ -17,8 +16,8 @@ import com.example.medialibrary.BaseTransformAdapter
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentListBinding
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -63,7 +62,7 @@ class VideoListFragment : BaseFragment<VideoFragmentListBinding, VideoListModel>
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_video),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
@@ -22,9 +21,9 @@ import com.example.medialibrary.databinding.MusicBottomSheetBinding
 import com.example.medialibrary.databinding.MusicFragmentCollectingBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SharedRefreshViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
 import kotlinx.coroutines.flow.collectLatest
@@ -93,7 +92,7 @@ class MusicCollectingFragment : BaseFragment<MusicFragmentCollectingBinding, Mus
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_music),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

@@ -7,7 +7,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.medialibrary.R
 import com.example.medialibrary.book.ui.form.BookFormFragment
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.ThemeUtils
 
 class BookFormActivity : AppCompatActivity() {
 

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#EFEBE9"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <!-- Pinned Header: Title & Action Buttons -->
+    <!--
+    <LinearLayout
+        android:id="@+id/top_controls_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="#EFEBE9"
+        android:elevation="2dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp">
+
+        <LinearLayout
+            android:id="@+id/title_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+            <TextView
+                android:id="@+id/display_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/book_shelf"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                android:textColor="?attr/colorOnBackground" />
+
+            <ImageButton
+                android:id="@+id/sort_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/sort"
+                android:src="@android:drawable/ic_menu_sort_alphabetically"
+                android:tooltipText="Sort books"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
+                android:id="@+id/filter_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/filter"
+                android:src="@drawable/ic_settings_black_24dp"
+                android:tooltipText="Filter books"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageButton
+                android:id="@+id/copy_list_btn"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/get_list_of_items"
+                android:src="@android:drawable/ic_menu_agenda"
+                android:tooltipText="Get list of visible books and book series" />
+
+        </LinearLayout>
+    </LinearLayout> -->
+
+    <!-- Pinned Active Filters Bar (Always stays between Title and Shelf) -->
+   <!-- <include
+        android:id="@+id/active_filter_card"
+        layout="@layout/view_active_filter_summary"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="8dp" /> -->
+
+    <!-- Scrollable Bookshelf (Starts strictly below Active Filters) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvBookshelf"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingHorizontal="8dp"
+        android:paddingBottom="24dp" />
+
+</FrameLayout>

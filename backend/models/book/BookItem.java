@@ -9,6 +9,8 @@ public class BookItem {
     public boolean Owned;
     public Enums.BookFormat Format;
     public byte[] ItemCover;
+    public Enums.Language Language = Enums.Language.NoneSelected;
+    public String Description;
 
     public Enums.BookFormat getFormat() { return Format; }
 

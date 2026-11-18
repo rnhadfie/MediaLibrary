@@ -60,6 +60,8 @@ public class DatabaseMappings {
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
         itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
+        itemValues.put(COLUMN_LANGUAGE, item.Language != null ? item.Language.ordinal() : 0);
+        itemValues.put(COLUMN_DESCRIPTION, item.Description == null ? "" : item.Description.trim());
         return itemValues;
     }
 
@@ -94,6 +96,25 @@ public class DatabaseMappings {
         item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
         var itemCover = cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER));
         item.ItemCover = decompressBitmap(itemCover);
+
+        int langIdx = cursor.getColumnIndex(COLUMN_LANGUAGE);
+        if (langIdx != -1 && !cursor.isNull(langIdx)) {
+            int langVal = cursor.getInt(langIdx);
+            if (langVal >= 0 && langVal < Enums.Language.values().length) {
+                item.Language = Enums.Language.values()[langVal];
+            } else {
+                item.Language = Enums.Language.NoneSelected;
+            }
+        } else {
+            item.Language = Enums.Language.NoneSelected;
+        }
+
+        int descIdx = cursor.getColumnIndex(COLUMN_DESCRIPTION);
+        if (descIdx != -1 && !cursor.isNull(descIdx)) {
+            item.Description = cursor.getString(descIdx);
+        } else {
+            item.Description = "";
+        }
     }
 
     public static void MapBook(Cursor bookCursor, Book book) {
@@ -144,6 +165,13 @@ public class DatabaseMappings {
         item.Format = models.video.Enums.VideoFormat.values()[cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_FORMAT))];
         item.Owned = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_OWNED)) == 1;
         item.ItemCover = decompressBitmap(cursor.getBlob(cursor.getColumnIndexOrThrow(COLUMN_ITEM_COVER)));
+
+        int descIdx = cursor.getColumnIndex(COLUMN_DESCRIPTION);
+        if (descIdx != -1 && !cursor.isNull(descIdx)) {
+            item.Description = cursor.getString(descIdx);
+        } else {
+            item.Description = "";
+        }
     }
 
     public static String MapVideo(Cursor videoCursor, Video video) {
@@ -204,6 +232,7 @@ public class DatabaseMappings {
         itemValues.put(COLUMN_OWNED, item.Owned ? 1 : 0);
         itemValues.put(COLUMN_FORMAT, item.Format != null ? item.Format.ordinal() : 0);
         itemValues.put(COLUMN_ITEM_COVER, compressBitmap(item.ItemCover));
+        itemValues.put(COLUMN_DESCRIPTION, item.Description == null ? "" : item.Description.trim());
         return itemValues;
     }
 

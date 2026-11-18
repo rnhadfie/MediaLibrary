@@ -8,7 +8,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
@@ -18,9 +17,9 @@ import com.example.medialibrary.databinding.MusicFragmentDisplayBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
 import com.example.medialibrary.music.ui.utils.SharedUtils
 import com.example.medialibrary.music.ui.utils.SortFilterViewmodel
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.TextCardHelper
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.TextCardHelper
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.MusicController
 import kotlinx.coroutines.flow.collectLatest
@@ -62,7 +61,7 @@ class MusicDisplayFragment : BaseFragment<MusicFragmentDisplayBinding, MusicDisp
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
             binding.scrollViewMusicDisplay,
-            ContextCompat.getColor(requireContext(), R.color.section_music),
+            -1,
             binding.emptyStateContainer,
             binding.emptyStateLayout,
             emptyTextResId = R.string.no_cds_found,

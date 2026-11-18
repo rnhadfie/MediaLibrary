@@ -1,12 +1,14 @@
 package com.example.medialibrary.home.ui.tag
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.R
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DiffUtil
@@ -15,8 +17,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.BaseFragment
 import com.example.medialibrary.databinding.TagFragmentListBinding
 import com.example.medialibrary.databinding.TagItemBinding
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SharedRefreshViewModel
+import com.example.medialibrary.shared.ThemeUtils
 import controllers.MainController
 import models.shared.Tag
 import repository.database.MediaLibraryDbHelper
@@ -45,6 +48,10 @@ class TagListFragment : BaseFragment<TagFragmentListBinding, TagViewModel>(
         binding.recyclerviewTag.adapter = adapter
 
         viewModel.tags.observe(viewLifecycleOwner) { tags ->
+            val effectiveColor = ThemeUtils.getThemeColor(requireContext(), R.attr.colorPrimary)
+            binding.emptyStateContainer.emptyStateText.setTextColor(effectiveColor)
+            binding.emptyStateContainer.emptyStateIcon.imageTintList = ColorStateList.valueOf(effectiveColor)
+            binding.emptyStateContainer.emptyStateIcon.setImageResource(com.example.medialibrary.R.drawable.ic_gallery_120dp)
             if (tags.isNullOrEmpty()) {
                 binding.recyclerviewTag.visibility = View.GONE
                 binding.emptyStateContainer.root.visibility = View.VISIBLE

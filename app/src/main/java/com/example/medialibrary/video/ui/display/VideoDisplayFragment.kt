@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
@@ -18,11 +17,12 @@ import com.example.medialibrary.databinding.VideoBottomSheetBinding
 import com.example.medialibrary.databinding.VideoFragmentDisplayBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
 
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.utils.TextCardHelper
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SafePieChartRenderer
+import com.example.medialibrary.shared.TextCardHelper
+import com.example.medialibrary.shared.ThemeUtils
+import com.example.medialibrary.shared.ThemeUtils.getThemeColor
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import models.video.Enums as VideoEnums
@@ -34,7 +34,6 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.VideoController
 import kotlinx.coroutines.flow.collectLatest
@@ -149,7 +148,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         setupEmptyStateMediaItemObserver(
             viewModel.MediaItems,
             binding.scrollView,
-            ContextCompat.getColor(requireContext(), R.color.section_video),
+            -1,
             binding.emptyStateContainer,
             binding.emptyStateLayout,
             R.string.no_videos_found
@@ -185,9 +184,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     private fun getThemeChartColors(): List<Int> {
         val ctx = context ?: return listOf(Color.BLUE)
-        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
-        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
-        val primaryDark = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimaryDark)
+        val primary = getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        val primaryDark = getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimaryDark)
         return listOf(
             primary,
             secondary,
@@ -200,8 +199,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     private fun getProgressChartColors(): List<Int> {
         val ctx = context ?: return listOf(Color.BLUE, Color.LTGRAY)
-        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
-        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        val primary = getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
         return listOf(primary, secondary)
     }
 
@@ -231,6 +230,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupWatchedPieChart(watchedCount: Int, totalDvds: Int) {
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val watchPercent = if (totalDvds > 0) ((watchedCount.toDouble() / totalDvds.toDouble()) * 100).toInt() else 0
 
         val watchPercentPieEntries = ArrayList<PieEntry<*>>()
@@ -238,21 +238,25 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         watchPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
         val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Watched Percent")
-        watchPercentPieDataSet.colors = getProgressChartColors()
+        val progressColors = getProgressChartColors()
+        watchPercentPieDataSet.colors = progressColors
+        watchPercentPieDataSet.valueTextColors = progressColors.map { ThemeUtils.getContrastingTextColor(it) }
+        watchPercentPieDataSet.valueTextSize = 12f
 
         val percentPieData = PieData(watchPercentPieDataSet)
 
         binding.watchedProgressChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             if (watchPercentPieEntries.isEmpty()) {
-                chart.noDataTextColor = Color.BLACK
                 chart.noDataText = "No data to display"
                 chart.data = null
-                chart.noDataTextColor = Color.BLACK
                 chart.centerTextSize = 20f
             } else {
                 chart.description.isEnabled = false
                 chart.data = percentPieData
                 chart.centerText = "Watched Percent: $watchPercent%"
+                chart.centerTextColor = onSurfaceColor
+                chart.centerTextSize = 14f
                 chart.legend.isEnabled = false
                 chart.holeColor = Color.TRANSPARENT
                 chart.transparentCircleColor = Color.TRANSPARENT
@@ -269,6 +273,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupFormatPieChart(items: List<Video>) {
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val formatPieEntries = ArrayList<PieEntry<*>>()
 
         var dvdCount = 0
@@ -298,24 +303,32 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
             if (bluRayCount > 0) formatPieEntries.add(PieEntry(bluRayCount.toFloat(), "Blu-Ray"))
 
             binding.formatChart.let { chart ->
+                chart.noDataTextColor = onSurfaceColor
                 if (formatPieEntries.isEmpty()) {
                     chart.data = null
-                    chart.noDataTextColor = Color.BLACK
                     chart.noDataText = "No format data to display"
                 } else {
-                    formatPieDataSet.colors = getThemeChartColors()
+                    val chartColors = getThemeChartColors()
+                    formatPieDataSet.colors = chartColors
+                    formatPieDataSet.valueTextColors = chartColors.map { ThemeUtils.getContrastingTextColor(it) }
+                    formatPieDataSet.valueTextSize = 12f
+
                     val formatPieData = PieData(formatPieDataSet)
                     chart.data = formatPieData
                     chart.holeColor = Color.TRANSPARENT
                     chart.transparentCircleColor = Color.TRANSPARENT
                     chart.setBackgroundColor(Color.TRANSPARENT)
                     chart.centerText = "Format"
+                    chart.centerTextColor = onSurfaceColor
+                    chart.centerTextSize = 14f
                     chart.isUsePercentValuesEnabled = true
                     chart.description.isEnabled = false
                     chart.isDrawEntryLabelsEnabled = false
 
                     chart.legend.let { legend ->
                         legend.isEnabled = true
+                        legend.textColor = onSurfaceColor
+                        legend.textSize = 12f
                         legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                         legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                         legend.orientation = Legend.LegendOrientation.HORIZONTAL
@@ -335,6 +348,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setRatingBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val ratingsMap = setup.Ratings
 
@@ -348,8 +362,10 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                     count += video.Items?.count { item -> item.Owned } ?: 1
                 }
                 if (count > 0) {
+                    val color = colors[index % colors.size]
                     val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                    set.color = colors[index % colors.size]
+                    set.color = color
+                    set.valueTextSize = 12f
                     dataSets.add(set)
                     index++
                 }
@@ -359,11 +375,11 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         val barData = BarData(dataSets)
 
         binding.ratingChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             chart.noDataText = "No rating data to display"
 
             if (dataSets.isEmpty()) {
                 chart.data = null
-                chart.noDataTextColor = Color.BLACK
             } else {
                 chart.data = barData
                 chart.description.isEnabled = false
@@ -371,6 +387,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
                 val legend = chart.legend
                 legend.isEnabled = true
+                legend.textColor = onSurfaceColor
+                legend.textSize = 12f
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL
@@ -426,6 +444,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
 
     private fun setVideoTypeBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val typeCounts = setup.Types
 
@@ -440,8 +459,11 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                         count += it.Items.count()
                     }
                 }
+                val color = colors[index % colors.size]
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                set.color = colors[index % colors.size]
+                set.color = color
+                set.valueTextColor = ThemeUtils.getContrastingTextColor(color)
+                set.valueTextSize = 12f
                 dataSets.add(set)
                 index++
             }
@@ -450,11 +472,11 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         val barData = BarData(dataSets)
 
         binding.videoTypeChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             chart.noDataText = "No data to display"
 
             if (dataSets.isEmpty()) {
                 chart.data = null
-                chart.noDataTextColor = Color.BLACK
             } else {
                 chart.data = barData
                 chart.description.isEnabled = false
@@ -462,6 +484,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
                 val legend = chart.legend
                 legend.isEnabled = true
+                legend.textColor = onSurfaceColor
+                legend.textSize = 12f
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL
@@ -475,6 +499,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setCategoryBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val tagCounts = setup.VideoTags
 
@@ -489,8 +514,10 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                         count += it.Items.count()
                     }
                 }
+                val color = colors[index % colors.size]
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                set.color = colors[index % colors.size]
+                set.color = color
+                set.valueTextSize = 12f
                 dataSets.add(set)
                 index++
             }
@@ -499,11 +526,11 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         val barData = BarData(dataSets)
 
         binding.videoCategoryChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             chart.noDataText = "No Tag data to display"
 
             if (dataSets.isEmpty()) {
                 chart.data = null
-                chart.noDataTextColor = Color.BLACK
             } else {
                 chart.data = barData
                 chart.description.isEnabled = false
@@ -511,6 +538,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
                 val legend = chart.legend
                 legend.isEnabled = true
+                legend.textColor = onSurfaceColor
+                legend.textSize = 12f
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL

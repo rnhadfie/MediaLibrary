@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
@@ -22,8 +21,8 @@ import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentCollectingBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
@@ -70,7 +69,7 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
         setupEmptyStateObserver(
             viewModel.items,
             recyclerView,
-            ContextCompat.getColor(requireContext(), R.color.section_book),
+            -1,
             binding.emptyStateContainer,
             adapter
         )

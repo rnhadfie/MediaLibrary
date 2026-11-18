@@ -10,16 +10,15 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
-import com.example.medialibrary.R
 import com.example.medialibrary.book.BookActivity
 import com.example.medialibrary.book.ui.utils.SortFilterViewmodel
 import com.example.medialibrary.databinding.MainFragmentDisplayBinding
 import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.utils.ThemeUtils
-import com.example.medialibrary.utils.ThemeUtils.getActivityColour
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SharedRefreshViewModel
+import com.example.medialibrary.shared.ThemeUtils
+import com.example.medialibrary.shared.ThemeUtils.getActivityColour
 import com.example.medialibrary.video.VideoActivity
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
@@ -144,6 +143,7 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
             }
         }
 
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val colors = listOf(
             getActivityColour(requireContext(), "BookActivity"),
@@ -160,13 +160,17 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
         )
 
         categories.forEachIndexed { index, (x, y, label) ->
+            val color = colors[index]
             val set = BarDataSet(listOf(BarEntry(x, y)), label)
-            set.color = colors[index]
+            set.color = color
+            set.valueTextColor = ThemeUtils.getContrastingTextColor(color)
+            set.valueTextSize = 12f
             dataSets.add(set)
         }
 
         val barData = BarData(dataSets)
         binding.barChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             chart.noDataText = "No data to display"
             if (dataSets.isEmpty()) {
                 chart.data = null
@@ -177,6 +181,8 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
 
                 val legend = chart.legend
                 legend.isEnabled = true
+                legend.textColor = onSurfaceColor
+                legend.textSize = 12f
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                 legend.orientation = Legend.LegendOrientation.HORIZONTAL

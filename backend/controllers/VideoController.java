@@ -48,5 +48,8 @@ public class VideoController extends BaseController {
         return this.videoSerivce.getValue().GetVideoSetup();
     }
 
+    public List<VideoSpine> GetBookSpines(VideoFilter filter) {
+        return this.videoSerivce.getValue().GetVideoSpines(filter);
+    }
 
 }

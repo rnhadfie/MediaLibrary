@@ -16,9 +16,9 @@ import com.example.medialibrary.book.BookActivity
 import com.example.medialibrary.home.MainActivity
 import com.example.medialibrary.music.MusicActivity
 import com.example.medialibrary.other.OtherActivity
-import com.example.medialibrary.utils.SharedRefreshViewModel
-import com.example.medialibrary.utils.ThemeUtils
-import com.example.medialibrary.utils.XmlExportImport
+import com.example.medialibrary.shared.SharedRefreshViewModel
+import com.example.medialibrary.shared.ThemeUtils
+import com.example.medialibrary.shared.XmlExportImport
 import com.example.medialibrary.video.VideoActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationView

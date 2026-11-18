@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import kotlin.Lazy;
@@ -467,21 +468,23 @@ public class SharedService {
             //Book Demographics
             List<String> incDemographics = new ArrayList<>();
             if (bFilter.IncludedDemographics != null && !bFilter.IncludedDemographics.isEmpty()) {
-                for (var t : bFilter.IncludedTypes) {
-                        incTypes.add(String.valueOf(t.ordinal()));
+                for (var d : bFilter.IncludedDemographics) {
+                    if (d != models.book.Enums.Demographics.NotApplicable) {
+                        incDemographics.add(String.valueOf(d.ordinal()));
+                    }
                 }
-            } else if (bFilter.Type != null) {
-                incDemographics.add(String.valueOf(bFilter.Type.ordinal()));
             }
-            appendInClause(conditions, selectionArgs, COLUMN_TYPE, incDemographics);
+            appendInClause(conditions, selectionArgs, COLUMN_DEMOGRAPHICS, incDemographics);
 
             List<String> excDemographics = new ArrayList<>();
-            if (bFilter.ExcludedTypes != null && !bFilter.ExcludedTypes.isEmpty()) {
-                for (var t : bFilter.ExcludedTypes) {
-                    excDemographics.add(String.valueOf(t.ordinal()));
+            if (bFilter.ExcludedDemographics != null && !bFilter.ExcludedDemographics.isEmpty()) {
+                for (var d : bFilter.ExcludedDemographics) {
+                    if (d != models.book.Enums.Demographics.NotApplicable) {
+                        excDemographics.add(String.valueOf(d.ordinal()));
+                    }
                 }
             }
-            appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excDemographics);
+            appendNotInClause(conditions, selectionArgs, COLUMN_DEMOGRAPHICS, excDemographics);
 
             //Publishers
             List<String> incPubs = new ArrayList<>();
@@ -653,5 +656,17 @@ public class SharedService {
             sortedItems.sort(buildDynamicComparator(sortRules));
         }
         return sortedItems;
+    }
+
+    public String GetRandomHex()
+    {
+        Random random = new Random();
+
+        // Generate a random integer between 0 and 0xFFFFFF (16,777,215)
+        int nextInt = random.nextInt(0x1000000);
+
+        // Format as a 6-digit uppercase hex string with a leading '#'
+        String colorCode = String.format("#%06X", nextInt);
+        return colorCode;
     }
 }

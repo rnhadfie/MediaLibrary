@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class MediaLibraryDbHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "MediaLibrary.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public MediaLibraryDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -98,6 +98,8 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_OWNED + " INTEGER, " +
                 COLUMN_FORMAT + " INTEGER, " +
                 COLUMN_ITEM_COVER + " BLOB, " +
+                COLUMN_LANGUAGE + " TEXT, " +
+                COLUMN_DESCRIPTION + " TEXT, " +
                 "FOREIGN KEY(" + COLUMN_SERIES + ") REFERENCES " + TABLE_BOOKS + "(" + COLUMN_ID + "))");
 
         //endregion
@@ -156,6 +158,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
                 COLUMN_OWNED + " INTEGER, " +
                 COLUMN_FORMAT + " INTEGER, " +
                 COLUMN_ITEM_COVER + " BLOB, " +
+                COLUMN_DESCRIPTION + " TEXT, " +
                 "FOREIGN KEY(" + COLUMN_SERIES + ") REFERENCES " + TABLE_VIDEOS + "(" + COLUMN_ID + "))");
 
         //endregion
@@ -191,6 +194,13 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (newVersion > oldVersion) {
+            if (oldVersion < 3) {
+                try {
+                    db.execSQL("ALTER TABLE " + TABLE_BOOK_ITEMS + " ADD COLUMN " + COLUMN_LANGUAGE + " TEXT;");
+                    db.execSQL("ALTER TABLE " + TABLE_BOOK_ITEMS + " ADD COLUMN " + COLUMN_DESCRIPTION + " TEXT;");
+                    db.execSQL("ALTER TABLE " + TABLE_VIDEO_ITEMS + " ADD COLUMN " + COLUMN_DESCRIPTION + " TEXT;");
+                } catch (Exception ignored) {}
+            }
 
             // Create temporary tables
             db.execSQL("ALTER TABLE " + TABLE_OTHER_ITEMS + " RENAME TO " + TABLE_OTHER_ITEMS + "_TEMP ;");
@@ -221,18 +231,19 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             {
                 db.execSQL("INSERT INTO " + TABLE_BOOKS + " SELECT * FROM " + TABLE_BOOKS + "_TEMP ;");
             }
-            db.execSQL("INSERT INTO " + TABLE_BOOK_ITEMS + " SELECT * FROM " + TABLE_BOOK_ITEMS + "_TEMP ;");
 
-            if (oldVersion <= 2) {
-                db.execSQL("INSERT INTO " + TABLE_MUSIC + " (" + COLUMN_ID + ", " + COLUMN_ARTIST + ", " + COLUMN_TAG + ", " + COLUMN_COLLECTING_PRIORITY + ") " +
-                        "SELECT " + COLUMN_ID + ", " + COLUMN_ARTIST + ", " + COLUMN_TAG + ", " + COLUMN_COLLECTING_PRIORITY + " FROM " + TABLE_MUSIC + "_TEMP;");
-
-                db.execSQL("INSERT INTO " + TABLE_MUSIC_ITEM + " (" + COLUMN_ID + ", " + COLUMN_SERIES + ", " + COLUMN_TITLE + ", " + COLUMN_COLLECTING + ", " + COLUMN_COLLECTED + ", " + COLUMN_COVER + ", " + COLUMN_GENRE + ", Year) " +
-                        "SELECT " + COLUMN_ID + ", " + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_COLLECTING + ", " + COLUMN_COLLECTED + ", " + COLUMN_COVER + ", " + COLUMN_GENRE + ", Year FROM " + TABLE_MUSIC + "_TEMP;");
-            } else {
-                db.execSQL("INSERT INTO " + TABLE_MUSIC + " SELECT * FROM " + TABLE_MUSIC + "_TEMP ;");
-                db.execSQL("INSERT INTO " + TABLE_MUSIC_ITEM + " SELECT * FROM " + TABLE_MUSIC_ITEM + "_TEMP ;");
+            if(oldVersion <=2) {
+                db.execSQL("INSERT INTO " + TABLE_BOOK_ITEMS + " (" + COLUMN_ID + ", " + COLUMN_SERIES + ", " + COLUMN_VOLUME_TITLE + ", " + COLUMN_VOLUME_NUMBER + ", " +  COLUMN_READ + ", " + COLUMN_OWNED + ", " + COLUMN_FORMAT + ", " + COLUMN_ITEM_COVER + ") " +
+                        "SELECT " + COLUMN_ID + ", "  + COLUMN_SERIES + ", " + COLUMN_VOLUME_TITLE + ", " + COLUMN_VOLUME_NUMBER + ", " +  COLUMN_READ + ", " + COLUMN_OWNED + ", " + COLUMN_FORMAT + ", " + COLUMN_ITEM_COVER + " FROM " + TABLE_BOOK_ITEMS + "_TEMP;");
             }
+            else
+            {
+                db.execSQL("INSERT INTO " + TABLE_BOOK_ITEMS + " SELECT * FROM " + TABLE_BOOK_ITEMS + "_TEMP ;");
+            }
+
+            db.execSQL("INSERT INTO " + TABLE_MUSIC + " SELECT * FROM " + TABLE_MUSIC + "_TEMP ;");
+            db.execSQL("INSERT INTO " + TABLE_MUSIC_ITEM + " SELECT * FROM " + TABLE_MUSIC_ITEM + "_TEMP ;");
+
 
 
             if(oldVersion <=2) {
@@ -243,7 +254,17 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             {
                 db.execSQL("INSERT INTO " + TABLE_VIDEOS + " SELECT * FROM " + TABLE_VIDEOS + "_TEMP ;");
             }
-            db.execSQL("INSERT INTO " + TABLE_VIDEO_ITEMS + " SELECT * FROM " + TABLE_VIDEO_ITEMS + "_TEMP ;");
+
+
+            if(oldVersion <=2) {
+                db.execSQL("INSERT INTO " + TABLE_VIDEO_ITEMS + " (" + COLUMN_ID + ", " + COLUMN_SERIES + ", " +  COLUMN_DISC_TITLE + ", " + COLUMN_DISC_NUMBER + ", " + COLUMN_WATCHED + ", " + COLUMN_OWNED  + ", " + COLUMN_ITEM_COVER + ", " + COLUMN_FORMAT + ") " +
+                        "SELECT " + COLUMN_ID + ", "  + COLUMN_SERIES + ", " + COLUMN_DISC_TITLE + ", " + COLUMN_DISC_NUMBER + ", " + COLUMN_WATCHED + ", " + COLUMN_OWNED + ", " + COLUMN_ITEM_COVER  + ", " + COLUMN_FORMAT + " FROM " + TABLE_VIDEO_ITEMS + "_TEMP;");
+            }
+            else
+            {
+                db.execSQL("INSERT INTO " + TABLE_VIDEO_ITEMS + " SELECT * FROM " + TABLE_VIDEO_ITEMS + "_TEMP ;");
+            }
+
             db.execSQL("INSERT INTO " + TABLE_OTHERS + " SELECT * FROM " + TABLE_OTHERS + "_TEMP ;");
             if(oldVersion <= 2) {
                 db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " (" + COLUMN_ID + ", " + COLUMN_SERIES + ", " + COLUMN_ITEM_COVER + ") " +
@@ -252,6 +273,7 @@ public class MediaLibraryDbHelper extends SQLiteOpenHelper {
             else {
                 db.execSQL("INSERT INTO " + TABLE_OTHER_ITEMS + " SELECT * FROM " + TABLE_OTHER_ITEMS + "_TEMP ;");
             }
+
             // Drop temporary tables
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHER_ITEMS + "_TEMP ;");
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_OTHERS + "_TEMP ;");

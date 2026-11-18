@@ -18,6 +18,12 @@
         tools:layout="@layout/video_fragment_display" />
 
     <fragment
+        android:id="@+id/nav_shelf"
+        android:name="com.example.medialibrary.video.ui.shelf.VideoShelfFragment"
+        android:label="@string/shelf_view"
+        tools:layout="@layout/fragment_video_shelf" />
+
+    <fragment
         android:id="@+id/nav_collecting"
         android:name="com.example.medialibrary.video.ui.collecting.CollectingFragment"
         android:label="@string/movie_and_tv_collection_currently_collecting"

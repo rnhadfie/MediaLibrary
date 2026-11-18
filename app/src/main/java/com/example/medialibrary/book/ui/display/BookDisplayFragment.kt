@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.medialibrary.BaseFragment
@@ -21,11 +20,11 @@ import com.example.medialibrary.databinding.BookBottomSheetBinding
 import com.example.medialibrary.databinding.BookFragmentDisplayBinding
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.ViewTextCardBinding
-import com.example.medialibrary.utils.FilterSummaryHelper
-import com.example.medialibrary.utils.FragmentType
-import com.example.medialibrary.utils.SafePieChartRenderer
-import com.example.medialibrary.utils.TextCardHelper
-import com.example.medialibrary.utils.ThemeUtils
+import com.example.medialibrary.shared.FilterSummaryHelper
+import com.example.medialibrary.shared.FragmentType
+import com.example.medialibrary.shared.SafePieChartRenderer
+import com.example.medialibrary.shared.TextCardHelper
+import com.example.medialibrary.shared.ThemeUtils
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
@@ -34,7 +33,6 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import controllers.BookController
 import kotlinx.coroutines.flow.collectLatest
@@ -143,7 +141,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         setupEmptyStateMediaItemObserver(
             viewModel.mediaItems,
             binding.scrollView,
-            ContextCompat.getColor(requireContext(), R.color.section_book),
+            -1,
             binding.emptyStateContainer,
             binding.emptyStateLayout,
             R.string.no_books_found
@@ -190,6 +188,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val completedCount = items.count { it.HasCollectedAllItems == true }
         val updateToDate = items.count { it.Ongoing }
         val collecting = items.count { it.Collecting }
+        val colors = getThemeChartColors()
 
         binding.seriesCountText.text = "Total Number of Series: ${items.count()}"
         binding.itemsText.text = "Total Number of Books: $totalBook"
@@ -201,12 +200,13 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
         val ownedItems = items.filter { it.CurrentOwnAny }
 
-        val colors = getThemeChartColors()
+
         setBookTypeBarChart(ownedItems, setup, colors)
         setupGenreBarChart(ownedItems, setup)
         setPublisherBarChart(ownedItems, setup)
         setBookFormatPieChart(ownedItems)
         setDemographicsPieChart(ownedItems)
+        setLangaugePieChart(ownedItems)
     }
 
     private fun getThemeChartColors(): List<Int> {
@@ -232,25 +232,31 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setReadPercentChart(readCount: Int, totalBook: Int) {
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val readPercent = if (totalBook > 0) ((readCount.toDouble() / totalBook.toDouble()) * 100).toInt() else 0
         val readPercentPieEntries = ArrayList<PieEntry<*>>()
         readPercentPieEntries.add(PieEntry(readPercent.toFloat()))
         readPercentPieEntries.add(PieEntry((100 - readPercent).toFloat()))
 
         val readPercentPieDataSet = PieDataSet(readPercentPieEntries, "Read Percent")
-        readPercentPieDataSet.colors = getProgressChartColors()
+        val progressColors = getProgressChartColors()
+        readPercentPieDataSet.colors = progressColors
+        readPercentPieDataSet.valueTextColors = progressColors.map { ThemeUtils.getContrastingTextColor(it) }
+        readPercentPieDataSet.valueTextSize = 12f
 
         val readPercentPieData = PieData(readPercentPieDataSet)
         binding.readProgressChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             if (readPercentPieEntries.isEmpty()) {
                 chart.noDataText = "No data to display"
                 chart.data = null
-                chart.noDataTextColor = Color.BLACK
                 chart.centerTextSize = 20f
             }
             chart.description.isEnabled = false
             chart.data = readPercentPieData
             chart.centerText = "Read Percent: $readPercent%"
+            chart.centerTextColor = onSurfaceColor
+            chart.centerTextSize = 14f
             chart.legend.isEnabled = false
             chart.holeColor = Color.TRANSPARENT
             chart.transparentCircleColor = Color.TRANSPARENT
@@ -267,6 +273,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setBookTypeBarChart(items: List<Book>, setup: BookSetup, colors: List<Int>) {
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val typeCounts = setup.Type
 
@@ -281,8 +288,10 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                         count += it.Items.count()
                     }
                 }
+                val color = colors[index % colors.size]
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                set.color = colors[index % colors.size]
+                set.color = color
+                set.valueTextSize = 12f
                 dataSets.add(set)
                 index++
             }
@@ -291,11 +300,11 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         val barData = BarData(dataSets)
 
         binding.bookTypeChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             chart.noDataText = "No data to display"
 
             if (dataSets.isEmpty()) {
                 chart.data = null
-                chart.noDataTextColor = Color.BLACK
             } else {
                 chart.data = barData
                 chart.description.isEnabled = false
@@ -303,6 +312,8 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
 
                 val legend = chart.legend
                 legend.isEnabled = true
+                legend.textColor = onSurfaceColor
+                legend.textSize = 12f
                 legend.verticalAlignment = Legend.LegendVerticalAlignment.CENTER
                 legend.horizontalAlignment = Legend.LegendHorizontalAlignment.RIGHT
                 legend.orientation = Legend.LegendOrientation.VERTICAL
@@ -403,6 +414,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setBookFormatPieChart(items: List<Book>) {
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val formatPieEntries = ArrayList<PieEntry<*>>()
 
         var ebookCount = 0
@@ -427,14 +439,17 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         if (paperBackCount > 0) formatPieEntries.add(PieEntry(paperBackCount.toFloat(), "Paperback"))
 
         binding.formatChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             if (formatPieEntries.isEmpty()) {
                 chart.data = null
                 chart.noDataText = "No Format data to display"
-                chart.noDataTextColor = Color.BLACK
                 chart.centerTextSize = 20f
             } else {
                 val formatPieDataSet = PieDataSet(formatPieEntries, "Format %")
-                formatPieDataSet.colors = getThemeChartColors()
+                val chartColors = getThemeChartColors()
+                formatPieDataSet.colors = chartColors
+                formatPieDataSet.valueTextColors = chartColors.map { ThemeUtils.getContrastingTextColor(it) }
+                formatPieDataSet.valueTextSize = 12f
 
                 val formatPieData = PieData(formatPieDataSet)
                 chart.data = formatPieData
@@ -446,10 +461,14 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.setBackgroundColor(Color.TRANSPARENT)
                 chart.isUsePercentValuesEnabled = true
                 chart.centerText = "Format %"
+                chart.centerTextColor = onSurfaceColor
+                chart.centerTextSize = 14f
                 chart.isDrawEntryLabelsEnabled = false
 
                 chart.legend.let { legend ->
                     legend.isEnabled = true
+                    legend.textColor = onSurfaceColor
+                    legend.textSize = 12f
                     legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                     legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                     legend.orientation = Legend.LegendOrientation.HORIZONTAL
@@ -469,6 +488,7 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
     }
 
     private fun setDemographicsPieChart(items: List<Book>) {
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val demoPieEntries = ArrayList<PieEntry<*>>()
 
         val targetBooks = items.filter { it.Type == BookType.Manga || it.Type == BookType.LightNovel }
@@ -497,14 +517,17 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
         }
 
         binding.demographicsChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
             if (demoPieEntries.isEmpty()) {
                 chart.data = null
                 chart.noDataText = "No Demographics data to display\n(Manga & Light Novel only)"
-                chart.noDataTextColor = Color.BLACK
                 chart.centerTextSize = 16f
             } else {
                 val demoPieDataSet = PieDataSet(demoPieEntries, "Demographics %")
-                demoPieDataSet.colors = getThemeChartColors()
+                val chartColors = getThemeChartColors()
+                demoPieDataSet.colors = chartColors
+                demoPieDataSet.valueTextColors = chartColors.map { ThemeUtils.getContrastingTextColor(it) }
+                demoPieDataSet.valueTextSize = 12f
 
                 val demoPieData = PieData(demoPieDataSet)
                 chart.data = demoPieData
@@ -515,11 +538,90 @@ class BookDisplayFragment : BaseFragment<BookFragmentDisplayBinding, BookDisplay
                 chart.setBackgroundColor(Color.TRANSPARENT)
                 chart.isUsePercentValuesEnabled = true
                 chart.centerText = "Demographics %\n(Manga & Light Novel)"
+                chart.centerTextColor = onSurfaceColor
                 chart.centerTextSize = 14f
                 chart.isDrawEntryLabelsEnabled = false
 
                 chart.legend.let { legend ->
                     legend.isEnabled = true
+                    legend.textColor = onSurfaceColor
+                    legend.textSize = 12f
+                    legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+                    legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+                    legend.orientation = Legend.LegendOrientation.HORIZONTAL
+                    legend.isDrawInsideEnabled = false
+                    legend.form = Legend.LegendForm.SQUARE
+                }
+
+                chart.animateXY(1000, 1000)
+                chart.renderer = SafePieChartRenderer(
+                    chart,
+                    chart.animator,
+                    chart.viewPortHandler
+                )
+            }
+            chart.invalidate()
+        }
+    }
+
+    private fun setLangaugePieChart(items: List<Book>) {
+        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
+        val langPieEntries = ArrayList<PieEntry<*>>()
+
+        val targetBooks = items.filter { it.CurrentOwnAny }
+
+        val languageCounts = mutableMapOf<Enums.Language, Int>()
+
+        for (book in targetBooks) {
+            for (item in book.Items ?: emptyList()) {
+                val lang = item.Language ?: Enums.Language.NoneSelected
+                if (lang != Enums.Language.NoneSelected) {
+                    languageCounts[lang] = (languageCounts[lang] ?: 0) + 1
+                }
+            }
+
+        }
+
+        languageCounts.forEach { (lang, count) ->
+            if (count > 0) {
+                val name = when (lang) {
+                    Enums.Language.NoneSelected -> "Not Applicable"
+                    Enums.Language.English -> "English"
+                    Enums.Language.Spanish -> "Spanish"
+                    Enums.Language.French -> "French"
+                    Enums.Language.Japanese -> "Japanese"
+                    Enums.Language.German -> "German"
+                }
+                langPieEntries.add(PieEntry(count.toFloat(), name))
+            }
+        }
+
+        binding.languageChart.let { chart ->
+            chart.noDataTextColor = onSurfaceColor
+            if (langPieEntries.isEmpty()) {
+                chart.data = null
+                chart.centerTextSize = 16f
+            } else {
+                val demoPieDataSet = PieDataSet(langPieEntries, "Language")
+                demoPieDataSet.colors = getThemeChartColors()
+                demoPieDataSet.valueTextColor = Color.WHITE
+                demoPieDataSet.valueTextSize = 12f
+
+                val demoPieData = PieData(demoPieDataSet)
+                chart.data = demoPieData
+
+                chart.description.isEnabled = false
+                chart.holeColor = Color.TRANSPARENT
+                chart.transparentCircleColor = Color.TRANSPARENT
+                chart.setBackgroundColor(Color.TRANSPARENT)
+                chart.centerTextColor = onSurfaceColor
+                chart.centerTextSize = 14f
+                chart.isDrawEntryLabelsEnabled = false
+
+                chart.legend.let { legend ->
+                    legend.isEnabled = true
+                    legend.textColor = onSurfaceColor
+                    legend.textSize = 12f
                     legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
                     legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
                     legend.orientation = Legend.LegendOrientation.HORIZONTAL
