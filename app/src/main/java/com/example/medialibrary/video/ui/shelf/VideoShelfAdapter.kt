@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
+import com.example.medialibrary.shared.ThemeUtils
 import com.google.android.flexbox.FlexboxLayoutManager
 import models.video.VideoSpine
 
@@ -53,9 +54,16 @@ class VideoShelfAdapter(
         }
 
         fun bind(video: VideoSpine) {
-            val title = video.spineDisplayTitle.orEmpty()
+            val title = video.SpineDisplayTitle.orEmpty()
             tvTitle.text = title
-            backgroundDrawable?.setColor(parseColorSafe(video.spineColorHex))
+            val spineColor = ThemeUtils.getSpineColor(
+                itemView.context,
+                video.SpineColorHex,
+                "VideoActivity",
+                bindingAdapterPosition
+            )
+            backgroundDrawable?.setColor(spineColor)
+            tvTitle.setTextColor(ThemeUtils.getContrastingTextColor(spineColor))
 
             val density = itemView.resources.displayMetrics.density
 
@@ -79,8 +87,8 @@ class VideoShelfAdapter(
     }
 
     private class BookDiffCallback : DiffUtil.ItemCallback<VideoSpine>() {
-        override fun areItemsTheSame(oldItem: VideoSpine, newItem: VideoSpine): Boolean = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: VideoSpine, newItem: VideoSpine): Boolean = oldItem.spineDisplayTitle == newItem.spineDisplayTitle
+        override fun areItemsTheSame(oldItem: VideoSpine, newItem: VideoSpine): Boolean = oldItem.Id == newItem.Id
+        override fun areContentsTheSame(oldItem: VideoSpine, newItem: VideoSpine): Boolean = oldItem.SpineDisplayTitle == newItem.SpineDisplayTitle
     }
 
     companion object {

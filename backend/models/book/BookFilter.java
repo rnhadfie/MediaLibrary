@@ -22,4 +22,7 @@ public class BookFilter extends Filter {
 
     public List<Enums.Demographics> IncludedDemographics = new ArrayList<>();
     public List<Enums.Demographics> ExcludedDemographics = new ArrayList<>();
+
+    public List<Enums.Language> IncludedLanguages = new ArrayList<>();
+    public List<Enums.Language> ExcludedLanguages = new ArrayList<>();
 }

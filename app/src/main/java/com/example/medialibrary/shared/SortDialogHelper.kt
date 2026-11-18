@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
 import com.example.medialibrary.databinding.DialogSortContentBinding
 import com.example.medialibrary.databinding.ItemSortRowBinding
+import models.book.BookFilter
 import models.shared.Filter
 import models.shared.SortModel
 
@@ -34,9 +35,9 @@ object SortDialogHelper {
         val db = DialogSortContentBinding.inflate(LayoutInflater.from(context))
 
         val availableKeys = if (isMain) {
-            listOf("Priority", "Alphabetical", "ItemMediaType")
+            listOf("Alphabetical", "Priority", "ItemMediaType")
         } else {
-            listOf("Priority", "Alphabetical")
+            listOf("Alphabetical", "Priority")
         }
 
         val orderKeys = (filter.SortOrder ?: emptyList())
@@ -51,8 +52,8 @@ object SortDialogHelper {
 
         val sortItems = orderKeys.map { key ->
             when (key) {
-                "Priority" -> SortOptionItem(key, R.string.priority, filter.SortPriority)
                 "Alphabetical" -> SortOptionItem(key, R.string.alphabetical, filter.SortAlphabetical)
+                "Priority" -> SortOptionItem(key, R.string.priority, filter.SortPriority)
                 else -> SortOptionItem(key, R.string.itemMediaType, filter.SortItemMediaType)
             }
         }.toMutableList()
@@ -68,8 +69,8 @@ object SortDialogHelper {
                 filter.SortOrder = sortItems.map { it.key }
                 sortItems.forEach { item ->
                     when (item.key) {
-                        "Priority" -> filter.SortPriority = item.state
                         "Alphabetical" -> filter.SortAlphabetical = item.state
+                        "Priority" -> filter.SortPriority = item.state
                         "ItemMediaType" -> filter.SortItemMediaType = item.state
                     }
                 }

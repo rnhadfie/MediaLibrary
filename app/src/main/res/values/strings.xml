@@ -40,7 +40,7 @@
     <string name="watching_label">Watching</string>
     <string name="format_label">Format</string>
     <string name="language">Language</string>
-    <string name="description_hint">Description</string>
+    <string name="description_hint">Subtitle</string>
     <string name="save_item">Save Item</string>
     <string name="change_item_cover">Change Item Cover</string>
     <string name="volume_status_format">Owned: %1$s | Read: %2$s</string>

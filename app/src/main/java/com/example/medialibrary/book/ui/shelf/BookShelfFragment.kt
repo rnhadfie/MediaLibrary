@@ -28,7 +28,7 @@ import models.book.BookFilter
 import models.book.BookSetup
 import repository.database.MediaLibraryDbHelper
 
-//class VideoShelfFragment : Fragment(R.layout.fragment_book_shelf) {
+//class MusicShelfFragment : Fragment(R.layout.fragment_book_shelf) {
 class BookShelfFragment : BaseFragment<FragmentBookShelfBinding, BookShelfViewModel>(
     FragmentBookShelfBinding::inflate
 ) {

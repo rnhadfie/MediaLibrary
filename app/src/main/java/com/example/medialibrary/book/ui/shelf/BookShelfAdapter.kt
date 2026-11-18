@@ -1,6 +1,5 @@
 package com.example.medialibrary.book.ui.shelf
 
-import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
@@ -12,8 +11,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.medialibrary.R
+import com.example.medialibrary.shared.ThemeUtils
 import com.google.android.flexbox.FlexboxLayoutManager
-import models.book.Book
 import models.book.BookSpine
 
 class BookShelfAdapter(
@@ -55,9 +54,16 @@ class BookShelfAdapter(
         }
 
         fun bind(book: BookSpine) {
-            val title = book.spineDisplayTitle.orEmpty()
+            val title = book.SpineDisplayTitle.orEmpty()
             tvTitle.text = title
-            backgroundDrawable?.setColor(parseColorSafe(book.spineColorHex))
+            val spineColor = ThemeUtils.getSpineColor(
+                itemView.context,
+                book.SpineColorHex,
+                "BookActivity",
+                bindingAdapterPosition
+            )
+            backgroundDrawable?.setColor(spineColor)
+            tvTitle.setTextColor(ThemeUtils.getContrastingTextColor(spineColor))
 
             val density = itemView.resources.displayMetrics.density
 
@@ -81,21 +87,12 @@ class BookShelfAdapter(
     }
 
     private class BookDiffCallback : DiffUtil.ItemCallback<BookSpine>() {
-        override fun areItemsTheSame(oldItem: BookSpine, newItem: BookSpine): Boolean = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: BookSpine, newItem: BookSpine): Boolean = oldItem.spineDisplayTitle == newItem.spineDisplayTitle
+        override fun areItemsTheSame(oldItem: BookSpine, newItem: BookSpine): Boolean = oldItem.Id == newItem.Id
+        override fun areContentsTheSame(oldItem: BookSpine, newItem: BookSpine): Boolean = oldItem.SpineDisplayTitle == newItem.SpineDisplayTitle
     }
 
     companion object {
         // Pre-parsed once so we don't re-parse the fallback color on every scroll
         private val DEFAULT_SPINE_COLOR = "#5D4037".toColorInt()
-    }
-
-    private fun parseColorSafe(hex: String?): Int {
-        if (hex.isNullOrBlank()) return DEFAULT_SPINE_COLOR
-        return try {
-            hex.toColorInt()
-        } catch (_: IllegalArgumentException) {
-            DEFAULT_SPINE_COLOR
-        }
     }
 }

@@ -160,9 +160,10 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
         )
 
         categories.forEachIndexed { index, (x, y, label) ->
+            val color = colors[index]
             val set = BarDataSet(listOf(BarEntry(x, y)), label)
-            set.color = colors[index]
-            set.valueTextColor = onSurfaceColor
+            set.color = color
+            set.valueTextColor = ThemeUtils.getContrastingTextColor(color)
             set.valueTextSize = 12f
             dataSets.add(set)
         }

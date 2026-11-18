@@ -468,21 +468,23 @@ public class SharedService {
             //Book Demographics
             List<String> incDemographics = new ArrayList<>();
             if (bFilter.IncludedDemographics != null && !bFilter.IncludedDemographics.isEmpty()) {
-                for (var t : bFilter.IncludedTypes) {
-                        incTypes.add(String.valueOf(t.ordinal()));
+                for (var d : bFilter.IncludedDemographics) {
+                    if (d != models.book.Enums.Demographics.NotApplicable) {
+                        incDemographics.add(String.valueOf(d.ordinal()));
+                    }
                 }
-            } else if (bFilter.Type != null) {
-                incDemographics.add(String.valueOf(bFilter.Type.ordinal()));
             }
-            appendInClause(conditions, selectionArgs, COLUMN_TYPE, incDemographics);
+            appendInClause(conditions, selectionArgs, COLUMN_DEMOGRAPHICS, incDemographics);
 
             List<String> excDemographics = new ArrayList<>();
-            if (bFilter.ExcludedTypes != null && !bFilter.ExcludedTypes.isEmpty()) {
-                for (var t : bFilter.ExcludedTypes) {
-                    excDemographics.add(String.valueOf(t.ordinal()));
+            if (bFilter.ExcludedDemographics != null && !bFilter.ExcludedDemographics.isEmpty()) {
+                for (var d : bFilter.ExcludedDemographics) {
+                    if (d != models.book.Enums.Demographics.NotApplicable) {
+                        excDemographics.add(String.valueOf(d.ordinal()));
+                    }
                 }
             }
-            appendNotInClause(conditions, selectionArgs, COLUMN_TYPE, excDemographics);
+            appendNotInClause(conditions, selectionArgs, COLUMN_DEMOGRAPHICS, excDemographics);
 
             //Publishers
             List<String> incPubs = new ArrayList<>();

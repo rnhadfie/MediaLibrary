@@ -75,6 +75,8 @@ object FilterSummaryHelper {
                 }
                 formatTriStateNames(filter.IncludedTypes, filter.ExcludedTypes, "Type", parts) { it.name }
                 formatTriStateNames(filter.IncludedFormats, filter.ExcludedFormats, "Format", parts) { it.name }
+                formatTriStateNames(filter.IncludedLanguages, filter.ExcludedLanguages, "Language", parts) { it.name }
+                formatTriStateNames(filter.IncludedDemographics, filter.ExcludedDemographics, "Demographics", parts) { it.name }
                 formatTriStateNames(filter.IncludedTags, filter.ExcludedTags, "Tag", parts) { id ->
                     bookSetup?.Tag?.find { it.Id == id }?.Name ?: id.toString()
                 }

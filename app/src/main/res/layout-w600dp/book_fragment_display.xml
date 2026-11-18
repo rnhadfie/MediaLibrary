@@ -234,6 +234,13 @@
                 android:layout_marginTop="16dp"
                 android:background="@color/base" />
 
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/language_chart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/base" />
+
         </LinearLayout>
     </ScrollView>
 

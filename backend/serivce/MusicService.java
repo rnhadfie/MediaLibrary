@@ -2,7 +2,6 @@ package serivce;
 
 import models.music.*;
 import models.shared.DisplayMediaItem;
-
 import repository.MusicRepository;
 import repository.database.MediaLibraryDbHelper;
 import models.music.Enums.*;
@@ -111,6 +110,34 @@ public class MusicService {
         }
 
         return filteredMusicList.collect(Collectors.toList());
+    }
+
+    public List<MusicSpine> GetMusicSpines(MusicFilter filter) {
+        List<String> selectionArgs = new ArrayList<>();
+        String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
+
+        List<Music> cds = _MusicRepo.GetMusic(whereClause, selectionArgs);
+        cds = _SharedService.Sort(filter, cds);
+
+        List<MusicSpine> spines = new ArrayList<>();
+        for (Music cd : cds) {
+            String artist = cd.Artist;
+            for (MusicItem item : cd.MusicItems) {
+                if (item.Owned) {
+
+                    MusicSpine spine = new MusicSpine();
+                    spine.Id = cd.Id;
+                    spine.SpineDisplayTitle = GetTitle(artist, item);
+                    spine.SpineColorHex = _SharedService.GetRandomHex();
+                    spines.add(spine);
+                }
+            }
+        }
+        return spines;
+    }
+
+    private String GetTitle(String artist, MusicItem item) {
+        return artist + "\n" + item.Title;
     }
 
 }

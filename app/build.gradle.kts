@@ -105,6 +105,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation("com.github.PhilJay.MPAndroidChart:MPChartLib:v4.0.1")
     implementation("com.google.android.flexbox:flexbox:3.0.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     // Pure JUnit 5 Local Testing Stack
     testImplementation(libs.junit.jupiter.api)

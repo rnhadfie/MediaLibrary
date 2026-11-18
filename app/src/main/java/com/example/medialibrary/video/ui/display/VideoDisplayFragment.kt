@@ -22,6 +22,7 @@ import com.example.medialibrary.shared.FragmentType
 import com.example.medialibrary.shared.SafePieChartRenderer
 import com.example.medialibrary.shared.TextCardHelper
 import com.example.medialibrary.shared.ThemeUtils
+import com.example.medialibrary.shared.ThemeUtils.getThemeColor
 import com.example.medialibrary.video.ui.utils.SharedUtils
 import com.example.medialibrary.video.ui.utils.SortFilterViewmodel
 import models.video.Enums as VideoEnums
@@ -183,9 +184,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     private fun getThemeChartColors(): List<Int> {
         val ctx = context ?: return listOf(Color.BLUE)
-        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
-        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
-        val primaryDark = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimaryDark)
+        val primary = getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        val primaryDark = getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimaryDark)
         return listOf(
             primary,
             secondary,
@@ -198,8 +199,8 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
     private fun getProgressChartColors(): List<Int> {
         val ctx = context ?: return listOf(Color.BLUE, Color.LTGRAY)
-        val primary = ThemeUtils.getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
-        val secondary = ThemeUtils.getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
+        val primary = getThemeColor(ctx, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = getThemeColor(ctx, com.google.android.material.R.attr.colorSecondary)
         return listOf(primary, secondary)
     }
 
@@ -229,7 +230,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupWatchedPieChart(watchedCount: Int, totalDvds: Int) {
-        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val watchPercent = if (totalDvds > 0) ((watchedCount.toDouble() / totalDvds.toDouble()) * 100).toInt() else 0
 
         val watchPercentPieEntries = ArrayList<PieEntry<*>>()
@@ -237,8 +238,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
         watchPercentPieEntries.add(PieEntry(100 - watchPercent.toFloat()))
 
         val watchPercentPieDataSet = PieDataSet(watchPercentPieEntries, "Watched Percent")
-        watchPercentPieDataSet.colors = getProgressChartColors()
-        watchPercentPieDataSet.valueTextColor = Color.WHITE
+        val progressColors = getProgressChartColors()
+        watchPercentPieDataSet.colors = progressColors
+        watchPercentPieDataSet.valueTextColors = progressColors.map { ThemeUtils.getContrastingTextColor(it) }
         watchPercentPieDataSet.valueTextSize = 12f
 
         val percentPieData = PieData(watchPercentPieDataSet)
@@ -271,7 +273,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setupFormatPieChart(items: List<Video>) {
-        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val formatPieEntries = ArrayList<PieEntry<*>>()
 
         var dvdCount = 0
@@ -306,8 +308,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                     chart.data = null
                     chart.noDataText = "No format data to display"
                 } else {
-                    formatPieDataSet.colors = getThemeChartColors()
-                    formatPieDataSet.valueTextColor = Color.WHITE
+                    val chartColors = getThemeChartColors()
+                    formatPieDataSet.colors = chartColors
+                    formatPieDataSet.valueTextColors = chartColors.map { ThemeUtils.getContrastingTextColor(it) }
                     formatPieDataSet.valueTextSize = 12f
 
                     val formatPieData = PieData(formatPieDataSet)
@@ -345,7 +348,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setRatingBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
-        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val ratingsMap = setup.Ratings
 
@@ -359,9 +362,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                     count += video.Items?.count { item -> item.Owned } ?: 1
                 }
                 if (count > 0) {
+                    val color = colors[index % colors.size]
                     val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                    set.color = colors[index % colors.size]
-                    set.valueTextColor = onSurfaceColor
+                    set.color = color
                     set.valueTextSize = 12f
                     dataSets.add(set)
                     index++
@@ -441,7 +444,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
 
 
     private fun setVideoTypeBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
-        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val typeCounts = setup.Types
 
@@ -456,9 +459,10 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                         count += it.Items.count()
                     }
                 }
+                val color = colors[index % colors.size]
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                set.color = colors[index % colors.size]
-                set.valueTextColor = onSurfaceColor
+                set.color = color
+                set.valueTextColor = ThemeUtils.getContrastingTextColor(color)
                 set.valueTextSize = 12f
                 dataSets.add(set)
                 index++
@@ -495,7 +499,7 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
     }
 
     private fun setCategoryBarChart(items: List<Video>, setup: VideoSetup, colors: List<Int>) {
-        val onSurfaceColor = ThemeUtils.getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
+        val onSurfaceColor = getThemeColor(requireContext(), com.google.android.material.R.attr.colorOnSurface)
         val dataSets = ArrayList<IBarDataSet<*>>()
         val tagCounts = setup.VideoTags
 
@@ -510,9 +514,9 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                         count += it.Items.count()
                     }
                 }
+                val color = colors[index % colors.size]
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
-                set.color = colors[index % colors.size]
-                set.valueTextColor = onSurfaceColor
+                set.color = color
                 set.valueTextSize = 12f
                 dataSets.add(set)
                 index++

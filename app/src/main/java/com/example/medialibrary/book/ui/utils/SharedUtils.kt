@@ -58,6 +58,16 @@ class SharedUtils {
                 filter.ExcludedFormats
             )
 
+            val languageOptions = setup.Languages.filter { it.key != 0 }.map { FilterOption(Enums.Language.entries[it.key], it.value) }
+            sheetBinding.languageAutocomplete.autoCompleteLabel.setHint(R.string.language)
+            MultiSelectFilterHelper.setupTriStateDropdown(
+                sheetBinding.languageAutocomplete.autocomplete,
+                "Languages",
+                languageOptions,
+                filter.IncludedLanguages,
+                filter.ExcludedLanguages
+            )
+
             val demographicsOptions = setup.Demographics.map { FilterOption(Enums.Demographics.entries[it.key], it.value) }
             sheetBinding.demographicsAutocomplete.autoCompleteLabel.setHint(R.string.demographics_label)
             MultiSelectFilterHelper.setupTriStateDropdown(

@@ -1,8 +1,8 @@
 package models.book;
 
 public class BookSpine {
-    public int id;
+    public String Id;
     public String BookTitle;
-    public String spineColorHex;
-    public String spineDisplayTitle;
+    public String SpineColorHex;
+    public String SpineDisplayTitle;
 }

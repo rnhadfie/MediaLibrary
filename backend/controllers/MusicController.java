@@ -1,5 +1,6 @@
 package controllers;
 
+import models.music.MusicSpine;
 import serivce.MusicService;
 import models.music.Music;
 import models.music.MusicFilter;
@@ -49,6 +50,10 @@ public class MusicController  extends BaseController{
 
     public MusicSetup GetMusicSetup () {
         return this.musicSerivce.getValue().GetSetup();
+    }
+
+    public List<MusicSpine> GetMusicSpines(MusicFilter filter) {
+        return this.musicSerivce.getValue().GetMusicSpines(filter);
     }
 
 

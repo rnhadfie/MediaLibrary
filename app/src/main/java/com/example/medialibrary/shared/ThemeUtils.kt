@@ -417,4 +417,37 @@ object ThemeUtils {
         val dark: Int,
         val iconRes: Int
     )
+
+    fun getContrastingTextColor(backgroundColor: Int): Int {
+        val red = Color.red(backgroundColor)
+        val green = Color.green(backgroundColor)
+        val blue = Color.blue(backgroundColor)
+        val luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255.0
+        return if (luminance > 0.5) Color.BLACK else Color.WHITE
+    }
+
+    fun getSpineColor(context: Context, spineHex: String?, activityName: String, index: Int): Int {
+        val main = getActivityColour(context, activityName)
+        val dark = getDarkActivityColour(context, activityName)
+        val light = getLightActivityColour(context, activityName)
+        val primary = getThemeColor(context, androidx.appcompat.R.attr.colorPrimary)
+        val secondary = getThemeColor(context, com.google.android.material.R.attr.colorSecondary)
+
+        val themePalette = listOf(
+            main,
+            dark,
+            primary,
+            adjustAlpha(main, 0.85f),
+            secondary,
+            adjustAlpha(dark, 0.9f),
+            light
+        )
+
+        if (!spineHex.isNullOrBlank()) {
+            try {
+                return Color.parseColor(spineHex)
+            } catch (_: IllegalArgumentException) {}
+        }
+        return themePalette[Math.abs(index) % themePalette.size]
+    }
 }

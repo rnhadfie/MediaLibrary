@@ -1,11 +1,6 @@
 package serivce;
 
-import models.book.Book;
-import models.book.BookFilter;
-import models.book.BookItem;
-import models.book.BookSpine;
 import models.shared.DisplayMediaItem;
-import models.video.Enums;
 import models.video.Enums.*;
 import models.video.Video;
 import models.video.VideoFilter;
@@ -187,7 +182,7 @@ public class VideoService {
         return filteredList;
     }
 
-    public List<VideoSpine> GetBookSpines(VideoFilter filter) {
+    public List<VideoSpine> GetVideoSpines(VideoFilter filter) {
         List<String> selectionArgs = new ArrayList<>();
         String whereClause = _SharedService.BuildWhereClause(filter, selectionArgs);
 
@@ -200,12 +195,11 @@ public class VideoService {
             for (VideoItem item : video.Items) {
                 if (item.Owned) {
 
-                    String spineDisplayTitle;
-
                     VideoSpine videoSpine = new VideoSpine();
+                    videoSpine.Id = video.Id;
                     videoSpine.VideoTitle = title;
-                    videoSpine.spineDisplayTitle = GetTitle(title, item);
-                    videoSpine.spineColorHex = _SharedService.GetRandomHex();
+                    videoSpine.SpineDisplayTitle = GetTitle(title, item);
+                    videoSpine.SpineColorHex = _SharedService.GetRandomHex();
                     videoSpines.add(videoSpine);
                 }
             }
@@ -217,10 +211,14 @@ public class VideoService {
         String displayTitle = title;
         if(item.DiscTitle!= null && !item.DiscTitle.isEmpty()) {
             displayTitle = item.DiscTitle;
+            return displayTitle;
         }
         if(!Objects.equals(item.GetSeason(), "-1"))
         {
             displayTitle = displayTitle + " #" + item.GetSeason();
+        }
+        if(item.Description!= null && !item.Description.isEmpty()) {
+            displayTitle = displayTitle + " " + item.Description;
         }
 
         return displayTitle;
