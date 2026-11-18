@@ -160,6 +160,14 @@ class BookCollectingFragment : BaseFragment<BookFragmentCollectingBinding, BookC
             ExcludedPublishers = currentFilter?.ExcludedPublishers ?: ArrayList()
             IncludedFormats = currentFilter?.IncludedFormats ?: ArrayList()
             ExcludedFormats = currentFilter?.ExcludedFormats ?: ArrayList()
+            SortAlphabetical = currentFilter?.SortAlphabetical
+            SortPriority = currentFilter?.SortPriority
+            SortItemMediaType = currentFilter?.SortItemMediaType
+            SortOrder = currentFilter?.SortOrder
+            IncludedDemographics = currentFilter?.IncludedDemographics ?: ArrayList()
+            ExcludedDemographics = currentFilter?.ExcludedDemographics ?: ArrayList()
+            IncludedLanguages = currentFilter?.IncludedLanguages ?: ArrayList()
+            ExcludedLanguages = currentFilter?.ExcludedLanguages ?: ArrayList()
         }
 
         val items = bookController.GetListOfBooks(effectiveFilter)

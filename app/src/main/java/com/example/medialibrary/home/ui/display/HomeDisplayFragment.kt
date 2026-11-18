@@ -163,7 +163,6 @@ class HomeDisplayFragment : BaseFragment<MainFragmentDisplayBinding, HomeDisplay
             val color = colors[index]
             val set = BarDataSet(listOf(BarEntry(x, y)), label)
             set.color = color
-            set.valueTextColor = ThemeUtils.getContrastingTextColor(color)
             set.valueTextSize = 12f
             dataSets.add(set)
         }

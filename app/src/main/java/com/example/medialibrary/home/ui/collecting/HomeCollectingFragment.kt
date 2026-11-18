@@ -145,6 +145,7 @@ class HomeCollectingFragment : BaseFragment<MainFragmentCollectingBinding, HomeC
             ExcludedGenres = currentFilter.ExcludedGenres
             IncludedMediaTypes = currentFilter.IncludedMediaTypes
             ExcludedMediaTypes = currentFilter.ExcludedMediaTypes
+
         }
 
         val items = controller.GetAllItems(effectiveFilter)

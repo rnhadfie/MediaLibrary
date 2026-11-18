@@ -462,7 +462,6 @@ class VideoDisplayFragment : BaseFragment<VideoFragmentDisplayBinding, VideoDisp
                 val color = colors[index % colors.size]
                 val set = BarDataSet(listOf(BarEntry(index.toFloat(), count.toFloat())), value)
                 set.color = color
-                set.valueTextColor = ThemeUtils.getContrastingTextColor(color)
                 set.valueTextSize = 12f
                 dataSets.add(set)
                 index++
