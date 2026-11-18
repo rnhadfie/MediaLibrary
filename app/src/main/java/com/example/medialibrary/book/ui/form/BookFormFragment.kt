@@ -78,6 +78,21 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         setupPublisherSelection(setup)
         setupTagSelection(setup)
 
+        val languages = Enums.Language.entries.toList()
+        val languageNames = languages.map { lang ->
+            if (lang == Enums.Language.NoneSelected) "None Selected" else lang.name
+        }
+        val langAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, languageNames)
+        binding.languageDropdown.autocomplete.setAdapter(langAdapter)
+        binding.languageDropdown.autoCompleteLabel.hint = getString(R.string.language)
+
+        val initialLangText = if (selectedItemLanguage == Enums.Language.NoneSelected) "" else selectedItemLanguage.name
+        binding.languageDropdown.autocomplete.setText(initialLangText, false)
+
+        binding.languageDropdown.autocomplete.setOnItemClickListener { _, _, pos, _ ->
+            selectedItemLanguage = languages[pos]
+        }
+
         setupCollectingPriorityRadioGroup(binding.collectingPriorityRadioGroup) { priority ->
             viewModel.updateCollectingPriority(priority)
         }
@@ -218,6 +233,8 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
             }
 
             val format = book.Items[0].format ?: Enums.BookFormat.NoneSelected
+            selectedFormat = format
+            viewModel.updateBookFormat(format)
             RadioGridUtils.setSelection(
                 binding.formatRadioButton.dynamicTableLayout,
                 format.ordinal
@@ -674,6 +691,7 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
         ){ selectedId ->
             selectedFormat = Enums.BookFormat.entries.find { it.ordinal == selectedId } ?:  Enums.BookFormat.NoneSelected
         }
+        selectedFormat = item?.Format ?: Enums.BookFormat.NoneSelected
 
         sb.numberInput.keyListener = DigitsKeyListener.getInstance("0123456789,.- ")
 
@@ -808,11 +826,20 @@ class BookFormFragment : BaseFormFragment<BookFragmentFormBinding, BookFormViewM
                 if (item.VolumeNumber == "-1") {
                     binding.textVolumeInfo.text = context.getString(R.string.standalone)
                 } else {
-                    binding.textVolumeInfo.text = context.getString(
-                        R.string.volume_info_format,
-                        item.VolumeNumber,
-                        item.VolumeTitle ?: ""
-                    )
+                    if (!item.VolumeTitle.isNullOrEmpty()) {
+                        binding.textVolumeInfo.text = context.getString(
+                            R.string.volume_info_format,
+                            item.VolumeNumber,
+                            item.VolumeTitle ?: ""
+                        )
+                    }
+                    else {
+                        binding.textVolumeInfo.text = context.getString(
+                            R.string.volume_info_format,
+                            item.VolumeNumber,
+                            item.Description ?: ""
+                        )
+                    }
                 }
 
                 binding.textStatusInfo.text = context.getString(

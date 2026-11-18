@@ -196,6 +196,8 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 binding.watchedSwitch.isChecked = video.Items[0].Watched
                 binding.ownedSwitch.isChecked = video.Items[0].Owned
                 binding.descriptionInput.setText(video.Items[0].Description)
+                viewModel.updateVideoFormat(video.Items[0].Format)
+                selectedFormat = video.Items[0].Format
                 RadioGridUtils.setSelection(binding.formatRadioGroup.dynamicTableLayout, video.Items[0].Format.ordinal)
                 binding.standaloneSection.visibility = View.VISIBLE
                 binding.seriesSection.visibility = View.GONE
@@ -273,6 +275,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             Watched = binding.watchedSwitch.isChecked
             Owned = binding.ownedSwitch.isChecked
             Season = -1
+            Description = binding.descriptionInput.text.toString()
             Format = viewModel.tempFomart.value ?: VideoFormat.NoneSelected
         }
         viewModel.clearItems()
@@ -578,6 +581,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
         ) { selectedId ->
            selectedFormat = VideoFormat.entries.find { it.ordinal == selectedId } ?: VideoFormat.NoneSelected
         }
+        selectedFormat = item?.Format ?: VideoFormat.NoneSelected
 
         item?.let {
             sb.seasonInput.setText(it.Season.toString())
@@ -647,6 +651,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             sb.seasonInput.isEnabled = false
             sb.seasonLabel.isEnabled = false
             sb.seasonInput.isEnabled = false
+            sb.descriptionInput.isEnabled = false
             sb.formatRadioGroup.dynamicTableLayout.children.forEach { child ->
                 if (child is ViewGroup) {
                     child.children.forEach { subChild ->
@@ -667,6 +672,7 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
             DiscTitle = sb.titleInput.text?.toString() ?: ""
             Owned = sb.ownedSwitch.isChecked
             Watched = sb.watchedSwitch.isChecked
+            Description = sb.descriptionInput.text?.toString() ?: ""
             Format = selectedFormat
             ItemCover = sb.imageItemCover.imageBookCover.tag as? ByteArray
         }
@@ -703,16 +709,19 @@ class VideoFormFragment : BaseFormFragment<VideoFragmentFormBinding, VideoFormVi
                 val context = binding.root.context
 
                 if (item.Season != -1 && item.DiscTitle.isNullOrEmpty()) {
-                    binding.textVolumeInfo.text = item.Season.toString()
+                    binding.textVolumeInfo.text = context.getString(
+                        R.string.video_item_display_text,
+                        item.Season,
+                        item.Description,
+                    )
                 } else {
                     if (item.Season == -1) {
                         binding.textVolumeInfo.text = context.getString(R.string.standalone)
                     } else {
-                        binding.textVolumeInfo.text = context.getString(
-                            R.string.video_item_display_text,
-                            item.Season,
-                            item.DiscTitle
-                        )
+                        if(!item.DiscTitle.isNullOrEmpty())
+                        {
+                            binding.textVolumeInfo.text = item.DiscTitle
+                        }
                     }
                 }
 
