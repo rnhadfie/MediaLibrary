@@ -42,7 +42,7 @@ class VideoShelfFragment : BaseFragment<FragmentVideoShelfBinding, VideoShelfVie
         //super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(this)[VideoShelfViewModel::class.java]
-        sortFilterViewModel = ViewModelProvider(requireActivity())[com.example.medialibrary.video.ui.utils.SortFilterViewmodel::class.java]
+        sortFilterViewModel = ViewModelProvider(requireActivity())[SortFilterViewmodel::class.java]
         setFragmentType(FragmentType.List)
 
         val root = super.onCreateView(inflater, container, savedInstanceState)

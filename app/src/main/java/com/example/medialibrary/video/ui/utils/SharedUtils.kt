@@ -76,7 +76,7 @@ class SharedUtils {
             }
 
             val ratingOptions = setup.Ratings.map { FilterOption(Enums.Rating.entries[it.key], it.value) }
-            sheetBinding.ratingFilterAutocomplete?.autoCompleteLabel?.setHint("Rating")
+            sheetBinding.ratingFilterAutocomplete?.autoCompleteLabel?.hint = "Rating"
             sheetBinding.ratingFilterAutocomplete?.autocomplete?.let {
                 MultiSelectFilterHelper.setupTriStateDropdown(
                     it,

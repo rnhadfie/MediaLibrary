@@ -365,8 +365,8 @@ class OtherFormFragment : BaseFormFragment<OtherFragmentFormBinding, OtherFormVi
         {
             sheetBinding.editSheetVolumeTitle.isEnabled = false
             sheetBinding.switchSheetOwned.isEnabled = false
-            sheetBinding.imageItemCover.buttonChangeCover.isEnabled = false;
-            sheetBinding.imageItemCover.buttonClearCover.isEnabled = false;
+            sheetBinding.imageItemCover.buttonChangeCover.isEnabled = false
+            sheetBinding.imageItemCover.buttonClearCover.isEnabled = false
             sheetBinding.buttonSheetSave.setText(R.string.close)
         }
 

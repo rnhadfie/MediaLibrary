@@ -29,7 +29,7 @@ open class BaseTransformAdapter : ListAdapter<DisplayMediaItem, BaseTransformAda
 
         val context = holder.itemView.context
 
-        val colors = ThemeUtils.getThemeColor2(context, item.MediaType);
+        val colors = ThemeUtils.getThemeColor2(context, item.MediaType)
 
         holder.binding.mediaItemCategoryStrip.setBackgroundColor(colors.main)
 

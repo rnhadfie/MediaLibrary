@@ -49,6 +49,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_Sakura_Other
                 else -> R.style.Theme_MediaLibrary_Sakura_NoActionBar
             }
+
             THEME_OCEAN -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_Ocean_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_Ocean_Book
@@ -60,6 +61,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_Ocean_Other
                 else -> R.style.Theme_MediaLibrary_Ocean_NoActionBar
             }
+
             THEME_HIGH_CONTRAST -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_HighContrast_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_HighContrast_Book
@@ -71,6 +73,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_HighContrast_Other
                 else -> R.style.Theme_MediaLibrary_HighContrast_NoActionBar
             }
+
             THEME_AUTUMN -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_Autumn_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_Autumn_Book
@@ -82,6 +85,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_Autumn_Other
                 else -> R.style.Theme_MediaLibrary_Autumn_NoActionBar
             }
+
             THEME_MATCHA -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_Matcha_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_Matcha_Book
@@ -93,6 +97,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_Matcha_Other
                 else -> R.style.Theme_MediaLibrary_Matcha_NoActionBar
             }
+
             THEME_TROPICAL -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_Tropical_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_Tropical_Book
@@ -104,6 +109,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_Tropical_Other
                 else -> R.style.Theme_MediaLibrary_Tropical_NoActionBar
             }
+
             THEME_WINTER -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_Winter_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_Winter_Book
@@ -115,6 +121,7 @@ object ThemeUtils {
                 "OtherFormActivity" -> R.style.Theme_MediaLibrary_Winter_Other
                 else -> R.style.Theme_MediaLibrary_Winter_NoActionBar
             }
+
             else -> when (simpleName) {
                 "BookActivity" -> R.style.Theme_MediaLibrary_Book_NoActionBar
                 "BookFormActivity" -> R.style.Theme_MediaLibrary_Book
@@ -142,7 +149,10 @@ object ThemeUtils {
         viewBinding.root.context.theme.applyStyle(themeResId, true)
     }
 
-    fun getThemeColor(context: Context, attrResId: Int = androidx.appcompat.R.attr.colorPrimary): Int {
+    fun getThemeColor(
+        context: Context,
+        attrResId: Int = androidx.appcompat.R.attr.colorPrimary
+    ): Int {
         val typedValue = TypedValue()
         if (context.theme.resolveAttribute(attrResId, typedValue, true)) {
             return typedValue.data
@@ -150,17 +160,17 @@ object ThemeUtils {
         return ContextCompat.getColor(context, R.color.primary)
     }
 
-    fun getThemeColor2(context: Context, type: Enums.MediaType) : SectionColors {
-        val activityName = when(type) {
+    fun getThemeColor2(context: Context, type: Enums.MediaType): SectionColors {
+        val activityName = when (type) {
             Enums.MediaType.Book -> "BookActivity"
             Enums.MediaType.Video -> "VideoActivity"
             Enums.MediaType.Music -> "MusicActivity"
             Enums.MediaType.Other -> "OtherActivity"
             else -> "MainActivity"
         }
-        val mainColor = getActivityColour(context, activityName);
-        val lightColor = getLightActivityColour(context, activityName);
-        val darkColor = getDarkActivityColour(context, activityName);
+        val mainColor = getActivityColour(context, activityName)
+        val lightColor = getLightActivityColour(context, activityName)
+        val darkColor = getDarkActivityColour(context, activityName)
 
         val colours = when (type) {
             Enums.MediaType.Book -> SectionColors(
@@ -173,20 +183,20 @@ object ThemeUtils {
             Enums.MediaType.Video -> SectionColors(
                 mainColor,
                 lightColor,
-                 darkColor,
+                darkColor,
                 R.drawable.ic_movie
             )
 
             Enums.MediaType.Music -> SectionColors(
-                 mainColor,
-                 lightColor,
-                 darkColor,
+                mainColor,
+                lightColor,
+                darkColor,
                 R.drawable.ic_music
             )
 
             Enums.MediaType.Other -> SectionColors(
-                 mainColor,
-                 lightColor,
+                mainColor,
+                lightColor,
                 darkColor,
                 R.drawable.other_item_small
             )
@@ -229,6 +239,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.sakura_other_light
                 else -> R.color.sakura_primary
             }
+
             THEME_OCEAN -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.ocean_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.ocean_video_light
@@ -236,6 +247,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.ocean_other_light
                 else -> R.color.ocean_primary
             }
+
             THEME_HIGH_CONTRAST -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.highcontrast_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.highcontrast_video_light
@@ -243,6 +255,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.highcontrast_other_light
                 else -> R.color.highcontrast_primary
             }
+
             THEME_AUTUMN -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.autumn_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.autumn_video_light
@@ -250,6 +263,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.autumn_other_light
                 else -> R.color.autumn_primary
             }
+
             THEME_MATCHA -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.matcha_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.matcha_video_light
@@ -257,6 +271,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.matcha_other_light
                 else -> R.color.matcha_primary
             }
+
             THEME_TROPICAL -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.tropical_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.tropical_video_light
@@ -264,6 +279,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.tropical_other_light
                 else -> R.color.tropical_primary
             }
+
             THEME_WINTER -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.winter_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.winter_video_light
@@ -271,6 +287,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.winter_other_light
                 else -> R.color.winter_primary
             }
+
             else -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.section_book_light
                 "VideoActivity", "VideoFormActivity" -> R.color.section_video_light
@@ -279,7 +296,7 @@ object ThemeUtils {
                 else -> R.color.primary
             }
         }
-        return ContextCompat.getColor(context, colorResId);
+        return ContextCompat.getColor(context, colorResId)
     }
 
     fun getActivityColour(context: Context, activityName: String): Int {
@@ -293,6 +310,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.sakura_other
                 else -> R.color.sakura_primary
             }
+
             THEME_OCEAN -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.ocean_book
                 "VideoActivity", "VideoFormActivity" -> R.color.ocean_video
@@ -300,6 +318,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.ocean_other
                 else -> R.color.ocean_primary
             }
+
             THEME_HIGH_CONTRAST -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.highcontrast_book
                 "VideoActivity", "VideoFormActivity" -> R.color.highcontrast_video
@@ -307,6 +326,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.highcontrast_other
                 else -> R.color.highcontrast_primary
             }
+
             THEME_AUTUMN -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.autumn_book
                 "VideoActivity", "VideoFormActivity" -> R.color.autumn_video
@@ -314,6 +334,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.autumn_other
                 else -> R.color.autumn_primary
             }
+
             THEME_MATCHA -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.matcha_book
                 "VideoActivity", "VideoFormActivity" -> R.color.matcha_video
@@ -321,6 +342,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.matcha_other
                 else -> R.color.matcha_primary
             }
+
             THEME_TROPICAL -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.tropical_book
                 "VideoActivity", "VideoFormActivity" -> R.color.tropical_video
@@ -328,6 +350,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.tropical_other
                 else -> R.color.tropical_primary
             }
+
             THEME_WINTER -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.winter_book
                 "VideoActivity", "VideoFormActivity" -> R.color.winter_video
@@ -335,6 +358,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.winter_other
                 else -> R.color.winter_primary
             }
+
             else -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.section_book
                 "VideoActivity", "VideoFormActivity" -> R.color.section_video
@@ -357,6 +381,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.sakura_other_dark
                 else -> R.color.sakura_primary_dark
             }
+
             THEME_OCEAN -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.ocean_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.ocean_video_dark
@@ -364,6 +389,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.ocean_other_dark
                 else -> R.color.ocean_primary_dark
             }
+
             THEME_HIGH_CONTRAST -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.highcontrast_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.highcontrast_video_dark
@@ -371,6 +397,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.highcontrast_other_dark
                 else -> R.color.highcontrast_primary_dark
             }
+
             THEME_AUTUMN -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.autumn_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.autumn_video_dark
@@ -378,6 +405,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.autumn_other_dark
                 else -> R.color.autumn_primary_dark
             }
+
             THEME_MATCHA -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.matcha_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.matcha_video_dark
@@ -385,6 +413,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.matcha_other_dark
                 else -> R.color.matcha_primary_dark
             }
+
             THEME_TROPICAL -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.tropical_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.tropical_video_dark
@@ -392,6 +421,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.tropical_other_dark
                 else -> R.color.tropical_primary_dark
             }
+
             THEME_WINTER -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.winter_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.winter_video_dark
@@ -399,6 +429,7 @@ object ThemeUtils {
                 "OtherActivity", "OtherFormActivity" -> R.color.winter_other_dark
                 else -> R.color.winter_primary_dark
             }
+
             else -> when (simpleName) {
                 "BookActivity", "BookFormActivity" -> R.color.section_book_dark
                 "VideoActivity", "VideoFormActivity" -> R.color.section_video_dark
@@ -411,7 +442,7 @@ object ThemeUtils {
     }
 
 
-    public data class SectionColors(
+    data class SectionColors(
         val main: Int,
         val light: Int,
         val dark: Int,
@@ -446,7 +477,8 @@ object ThemeUtils {
         if (!spineHex.isNullOrBlank()) {
             try {
                 return Color.parseColor(spineHex)
-            } catch (_: IllegalArgumentException) {}
+            } catch (_: IllegalArgumentException) {
+            }
         }
         return themePalette[Math.abs(index) % themePalette.size]
     }

@@ -14,7 +14,6 @@ import com.example.medialibrary.R
 import com.example.medialibrary.shared.ThemeUtils
 import com.google.android.flexbox.FlexboxLayoutManager
 import models.music.MusicSpine
-import models.video.VideoSpine
 
 class MusicShelfAdapter(
     private val onMusicClick: (MusicSpine) -> Unit

@@ -90,18 +90,4 @@ class VideoShelfAdapter(
         override fun areItemsTheSame(oldItem: VideoSpine, newItem: VideoSpine): Boolean = oldItem.Id == newItem.Id
         override fun areContentsTheSame(oldItem: VideoSpine, newItem: VideoSpine): Boolean = oldItem.SpineDisplayTitle == newItem.SpineDisplayTitle
     }
-
-    companion object {
-        // Pre-parsed once so we don't re-parse the fallback color on every scroll
-        private val DEFAULT_SPINE_COLOR = "#5D4037".toColorInt()
-    }
-
-    private fun parseColorSafe(hex: String?): Int {
-        if (hex.isNullOrBlank()) return DEFAULT_SPINE_COLOR
-        return try {
-            hex.toColorInt()
-        } catch (_: IllegalArgumentException) {
-            DEFAULT_SPINE_COLOR
-        }
-    }
 }

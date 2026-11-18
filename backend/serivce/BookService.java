@@ -163,7 +163,7 @@ public class BookService {
                     }
                     if (filter.ExcludedLanguages != null && !filter.ExcludedLanguages.isEmpty()) {
                         boolean match = b.Items.stream().anyMatch(i -> i.Language != null && filter.ExcludedLanguages.contains(i.Language));
-                        if (match) return false;
+                        return !match;
                     }
                 }
                 return true;
@@ -225,9 +225,6 @@ public class BookService {
             String title = book.Title;
             for (BookItem item : book.Items) {
                 if (item.Owned) {
-
-                    String spineDisplayTitle;
-
                     BookSpine bookSpine = new BookSpine();
                     bookSpine.Id = book.Id;
                     bookSpine.BookTitle = title;
